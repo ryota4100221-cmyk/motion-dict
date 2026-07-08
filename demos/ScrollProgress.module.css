@@ -1,0 +1,66 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+/* widthではなくscaleXで伸ばす。origin: leftで左端固定 */
+.bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #8fb4de;
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pct {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+.content {
+  min-height: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 32px 28px 56px;
+}
+
+.heading {
+  font-family: var(--font-serif), serif;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--code-fg);
+  margin: 0 0 12px;
+}
+
+.line {
+  flex: none;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.14);
+}
+
+.break {
+  flex: none;
+  height: 14px;
+}

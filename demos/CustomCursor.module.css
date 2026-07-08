@@ -1,0 +1,24 @@
+.noCursor {
+  cursor: none;
+}
+
+.text {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(22px, 5vw, 34px);
+  letter-spacing: 0.18em;
+  color: var(--code-fg);
+  pointer-events: none;
+  user-select: none;
+}
+
+.dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: var(--code-fg);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity 0.25s;
+}

@@ -1,0 +1,46 @@
+.ngOk {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.ngOk > div {
+  background: var(--paper);
+  padding: 20px;
+}
+
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+
+.tag.ng {
+  background: var(--sumi);
+  color: var(--paper);
+}
+
+.tag.ok {
+  background: var(--ai);
+  color: #fff;
+}
+
+.say {
+  font-family: var(--font-serif), serif;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.why {
+  font-size: 13px;
+  color: var(--sumi-soft);
+  line-height: 1.8;
+}

@@ -1,0 +1,69 @@
+.pageFrame {
+  position: relative;
+  width: min(280px, 72%);
+  height: 150px;
+  margin-bottom: 36px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.frameB {
+  background: rgba(143, 180, 222, 0.07);
+}
+
+.labelA,
+.labelB {
+  font-family: var(--font-mono), monospace;
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.labelB {
+  color: #8fb4de;
+}
+
+.panels {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.panel {
+  flex: 1;
+  background: var(--paper);
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover:not(:disabled) {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+.playBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

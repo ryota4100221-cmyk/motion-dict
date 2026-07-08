@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>monaka design. アニメーションデモ — Depo Luxe 全アニメ再現</title>
+<style>
+  :root{
+    --bg:#080808;
+    --bg-soft:#101010;
+    --fg:#F5F0E8;
+    --fg-dim:#948d80;
+    --accent:#C9A876;
+    --line:rgba(245,240,232,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:"Helvetica Neue",Arial,"Hiragino Sans","Noto Sans JP",sans-serif;
+    overflow-x:hidden;
+    cursor:none;
+  }
+  @media (hover:none){ body{ cursor:auto; } .cursor-dot,.cursor-ring{ display:none; } }
+
+  a{color:inherit;}
+  h1,h2,h3,p{margin:0;}
+
+  /* ===== カスタムカーソル（03） グローバル適用 ===== */
+  .cursor-dot,.cursor-ring{
+    position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    will-change:transform;
+  }
+  .cursor-dot{ width:6px; height:6px; background:var(--accent); }
+  .cursor-ring{
+    width:44px; height:44px; border:1px solid var(--fg);
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
+    transition:width .3s ease, height .3s ease, background .3s ease, border-color .3s ease;
+  }
+  .cursor-ring.is-active{
+    width:84px; height:84px; background:var(--fg); color:var(--bg); border-color:var(--fg);
+  }
+
+  /* ===== プリローダー（01） ===== */
+  .preloader{
+    position:fixed; inset:0; z-index:10000; background:var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    clip-path:inset(0 0 0% 0);
+  }
+  .preloader-count{ font-size:14vw; font-weight:200; letter-spacing:-0.02em; line-height:1; }
+  .preloader-bar{ width:240px; height:1px; background:var(--line); margin-top:24px; overflow:hidden; }
+  .preloader-bar-fill{ width:100%; height:100%; background:var(--fg); transform:scaleX(0); transform-origin:left; }
+  .preloader-label{ position:absolute; bottom:40px; font-size:11px; letter-spacing:0.2em; color:var(--fg-dim); }
+
+  /* ===== 目次 / TOC（固定） ===== */
+  .toc{
+    position:fixed; top:16px; right:16px; z-index:500;
+    width:250px; max-height:88vh; overflow-y:auto;
+    background:rgba(8,8,8,0.72); backdrop-filter:blur(10px);
+    border:1px solid var(--line); border-radius:10px;
+    padding:16px 16px 12px; font-size:11px; line-height:1.6;
+  }
+  .toc-head{ font-size:10px; letter-spacing:0.15em; color:var(--fg-dim); text-transform:uppercase; margin-bottom:6px;}
+  .toc-title{ font-size:13px; margin-bottom:2px; }
+  .toc-meta{ color:var(--fg-dim); font-size:10px; margin-bottom:10px; }
+  .toc ol{ list-style:none; margin:0; padding:0; border-top:1px solid var(--line); padding-top:8px;}
+  .toc li{ margin:0 0 4px; }
+  .toc a{ text-decoration:none; display:block; padding:3px 0; color:var(--fg-dim); transition:color .2s; }
+  .toc a:hover{ color:var(--fg); }
+  .toc-note{ margin-top:10px; padding-top:8px; border-top:1px solid var(--line); font-size:10px; color:var(--fg-dim); }
+  .toc-toggle{ display:none; }
+  @media (max-width:720px){
+    .toc{ width:auto; left:16px; right:16px; }
+  }
+
+  /* ===== セクション共通 ===== */
+  .demo-section{
+    position:relative; min-height:100vh; padding:120px 8vw 100px;
+    border-bottom:1px solid var(--line);
+    display:flex; flex-direction:column; justify-content:center; gap:32px;
+  }
+  .section-index{ font-size:12px; color:var(--accent); letter-spacing:0.1em; }
+  .section-label{ font-size:clamp(28px,4vw,52px); font-weight:300; letter-spacing:-0.01em; }
+  .section-caption{ font-size:12px; color:var(--fg-dim); max-width:640px; line-height:1.8; }
+  .section-caption b{ color:var(--fg); font-weight:500; }
+  .demo-stage{ margin-top:16px; }
+
+  /* ===== 02 キネティックタイポグラフィ ===== */
+  .kinetic-wrap{ overflow:hidden; }
+  .kinetic-line{ overflow:hidden; }
+  .kinetic-line .inner{ display:inline-block; font-size:clamp(36px,7vw,110px); font-weight:200; letter-spacing:-0.02em; }
+  .kinetic-line .char{ display:inline-block; transition:transform .25s ease, color .25s ease; }
+  .kinetic-line .char:hover{ transform:translateY(-10px); color:var(--accent); }
+
+  /* ===== 04 マグネティック ===== */
+  .magnetic-row{ display:flex; gap:40px; flex-wrap:wrap; }
+  .magnetic{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:140px; height:140px; border-radius:50%; border:1px solid var(--fg);
+    font-size:12px; letter-spacing:0.08em;
+  }
+
+  /* ===== 05 フィルムストリップ ナビ ===== */
+  .film-list{ border-top:1px solid var(--line); }
+  .film-row{
+    display:flex; align-items:baseline; gap:24px; padding:22px 0;
+    border-bottom:1px solid var(--line); cursor:pointer; position:relative;
+  }
+  .film-row .num{ font-size:12px; color:var(--fg-dim); width:40px; }
+  .film-row .name{ font-size:clamp(20px,3.4vw,40px); font-weight:300; transition:transform .4s ease; }
+  .film-row .tag{ margin-left:auto; font-size:11px; color:var(--fg-dim); }
+  .film-preview{
+    position:fixed; top:0; left:0; width:220px; height:140px; border-radius:6px;
+    pointer-events:none; z-index:400; opacity:0; transform:translate(-50%,-50%) scale(0.6);
+    display:flex; align-items:center; justify-content:center; font-size:11px; letter-spacing:.1em;
+    color:#08080899; font-weight:600;
+  }
+
+  /* ===== 06 画像ディストーション ===== */
+  .distort-frame{ perspective:900px; width:100%; max-width:640px; height:380px; }
+  .distort-img{
+    width:100%; height:100%; border-radius:4px;
+    background:linear-gradient(135deg,#3a3126,#0e0c09 60%);
+    display:flex; align-items:center; justify-content:center; color:var(--fg-dim); font-size:12px;
+    letter-spacing:.1em; transform-style:preserve-3d;
+  }
+
+  /* ===== 07 スクロールリビール ===== */
+  .reveal-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; }
+  .reveal-card{
+    padding:28px; border:1px solid var(--line); border-radius:6px; height:160px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .reveal-card .n{ font-size:11px; color:var(--fg-dim); }
+  .reveal-card .t{ font-size:20px; font-weight:300; }
+
+  /* ===== 08 パララックス ===== */
+  .parallax-wrap{ position:relative; height:130vh; overflow:hidden; border-radius:6px; }
+  .parallax-layer{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .p-layer-1{ background:#100d09; }
+  .p-layer-2{ width:80%; height:70%; margin:auto; background:linear-gradient(160deg,#2c2418,#0c0a07); border-radius:4px; }
+  .p-layer-3{ font-size:clamp(60px,12vw,180px); font-weight:200; color:var(--fg); mix-blend-mode:difference; }
+
+  /* ===== 09 横スクロール ピン ===== */
+  .hscroll-section{ overflow:hidden; }
+  .hscroll-viewport{ overflow:hidden; width:100%; }
+  .hscroll-track{ display:flex; gap:24px; width:max-content; }
+  .hscroll-card{
+    width:38vw; min-width:320px; height:56vh; border-radius:6px;
+    background:linear-gradient(150deg,#241d14,#0b0a08);
+    display:flex; align-items:flex-end; padding:24px; font-size:14px; color:var(--fg-dim);
+  }
+
+  /* ===== 10 マーキー ===== */
+  .marquee{ overflow:hidden; white-space:nowrap; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:18px 0; }
+  .marquee-track{ display:inline-flex; animation:marquee 16s linear infinite; }
+  .marquee-track span{ font-size:clamp(24px,4vw,54px); font-weight:300; padding:0 32px; color:var(--fg-dim); }
+  .marquee-track span:nth-child(odd){ color:var(--fg); }
+  @keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+  /* ===== 11 カウンター＆進捗 ===== */
+  .counter-row{ display:flex; gap:60px; flex-wrap:wrap; }
+  .count-up{ font-size:clamp(40px,6vw,90px); font-weight:200; }
+  .count-label{ font-size:11px; color:var(--fg-dim); letter-spacing:.1em; margin-top:4px; }
+  .progress-track{ width:100%; height:2px; background:var(--line); margin-top:40px; }
+  .progress-fill{ height:100%; width:100%; background:var(--accent); transform:scaleX(0); transform-origin:left; }
+
+  /* ===== 12 SVGパス ===== */
+  .svg-wrap svg{ width:220px; height:220px; overflow:visible; }
+  .svg-wrap path{ fill:none; stroke:var(--fg); stroke-width:2; }
+
+  /* ===== 13 フルスクリーンメニュー ===== */
+  .menu-toggle{
+    position:fixed; top:20px; left:20px; z-index:600; width:52px; height:52px;
+    border:1px solid var(--line); border-radius:50%; background:rgba(8,8,8,.6);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+  }
+  .menu-toggle span{ width:18px; height:1px; background:var(--fg); transition:transform .35s ease, opacity .35s ease; }
+  .menu-toggle.is-active span:nth-child(1){ transform:translateY(3px) rotate(45deg); }
+  .menu-toggle.is-active span:nth-child(2){ opacity:0; }
+  .menu-toggle.is-active span:nth-child(3){ transform:translateY(-3px) rotate(-45deg); }
+  .menu-overlay{
+    position:fixed; inset:0; background:var(--bg); z-index:550;
+    clip-path:inset(0 0 100% 0); pointer-events:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .menu-overlay ul{ list-style:none; margin:0; padding:0; text-align:center; }
+  .menu-link{ overflow:hidden; }
+  .menu-link a{ display:block; font-size:clamp(28px,6vw,72px); font-weight:200; padding:10px 0; text-decoration:none; }
+
+  /* ===== 14 ページ遷移 ===== */
+  .transition-btn{
+    padding:16px 34px; border:1px solid var(--fg); border-radius:40px; background:none; color:var(--fg);
+    font-size:13px; letter-spacing:.1em; cursor:pointer;
+  }
+  .transition-overlay{
+    position:fixed; inset:0; background:var(--accent); z-index:9500; display:none;
+    align-items:center; justify-content:center; clip-path:inset(100% 0 0 0);
+    color:#080808; font-size:14px; letter-spacing:.2em;
+  }
+
+  /* ===== 15 スクロール連動カラー反転 ===== */
+  .invert-section{ transition:background-color .6s ease, color .6s ease; border-radius:6px; padding:60px 40px !important; }
+  .invert-section.is-inverted{ background:var(--fg); color:var(--bg); }
+  .invert-section .section-caption{ color:inherit; opacity:.65; }
+
+  /* ===== NOTES ===== */
+  .notes-list{ font-size:13px; line-height:2; color:var(--fg-dim); }
+  .notes-list b{ color:var(--fg); }
+  .source-list{ font-size:12px; color:var(--fg-dim); line-height:1.9; }
+  .source-list a{ color:var(--accent); }
+
+  footer{ padding:60px 8vw 100px; font-size:11px; color:var(--fg-dim); }
+</style>
+</head>
+<body class="is-loading">
+
+<!-- ===== プリローダー ===== -->
+<div class="preloader" id="preloader">
+  <div class="preloader-count" id="preloaderCount">000</div>
+  <div class="preloader-bar"><div class="preloader-bar-fill"></div></div>
+  <div class="preloader-label">DEPO LUXE — REPRODUCTION LOADING</div>
+</div>
+
+<!-- ===== カスタムカーソル ===== -->
+<div class="cursor-dot"></div>
+<div class="cursor-ring"></div>
+
+<!-- ===== 目次 (固定 TOC) ===== -->
+<div class="toc">
+  <div class="toc-head">monaka design. / animation demo</div>
+  <div class="toc-title">2026-07-08 — Depo Luxe</div>
+  <div class="toc-meta">全16技法・総合再現デモ｜参照: awwwards.com/sites/depo-luxe</div>
+  <ol>
+    <li><a href="#s01">01. プリローダー</a></li>
+    <li><a href="#s02">02. キネティックタイポグラフィ</a></li>
+    <li><a href="#s03">03. カスタムカーソル</a></li>
+    <li><a href="#s04">04. マグネティック要素</a></li>
+    <li><a href="#s05">05. フィルムストリップ・ナビ</a></li>
+    <li><a href="#s06">06. 画像ディストーションホバー</a></li>
+    <li><a href="#s07">07. スクロールリビール</a></li>
+    <li><a href="#s08">08. パララックス</a></li>
+    <li><a href="#s09">09. 横スクロール・ピン留め</a></li>
+    <li><a href="#s10">10. マーキー / 無限クレジット</a></li>
+    <li><a href="#s11">11. カウンター & 進捗バー</a></li>
+    <li><a href="#s12">12. SVGパス描画</a></li>
+    <li><a href="#s13">13. フルスクリーンメニュー</a></li>
+    <li><a href="#s14">14. ページ遷移ワイプ</a></li>
+    <li><a href="#s15">15. スクロール連動カラー反転</a></li>
+    <li><a href="#s16">16. NOTES（手法・出典）</a></li>
+  </ol>
+  <div class="toc-note">※ ネットワーク制限により実サイト直接閲覧不可。公開情報を根拠にした総合再現です（詳細はNOTES参照）。</div>
+</div>
+
+<!-- ===== メニュー開閉 UI（13） ===== -->
+<button class="menu-toggle" id="menuToggle" data-cursor="MENU"><span></span><span></span><span></span></button>
+<div class="menu-overlay" id="menuOverlay">
+  <ul>
+    <li class="menu-link"><a href="#s01" data-cursor="GO">Index</a></li>
+    <li class="menu-link"><a href="#s05" data-cursor="GO">Work</a></li>
+    <li class="menu-link"><a href="#s13" data-cursor="GO">Menu</a></li>
+    <li class="menu-link"><a href="#s16" data-cursor="GO">Notes</a></li>
+  </ul>
+</div>
+
+<!-- ===== ページ遷移オーバーレイ（14） ===== -->
+<div class="transition-overlay" id="transitionOverlay">NEXT PROJECT ——</div>
+
+<main>
+
+  <!-- 01 プリローダー -->
+  <section class="demo-section" id="s01">
+    <div class="section-index">01 / 16</div>
+    <h2 class="section-label">プリローダー</h2>
+    <p class="section-caption">発動: <b>ページ初回ロード時</b>／実装: GSAP Timeline／easing: <b>power2.inOut</b>＋<b>power4.inOut</b>のクリップワイプ。0→100%のカウントアップとバー伸長を同期させ、完了後に画面下からクリップパスで開く。</p>
+    <div class="demo-stage">
+      <button class="transition-btn magnetic" id="replayPreloader" data-cursor="REPLAY">REPLAY PRELOADER</button>
+    </div>
+  </section>
+
+  <!-- 02 キネティックタイポグラフィ -->
+  <section class="demo-section" id="s02">
+    <div class="section-index">02 / 16</div>
+    <h2 class="section-label">キネティックタイポグラフィ</h2>
+    <p class="section-caption">発動: <b>スクロールで画面内に入った時</b>／実装: GSAP + ScrollTrigger／行ごとにoverflow:hiddenでマスクし、yPercentでせり上がるスタガーリビール。文字にマウスを乗せると個別にホップする。</p>
+    <div class="demo-stage kinetic-wrap">
+      <div class="kinetic-line"><div class="inner" id="kineticLine1">CINEMATIC</div></div>
+      <div class="kinetic-line"><div class="inner" id="kineticLine2">LUXURY REEL</div></div>
+    </div>
+  </section>
+
+  <!-- 03 カスタムカーソル -->
+  <section class="demo-section" id="s03">
+    <div class="section-index">03 / 16</div>
+    <h2 class="section-label">カスタムカーソル</h2>
+    <p class="section-caption">発動: <b>常時（マウス追従）</b>／実装: Vanilla JS + GSAP quickTo。ドットは即応、リングは0.35秒遅延で追従し2層の質感を出す。要素にホバーすると拡大しラベル文字に変化。</p>
+    <div class="demo-stage magnetic-row">
+      <div class="magnetic" data-cursor="VIEW">VIEW</div>
+      <div class="magnetic" data-cursor="PLAY">PLAY</div>
+      <div class="magnetic" data-cursor="DRAG">DRAG</div>
+    </div>
+  </section>
+
+  <!-- 04 マグネティック要素 -->
+  <section class="demo-section" id="s04">
+    <div class="section-index">04 / 16</div>
+    <h2 class="section-label">マグネティック要素</h2>
+    <p class="section-caption">発動: <b>ボタン近傍でのマウス移動</b>／実装: GSAP／カーソル位置と要素中心の差分×0.4を加算しボタンを引き寄せ、離脱時はelastic.outで戻す。</p>
+    <div class="demo-stage magnetic-row">
+      <button class="magnetic" data-cursor="HOVER">HOVER ME</button>
+      <button class="magnetic" data-cursor="+">CONTACT</button>
+    </div>
+  </section>
+
+  <!-- 05 フィルムストリップ・ナビ -->
+  <section class="demo-section" id="s05">
+    <div class="section-index">05 / 16</div>
+    <h2 class="section-label">フィルムストリップ・ナビゲーション</h2>
+    <p class="section-caption">発動: <b>行へのホバー</b>／実装: GSAP quickTo。エディトリアルな連番付きプロジェクト一覧。ホバーした行が右へスライドし、カーソル追従のプレビューパネルが色でプレビュー表示される（実サイトでは動画プレビュー）。</p>
+    <div class="demo-stage film-list">
+      <div class="film-row" data-color="linear-gradient(135deg,#5b4a2e,#1a1409)"><span class="num">001</span><span class="name">NOIR CAMPAIGN</span><span class="tag">Film / 2026</span></div>
+      <div class="film-row" data-color="linear-gradient(135deg,#3d3a55,#0d0c14)"><span class="num">002</span><span class="name">VELVET HOUSE</span><span class="tag">Fashion / 2026</span></div>
+      <div class="film-row" data-color="linear-gradient(135deg,#2e4b45,#0a1210)"><span class="num">003</span><span class="name">LUMEN STUDIO</span><span class="tag">Beauty / 2025</span></div>
+      <div class="film-row" data-color="linear-gradient(135deg,#5a2e2e,#150808)"><span class="num">004</span><span class="name">ROUGE FILMS</span><span class="tag">Luxury / 2025</span></div>
+    </div>
+    <div class="film-preview" id="filmPreview">PREVIEW</div>
+  </section>
+
+  <!-- 06 画像ディストーションホバー -->
+  <section class="demo-section" id="s06">
+    <div class="section-index">06 / 16</div>
+    <h2 class="section-label">画像ディストーションホバー</h2>
+    <p class="section-caption">発動: <b>画像上でのマウス移動</b>／実装: GSAP + CSS transform-style:preserve-3d。カーソル位置に応じてrotateX/rotateYを与え、擬似的な3D傾き（チルト）を作る。</p>
+    <div class="demo-stage distort-frame">
+      <div class="distort-img" id="distortImg">CAMPAIGN STILL — HOVER</div>
+    </div>
+  </section>
+
+  <!-- 07 スクロールリビール -->
+  <section class="demo-section" id="s07">
+    <div class="section-index">07 / 16</div>
+    <h2 class="section-label">スクロールリビール</h2>
+    <p class="section-caption">発動: <b>各カードが画面下から85%地点に入った時</b>／実装: GSAP ScrollTrigger／fade + slide-up + clip-pathマスクを組み合わせたスタガーリビール（power4.out）。</p>
+    <div class="demo-stage reveal-grid">
+      <div class="reveal-card"><span class="n">01</span><span class="t">Direction</span></div>
+      <div class="reveal-card"><span class="n">02</span><span class="t">Talent</span></div>
+      <div class="reveal-card"><span class="n">03</span><span class="t">Production</span></div>
+      <div class="reveal-card"><span class="n">04</span><span class="t">Post</span></div>
+    </div>
+  </section>
+
+  <!-- 08 パララックス -->
+  <section class="demo-section" id="s08">
+    <div class="section-index">08 / 16</div>
+    <h2 class="section-label">パララックス</h2>
+    <p class="section-caption">発動: <b>セクション内スクロール</b>／実装: GSAP ScrollTrigger scrub。背景・中景・前景テキストをそれぞれ異なる速度でyPercent移動させ奥行きを演出。</p>
+    <div class="demo-stage parallax-wrap">
+      <div class="parallax-layer p-layer-1"></div>
+      <div class="parallax-layer"><div class="p-layer-2"></div></div>
+      <div class="parallax-layer p-layer-3">DEPTH</div>
+    </div>
+  </section>
+
+  <!-- 09 横スクロール・ピン留め -->
+  <section class="demo-section hscroll-section" id="s09">
+    <div class="section-index">09 / 16</div>
+    <h2 class="section-label">横スクロール・ピン留め</h2>
+    <p class="section-caption">発動: <b>縦スクロール中にセクションをピン固定</b>／実装: GSAP ScrollTrigger pin + scrub。フィルムストリップ風のカードを横方向へ流し込む定番のAwwwards手法。</p>
+    <div class="demo-stage hscroll-viewport">
+      <div class="hscroll-track" id="hscrollTrack">
+        <div class="hscroll-card">McQUEEN — Reel 01</div>
+        <div class="hscroll-card">KENZO — Reel 02</div>
+        <div class="hscroll-card">AZZARO — Reel 03</div>
+        <div class="hscroll-card">ROUGE FILMS — Reel 04</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 マーキー -->
+  <section class="demo-section" id="s10">
+    <div class="section-index">10 / 16</div>
+    <h2 class="section-label">マーキー / 無限スクロールクレジット</h2>
+    <p class="section-caption">発動: <b>常時ループ</b>／実装: 純CSS keyframes（linear infinite）。テキストを複製して継ぎ目のない無限スクロールを作る、クレジット表示の定番手法。</p>
+    <div class="demo-stage marquee">
+      <div class="marquee-track">
+        <span>DIRECTION</span><span>TALENT</span><span>PRODUCTION</span><span>POST</span>
+        <span>DIRECTION</span><span>TALENT</span><span>PRODUCTION</span><span>POST</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 カウンター＆進捗バー -->
+  <section class="demo-section" id="s11">
+    <div class="section-index">11 / 16</div>
+    <h2 class="section-label">カウンター & スクロール進捗</h2>
+    <p class="section-caption">発動: <b>画面内に入った時にカウントアップ／セクション内スクロールで進捗バーが伸長</b>／実装: GSAP + ScrollTrigger（once / scrub）。</p>
+    <div class="demo-stage">
+      <div class="counter-row">
+        <div><div class="count-up" data-target="128">000</div><div class="count-label">PROJECTS DELIVERED</div></div>
+        <div><div class="count-up" data-target="12">00</div><div class="count-label">YEARS</div></div>
+        <div><div class="count-up" data-target="47">00</div><div class="count-label">AWARDS</div></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </section>
+
+  <!-- 12 SVGパス描画 -->
+  <section class="demo-section" id="s12">
+    <div class="section-index">12 / 16</div>
+    <h2 class="section-label">SVGパス描画（ロゴ）</h2>
+    <p class="section-caption">発動: <b>スクロールで画面内に入った時</b>／実装: stroke-dasharray / stroke-dashoffsetをGSAPで0にアニメーションし、線が描かれるように見せる。</p>
+    <div class="demo-stage svg-wrap">
+      <svg viewBox="0 0 200 200">
+        <path class="draw-path" d="M20,100 C20,50 60,20 100,20 C150,20 180,60 180,100 C180,150 140,180 100,180 C60,180 30,150 20,110" />
+        <path class="draw-path" d="M70,70 L70,130 M70,70 L120,70 M70,100 L110,100" />
+      </svg>
+    </div>
+  </section>
+
+  <!-- 13 フルスクリーンメニュー -->
+  <section class="demo-section" id="s13">
+    <div class="section-index">13 / 16</div>
+    <h2 class="section-label">フルスクリーンメニュー開閉</h2>
+    <p class="section-caption">発動: <b>左上のメニューボタンをクリック</b>／実装: GSAP Timeline／clip-pathで画面を下から覆い、リンクをstaggerでせり上げる。アイコンはCSSで✕に変形。</p>
+    <div class="demo-stage">
+      <p style="font-size:12px;color:var(--fg-dim)">画面左上の丸いボタンをクリックしてください →</p>
+    </div>
+  </section>
+
+  <!-- 14 ページ遷移ワイプ -->
+  <section class="demo-section" id="s14">
+    <div class="section-index">14 / 16</div>
+    <h2 class="section-label">ページ遷移（クリップパスワイプ）</h2>
+    <p class="section-caption">発動: <b>ボタンクリック</b>／実装: GSAP Timeline／clip-path: inset()を使い下から覆って上へ抜けるワイプで、SPA風のページ遷移を疑似再現。</p>
+    <div class="demo-stage">
+      <button class="transition-btn magnetic" id="transitionBtn" data-cursor="GO">NEXT PROJECT</button>
+    </div>
+  </section>
+
+  <!-- 15 スクロール連動カラー反転 -->
+  <section class="demo-section invert-section" id="s15">
+    <div class="section-index">15 / 16</div>
+    <h2 class="section-label">スクロール連動カラー反転</h2>
+    <p class="section-caption">発動: <b>セクション中央に到達した時</b>／実装: GSAP ScrollTrigger（onEnter/onLeaveBack）でクラスをトグルし、背景・文字色をダーク⇄オフホワイトで反転。</p>
+  </section>
+
+  <!-- 16 NOTES -->
+  <section class="demo-section" id="s16">
+    <div class="section-index">16 / 16</div>
+    <h2 class="section-label">NOTES — 手法と出典</h2>
+    <div class="demo-stage notes-list">
+      <p><b>制作方式について：</b>実行環境のネットワークポリシーにより、awwwards.com および depoluxe.xyz への直接アクセスは今回も403でブロックされました（2026-07-03〜07-05、07-06のRadian回に続き本日も発生）。そのためルーティン所定のフォールバック手順に従い、WebSearchで得た公開情報のみを根拠に、同ジャンル（GSAP/11ty製・シネマティック・ラグジュアリー映像制作会社ポートフォリオ）で実際に多用される代表的な演出を洗い出し、1本の総合デモとして再現しました。実サイトの目視棚卸しは行えていません。</p>
+      <p><b>選定サイト：</b>Depo Luxe（depoluxe.xyz）— 2026年7月7日 Awwwards Site of the Day / Developer Award受賞。トルコ拠点の映像制作スタジオによる、ラグジュアリーブランド（McQueen, Kenzo, Azzaro等の案件）のシネマティックなポートフォリオサイト。フィルムストリップ状のエディトリアルなプロジェクト一覧、モノクロ基調、フルスクリーン動画演出が特徴。</p>
+      <p><b>再現した16技法：</b>①プリローダー ②キネティックタイポグラフィ ③カスタムカーソル ④マグネティック要素 ⑤フィルムストリップ・ナビ（カーソル追従プレビュー） ⑥画像ディストーションホバー ⑦スクロールリビール ⑧パララックス ⑨横スクロール・ピン留め ⑩マーキー ⑪カウンター＆進捗バー ⑫SVGパス描画 ⑬フルスクリーンメニュー ⑭ページ遷移ワイプ ⑮スクロール連動カラー反転。これらはAwwwards掲載のGSAP/シネマティック系ラグジュアリーサイトで頻出する技法群であり、Depo Luxeのレビュー記事（フィルムストリップ・ナビ、エディトリアル番号、動画中心の演出、ミニマルなクロム）から裏付けられる要素を優先的に反映しています。</p>
+      <p><b>再現不可・不明点：</b>実際のホバー時プレビュー動画の秒数・イージング値、ページ遷移の正確な実装（11ty上でのSPA的遷移の有無）、カーソルの正確な見た目は目視できず、公開情報からの一般的な業界標準値で代替しています。</p>
+    </div>
+    <div class="demo-stage source-list">
+      <b>参照情報源（WebSearch経由）：</b><br>
+      - <a href="https://www.awwwards.com/sites/depo-luxe" target="_blank">awwwards.com/sites/depo-luxe</a>（SOTD 2026-07-07, Developer Award, スコア7.62）<br>
+      - <a href="https://www.landing.love/sites/depoluxe/" target="_blank">landing.love/sites/depoluxe</a>（フィルムストリップ・ナビ、エディトリアル番号の解説）<br>
+      - <a href="https://depoluxe.xyz/" target="_blank">depoluxe.xyz</a>（本体・直接アクセス不可）<br>
+      - Awwwards「Best GSAP Animation Websites」等のジャンル代表技法の参照
+    </div>
+  </section>
+
+</main>
+
+<footer>monaka design. — daily animation demo routine ｜ 2026-07-08（JST）｜ Reference: Depo Luxe (depoluxe.xyz)</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ===== 03 カスタムカーソル（グローバル） ===== */
+  const dot = document.querySelector('.cursor-dot');
+  const ring = document.querySelector('.cursor-ring');
+  gsap.set([dot, ring], {xPercent:-50, yPercent:-50});
+  const dotX = gsap.quickTo(dot, "x", {duration:0.08, ease:"power3"});
+  const dotY = gsap.quickTo(dot, "y", {duration:0.08, ease:"power3"});
+  const ringX = gsap.quickTo(ring, "x", {duration:0.35, ease:"power3"});
+  const ringY = gsap.quickTo(ring, "y", {duration:0.35, ease:"power3"});
+  window.addEventListener('mousemove', (e)=>{
+    dotX(e.clientX); dotY(e.clientY);
+    ringX(e.clientX); ringY(e.clientY);
+  });
+  document.querySelectorAll('[data-cursor]').forEach((el)=>{
+    el.addEventListener('mouseenter', ()=>{
+      ring.classList.add('is-active');
+      ring.textContent = el.dataset.cursor || '';
+    });
+    el.addEventListener('mouseleave', ()=>{
+      ring.classList.remove('is-active');
+      ring.textContent = '';
+    });
+  });
+
+  /* ===== 04 マグネティック要素（グローバル） ===== */
+  document.querySelectorAll('.magnetic').forEach((el)=>{
+    el.addEventListener('mousemove', (e)=>{
+      const r = el.getBoundingClientRect();
+      const relX = e.clientX - r.left - r.width/2;
+      const relY = e.clientY - r.top - r.height/2;
+      gsap.to(el, {x:relX*0.4, y:relY*0.4, duration:0.3, ease:'power3.out'});
+    });
+    el.addEventListener('mouseleave', ()=>{
+      gsap.to(el, {x:0, y:0, duration:0.6, ease:'elastic.out(1,0.4)'});
+    });
+  });
+
+  /* ===== 01 プリローダー ===== */
+  function playPreloader(){
+    const el = document.getElementById('preloader');
+    const countEl = document.getElementById('preloaderCount');
+    const counter = {val:0};
+    gsap.set(el, {display:'flex', clipPath:'inset(0 0 0% 0)'});
+    const tl = gsap.timeline();
+    tl.to(counter, {
+        val:100, duration:1.6, ease:'power2.inOut',
+        onUpdate:()=>{ countEl.textContent = String(Math.floor(counter.val)).padStart(3,'0'); }
+      })
+      .to('.preloader-bar-fill', {scaleX:1, duration:1.6, ease:'power2.inOut'}, '<')
+      .to(el, {clipPath:'inset(0 0 100% 0)', duration:1, ease:'power4.inOut'}, '+=0.15')
+      .set(el, {display:'none'})
+      .add(playHeroIntro, '-=0.4');
+  }
+  function playHeroIntro(){
+    gsap.fromTo('#kineticLine1 .char', {yPercent:120}, {yPercent:0, stagger:0.03, duration:1, ease:'power4.out'});
+  }
+  window.addEventListener('load', ()=>{
+    document.body.classList.remove('is-loading');
+    playPreloader();
+  });
+  document.getElementById('replayPreloader').addEventListener('click', playPreloader);
+
+  /* ===== 02 キネティックタイポグラフィ：文字分割 ===== */
+  function splitChars(id){
+    const el = document.getElementById(id);
+    const text = el.textContent;
+    el.innerHTML = '';
+    [...text].forEach((ch)=>{
+      const span = document.createElement('span');
+      span.className = 'char';
+      span.textContent = ch === ' ' ? ' ' : ch;
+      span.style.display = 'inline-block';
+      el.appendChild(span);
+    });
+  }
+  splitChars('kineticLine1');
+  splitChars('kineticLine2');
+  gsap.set('#kineticLine1 .char, #kineticLine2 .char', {yPercent:120});
+  ScrollTrigger.create({
+    trigger:'#s02', start:'top 70%', once:true,
+    onEnter:()=>{
+      gsap.to('#kineticLine1 .char', {yPercent:0, stagger:0.03, duration:1, ease:'power4.out'});
+      gsap.to('#kineticLine2 .char', {yPercent:0, stagger:0.03, duration:1, ease:'power4.out', delay:0.15});
+    }
+  });
+
+  /* ===== 05 フィルムストリップ：カーソル追従プレビュー ===== */
+  const preview = document.getElementById('filmPreview');
+  const pvX = gsap.quickTo(preview, "x", {duration:0.5, ease:'power3'});
+  const pvY = gsap.quickTo(preview, "y", {duration:0.5, ease:'power3'});
+  document.querySelectorAll('.film-row').forEach((row)=>{
+    row.addEventListener('mousemove', (e)=>{ pvX(e.clientX); pvY(e.clientY); });
+    row.addEventListener('mouseenter', ()=>{
+      preview.style.background = row.dataset.color;
+      gsap.to(preview, {autoAlpha:1, scale:1, duration:0.4, ease:'power3.out'});
+      gsap.to(row.querySelector('.name'), {x:24, duration:0.4, ease:'power3.out'});
+    });
+    row.addEventListener('mouseleave', ()=>{
+      gsap.to(preview, {autoAlpha:0, scale:0.6, duration:0.4, ease:'power3.out'});
+      gsap.to(row.querySelector('.name'), {x:0, duration:0.4, ease:'power3.out'});
+    });
+  });
+  gsap.set(preview, {autoAlpha:0, xPercent:-50, yPercent:-50});
+
+  /* ===== 06 画像ディストーションホバー ===== */
+  const distImg = document.getElementById('distortImg');
+  const distFrame = distImg.parentElement;
+  distFrame.addEventListener('mousemove', (e)=>{
+    const r = distFrame.getBoundingClientRect();
+    const px = (e.clientX - r.left)/r.width - 0.5;
+    const py = (e.clientY - r.top)/r.height - 0.5;
+    gsap.to(distImg, {rotateX:py*-12, rotateY:px*12, scale:1.04, duration:0.6, ease:'power3.out', transformPerspective:800});
+  });
+  distFrame.addEventListener('mouseleave', ()=>{
+    gsap.to(distImg, {rotateX:0, rotateY:0, scale:1, duration:0.6, ease:'power3.out'});
+  });
+
+  /* ===== 07 スクロールリビール ===== */
+  gsap.utils.toArray('.reveal-card').forEach((card, i)=>{
+    gsap.fromTo(card,
+      {autoAlpha:0, y:60, clipPath:'inset(100% 0 0 0)'},
+      {autoAlpha:1, y:0, clipPath:'inset(0% 0 0 0)', duration:1, ease:'power4.out', delay:i*0.08,
+        scrollTrigger:{trigger:card, start:'top 88%'}}
+    );
+  });
+
+  /* ===== 08 パララックス ===== */
+  gsap.to('.p-layer-2', {yPercent:-25, ease:'none', scrollTrigger:{trigger:'.parallax-wrap', start:'top bottom', end:'bottom top', scrub:true}});
+  gsap.to('.p-layer-3', {yPercent:35, ease:'none', scrollTrigger:{trigger:'.parallax-wrap', start:'top bottom', end:'bottom top', scrub:true}});
+
+  /* ===== 09 横スクロール・ピン留め ===== */
+  function initHscroll(){
+    const track = document.getElementById('hscrollTrack');
+    const viewport = document.querySelector('.hscroll-viewport');
+    const amount = track.scrollWidth - viewport.offsetWidth;
+    if(amount <= 0) return;
+    gsap.to(track, {
+      x:-amount, ease:'none',
+      scrollTrigger:{
+        trigger:'#s09', start:'top top', end:()=>'+='+amount,
+        scrub:0.5, pin:true, invalidateOnRefresh:true
+      }
+    });
+  }
+  window.addEventListener('load', ()=>setTimeout(initHscroll, 50));
+
+  /* ===== 11 カウンター＆進捗バー ===== */
+  document.querySelectorAll('.count-up').forEach((el)=>{
+    const target = +el.dataset.target;
+    const obj = {val:0};
+    ScrollTrigger.create({
+      trigger:el, start:'top 85%', once:true,
+      onEnter:()=>gsap.to(obj, {val:target, duration:1.6, ease:'power2.out',
+        onUpdate:()=>{ el.textContent = String(Math.floor(obj.val)).padStart(3,'0'); }})
+    });
+  });
+  gsap.to('#progressFill', {scaleX:1, ease:'none', scrollTrigger:{trigger:'#s11', start:'top bottom', end:'bottom top', scrub:true}});
+
+  /* ===== 12 SVGパス描画 ===== */
+  document.querySelectorAll('.draw-path').forEach((path)=>{
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
+    gsap.to(path, {strokeDashoffset:0, duration:2, ease:'power2.inOut', scrollTrigger:{trigger:path, start:'top 80%'}});
+  });
+
+  /* ===== 13 フルスクリーンメニュー ===== */
+  const menuBtn = document.getElementById('menuToggle');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const menuLinks = document.querySelectorAll('.menu-link a');
+  let menuOpen = false;
+  const menuTl = gsap.timeline({paused:true})
+    .to(menuOverlay, {clipPath:'inset(0% 0 0 0)', duration:0.8, ease:'power4.inOut'})
+    .from(menuLinks, {yPercent:100, stagger:0.06, duration:0.7, ease:'power4.out'}, '-=0.3');
+  menuBtn.addEventListener('click', ()=>{
+    menuOpen = !menuOpen;
+    menuBtn.classList.toggle('is-active', menuOpen);
+    menuOverlay.style.pointerEvents = menuOpen ? 'auto' : 'none';
+    if(menuOpen){ menuTl.play(); } else { menuTl.reverse(); }
+  });
+  menuLinks.forEach((a)=>a.addEventListener('click', ()=>{
+    menuOpen = false; menuBtn.classList.remove('is-active');
+    menuOverlay.style.pointerEvents = 'none'; menuTl.reverse();
+  }));
+
+  /* ===== 14 ページ遷移ワイプ ===== */
+  const transBtn = document.getElementById('transitionBtn');
+  const transOverlay = document.getElementById('transitionOverlay');
+  transBtn.addEventListener('click', ()=>{
+    const tl = gsap.timeline();
+    tl.set(transOverlay, {display:'flex', clipPath:'inset(100% 0 0 0)'})
+      .to(transOverlay, {clipPath:'inset(0% 0 0 0)', duration:0.7, ease:'power4.inOut'})
+      .to(transOverlay, {clipPath:'inset(0 0 100% 0)', duration:0.7, ease:'power4.inOut', delay:0.5})
+      .set(transOverlay, {display:'none'});
+  });
+
+  /* ===== 15 スクロール連動カラー反転 ===== */
+  const invertSection = document.getElementById('s15');
+  ScrollTrigger.create({
+    trigger:invertSection, start:'top center', end:'bottom center',
+    onEnter:()=>invertSection.classList.add('is-inverted'),
+    onLeaveBack:()=>invertSection.classList.remove('is-inverted'),
+    onLeave:()=>invertSection.classList.remove('is-inverted'),
+    onEnterBack:()=>invertSection.classList.add('is-inverted')
+  });
+
+})();
+</script>
+</body>
+</html>

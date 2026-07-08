@@ -1,0 +1,36 @@
+.link {
+  position: relative;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(20px, 5vw, 30px);
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  padding-bottom: 8px;
+  cursor: default;
+  user-select: none;
+}
+
+.line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--code-fg);
+  transform: scaleX(0);
+  transition-property: transform;
+  transition-timing-function: ease-out;
+  will-change: transform;
+}
+
+/* transform-originの位置を示すマーカー */
+.originMarker {
+  position: absolute;
+  bottom: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8fb4de;
+  transform: translateX(-50%);
+  transition: left 0.2s;
+  pointer-events: none;
+}

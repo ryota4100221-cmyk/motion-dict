@@ -1,0 +1,22 @@
+.stage {
+  position: relative;
+  height: 300px;
+  background: var(--sumi);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.hint {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.45);
+  pointer-events: none;
+}

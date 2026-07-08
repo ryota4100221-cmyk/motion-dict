@@ -1,0 +1,23 @@
+.word {
+  display: flex;
+  font-family: var(--font-serif), serif;
+  font-size: clamp(36px, 9vw, 60px);
+  letter-spacing: 0.06em;
+  color: var(--code-fg);
+  cursor: default;
+  user-select: none;
+}
+
+.mask {
+  /* 下降した文字を行内でクリップするマスク */
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.char {
+  display: inline-block;
+  transform: translateY(30px);
+  opacity: 0;
+  will-change: transform, opacity;
+}

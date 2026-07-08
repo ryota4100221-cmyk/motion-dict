@@ -1,0 +1,38 @@
+/* 隠れている間も画像の居場所がわかるよう、淡い枠を敷く */
+.frame {
+  position: relative;
+  width: min(240px, 64vw);
+  aspect-ratio: 16 / 9;
+  margin-bottom: 36px;
+  border: 1px solid rgba(216, 212, 200, 0.18);
+  border-radius: 2px;
+}
+
+/* ダミー画像はCSSグラデーションで表現。マスク(clip-path)だけが動く */
+.img {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #2e4a6b 0%, #8fb4de 60%, #d8d4c8 100%);
+  will-change: clip-path;
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}

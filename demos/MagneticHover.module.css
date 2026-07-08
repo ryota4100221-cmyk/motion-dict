@@ -1,0 +1,28 @@
+.magBtn {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 1px solid rgba(216, 212, 200, 0.5);
+  background: transparent;
+  color: var(--code-fg);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+.magBtn span {
+  will-change: transform;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magBtn,
+  .magBtn span {
+    transition: none !important;
+  }
+}

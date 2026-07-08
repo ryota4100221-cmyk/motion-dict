@@ -1,0 +1,30 @@
+.line {
+  position: relative;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(15px, 3.6vw, 22px);
+  letter-spacing: 0.06em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.ghost {
+  /* 幅確保用のダミー。表示はしない */
+  visibility: hidden;
+  white-space: pre;
+}
+
+.live {
+  position: absolute;
+  inset: 0;
+  text-align: left;
+  white-space: pre;
+}
+
+.text {
+  white-space: pre;
+}
+
+.caret {
+  color: #8fb4de;
+  opacity: 1;
+}

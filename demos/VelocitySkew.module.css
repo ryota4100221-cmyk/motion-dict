@@ -1,0 +1,38 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+.wrap {
+  min-height: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 40px 24px 64px;
+  will-change: transform;
+}
+
+.row {
+  font-family: var(--font-serif), serif;
+  font-size: 54px;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  color: rgba(216, 212, 200, 0.85);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.rowDim {
+  color: rgba(216, 212, 200, 0.28);
+}
+
+.rowAccent {
+  color: #8fb4de;
+}

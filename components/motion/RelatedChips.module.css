@@ -1,0 +1,22 @@
+.related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.related a {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--sumi);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 16px;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.related a:hover {
+  border-color: var(--ai);
+  color: var(--ai);
+}

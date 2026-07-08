@@ -1,0 +1,12 @@
+.number {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(40px, 10vw, 64px);
+  letter-spacing: 0.04em;
+  color: var(--code-fg);
+  cursor: default;
+  user-select: none;
+  /* 桁が増えても中央がガタつかないよう幅を確保し、数字を等幅で揃える */
+  font-variant-numeric: tabular-nums;
+  min-width: 6ch;
+  text-align: center;
+}

@@ -1,0 +1,57 @@
+.frame {
+  position: relative;
+  width: min(220px, 60%);
+  aspect-ratio: 16 / 9;
+  margin-bottom: 36px;
+  border-radius: 2px;
+  overflow: hidden;
+  /* 両レイヤーが半透明で重なる瞬間に背景が透けないよう、不透明な面を敷く */
+  background: #14130f;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  will-change: opacity, transform;
+}
+
+/* ダミー画像はCSSグラデーションで表現 */
+.imgA {
+  background: linear-gradient(135deg, #2e4a6b, #8fb4de);
+}
+
+.imgB {
+  background: linear-gradient(135deg, #4a4336, #d8d4c8);
+}
+
+.tag {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: rgba(20, 19, 15, 0.65);
+  user-select: none;
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}

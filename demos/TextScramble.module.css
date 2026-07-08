@@ -1,0 +1,11 @@
+.text {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(24px, 6vw, 38px);
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  cursor: default;
+  user-select: none;
+  /* カタカナ・記号に入れ替わっても幅が大きく揺れないよう最低幅を確保 */
+  min-width: 10ch;
+  text-align: center;
+}
