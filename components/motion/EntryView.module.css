@@ -4,8 +4,10 @@
   padding: 0 clamp(16px, 5vw, 40px) 96px;
 }
 
+/* 見出しエリアの強罫線は画面全幅(margin-inlineで破り、padding-inlineで内容を戻す) */
 .header {
-  padding: clamp(48px, 7vw, 80px) 0 clamp(40px, 5vw, 56px);
+  margin-inline: calc(50% - 50vw);
+  padding: clamp(48px, 7vw, 80px) calc(50vw - 50%) clamp(40px, 5vw, 56px);
   border-bottom: 2px solid var(--line-strong);
 }
 
@@ -67,7 +69,8 @@
 }
 
 .section {
-  padding: clamp(48px, 6vw, 64px) 0;
+  margin-inline: calc(50% - 50vw);
+  padding: clamp(48px, 6vw, 64px) calc(50vw - 50%);
   border-bottom: 1px solid var(--line);
 }
 
@@ -184,6 +187,8 @@
 }
 
 .footer {
+  margin-inline: calc(50% - 50vw);
+  padding-inline: calc(50vw - 50%);
   padding-top: 24px;
   border-top: 2px solid var(--line-strong);
   display: flex;

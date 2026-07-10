@@ -30,8 +30,9 @@ export default function EntryView({
   const Demo = demoRegistry[entry.slug];
 
   return (
-    <div className={styles.wrap}>
+    <>
       <TopBar />
+      <div className={styles.wrap}>
 
       <header className={styles.header}>
         <div className={styles.crumb}>
@@ -118,6 +119,7 @@ export default function EntryView({
           monaka design.
         </a>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }

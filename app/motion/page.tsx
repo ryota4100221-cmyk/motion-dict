@@ -47,27 +47,28 @@ export default function MotionIndex() {
   );
 
   return (
-    <div className={styles.wrap}>
+    <>
       <TopBar />
+      <div className={styles.wrap}>
+        <Hero
+          total={entryList.length}
+          categories={byCategory.size}
+          names={marqueeNames}
+        />
 
-      <Hero
-        total={entryList.length}
-        categories={byCategory.size}
-        names={marqueeNames}
-      />
+        <DictionaryList sections={sections} />
 
-      <DictionaryList sections={sections} />
-
-      <footer className={styles.footer}>
-        <span>動きの伝え方辞典</span>
-        <a
-          href="https://monakadesign.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          monaka design.
-        </a>
-      </footer>
-    </div>
+        <footer className={styles.footer}>
+          <span>動きの伝え方辞典</span>
+          <a
+            href="https://monakadesign.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            monaka design.
+          </a>
+        </footer>
+      </div>
+    </>
   );
 }

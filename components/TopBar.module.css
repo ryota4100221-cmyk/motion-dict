@@ -1,8 +1,9 @@
+/* ヘッダーは常に画面全幅。罫線もテキストもビューポートに揃える */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px 0;
+  padding: 22px clamp(16px, 2.5vw, 40px);
   border-bottom: 2px solid var(--line-strong);
   font-family: var(--font-mono), monospace;
   font-size: 11px;
