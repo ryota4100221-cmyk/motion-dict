@@ -12,7 +12,7 @@
 .img {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #2e4a6b 0%, #8fb4de 60%, #d8d4c8 100%);
+  background: linear-gradient(135deg, #232320 0%, #6f6f66 60%, #a5e02e 135%);
   will-change: clip-path;
 }
 

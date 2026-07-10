@@ -1,0 +1,47 @@
+.card {
+  margin: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* 枠は固定・overflow: clipではみ出しを切り落とす(hiddenと違いstickyを殺さない) */
+.frame {
+  position: relative;
+  width: min(280px, 70vw);
+  aspect-ratio: 16 / 9;
+  border-radius: 2px;
+  overflow: clip;
+}
+
+/* ダミー画像はCSSグラデーションで表現。パン用に7%のブリードを敷いておく */
+.img {
+  position: absolute;
+  inset: -7%;
+  background:
+    radial-gradient(circle at 70% 28%, rgba(233, 230, 223, 0.9), transparent 42%),
+    linear-gradient(160deg, #232320 0%, #6f6f66 55%, #a5e02e 135%);
+  animation-name: kenburns;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform;
+}
+
+/* 倍率・移動量はインラインのCSS変数(--kb-zoom / --kb-pan)で受ける */
+@keyframes kenburns {
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(var(--kb-zoom))
+      translate(var(--kb-pan), calc(var(--kb-pan) * -0.6));
+  }
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}

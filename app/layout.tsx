@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Shippori_Mincho, Zen_Kaku_Gothic_New } from "next/font/google";
+import { IBM_Plex_Mono, Noto_Sans_JP, Zen_Kaku_Gothic_New } from "next/font/google";
 import "./globals.css";
 
-const serif = Shippori_Mincho({
-  weight: ["500", "600"],
+// ディスプレイ用の極太ゴシック(見出し・見出し語)
+const display = Noto_Sans_JP({
+  weight: ["700", "900"],
   subsets: ["latin"],
-  variable: "--font-serif",
+  variable: "--font-display",
   preload: false,
 });
 
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#E9E6DF",
+  themeColor: "#F4F4F1",
 };
 
 export default function RootLayout({
@@ -53,7 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+      <body className={`${display.variable} ${sans.variable} ${mono.variable}`}>
         {children}
       </body>
     </html>

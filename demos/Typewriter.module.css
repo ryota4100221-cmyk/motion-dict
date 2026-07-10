@@ -25,6 +25,6 @@
 }
 
 .caret {
-  color: #8fb4de;
+  color: var(--ai);
   opacity: 1;
 }

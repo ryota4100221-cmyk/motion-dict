@@ -1,0 +1,62 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+/* 行が下端付近から現れるよう、上に余白を置いて縦に長く作る */
+.content {
+  min-height: 980px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 250px 28px 300px;
+}
+
+.kicker {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(216, 212, 200, 0.4);
+}
+
+.line {
+  position: relative;
+  font-family: var(--font-display), sans-serif;
+  font-size: 24px;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* 下層 = 塗られる前の薄い文字 */
+.base {
+  color: rgba(216, 212, 200, 0.16);
+}
+
+/* 上層 = 本来の文字色。clip-pathの右側を100%→0%にして左から開く */
+.fill {
+  position: absolute;
+  inset: 0;
+  color: var(--code-fg);
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
+
+.fillAccent {
+  color: var(--ai);
+}
+
+.tail {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(216, 212, 200, 0.35);
+  padding-top: 48px;
+}

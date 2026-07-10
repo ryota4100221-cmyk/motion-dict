@@ -3,7 +3,7 @@
   background: var(--code-bg);
   color: var(--code-fg);
   border-radius: var(--radius);
-  padding: 22px 20px;
+  padding: 26px 24px;
   font-family: var(--font-mono), monospace;
   font-size: 12.5px;
   line-height: 2;
@@ -12,7 +12,7 @@
 }
 
 .dyn {
-  color: #8fb4de;
+  color: var(--ai);
   transition: color 0.15s;
 }
 
@@ -37,6 +37,7 @@
 }
 
 .copyBtn:hover {
-  background: var(--code-fg);
-  color: var(--code-bg);
+  background: var(--ai);
+  color: var(--sumi);
+  border-color: var(--ai);
 }

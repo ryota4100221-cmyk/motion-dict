@@ -1,0 +1,153 @@
+.hero {
+  padding-top: clamp(56px, 9vh, 104px);
+}
+
+.crumb {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--sumi);
+}
+
+.crumbDash {
+  color: var(--sumi-soft);
+  margin: 0 12px;
+}
+
+.title {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 900;
+  /* SP(375px)でも8文字が1行に収まる下限(38px×8+字間 < 343px) */
+  font-size: clamp(38px, 9.2vw, 118px);
+  letter-spacing: -0.01em;
+  line-height: 1.12;
+  margin-top: clamp(20px, 3vw, 40px);
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.charMask {
+  display: inline-block;
+  overflow: clip;
+}
+
+.char {
+  display: inline-block;
+  animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(108%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .char {
+    animation: none;
+  }
+}
+
+.below {
+  margin-top: clamp(32px, 4.5vw, 56px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 48px;
+}
+
+.lede {
+  color: var(--sumi-soft);
+  max-width: 34em;
+  font-size: 14px;
+  line-height: 2;
+}
+
+.stats {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.statNum {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 900;
+  font-size: clamp(48px, 5.5vw, 76px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  /* ライムのマーカーを敷く(白地でのアクセントは面で使う) */
+  background: linear-gradient(transparent 62%, var(--ai) 62%);
+  padding: 0 6px;
+}
+
+.statLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  line-height: 1.8;
+  color: var(--sumi-soft);
+}
+
+.selfDemo {
+  margin-top: clamp(28px, 4vw, 48px);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--sumi-soft);
+}
+
+.selfDemo a {
+  color: var(--sumi);
+  text-decoration: none;
+  border-bottom: 2px solid var(--ai);
+  transition: background 0.25s;
+}
+
+.selfDemo a:hover {
+  background: var(--ai);
+}
+
+.marquee {
+  margin-top: 16px;
+  border-top: 2px solid var(--line-strong);
+  border-bottom: 2px solid var(--line-strong);
+  overflow: clip;
+  padding: 13px 0;
+}
+
+.marqueeTrack,
+.marqueeStill {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+}
+
+.marqueeTrack {
+  animation: scroll 70s linear infinite;
+}
+
+.marqueeText {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sumi);
+}
+
+@keyframes scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 720px) {
+  .below {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+  }
+}

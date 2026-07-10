@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { MotionEntry } from "@/lib/types";
 import { defaultValues } from "@/lib/types";
 import { categoryLabels } from "@/content";
 import { demoRegistry } from "@/demos";
+import TopBar from "@/components/TopBar";
 import ParamControls from "./ParamControls";
 import PromptBox from "./PromptBox";
 import NgOkDiff from "./NgOkDiff";
@@ -12,25 +14,41 @@ import VocabList from "./VocabList";
 import RelatedChips from "./RelatedChips";
 import styles from "./EntryView.module.css";
 
-export default function EntryView({ entry }: { entry: MotionEntry }) {
+type Neighbor = { slug: string; nameJa: string };
+
+export default function EntryView({
+  entry,
+  prev,
+  next,
+}: {
+  entry: MotionEntry;
+  prev: Neighbor;
+  next: Neighbor;
+}) {
   const [values, setValues] = useState(() => defaultValues(entry));
   const Demo = demoRegistry[entry.slug];
 
   return (
     <div className={styles.wrap}>
+      <TopBar />
+
       <header className={styles.header}>
         <div className={styles.crumb}>
+          <Link className={styles.crumbBack} href="/motion">
+            ← INDEX
+          </Link>
+          <span className={styles.crumbSep}>/</span>
           <span className={styles.cat}>{categoryLabels[entry.category]}</span>
-          <span>—</span>
-          <span>動きの伝え方辞典</span>
         </div>
-        <h1 className={styles.title}>{entry.nameJa}</h1>
+        <h1 className={`${styles.title} palt`}>{entry.nameJa}</h1>
         <div className={styles.enName}>{entry.nameEn}</div>
         <p className={styles.lede}>{entry.lede}</p>
       </header>
 
       <section className={styles.section}>
-        <div className={styles.secLabel}>DEMO — 触って確かめる</div>
+        <div className={styles.secLabel}>
+          <span className={styles.secNum}>(01)</span>DEMO — 触って確かめる
+        </div>
         {Demo ? <Demo params={values} /> : null}
         <ParamControls
           params={entry.params}
@@ -40,7 +58,9 @@ export default function EntryView({ entry }: { entry: MotionEntry }) {
       </section>
 
       <section className={styles.section}>
-        <div className={styles.secLabel}>PROMPT — そのまま渡せる指示文</div>
+        <div className={styles.secLabel}>
+          <span className={styles.secNum}>(02)</span>PROMPT — そのまま渡せる指示文
+        </div>
         <p className={styles.promptNote}>
           上のスライダーを動かすと、<strong>数値が連動して書き換わる</strong>
           。好みの動きを見つけたら、そのままコピーしてClaude Codeに渡す。
@@ -53,21 +73,50 @@ export default function EntryView({ entry }: { entry: MotionEntry }) {
       </section>
 
       <section className={styles.section}>
-        <div className={styles.secLabel}>NG → OK — 伝え方の差分</div>
+        <div className={styles.secLabel}>
+          <span className={styles.secNum}>(03)</span>NG → OK — 伝え方の差分
+        </div>
         <NgOkDiff ng={entry.ngExample} ok={entry.okExample} />
       </section>
 
       <section className={styles.section}>
-        <div className={styles.secLabel}>VOCAB — この動きを構成する語彙</div>
+        <div className={styles.secLabel}>
+          <span className={styles.secNum}>(04)</span>VOCAB — この動きを構成する語彙
+        </div>
         <VocabList vocab={entry.vocab} />
       </section>
 
       <section className={styles.section}>
-        <div className={styles.secLabel}>RELATED — 近い動き</div>
+        <div className={styles.secLabel}>
+          <span className={styles.secNum}>(05)</span>RELATED — 近い動き
+        </div>
         <RelatedChips slugs={entry.related} />
       </section>
 
-      <footer className={styles.footer}>動きの伝え方辞典 — monaka design.</footer>
+      <nav className={styles.pager}>
+        <Link className={styles.pagerLink} href={`/motion/${prev.slug}`}>
+          <span className={styles.pagerDir}>← PREV</span>
+          <span className={`${styles.pagerName} palt`}>{prev.nameJa}</span>
+        </Link>
+        <Link
+          className={`${styles.pagerLink} ${styles.pagerNext}`}
+          href={`/motion/${next.slug}`}
+        >
+          <span className={styles.pagerDir}>NEXT →</span>
+          <span className={`${styles.pagerName} palt`}>{next.nameJa}</span>
+        </Link>
+      </nav>
+
+      <footer className={styles.footer}>
+        <span>動きの伝え方辞典</span>
+        <a
+          href="https://monakadesign.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          monaka design.
+        </a>
+      </footer>
     </div>
   );
 }

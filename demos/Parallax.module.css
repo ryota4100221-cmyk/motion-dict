@@ -20,7 +20,7 @@
 }
 
 .bgWord {
-  font-family: var(--font-serif), serif;
+  font-family: var(--font-display), sans-serif;
   font-size: 104px;
   line-height: 1;
   letter-spacing: 0.04em;

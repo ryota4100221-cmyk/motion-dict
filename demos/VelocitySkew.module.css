@@ -20,7 +20,7 @@
 }
 
 .row {
-  font-family: var(--font-serif), serif;
+  font-family: var(--font-display), sans-serif;
   font-size: 54px;
   line-height: 1.05;
   letter-spacing: 0.02em;
@@ -34,5 +34,5 @@
 }
 
 .rowAccent {
-  color: #8fb4de;
+  color: var(--ai);
 }

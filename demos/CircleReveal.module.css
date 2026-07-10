@@ -1,0 +1,42 @@
+.pageFrame {
+  position: relative;
+  width: min(280px, 72%);
+  height: 160px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--code-bg);
+}
+
+.faceB {
+  background: var(--ai);
+}
+
+/* 次ページのレイヤー。静止時はcircle(0%)で完全に隠れている */
+.overlay {
+  clip-path: circle(0% at 50% 50%);
+  will-change: clip-path;
+  pointer-events: none;
+}
+
+.label,
+.labelB {
+  font-family: var(--font-mono), monospace;
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.labelB {
+  color: var(--paper);
+}

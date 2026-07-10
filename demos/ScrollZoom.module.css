@@ -1,0 +1,79 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+.content {
+  min-height: 920px;
+  display: flex;
+  flex-direction: column;
+  gap: 130px;
+  padding: 48px 24px 64px;
+}
+
+.card {
+  flex: none;
+  height: 96px;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.05);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cardLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.cardLine {
+  display: block;
+  height: 6px;
+  width: 52%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}
+
+/* 画像フレーム。overflow: clip ではみ出しを描画だけ断つ(hiddenと違いstickyを殺さない) */
+.frame {
+  position: relative;
+  flex: none;
+  height: 200px;
+  border-radius: 4px;
+  overflow: clip;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+}
+
+/* 「画像」はCSSグラデーションで代用。拡縮はこの面にかかる */
+.image {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(165, 224, 46, 0.4), transparent 42%),
+    radial-gradient(circle at 72% 70%, rgba(216, 212, 200, 0.2), transparent 50%),
+    linear-gradient(160deg, #3a3a35 0%, #141412 62%, #55554e 100%);
+  transform-origin: center;
+  will-change: transform;
+}
+
+.frameLabel {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: rgba(216, 212, 200, 0.7);
+  pointer-events: none;
+}

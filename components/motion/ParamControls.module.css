@@ -20,7 +20,11 @@
 .val {
   font-family: var(--font-mono), monospace;
   font-size: 12px;
-  color: var(--ai);
+  font-weight: 500;
+  color: var(--sumi);
+  background: linear-gradient(transparent 58%, var(--ai) 58%);
+  padding: 0 3px;
+  font-variant-numeric: tabular-nums;
 }
 
 .desc {
@@ -35,14 +39,14 @@
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 22px;
+  height: 28px;
   background: transparent;
   cursor: pointer;
 }
 
 .ctrl input[type="range"]::-webkit-slider-runnable-track {
   height: 1px;
-  background: var(--sumi-soft);
+  background: var(--sumi);
 }
 
 .ctrl input[type="range"]::-webkit-slider-thumb {
@@ -53,12 +57,18 @@
   background: var(--ai);
   margin-top: -7.5px;
   border: 3px solid var(--paper);
-  box-shadow: 0 0 0 1px var(--ai);
+  box-shadow: 0 0 0 1px var(--sumi);
+  transition: transform 0.2s;
+}
+
+.ctrl input[type="range"]:hover::-webkit-slider-thumb,
+.ctrl input[type="range"]:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.2);
 }
 
 .ctrl input[type="range"]::-moz-range-track {
   height: 1px;
-  background: var(--sumi-soft);
+  background: var(--sumi);
 }
 
 .ctrl input[type="range"]::-moz-range-thumb {
@@ -67,5 +77,5 @@
   border-radius: 50%;
   background: var(--ai);
   border: 3px solid var(--paper);
-  box-shadow: 0 0 0 1px var(--ai);
+  box-shadow: 0 0 0 1px var(--sumi);
 }

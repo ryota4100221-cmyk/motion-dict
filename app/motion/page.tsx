@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { categoryLabels, entryList } from "@/content";
 import type { MotionEntry } from "@/lib/types";
+import Hero from "@/components/home/Hero";
+import TopBar from "@/components/TopBar";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -18,47 +20,69 @@ export default function MotionIndex() {
     byCategory.set(entry.category, list);
   }
 
+  const marqueeNames = entryList.map((e) => e.nameEn.split("/")[0].trim());
+  // 辞典全体の通し番号(カテゴリをまたいで連番)
+  let running = 0;
+
   return (
     <div className={styles.wrap}>
-      <header className={styles.header}>
-        <div className={styles.crumb}>
-          <span className={styles.cat}>INDEX</span>
-          <span>—</span>
-          <span>MOTION DICTIONARY</span>
-        </div>
-        <h1 className={styles.title}>動きの伝え方辞典</h1>
-        <p className={styles.lede}>
-          「あの動き」に名前と数値を。デモを触ってパラメータを決めれば、
-          そのままAIに渡せるプロンプトが手に入る、デザイナーのための対訳辞典。
-        </p>
-      </header>
+      <TopBar />
 
-      {[...byCategory.entries()].map(([category, list]) => (
-        <section className={styles.section} key={category}>
-          <div className={styles.secLabel}>
-            {categoryLabels[category]}
-            <span className={styles.count}>{list.length}</span>
-          </div>
-          <div className={styles.grid}>
-            {list.map((entry, i) => (
-              <Link
-                className={styles.card}
-                href={`/motion/${entry.slug}`}
-                key={entry.slug}
-              >
-                <span className={styles.cardIndex}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className={styles.cardName}>{entry.nameJa}</span>
-                <span className={styles.cardEn}>{entry.nameEn}</span>
-                <span className={styles.cardLede}>{entry.lede}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
+      <Hero
+        total={entryList.length}
+        categories={byCategory.size}
+        names={marqueeNames}
+      />
 
-      <footer className={styles.footer}>動きの伝え方辞典 — monaka design.</footer>
+      <main className={styles.list}>
+        {[...byCategory.entries()].map(([category, list]) => (
+          <section className={styles.section} key={category}>
+            <h2 className={styles.secHead}>
+              <span className={styles.secName}>{categoryLabels[category]}</span>
+              <span className={styles.secCount}>
+                ({String(list.length).padStart(2, "0")})
+              </span>
+            </h2>
+            <div className={styles.rows}>
+              {list.map((entry) => {
+                running += 1;
+                return (
+                  <Link
+                    className={styles.row}
+                    href={`/motion/${entry.slug}`}
+                    key={entry.slug}
+                  >
+                    <span className={styles.rowIndex}>
+                      ({String(running).padStart(2, "0")})
+                    </span>
+                    <span className={styles.rowNames}>
+                      <span className={`${styles.rowName} palt`}>
+                        {entry.nameJa}
+                      </span>
+                      <span className={styles.rowEn}>{entry.nameEn}</span>
+                    </span>
+                    <span className={styles.rowLede}>{entry.lede}</span>
+                    <span className={styles.rowArrow} aria-hidden>
+                      →
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </main>
+
+      <footer className={styles.footer}>
+        <span>動きの伝え方辞典</span>
+        <a
+          href="https://monakadesign.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          monaka design.
+        </a>
+      </footer>
     </div>
   );
 }

@@ -23,7 +23,7 @@ export default async function Image({
 
   const monoText = `${en} ${category} MOTION DICTIONARY monaka design. —`;
   const [serif, mono] = await Promise.all([
-    loadGoogleFont("Shippori Mincho", 600, title + "動きの伝え方辞典"),
+    loadGoogleFont("Noto Sans JP", 900, title + "動きの伝え方辞典"),
     loadGoogleFont("IBM Plex Mono", 400, monoText),
   ]);
 
@@ -39,7 +39,7 @@ export default async function Image({
           background: og.paper,
           color: og.sumi,
           padding: "64px 72px",
-          fontFamily: "ShipporiMincho",
+          fontFamily: "NotoSansJP",
         }}
       >
         <div
@@ -51,20 +51,28 @@ export default async function Image({
             color: og.sumiSoft,
           }}
         >
-          <span style={{ color: og.ai }}>{category}</span>
+          <span
+            style={{
+              backgroundColor: og.ai,
+              color: og.sumi,
+              padding: "4px 14px",
+            }}
+          >
+            {category}
+          </span>
           <span style={{ margin: "0 16px" }}>—</span>
-          <span style={{ fontFamily: "ShipporiMincho" }}>動きの伝え方辞典</span>
+          <span style={{ fontFamily: "NotoSansJP" }}>動きの伝え方辞典</span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-          <div style={{ fontSize: 88, fontWeight: 600, letterSpacing: "0.02em" }}>
+          <div style={{ fontSize: 88, fontWeight: 900, letterSpacing: "-0.01em" }}>
             {title}
           </div>
           <div
             style={{
               fontFamily: "IBMPlexMono",
               fontSize: 28,
-              color: og.ai,
+              color: og.sumiSoft,
               letterSpacing: "0.08em",
             }}
           >
@@ -92,7 +100,7 @@ export default async function Image({
     {
       ...size,
       fonts: [
-        { name: "ShipporiMincho", data: serif, weight: 600, style: "normal" },
+        { name: "NotoSansJP", data: serif, weight: 900, style: "normal" },
         { name: "IBMPlexMono", data: mono, weight: 400, style: "normal" },
       ],
     }

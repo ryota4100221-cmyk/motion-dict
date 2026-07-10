@@ -29,7 +29,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #8fb4de;
+  background: var(--ai);
   transform: translateX(-50%);
   transition: left 0.2s;
   pointer-events: none;

@@ -1,0 +1,49 @@
+.card {
+  position: relative;
+  width: 200px;
+  padding: 26px 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--paper);
+  color: var(--sumi);
+  border-radius: var(--radius);
+  cursor: pointer;
+  user-select: none;
+  transition-property: transform;
+  transition-timing-function: ease-out;
+  will-change: transform;
+}
+
+/* 影レイヤー: 薄く・大きく・翳りは下方向のみ。
+   黒いステージ上では alpha 0.1 は視認できないため濃いめにしている(明るい背景では0.1前後が目安) */
+.shadow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 28px 56px -8px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: ease-out;
+  will-change: opacity;
+  pointer-events: none;
+}
+
+.title {
+  font-family: var(--font-mono), monospace;
+  font-size: 15px;
+  letter-spacing: 0.16em;
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+}
+
+.meta {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--sumi-soft);
+}

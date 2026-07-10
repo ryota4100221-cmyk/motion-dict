@@ -24,7 +24,7 @@ export const underlineReveal: MotionEntry = {
       step: 1,
       default: 0,
       options: ["left", "center", "right"],
-      desc: "伸び始める起点。デモの青い点がtransform-originの位置。",
+      desc: "伸び始める起点。デモのライムの点がtransform-originの位置。",
     },
   ],
   promptTemplate: `リンクに underline reveal を実装してください。

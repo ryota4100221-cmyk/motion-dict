@@ -1,0 +1,26 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 0;
+  border-bottom: 2px solid var(--line-strong);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+
+.mark {
+  color: var(--sumi);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.link {
+  color: var(--sumi-soft);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.link:hover {
+  color: var(--sumi);
+}

@@ -21,9 +21,9 @@ export async function loadGoogleFont(
 export const og = {
   width: 1200,
   height: 630,
-  paper: "#E9E6DF",
-  sumi: "#1C1B18",
-  sumiSoft: "#55524A",
-  ai: "#2E4A6B",
-  line: "#C9C4B8",
+  paper: "#F4F4F1",
+  sumi: "#0A0A0A",
+  sumiSoft: "#67675F",
+  ai: "#A5E02E",
+  line: "rgba(10, 10, 10, 0.25)",
 } as const;

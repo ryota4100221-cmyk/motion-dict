@@ -1,142 +1,201 @@
 .wrap {
-  max-width: 720px;
+  max-width: 1160px;
   margin: 0 auto;
-  padding: 0 24px 120px;
+  padding: 0 clamp(16px, 5.5vw, 80px) 96px;
 }
 
-.header {
-  padding: 56px 0 40px;
-  border-bottom: 1px solid var(--line);
+/* ヒーロー(自己実演)とリストの間に最大の「間」を置く */
+.list {
+  margin-top: clamp(96px, 12vw, 160px);
 }
 
-.crumb {
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--sumi-soft);
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.cat {
-  color: var(--ai);
-}
-
-.title {
-  font-family: var(--font-serif), serif;
-  font-weight: 600;
-  font-size: clamp(30px, 7vw, 44px);
-  letter-spacing: 0.02em;
-  margin-top: 18px;
-  line-height: 1.3;
-}
-
-.lede {
-  margin-top: 20px;
-  color: var(--sumi-soft);
-  max-width: 560px;
+.section + .section {
+  margin-top: clamp(64px, 8vw, 96px);
 }
 
 .section {
-  padding: 44px 0;
-  border-bottom: 1px solid var(--line);
+  border-top: 2px solid var(--line-strong);
+  padding-top: 18px;
 }
 
-.secLabel {
+.secHead {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-weight: 400;
+}
+
+.secName {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(15px, 1.8vw, 19px);
+  font-weight: 500;
+  letter-spacing: 0.26em;
+}
+
+.secCount {
   font-family: var(--font-mono), monospace;
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   color: var(--sumi-soft);
-  margin-bottom: 20px;
-  display: flex;
+}
+
+.rows {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) minmax(0, 380px) 48px;
   align-items: center;
-  gap: 10px;
-}
-
-.secLabel::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--line);
-}
-
-.count {
-  color: var(--ai);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 12px;
-}
-
-@media (max-width: 520px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.card {
-  position: relative;
-  display: grid;
-  gap: 4px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 20px 22px;
+  gap: 0 24px;
+  margin: 0 -20px;
+  padding: 26px 20px;
+  border-bottom: 1px solid var(--line);
   text-decoration: none;
   color: var(--sumi);
-  transition: border-color 0.2s;
+  transition: background 0.25s, color 0.25s;
 }
 
-.card:hover {
-  border-color: var(--ai);
+/* 行ホバー=黒反転(項目「ボタン背景フィル」的な、国内ギャラリー定番の所作) */
+.row:hover {
+  background: var(--sumi);
+  color: var(--paper);
 }
 
-.cardIndex {
-  position: absolute;
-  top: 14px;
-  right: 16px;
+.rowIndex {
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.1em;
-  color: var(--line);
-  transition: color 0.2s;
+  color: var(--sumi-soft);
+  transition: color 0.25s;
 }
 
-.card:hover .cardIndex {
-  color: var(--ai);
+.rowNames {
+  display: grid;
+  gap: 6px;
 }
 
-.cardName {
-  font-family: var(--font-serif), serif;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.5;
+.rowName {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: clamp(20px, 2.2vw, 26px);
+  line-height: 1.4;
+  letter-spacing: 0;
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
 }
 
-.cardEn {
+/* 項目「下線アニメーション」の自己実演: 行ホバーで左からライムの下線が伸びる */
+.rowName::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+  background: var(--ai);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.row:hover .rowName::after {
+  transform: scaleX(1);
+}
+
+.rowEn {
   font-family: var(--font-mono), monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
-  color: var(--ai);
+  color: var(--sumi-soft);
+  transition: color 0.25s;
 }
 
-.cardLede {
-  margin-top: 8px;
-  font-size: 12px;
+.rowLede {
+  font-size: 12.5px;
   color: var(--sumi-soft);
-  line-height: 1.7;
+  line-height: 1.8;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.25s;
+}
+
+.rowArrow {
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  color: var(--sumi-soft);
+  justify-self: end;
+  transform: translateX(-6px);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s;
+}
+
+.row:hover .rowIndex,
+.row:hover .rowEn,
+.row:hover .rowArrow {
+  color: var(--ai);
+}
+
+.row:hover .rowLede {
+  color: rgba(244, 244, 241, 0.65);
+}
+
+.row:hover .rowArrow {
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .rowName::after,
+  .rowArrow {
+    transition: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .row {
+    grid-template-columns: 44px minmax(0, 1fr) 24px;
+    align-items: start;
+    row-gap: 10px;
+    margin: 0 -16px;
+    padding: 22px 16px;
+  }
+
+  .rowIndex {
+    padding-top: 8px;
+  }
+
+  .rowArrow {
+    padding-top: 6px;
+  }
+
+  .rowLede {
+    grid-column: 2 / 3;
+    grid-row: 2;
+  }
 }
 
 .footer {
-  padding-top: 40px;
+  margin-top: clamp(96px, 12vw, 160px);
+  padding-top: 24px;
+  border-top: 2px solid var(--line-strong);
+  display: flex;
+  justify-content: space-between;
   font-family: var(--font-mono), monospace;
   font-size: 10px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   color: var(--sumi-soft);
+}
+
+.footer a {
+  color: var(--sumi-soft);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer a:hover {
+  color: var(--sumi);
 }

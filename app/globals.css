@@ -1,13 +1,15 @@
 :root {
-  --paper: #e9e6df;
-  --sumi: #1c1b18;
-  --sumi-soft: #55524a;
-  --ai: #2e4a6b; /* 藍 */
-  --ai-pale: #dce3ea;
-  --line: #c9c4b8;
-  --code-bg: #211f1b;
-  --code-fg: #d8d4c8;
-  --radius: 2px;
+  /* monaka design. トンマナ: 白 × 黒#0a0a0a × ライム#A5E02E */
+  --paper: #f4f4f1;
+  --sumi: #0a0a0a;
+  --sumi-soft: #67675f;
+  --ai: #a5e02e; /* アクセント=ライム(黒地の上で使う。白地では図形・マーカーのみ) */
+  --ai-pale: #e4f5bd;
+  --line: rgba(10, 10, 10, 0.16);
+  --line-strong: #0a0a0a;
+  --code-bg: #0a0a0a;
+  --code-fg: #e9e9e3;
+  --radius: 0px;
 }
 
 * {
@@ -27,4 +29,19 @@ body {
   font-size: 15px;
   line-height: 1.9;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--ai);
+  color: var(--sumi);
+}
+
+:focus-visible {
+  outline: 1px solid var(--sumi);
+  outline-offset: 3px;
+}
+
+/* 和文ディスプレイ用: 約物のアキを詰める */
+.palt {
+  font-feature-settings: "palt";
 }
