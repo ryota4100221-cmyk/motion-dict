@@ -70,6 +70,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "blur-load": d(() => import("./BlurLoad")),
   "before-after": d(() => import("./BeforeAfter")),
   "mosaic-reveal": d(() => import("./MosaicReveal")),
+  "frosted-glass": d(() => import("./FrostedGlass")),
   accordion: d(() => import("./Accordion")),
   "tab-indicator": d(() => import("./TabIndicator")),
   "modal-pop": d(() => import("./ModalPop")),

@@ -45,6 +45,7 @@ import { imageParallaxHover } from "./image-parallax-hover";
 import { blurLoad } from "./blur-load";
 import { beforeAfter } from "./before-after";
 import { mosaicReveal } from "./mosaic-reveal";
+import { frostedGlass } from "./frosted-glass";
 import { accordion } from "./accordion";
 import { tabIndicator } from "./tab-indicator";
 import { modalPop } from "./modal-pop";
@@ -108,6 +109,7 @@ const all: MotionEntry[] = [
   blurLoad,
   beforeAfter,
   mosaicReveal,
+  frostedGlass,
   accordion,
   tabIndicator,
   modalPop,
