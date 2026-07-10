@@ -31,9 +31,6 @@ export default function MotionIndex() {
           「あの動き」に名前と数値を。デモを触ってパラメータを決めれば、
           そのままAIに渡せるプロンプトが手に入る、デザイナーのための対訳辞典。
         </p>
-        <Link className={styles.dailyLink} href="/motion/daily">
-          DAILY — 毎朝の再現デモアーカイブ →
-        </Link>
       </header>
 
       {[...byCategory.entries()].map(([category, list]) => (

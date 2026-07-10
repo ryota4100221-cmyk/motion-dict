@@ -38,25 +38,6 @@
   max-width: 560px;
 }
 
-.dailyLink {
-  display: inline-block;
-  margin-top: 24px;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--sumi);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 8px 18px;
-  text-decoration: none;
-  transition: border-color 0.2s, color 0.2s;
-}
-
-.dailyLink:hover {
-  border-color: var(--ai);
-  color: var(--ai);
-}
-
 .section {
   padding: 44px 0;
   border-bottom: 1px solid var(--line);
