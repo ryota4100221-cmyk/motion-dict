@@ -1,0 +1,52 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+/* scroll-snap-type(強制度)はJS側からインラインで指定する */
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+/* 吸着位置(scroll-snap-align)はJS側からインラインで指定する。
+   高さをステージより少し低くして start / center の差が見えるようにしている */
+.section {
+  height: 78%;
+  margin: 16px 24px;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.05);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sectionLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.sectionLabel::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ai);
+  margin-right: 10px;
+  vertical-align: 1px;
+}
+
+.sectionLine {
+  display: block;
+  height: 6px;
+  width: 56%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}

@@ -1,0 +1,52 @@
+/* チャットの吹き出しを模したフレーム。点の動きだけが主役 */
+.bubble {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 24px;
+  border: 1px solid rgba(216, 212, 200, 0.18);
+  border-radius: 999px;
+}
+
+.dot,
+.dotStatic {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.dot {
+  opacity: 0.35;
+  animation-name: pulse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* reduced-motion時: 動かさず全点を同じ不透明度で表示 */
+.dotStatic {
+  opacity: 0.8;
+}
+
+/* 膨らみは周期の前半30%に収め、60%以降は静止させてリズムを作る */
+@keyframes pulse {
+  0%,
+  60%,
+  100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  30% {
+    transform: scale(1.6);
+    opacity: 1;
+  }
+}
+
+/* JSのフォールバック(初回描画時など)としてCSS側でも止める */
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+    opacity: 0.8;
+  }
+}

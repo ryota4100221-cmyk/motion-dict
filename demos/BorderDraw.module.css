@@ -1,0 +1,53 @@
+.drawBtn {
+  position: relative;
+  padding: 20px 48px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 4辺の線。本番実装では::before/::afterのL字2分割に集約する想定
+   (デモはパラメータ反映と順序の可視化のためspan4本) */
+.side {
+  position: absolute;
+  background: var(--ai);
+  transition-property: transform;
+  /* 一筆書きは速度が均一なlinearが自然。ease系だと辺の継ぎ目で減速して見える */
+  transition-timing-function: linear;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* transform-origin = 各辺の「描き始めの端」 */
+.top {
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform-origin: left center;
+}
+
+.right {
+  top: 0;
+  right: 0;
+  height: 100%;
+  transform-origin: center top;
+}
+
+.bottom {
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  transform-origin: right center;
+}
+
+.left {
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  transform-origin: center bottom;
+}

@@ -1,0 +1,109 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 24px 64px;
+}
+
+.card {
+  flex: none;
+  height: 96px;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.05);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cardLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.cardLine {
+  display: block;
+  height: 6px;
+  width: 56%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}
+
+/* 縦量→横量の変換の源。高さはJSで「ステージ高+横移動距離」に設定する */
+.pinSection {
+  position: relative;
+  flex: none;
+  min-height: 600px;
+  margin: 0 -24px; /* 横移動のビューポートはステージ幅いっぱいに使う */
+}
+
+/* 固定される画面。hiddenはstickyを殺すため、はみ出しはclipで断つ */
+.viewport {
+  position: sticky;
+  top: 0;
+  overflow: clip;
+  display: flex;
+  align-items: center;
+  min-height: 320px;
+}
+
+.track {
+  display: flex;
+  gap: 16px;
+  height: 64%;
+  padding: 0 24px;
+  will-change: transform;
+}
+
+.panel {
+  flex: 1 1 0;
+  min-width: 160px;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.05);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.panelLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.panelLabel::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ai);
+  margin-right: 10px;
+  vertical-align: 1px;
+}
+
+.panelLine {
+  display: block;
+  height: 6px;
+  width: 52%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}

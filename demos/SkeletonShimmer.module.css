@@ -1,0 +1,83 @@
+.card {
+  width: min(300px, 76%);
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 骨組みブロック。グラデーション(光の帯)はJS側でinline指定する */
+.bone {
+  background-color: rgba(233, 233, 227, 0.08);
+  border-radius: 3px;
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+}
+
+.shimmer {
+  animation: sweep 1.4s linear infinite;
+}
+
+/* 150%→-50%で、光がブロックの左外から右外へ通り抜ける */
+@keyframes sweep {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+    background-image: none;
+  }
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.lineWide {
+  height: 10px;
+  width: 70%;
+}
+
+.lineNarrow {
+  height: 10px;
+  width: 45%;
+}
+
+.thumb {
+  height: 72px;
+  width: 100%;
+}
+
+.lineFull {
+  height: 10px;
+  width: 100%;
+}
+
+.lineHalf {
+  height: 10px;
+  width: 55%;
+}

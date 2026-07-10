@@ -1,0 +1,89 @@
+.frame {
+  width: min(300px, 82%);
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  background: var(--code-bg);
+}
+
+.tabs {
+  position: relative;
+  display: flex;
+  border-bottom: 1px solid rgba(216, 212, 200, 0.22);
+}
+
+.tab {
+  flex: 1;
+  padding: 13px 0 12px;
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: rgba(233, 233, 227, 0.45);
+  cursor: pointer;
+  transition: color 0.2s;
+  user-select: none;
+}
+
+.tab:hover {
+  color: rgba(233, 233, 227, 0.75);
+}
+
+.tabActive {
+  color: var(--code-fg);
+}
+
+/* 1本のインジケーター。幅=タブ1個分(等幅3タブ)、移動はtranslateX */
+.indicator {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: calc(100% / 3);
+  height: 2px;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--ai);
+  transform-origin: center;
+}
+
+/* 移動中に一瞬伸びて着地で戻る。移動(親のtranslateX)とは分離して重ねる */
+.stretch {
+  animation-name: stretch;
+  animation-timing-function: ease-out;
+}
+
+@keyframes stretch {
+  0% {
+    transform: scaleX(1);
+  }
+  45% {
+    transform: scaleX(1.4);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.panel {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 26px 16px 28px;
+  font-family: var(--font-mono), monospace;
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.panelIndex {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ai);
+}

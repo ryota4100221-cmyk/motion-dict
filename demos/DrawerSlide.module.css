@@ -1,0 +1,117 @@
+.frame {
+  position: relative;
+  width: min(280px, 76%);
+  height: 200px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--code-bg);
+}
+
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  z-index: 3;
+}
+
+.logo {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.menuBtn {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.3s;
+}
+
+.menuBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+/* 右ドロワーが明るいパネルでボタンに被さる間は配色を反転 */
+.menuBtnOpen {
+  color: var(--sumi);
+  border-color: rgba(28, 27, 24, 0.4);
+}
+
+.menuBtnOpen:hover {
+  border-color: rgba(28, 27, 24, 0.8);
+}
+
+.pageLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  color: var(--code-fg);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 背景のスクリム。パネルと同durationでフェード連動させる */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(10, 10, 10, 0.55);
+  opacity: 0;
+}
+
+/* パネル。left/rightの位置決めはインラインstyle、動きはtranslateXのみ */
+.panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 58%;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  will-change: transform;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  color: var(--sumi);
+  user-select: none;
+}
+
+.index {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ai);
+}

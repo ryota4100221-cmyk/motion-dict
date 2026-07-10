@@ -29,10 +29,10 @@
 | ファイル | 内容 |
 |---|---|
 | `content/example-motion.ts` | `MotionEntry` データ（§3） |
-| `content/index.ts` | import追加＋`all`配列の**カテゴリ順の位置**（hover→scroll→text→transition→media）に挿入 |
+| `content/index.ts` | import追加＋`all`配列の**カテゴリ順の位置**（hover→scroll→text→transition→media→ui→loading）に挿入 |
 | `demos/ExampleMotion.tsx` | デモ実装（§4） |
 | `demos/ExampleMotion.module.css` | デモのスタイル |
-| `demos/index.ts` | import追加＋`demoRegistry`に `"example-motion": ExampleMotion` |
+| `demos/index.tsx` | `demoRegistry`に `"example-motion": d(() => import("./ExampleMotion"))` を追加（**必ずdynamic登録**。静的importで束ねるとページJSが項目数に比例して太る） |
 
 ページ側（`app/motion/[slug]`・一覧）は登録制で自動反映される。**appディレクトリは触らない。**
 

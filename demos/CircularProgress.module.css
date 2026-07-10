@@ -1,0 +1,58 @@
+.wrap {
+  position: relative;
+  margin-bottom: 36px;
+}
+
+/* -90degで弧の開始位置を3時→12時に */
+.svg {
+  display: block;
+  transform: rotate(-90deg);
+}
+
+.track {
+  fill: none;
+  stroke: rgba(216, 212, 200, 0.16);
+  stroke-width: 6;
+}
+
+.arc {
+  fill: none;
+  stroke: var(--ai);
+  stroke-width: 6;
+  stroke-linecap: round;
+  will-change: stroke-dashoffset;
+}
+
+.label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: var(--code-fg);
+  pointer-events: none;
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}

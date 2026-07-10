@@ -4,6 +4,8 @@ export type MotionCategory =
   | "text"
   | "transition"
   | "media"
+  | "ui"
+  | "loading"
   | "webgl";
 
 export type DemoParam = {

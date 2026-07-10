@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { categoryLabels, entryList } from "@/content";
 import type { MotionEntry } from "@/lib/types";
 import Hero from "@/components/home/Hero";
+import DictionaryList from "@/components/home/DictionaryList";
+import type { DictionarySection } from "@/components/home/DictionaryList";
 import TopBar from "@/components/TopBar";
 import styles from "./page.module.css";
 
@@ -21,8 +22,26 @@ export default function MotionIndex() {
   }
 
   const marqueeNames = entryList.map((e) => e.nameEn.split("/")[0].trim());
+
   // 辞典全体の通し番号(カテゴリをまたいで連番)
   let running = 0;
+  const sections: DictionarySection[] = [...byCategory.entries()].map(
+    ([category, list]) => ({
+      category,
+      label: categoryLabels[category],
+      rows: list.map((entry) => {
+        running += 1;
+        return {
+          slug: entry.slug,
+          nameJa: entry.nameJa,
+          nameEn: entry.nameEn,
+          lede: entry.lede,
+          category: entry.category,
+          num: String(running).padStart(2, "0"),
+        };
+      }),
+    })
+  );
 
   return (
     <div className={styles.wrap}>
@@ -34,44 +53,7 @@ export default function MotionIndex() {
         names={marqueeNames}
       />
 
-      <main className={styles.list}>
-        {[...byCategory.entries()].map(([category, list]) => (
-          <section className={styles.section} key={category}>
-            <h2 className={styles.secHead}>
-              <span className={styles.secName}>{categoryLabels[category]}</span>
-              <span className={styles.secCount}>
-                ({String(list.length).padStart(2, "0")})
-              </span>
-            </h2>
-            <div className={styles.rows}>
-              {list.map((entry) => {
-                running += 1;
-                return (
-                  <Link
-                    className={styles.row}
-                    href={`/motion/${entry.slug}`}
-                    key={entry.slug}
-                  >
-                    <span className={styles.rowIndex}>
-                      ({String(running).padStart(2, "0")})
-                    </span>
-                    <span className={styles.rowNames}>
-                      <span className={`${styles.rowName} palt`}>
-                        {entry.nameJa}
-                      </span>
-                      <span className={styles.rowEn}>{entry.nameEn}</span>
-                    </span>
-                    <span className={styles.rowLede}>{entry.lede}</span>
-                    <span className={styles.rowArrow} aria-hidden>
-                      →
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </main>
+      <DictionaryList sections={sections} />
 
       <footer className={styles.footer}>
         <span>動きの伝え方辞典</span>

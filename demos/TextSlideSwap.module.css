@@ -1,0 +1,36 @@
+.swapBtn {
+  padding: 18px 44px;
+  border: 1px solid var(--code-fg);
+  border-radius: var(--radius);
+  background: transparent;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 高さ1行ぶんの枠。hiddenではなくclip(スクロールコンテナ化させない) */
+.clip {
+  display: block;
+  overflow: clip;
+  height: 1.4em;
+}
+
+/* 同一テキスト2段の列。これを1行ぶん平行移動するだけ */
+.roll {
+  display: flex;
+  flex-direction: column;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* 枠と行の高さを一致させる(ズレると入れ替わり時に文字が欠ける) */
+.item {
+  display: block;
+  height: 1.4em;
+  line-height: 1.4em;
+  transition: color 0.2s;
+}

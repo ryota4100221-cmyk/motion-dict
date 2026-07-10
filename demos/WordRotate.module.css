@@ -1,0 +1,58 @@
+.sentence {
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(20px, 5vw, 32px);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  color: var(--code-fg);
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+/* 回る単語を1行分だけ見せる窓。widthはJS側からemで指定して追従させる */
+.mask {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  height: 1.4em;
+  vertical-align: bottom;
+  transition: width var(--d, 0.5s) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.word {
+  display: inline-block;
+  color: var(--ai);
+  will-change: transform;
+}
+
+/* 次の単語: 下から入る */
+.in {
+  animation: enter var(--d, 0.5s) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 現在の単語: 上へ抜ける */
+.out {
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: leave var(--d, 0.5s) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes enter {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes leave {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-105%);
+  }
+}

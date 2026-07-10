@@ -1,0 +1,37 @@
+.card {
+  margin: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* 枠は固定・overflow: clipではみ出しを切り落とす(hiddenと違いstickyを殺さない) */
+.frame {
+  position: relative;
+  width: min(280px, 70vw);
+  aspect-ratio: 16 / 9;
+  border-radius: 2px;
+  overflow: clip;
+}
+
+/* ダミー画像はCSSグラデーションで表現。
+   最大シフト量(28px)より広い32pxのブリードを敷いておく */
+.img {
+  position: absolute;
+  inset: -32px;
+  background:
+    radial-gradient(circle at 30% 68%, rgba(165, 224, 46, 0.4), transparent 46%),
+    radial-gradient(circle at 74% 26%, rgba(233, 230, 223, 0.8), transparent 38%),
+    linear-gradient(145deg, #232320 0%, #6f6f66 58%, #a5e02e 140%);
+  transform: translate(0, 0);
+  transition-property: transform;
+  transition-timing-function: ease-out;
+  will-change: transform;
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}

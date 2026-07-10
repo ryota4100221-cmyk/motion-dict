@@ -1,0 +1,60 @@
+.svg,
+.svgStatic {
+  display: block;
+}
+
+.svg {
+  animation: rotate var(--rotate-dur) linear infinite;
+}
+
+/* reduced-motion時: 回転させず、12時始まりの静的な弧に見せる */
+.svgStatic {
+  transform: rotate(-90deg);
+}
+
+.track {
+  fill: none;
+  stroke: rgba(216, 212, 200, 0.16);
+}
+
+.arc,
+.arcStatic {
+  fill: none;
+  stroke: var(--ai);
+  stroke-linecap: round;
+}
+
+/* 回転(svg)とは別レイヤーで弧の伸縮をループさせる */
+.arc {
+  animation: dash var(--dash-dur) ease-in-out infinite;
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 円周≈176(=2π×28)を基準に、弧が「伸びて→縮む」を1周期で繰り返す */
+@keyframes dash {
+  0% {
+    stroke-dasharray: 2 174;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 132 44;
+    stroke-dashoffset: -44;
+  }
+  100% {
+    stroke-dasharray: 2 174;
+    stroke-dashoffset: -176;
+  }
+}
+
+/* JSのフォールバック(初回描画時など)としてCSS側でも止める */
+@media (prefers-reduced-motion: reduce) {
+  .svg,
+  .arc {
+    animation: none;
+  }
+}

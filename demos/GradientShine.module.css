@@ -1,0 +1,24 @@
+.shine {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(36px, 9vw, 64px);
+  letter-spacing: 0.08em;
+  /* 文字をグラデーションの窓にする */
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* 背景を横に大きく敷き、positionの全域で文字が覆われたまま帯だけが動く */
+  background-size: 250% 100%;
+  animation: sweep linear infinite;
+  cursor: default;
+  user-select: none;
+}
+
+/* 100%→0%で光の帯が左から右へ走り抜ける。両端は帯が窓の外なのでループの継ぎ目が見えない */
+@keyframes sweep {
+  from {
+    background-position: 100% 50%;
+  }
+  to {
+    background-position: 0% 50%;
+  }
+}

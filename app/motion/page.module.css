@@ -9,6 +9,70 @@
   margin-top: clamp(96px, 12vw, 160px);
 }
 
+/* 検索(辞典は「引ける」ことが命) */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 2px solid var(--line-strong);
+  padding-bottom: 14px;
+  margin-bottom: clamp(48px, 6vw, 72px);
+}
+
+.searchMark {
+  font-size: 18px;
+  line-height: 1;
+  color: var(--sumi);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  color: var(--sumi);
+  padding: 6px 0;
+}
+
+.searchInput::placeholder {
+  color: var(--sumi-soft);
+}
+
+.searchInput:focus {
+  outline: none;
+}
+
+.searchInput::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search:focus-within {
+  border-bottom-color: var(--ai);
+}
+
+.searchCount {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--sumi-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.noHit {
+  font-size: 14px;
+  color: var(--sumi-soft);
+  padding: 32px 0 64px;
+}
+
+.noHit a {
+  color: var(--sumi);
+  border-bottom: 2px solid var(--ai);
+  text-decoration: none;
+}
+
 .section + .section {
   margin-top: clamp(64px, 8vw, 96px);
 }

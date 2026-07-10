@@ -1,0 +1,26 @@
+.wrap {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(36px, 9vw, 64px);
+  letter-spacing: 0.06em;
+  cursor: default;
+  user-select: none;
+}
+
+/* 下層: 縁取りだけの文字 */
+.stroke {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--code-fg);
+}
+
+/* 上層: 塗りの文字。clip-pathで面積を動かす */
+.fill {
+  position: absolute;
+  inset: 0;
+  color: var(--ai);
+  -webkit-text-stroke: 1px var(--ai);
+  transition-property: clip-path;
+  transition-timing-function: ease;
+  will-change: clip-path;
+}

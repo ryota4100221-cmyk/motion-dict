@@ -1,0 +1,103 @@
+.glitch {
+  position: relative;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(24px, 6vw, 40px);
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  cursor: default;
+  user-select: none;
+}
+
+/* 複製2層。ホバー中のみclip-pathスライス+ずれのkeyframesを再生する */
+.layerA,
+.layerB {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, clip-path;
+}
+
+.on {
+  /* ベース文字にはtext-shadowの2色ずらし(色収差)を足す */
+  text-shadow:
+    calc(var(--strength) * 0.5) 0 var(--ai),
+    calc(var(--strength) * -0.5) 0 var(--ai-pale);
+}
+
+.on .layerA {
+  opacity: 0.85;
+  color: var(--ai);
+  animation: sliceA var(--period) steps(1, end) infinite;
+}
+
+.on .layerB {
+  opacity: 0.7;
+  color: var(--ai-pale);
+  animation: sliceB var(--period) steps(1, end) infinite;
+}
+
+/* 横帯スライスをコマ送りで動かす。滑らかに補間すると台無しなのでsteps() */
+@keyframes sliceA {
+  0% {
+    clip-path: inset(0 0 78% 0);
+    transform: translate(var(--strength), calc(var(--strength) * -0.4));
+  }
+  20% {
+    clip-path: inset(58% 0 10% 0);
+    transform: translate(calc(var(--strength) * -1), 0);
+  }
+  40% {
+    clip-path: inset(30% 0 48% 0);
+    transform: translate(var(--strength), calc(var(--strength) * 0.3));
+  }
+  60% {
+    clip-path: inset(80% 0 4% 0);
+    transform: translate(calc(var(--strength) * -0.6), 0);
+  }
+  80% {
+    clip-path: inset(12% 0 70% 0);
+    transform: translate(calc(var(--strength) * 0.8), calc(var(--strength) * -0.2));
+  }
+  100% {
+    clip-path: inset(0 0 78% 0);
+    transform: translate(var(--strength), calc(var(--strength) * -0.4));
+  }
+}
+
+@keyframes sliceB {
+  0% {
+    clip-path: inset(64% 0 8% 0);
+    transform: translate(calc(var(--strength) * -0.8), calc(var(--strength) * 0.3));
+  }
+  25% {
+    clip-path: inset(8% 0 82% 0);
+    transform: translate(calc(var(--strength) * 0.6), 0);
+  }
+  50% {
+    clip-path: inset(42% 0 36% 0);
+    transform: translate(calc(var(--strength) * -0.5), calc(var(--strength) * -0.3));
+  }
+  75% {
+    clip-path: inset(74% 0 12% 0);
+    transform: translate(var(--strength), 0);
+  }
+  100% {
+    clip-path: inset(64% 0 8% 0);
+    transform: translate(calc(var(--strength) * -0.8), calc(var(--strength) * 0.3));
+  }
+}
+
+/* reduced-motion時は乱れを止め、色の変化のみ */
+@media (prefers-reduced-motion: reduce) {
+  .on {
+    color: var(--ai);
+    text-shadow: none;
+  }
+
+  .on .layerA,
+  .on .layerB {
+    animation: none;
+    opacity: 0;
+  }
+}

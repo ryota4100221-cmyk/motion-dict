@@ -1,0 +1,94 @@
+.pageFrame {
+  position: relative;
+  width: min(280px, 72%);
+  height: 160px;
+  margin-bottom: 36px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--code-bg);
+}
+
+.faceB {
+  background: var(--ai);
+}
+
+.label,
+.labelB {
+  font-family: var(--font-mono), monospace;
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.labelB {
+  color: var(--paper);
+}
+
+/* 帯(スリット)。vertical=横並び / horizontal=縦積み */
+.panels {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.panelsH {
+  flex-direction: column;
+}
+
+.panel {
+  flex: 1;
+  background: var(--code-bg);
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+.panelB {
+  background: var(--ai);
+}
+
+/* 次ページのラベル。帯の上に重ね、開き切る直前にフェードイン */
+.nextLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover:not(:disabled) {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+.playBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

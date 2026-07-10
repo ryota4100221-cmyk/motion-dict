@@ -1,0 +1,94 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 24px 64px;
+}
+
+.card {
+  flex: none;
+  height: 96px;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.05);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cardLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.cardLine {
+  display: block;
+  height: 6px;
+  width: 56%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}
+
+/* 高さのある親。高さはJSで「ステージ高 × length」に設定する(固定区間の源) */
+.pinSection {
+  position: relative;
+  flex: none;
+  min-height: 480px;
+}
+
+/* ピン留めされる面。sticky なので祖先に overflow: hidden を置かないこと */
+.panel {
+  position: sticky;
+  height: 120px;
+  border: 1px solid rgba(165, 224, 46, 0.55);
+  border-radius: 4px;
+  background: rgba(165, 224, 46, 0.08);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.panelLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ai);
+}
+
+.track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(216, 212, 200, 0.14);
+  overflow: clip;
+}
+
+.bar {
+  height: 100%;
+  background: var(--ai);
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform;
+}
+
+.panelNote {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}

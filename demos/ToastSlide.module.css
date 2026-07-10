@@ -1,0 +1,53 @@
+.spawnBtn {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--ai);
+  border: 1px solid var(--ai);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s ease-out;
+}
+
+.spawnBtn:active {
+  transform: scale(0.96);
+}
+
+/* トーストの原点(右下)。各トーストはここからtransformで積み上がる */
+.toastLayer {
+  position: absolute;
+  right: 16px;
+  bottom: 36px;
+  width: 190px;
+  pointer-events: none;
+}
+
+.toast {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 190px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: #1d1d19;
+  border: 1px solid rgba(233, 233, 227, 0.16);
+  border-radius: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--code-fg);
+  will-change: transform, opacity;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ai);
+  flex-shrink: 0;
+}

@@ -1,0 +1,43 @@
+.target {
+  position: relative;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(18px, 4.5vw, 26px);
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(233, 233, 227, 0.4);
+  cursor: default;
+  user-select: none;
+}
+
+/* origin=下辺中央(矢印側)。そこから生えたように見せる */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform-origin: 50% 100%;
+  white-space: nowrap;
+  padding: 8px 14px;
+  background: #1d1d19;
+  border: 1px solid var(--ai);
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--code-fg);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* 矢印(下辺中央) */
+.tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -4.5px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #1d1d19;
+  border-right: 1px solid var(--ai);
+  border-bottom: 1px solid var(--ai);
+  transform: translateX(-50%) rotate(45deg);
+}

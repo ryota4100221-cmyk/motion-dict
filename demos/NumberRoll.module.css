@@ -1,0 +1,39 @@
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.06em;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(40px, 10vw, 64px);
+  color: var(--code-fg);
+  /* 回転中に桁幅がガタつかないよう数字を等幅で描画する */
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+  user-select: none;
+}
+
+/* 桁の窓。1行分だけ見せる */
+.mask {
+  display: block;
+  overflow: hidden;
+  height: 1em;
+}
+
+/* 0〜9×2周の縦リスト。translateYで目標の数字まで回す */
+.column {
+  display: block;
+  will-change: transform;
+}
+
+.cell {
+  display: block;
+  height: 1em;
+  line-height: 1;
+  text-align: center;
+}
+
+.symbol {
+  display: block;
+  height: 1em;
+  line-height: 1;
+  color: var(--ai);
+}

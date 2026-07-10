@@ -1,0 +1,40 @@
+.text {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(20px, 5vw, 30px);
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 疑似画像カード。本番実装では<img>やbackground-imageに置き換える想定 */
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 84px;
+  height: 56px;
+  border-radius: 4px;
+  opacity: 0;
+  transition-property: transform, opacity;
+  transition-timing-function: ease-out;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* CSSグラデによる疑似画像4種(ローテーションで使用) */
+.v1 {
+  background: linear-gradient(135deg, var(--ai), rgba(165, 224, 46, 0.12));
+}
+
+.v2 {
+  background: linear-gradient(160deg, var(--paper), var(--sumi-soft));
+}
+
+.v3 {
+  background: radial-gradient(circle at 30% 30%, var(--ai-pale), var(--sumi-soft));
+}
+
+.v4 {
+  background: linear-gradient(20deg, var(--sumi-soft), var(--ai));
+}

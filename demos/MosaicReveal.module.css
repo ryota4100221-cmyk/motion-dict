@@ -1,0 +1,47 @@
+.card {
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.frame {
+  position: relative;
+  width: min(300px, 74%);
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 2px;
+  overflow: clip;
+}
+
+/* 疑似写真。グレースケールにライムの気配 */
+.img {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(233, 230, 223, 0.8), transparent 42%),
+    radial-gradient(circle at 76% 68%, rgba(165, 224, 46, 0.5), transparent 45%),
+    linear-gradient(150deg, #1c1c19, #6f6f66 60%, #3a3a35);
+}
+
+/* カバータイル層。画像は切らず、上のタイルを消していく */
+.grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  pointer-events: none;
+}
+
+.tile {
+  background: var(--sumi);
+  will-change: opacity;
+}
+
+.caption {
+  margin-top: 10px;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}

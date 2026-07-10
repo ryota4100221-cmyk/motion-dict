@@ -1,0 +1,70 @@
+.frame {
+  position: relative;
+  width: min(300px, 76%);
+  height: 170px;
+  margin-bottom: 36px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.content {
+  font-family: var(--font-mono), monospace;
+  font-size: 18px;
+  letter-spacing: 0.24em;
+  color: var(--ai);
+  user-select: none;
+}
+
+.curtain {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  will-change: transform;
+}
+
+.count {
+  position: absolute;
+  right: 14px;
+  bottom: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 30px;
+  letter-spacing: 0.06em;
+  color: var(--sumi);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.unit {
+  font-size: 15px;
+  margin-left: 2px;
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover:not(:disabled) {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+.playBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

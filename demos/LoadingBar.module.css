@@ -1,0 +1,62 @@
+.frame {
+  position: relative;
+  width: min(300px, 76%);
+  height: 160px;
+  margin-bottom: 36px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--ai);
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform, opacity;
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  color: rgba(216, 212, 200, 0.55);
+  user-select: none;
+  transition: color 0.3s;
+}
+
+.done {
+  color: var(--ai);
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover:not(:disabled) {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+.playBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

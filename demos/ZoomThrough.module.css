@@ -1,0 +1,82 @@
+.pageFrame {
+  position: relative;
+  width: min(280px, 72%);
+  height: 180px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--code-bg);
+}
+
+.faceB {
+  background: var(--ai);
+}
+
+/* 遷移中に拡大する現在ページのレイヤー */
+.top {
+  will-change: transform, opacity;
+}
+
+.label,
+.labelB {
+  font-family: var(--font-mono), monospace;
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.labelB {
+  color: var(--paper);
+}
+
+.tiles {
+  display: flex;
+  gap: 10px;
+}
+
+/* 擬似サムネイル。クリックでこの中心がtransform-originになる */
+.tile {
+  width: 56px;
+  height: 36px;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  background:
+    radial-gradient(circle at 72% 30%, rgba(165, 224, 46, 0.5), transparent 55%),
+    linear-gradient(140deg, #2b2b27, #55554e);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(233, 233, 227, 0.85);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.tile:hover:not(:disabled) {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+.tile:disabled {
+  cursor: default;
+}
+
+.tileB {
+  border-color: rgba(10, 10, 10, 0.35);
+  background:
+    radial-gradient(circle at 72% 30%, rgba(244, 244, 241, 0.35), transparent 55%),
+    linear-gradient(140deg, #0f0f0d, #3a3a35);
+}
+
+.tileB:hover:not(:disabled) {
+  border-color: rgba(10, 10, 10, 0.7);
+}

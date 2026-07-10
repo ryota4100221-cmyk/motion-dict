@@ -1,0 +1,38 @@
+/* クリック領域はスイッチ+ラベル全体 */
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.track {
+  display: block;
+  width: 72px;
+  height: 40px;
+  padding: 4px;
+  border-radius: 999px;
+  will-change: background-color;
+}
+
+.knob {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  min-width: 3ch;
+  text-align: left;
+  user-select: none;
+}

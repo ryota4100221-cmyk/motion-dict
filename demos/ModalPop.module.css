@@ -1,0 +1,94 @@
+.frame {
+  position: relative;
+  width: min(280px, 76%);
+  height: 200px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--code-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pageLabel {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.openBtn {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.openBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+/* 背景のスクリム。opacityのみで出し入れする */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(10, 10, 10, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.panel {
+  width: 76%;
+  background: var(--paper);
+  border-radius: 3px;
+  padding: 18px 18px 16px;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.title {
+  margin: 0 0 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--sumi);
+}
+
+.text {
+  margin: 0 0 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--sumi-soft);
+}
+
+.closeBtn {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--sumi);
+  background: transparent;
+  border: 1px solid rgba(10, 10, 10, 0.4);
+  border-radius: 2px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.closeBtn:hover {
+  border-color: rgba(10, 10, 10, 0.85);
+}
