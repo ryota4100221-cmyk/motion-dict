@@ -58,7 +58,7 @@ export default function RippleTap({ params }: { params: ParamValues }) {
   return (
     <DemoStage hint="PC: パッド内をクリック / スマホ: タップ(連打で重なる)">
       <button className={styles.pad} onPointerDown={tap}>
-        <span className={styles.label}>TAP HERE</span>
+        <span className={styles.label}>Tap here</span>
         {ripples.map((r) => (
           <span
             key={r.id}

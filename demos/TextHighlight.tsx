@@ -7,11 +7,11 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./TextHighlight.module.css";
 
 const LINES = [
-  "MOTION IS A LANGUAGE.",
-  "SCROLL SETS THE PACE,",
-  "WORDS GET PAINTED",
-  "AS THE READER ARRIVES.",
-  "NOTHING MOVES WITHOUT REASON.",
+  "Motion is a language.",
+  "Scroll sets the pace,",
+  "Words get painted",
+  "As the reader arrives.",
+  "Nothing moves without reason.",
 ];
 
 export default function TextHighlight({ params }: { params: ParamValues }) {
@@ -64,7 +64,7 @@ export default function TextHighlight({ params }: { params: ParamValues }) {
     <DemoStage hint="ステージ内をスクロール" className={styles.scrollStage}>
       <div className={styles.scroller} ref={scrollerRef}>
         <div className={styles.content}>
-          <div className={styles.kicker}>MANIFESTO</div>
+          <div className={styles.kicker}>Manifesto</div>
           {LINES.map((text, i) => (
             <div className={styles.line} data-line key={text}>
               <span className={styles.base}>{text}</span>
@@ -80,7 +80,7 @@ export default function TextHighlight({ params }: { params: ParamValues }) {
               </span>
             </div>
           ))}
-          <div className={styles.tail}>KEEP SCROLLING, KEEP READING</div>
+          <div className={styles.tail}>Keep scrolling, keep reading</div>
         </div>
       </div>
     </DemoStage>

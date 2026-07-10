@@ -93,7 +93,7 @@ export default function CustomCursor({ params }: { params: ParamValues }) {
       className={styles.noCursor}
       hint="PC: ステージ内を動かす / スマホ: ドラッグ"
     >
-      <p className={styles.text}>MOVE AROUND</p>
+      <p className={styles.text}>Move around</p>
       <div className={styles.dot} ref={dotRef} style={dotStyle} />
     </DemoStage>
   );

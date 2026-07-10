@@ -45,11 +45,11 @@ export default function ModalPop({ params }: { params: ParamValues }) {
   };
 
   return (
-    <DemoStage hint="OPEN MODAL: クリック / タップで開閉">
+    <DemoStage hint="Open modal: クリック / タップで開閉">
       <div className={styles.frame}>
-        <span className={styles.pageLabel}>PAGE</span>
+        <span className={styles.pageLabel}>Page</span>
         <button className={styles.openBtn} onClick={() => setOpen(true)}>
-          OPEN MODAL
+          Open modal
         </button>
         <div
           className={styles.overlay}
@@ -64,12 +64,12 @@ export default function ModalPop({ params }: { params: ParamValues }) {
             aria-modal="true"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className={styles.title}>DIALOG</p>
+            <p className={styles.title}>Dialog</p>
             <p className={styles.text}>
               scale({params.scaleFrom.toFixed(2)} → 1) + fade
             </p>
             <button className={styles.closeBtn} onClick={() => setOpen(false)}>
-              CLOSE
+              Close
             </button>
           </div>
         </div>

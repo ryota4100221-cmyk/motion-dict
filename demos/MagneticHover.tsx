@@ -90,7 +90,7 @@ export default function MagneticHover({ params }: { params: ParamValues }) {
   return (
     <DemoStage stageRef={stageRef} hint="PC: カーソルを近づける / スマホ: ドラッグ">
       <button className={styles.magBtn} ref={btnRef}>
-        <span ref={labelRef}>HOVER ME</span>
+        <span ref={labelRef}>Hover me</span>
       </button>
     </DemoStage>
   );

@@ -5,7 +5,7 @@ export default function TopBar() {
   return (
     <nav className={styles.topbar}>
       <Link className={styles.mark} href="/motion">
-        MOTION DICTIONARY
+        Motion dictionary
       </Link>
       <a
         className={styles.link}

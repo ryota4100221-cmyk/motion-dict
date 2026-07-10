@@ -7,7 +7,7 @@ export const contentType = "image/png";
 
 const TITLE = "動きの伝え方辞典";
 const TAGLINE = "「あの動き」に名前と数値を。AIに正確に伝えるための対訳辞典。";
-const MONO_TEXT = "MOTION DICTIONARY monaka design. INDEX —";
+const MONO_TEXT = "Motion dictionary monaka design. Index —";
 
 export default async function Image() {
   const [serif, mono] = await Promise.all([
@@ -46,10 +46,10 @@ export default async function Image() {
               padding: "4px 14px",
             }}
           >
-            INDEX
+            Index
           </span>
           <span style={{ margin: "0 16px" }}>—</span>
-          <span>MOTION DICTIONARY</span>
+          <span>Motion dictionary</span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
@@ -73,7 +73,7 @@ export default async function Image() {
             color: og.sumiSoft,
           }}
         >
-          <span>MOTION DICTIONARY</span>
+          <span>Motion dictionary</span>
           <span>monaka design.</span>
         </div>
       </div>

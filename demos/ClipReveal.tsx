@@ -74,12 +74,12 @@ export default function ClipReveal({ params }: { params: ParamValues }) {
   };
 
   return (
-    <DemoStage hint="PLAY: リビールを再生">
+    <DemoStage hint="Play: リビールを再生">
       <div className={styles.frame}>
         <div className={styles.img} style={imgStyle} />
       </div>
       <button className={styles.playBtn} onClick={play}>
-        {revealed ? "REPLAY" : "PLAY"}
+        {revealed ? "Replay" : "Play"}
       </button>
     </DemoStage>
   );

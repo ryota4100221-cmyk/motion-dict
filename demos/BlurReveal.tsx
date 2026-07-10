@@ -5,7 +5,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./BlurReveal.module.css";
 
-const TEXT = "REVERIE";
+const TEXT = "Reverie";
 
 // transitionのリセットを確定させるため、reflowを強制する
 function forceReflow(el: HTMLElement) {
@@ -60,7 +60,7 @@ export default function BlurReveal({ params }: { params: ParamValues }) {
         ch.style.filter = "blur(0px)";
         ch.style.opacity = "1";
       });
-      btn.textContent = "REPLAY";
+      btn.textContent = "Replay";
     };
 
     if (reduce) showInstant();
@@ -76,7 +76,7 @@ export default function BlurReveal({ params }: { params: ParamValues }) {
   }, []);
 
   return (
-    <DemoStage hint="PLAY: リビールを再生(PC/スマホ共通)">
+    <DemoStage hint="Play: リビールを再生(PC/スマホ共通)">
       <span className={styles.word} ref={wordRef}>
         {TEXT.split("").map((ch, i) => (
           <span className={styles.char} key={i}>
@@ -85,7 +85,7 @@ export default function BlurReveal({ params }: { params: ParamValues }) {
         ))}
       </span>
       <button className={styles.playBtn} ref={btnRef}>
-        PLAY
+        Play
       </button>
     </DemoStage>
   );

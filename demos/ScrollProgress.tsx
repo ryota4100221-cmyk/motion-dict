@@ -58,7 +58,7 @@ export default function ScrollProgress({ params }: { params: ParamValues }) {
       </span>
       <div className={styles.scroller} ref={scrollerRef}>
         <div className={styles.content}>
-          <h3 className={styles.heading}>ON MOTION</h3>
+          <h3 className={styles.heading}>On motion</h3>
           {LINES.map((w, i) =>
             w === 0 ? (
               <div className={styles.break} key={i} />

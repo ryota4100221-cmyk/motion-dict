@@ -60,7 +60,7 @@ export default function FillHover({ params }: { params: ParamValues }) {
       >
         <span className={styles.fill} style={fillStyle} aria-hidden />
         <span className={styles.label} style={labelStyle}>
-          HOVER ME
+          Hover me
         </span>
       </button>
     </DemoStage>

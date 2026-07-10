@@ -113,6 +113,8 @@
 
 .marquee {
   margin-top: 16px;
+  /* コンテンツ幅を破って画面全幅に。ワイドモニターで帯が途中で切れて見えるのを防ぐ */
+  margin-inline: calc(50% - 50vw);
   border-top: 2px solid var(--line-strong);
   border-bottom: 2px solid var(--line-strong);
   overflow: clip;
@@ -134,7 +136,6 @@
   font-family: var(--font-mono), monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
-  text-transform: uppercase;
   color: var(--sumi);
 }
 

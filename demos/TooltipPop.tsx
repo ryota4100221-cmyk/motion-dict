@@ -65,7 +65,7 @@ export default function TooltipPop({ params }: { params: ParamValues }) {
         onMouseLeave={leave}
         onTouchStart={() => setShown((s) => !s)}
       >
-        HOVER INTENT
+        Hover intent
         <span
           className={styles.tooltip}
           style={tipStyle}

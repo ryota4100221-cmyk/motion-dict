@@ -7,15 +7,15 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./VelocitySkew.module.css";
 
 const ROWS = [
-  "VELOCITY",
-  "SKEW",
-  "MOTION",
-  "SPEED",
-  "INERTIA",
-  "SCROLL",
-  "FRICTION",
-  "MOMENTUM",
-  "REST",
+  "Velocity",
+  "Skew",
+  "Motion",
+  "Speed",
+  "Inertia",
+  "Scroll",
+  "Friction",
+  "Momentum",
+  "Rest",
 ];
 
 export default function VelocitySkew({ params }: { params: ParamValues }) {

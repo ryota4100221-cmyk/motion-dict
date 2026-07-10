@@ -6,7 +6,7 @@ import { addTick } from "@/lib/raf";
 import type { ParamValues } from "@/lib/types";
 import styles from "./Marquee.module.css";
 
-const TEXT = "MOTION DICTIONARY —";
+const TEXT = "Motion dictionary —";
 // ステージ幅+1セット分を必ず覆えるだけ複製しておく
 const COPIES = 10;
 

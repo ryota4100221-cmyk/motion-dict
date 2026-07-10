@@ -42,7 +42,7 @@ export default function ImageZoomHover({ params }: { params: ParamValues }) {
           <div className={styles.img} style={imgStyle} />
         </div>
         <figcaption className={styles.caption}>
-          fig.01 — gradient study
+          Fig.01 — gradient study
         </figcaption>
       </figure>
     </DemoStage>

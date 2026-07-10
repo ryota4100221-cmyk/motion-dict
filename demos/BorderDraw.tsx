@@ -57,7 +57,7 @@ export default function BorderDraw({ params }: { params: ParamValues }) {
         {SIDES.map((s, i) => (
           <span key={i} className={`${styles.side} ${s.cls}`} style={sideStyle(i)} aria-hidden />
         ))}
-        HOVER ME
+        Hover me
       </button>
     </DemoStage>
   );

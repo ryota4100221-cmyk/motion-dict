@@ -9,7 +9,7 @@ import styles from "./DrawerSlide.module.css";
 // content/drawer-slide.ts の direction options と同順
 const DIRECTIONS = ["left", "right"] as const;
 
-const ITEMS = ["HOME", "WORKS", "CONTACT"];
+const ITEMS = ["Home", "Works", "Contact"];
 
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 
@@ -59,20 +59,20 @@ export default function DrawerSlide({ params }: { params: ParamValues }) {
   const btnInverted = open && dir === "right";
 
   return (
-    <DemoStage hint="MENU: クリック / タップで開閉">
+    <DemoStage hint="Menu: クリック / タップで開閉">
       <div className={styles.frame}>
         <div className={styles.header}>
-          <span className={styles.logo}>SITE</span>
+          <span className={styles.logo}>Site</span>
           <button
             className={
               btnInverted ? `${styles.menuBtn} ${styles.menuBtnOpen}` : styles.menuBtn
             }
             onClick={() => setOpen((o) => !o)}
           >
-            {open ? "CLOSE" : "MENU"}
+            {open ? "Close" : "Menu"}
           </button>
         </div>
-        <span className={styles.pageLabel}>PAGE</span>
+        <span className={styles.pageLabel}>Page</span>
         <div
           className={styles.overlay}
           style={overlayStyle}

@@ -78,10 +78,10 @@ export default function BeforeAfter({ params }: { params: ParamValues }) {
         onPointerCancel={onUp}
       >
         <div className={`${styles.img} ${styles.after}`}>
-          <span className={styles.tagAfter}>AFTER</span>
+          <span className={styles.tagAfter}>After</span>
         </div>
         <div className={`${styles.img} ${styles.before}`} style={beforeStyle}>
-          <span className={styles.tagBefore}>BEFORE</span>
+          <span className={styles.tagBefore}>Before</span>
         </div>
         <div className={styles.handle} style={handleStyle} aria-hidden>
           <span className={styles.handleLine} />

@@ -6,8 +6,8 @@ import { addTick } from "@/lib/raf";
 import type { ParamValues } from "@/lib/types";
 import styles from "./Parallax.module.css";
 
-const BG_WORDS = ["PARA", "LLAX", "DEPTH", "LAYER", "SPEED", "FIELD"];
-const FG_CARDS = ["FOREGROUND 01", "FOREGROUND 02", "FOREGROUND 03"];
+const BG_WORDS = ["Para", "Llax", "Depth", "Layer", "Speed", "Field"];
+const FG_CARDS = ["Foreground 01", "Foreground 02", "Foreground 03"];
 
 export default function Parallax({ params }: { params: ParamValues }) {
   const scrollerRef = useRef<HTMLDivElement>(null);

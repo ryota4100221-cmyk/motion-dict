@@ -81,14 +81,14 @@ export default function CurtainWipe({ params }: { params: ParamValues }) {
   });
 
   return (
-    <DemoStage hint="PLAY: ページ遷移を再生">
+    <DemoStage hint="Play: ページ遷移を再生">
       <div
         className={
           page === "B" ? `${styles.pageFrame} ${styles.frameB}` : styles.pageFrame
         }
       >
         <span className={page === "A" ? styles.labelA : styles.labelB}>
-          PAGE {page}
+          Page {page}
         </span>
         <div className={styles.panels} aria-hidden>
           {Array.from({ length: panels }, (_, i) => (
@@ -97,7 +97,7 @@ export default function CurtainWipe({ params }: { params: ParamValues }) {
         </div>
       </div>
       <button className={styles.playBtn} onClick={play} disabled={busy}>
-        PLAY
+        Play
       </button>
     </DemoStage>
   );

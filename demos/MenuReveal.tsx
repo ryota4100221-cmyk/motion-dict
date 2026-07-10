@@ -6,7 +6,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./MenuReveal.module.css";
 
-const ITEMS = ["ABOUT", "WORKS", "JOURNAL", "CONTACT"];
+const ITEMS = ["About", "Works", "Journal", "Contact"];
 
 const ITEM_DURATION = 0.5; // 各項目のスライド時間(固定)
 const EASE_OVERLAY = "cubic-bezier(0.77, 0, 0.175, 1)";
@@ -56,20 +56,20 @@ export default function MenuReveal({ params }: { params: ParamValues }) {
   });
 
   return (
-    <DemoStage hint="MENU: クリック / タップで開閉">
+    <DemoStage hint="Menu: クリック / タップで開閉">
       <div className={styles.frame}>
         <div className={styles.header}>
-          <span className={styles.logo}>SITE</span>
+          <span className={styles.logo}>Site</span>
           <button
             className={
               open ? `${styles.menuBtn} ${styles.menuBtnOpen}` : styles.menuBtn
             }
             onClick={() => setOpen((o) => !o)}
           >
-            {open ? "CLOSE" : "MENU"}
+            {open ? "Close" : "Menu"}
           </button>
         </div>
-        <span className={styles.pageLabel}>PAGE</span>
+        <span className={styles.pageLabel}>Page</span>
         <div className={styles.overlay} style={overlayStyle} aria-hidden={!open}>
           <nav className={styles.nav}>
             {ITEMS.map((item, i) => (

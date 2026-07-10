@@ -48,7 +48,7 @@ export default function BlurLoad({ params }: { params: ParamValues }) {
           <div className={styles.img} style={imgStyle} />
         </div>
         <figcaption className={styles.caption}>
-          fig.04 — blur-up study {loaded ? "(loaded)" : "(loading…)"}
+          Fig.04 — blur-up study {loaded ? "(loaded)" : "(loading…)"}
         </figcaption>
       </figure>
     </DemoStage>

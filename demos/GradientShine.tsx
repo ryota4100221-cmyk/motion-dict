@@ -6,7 +6,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./GradientShine.module.css";
 
-const TEXT = "SHINE";
+const TEXT = "Shine";
 
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 

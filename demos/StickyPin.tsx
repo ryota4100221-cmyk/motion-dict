@@ -55,7 +55,7 @@ export default function StickyPin({ params }: { params: ParamValues }) {
       <div className={styles.scroller} ref={scrollerRef}>
         <div className={styles.content}>
           <div className={styles.card}>
-            <span className={styles.cardLabel}>SECTION 01</span>
+            <span className={styles.cardLabel}>Section 01</span>
             <span className={styles.cardLine} />
           </div>
           {/* 高さのある親セクション。stickyが効くのはこの範囲内だけ=固定区間 */}
@@ -65,7 +65,7 @@ export default function StickyPin({ params }: { params: ParamValues }) {
               ref={panelRef}
               style={{ top: params.top }}
             >
-              <span className={styles.panelLabel}>PINNED</span>
+              <span className={styles.panelLabel}>Pinned</span>
               <div className={styles.track}>
                 <div className={styles.bar} ref={barRef} />
               </div>
@@ -73,7 +73,7 @@ export default function StickyPin({ params }: { params: ParamValues }) {
             </div>
           </div>
           <div className={styles.card}>
-            <span className={styles.cardLabel}>SECTION 02</span>
+            <span className={styles.cardLabel}>Section 02</span>
             <span className={styles.cardLine} />
           </div>
         </div>

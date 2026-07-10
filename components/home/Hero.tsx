@@ -57,8 +57,8 @@ export default function Hero({
   return (
     <header className={styles.hero}>
       <p className={styles.crumb}>
-        MOTION<span className={styles.crumbDash}>→</span>WORDS
-        <span className={styles.crumbDash}>→</span>PROMPT
+        Motion<span className={styles.crumbDash}>→</span>Words
+        <span className={styles.crumbDash}>→</span>Prompt
       </p>
 
       {/* 項目「分割テキストリビール」の自己実演(CSSアニメーションのみで駆動) */}
@@ -85,9 +85,9 @@ export default function Hero({
             {String(shownCount).padStart(2, "0")}
           </span>
           <span className={styles.statLabel}>
-            MOTIONS
+            Motions
             <br />
-            {categories} CATEGORIES
+            {categories} categories
           </span>
         </div>
       </div>

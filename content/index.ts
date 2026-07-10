@@ -133,13 +133,14 @@ export const entryList: MotionEntry[] = all;
 // 未実装slugのRELATEDチップ表示用フォールバック(将来カテゴリの追加時に使う)
 export const plannedNames: Record<string, string> = {};
 
+// 英語表記は「先頭のみ大文字」(頭字語のUI等は例外)
 export const categoryLabels: Record<MotionEntry["category"], string> = {
-  hover: "HOVER",
-  scroll: "SCROLL",
-  text: "TEXT",
-  transition: "TRANSITION",
-  media: "MEDIA",
+  hover: "Hover",
+  scroll: "Scroll",
+  text: "Text",
+  transition: "Transition",
+  media: "Media",
   ui: "UI",
-  loading: "LOADING",
-  webgl: "WEBGL",
+  loading: "Loading",
+  webgl: "WebGL",
 };

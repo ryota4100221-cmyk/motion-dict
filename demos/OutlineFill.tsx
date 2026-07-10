@@ -6,7 +6,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./OutlineFill.module.css";
 
-const TEXT = "OUTLINE";
+const TEXT = "Outline";
 
 // content/outline-fill.ts の direction options と同順(塗る前の隠し状態)
 const HIDDEN_CLIPS = [

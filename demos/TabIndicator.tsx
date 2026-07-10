@@ -6,7 +6,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./TabIndicator.module.css";
 
-const TABS = ["HOME", "WORKS", "ABOUT"];
+const TABS = ["Home", "Works", "About"];
 
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { sentenceCaseEn } from "@/lib/format";
 import styles from "@/app/motion/page.module.css";
 
 export type DictionaryRow = {
@@ -101,7 +102,9 @@ export default function DictionaryList({
                   <span className={styles.rowIndex}>({r.num})</span>
                   <span className={styles.rowNames}>
                     <span className={`${styles.rowName} palt`}>{r.nameJa}</span>
-                    <span className={styles.rowEn}>{r.nameEn}</span>
+                    <span className={styles.rowEn}>
+                      {sentenceCaseEn(r.nameEn)}
+                    </span>
                   </span>
                   <span className={styles.rowLede}>{r.lede}</span>
                   <span className={styles.rowArrow} aria-hidden>

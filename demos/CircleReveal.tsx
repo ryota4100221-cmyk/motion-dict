@@ -90,7 +90,7 @@ export default function CircleReveal({ params }: { params: ParamValues }) {
           className={page === "B" ? `${styles.face} ${styles.faceB}` : styles.face}
         >
           <span className={page === "B" ? styles.labelB : styles.label}>
-            PAGE {page}
+            Page {page}
           </span>
         </div>
         <div
@@ -103,7 +103,7 @@ export default function CircleReveal({ params }: { params: ParamValues }) {
           aria-hidden
         >
           <span className={next === "B" ? styles.labelB : styles.label}>
-            PAGE {next}
+            Page {next}
           </span>
         </div>
       </div>

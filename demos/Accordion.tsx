@@ -11,15 +11,15 @@ const EASINGS = ["ease", "ease-out", "cubic-bezier(0.22, 1, 0.36, 1)"];
 
 const ITEMS = [
   {
-    q: "WHY GRID?",
+    q: "Why grid?",
     a: "height: auto はアニメーション不可。grid-template-rows: 0fr→1fr なら「中身の高さぶん」を数値なしで動かせる。",
   },
   {
-    q: "WHY NOT MAX-HEIGHT?",
+    q: "Why not max-height?",
     a: "決め打ちの max-height は内容量が変わると破綻する。長いと途中で切れ、短いと速度が狂う。",
   },
   {
-    q: "THE ONE TRICK?",
+    q: "The one trick?",
     a: "グリッド内側に min-height: 0 と overflow: hidden。これがないと 0fr でも潰れず閉じない。",
   },
 ];

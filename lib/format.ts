@@ -1,3 +1,15 @@
+// 英語表記の統一ルール: 先頭のみ大文字(Sentence case)。
+// "magnetic hover / magnetic button" → "Magnetic hover / Magnetic button"
+export function sentenceCaseEn(s: string): string {
+  return s
+    .split("/")
+    .map((seg) => {
+      const t = seg.trim();
+      return t.charAt(0).toUpperCase() + t.slice(1);
+    })
+    .join(" / ");
+}
+
 export function decimalsFromStep(step: number): number {
   const s = String(step);
   const i = s.indexOf(".");

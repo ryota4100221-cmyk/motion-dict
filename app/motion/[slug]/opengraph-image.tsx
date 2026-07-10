@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { categoryLabels, entries } from "@/content";
+import { sentenceCaseEn } from "@/lib/format";
 import { loadGoogleFont, og } from "@/lib/og";
 
 export const alt = "動きの伝え方辞典 — monaka design.";
@@ -18,10 +19,10 @@ export default async function Image({
   const { slug } = await params;
   const entry = entries[slug];
   const title = entry?.nameJa ?? "動きの伝え方辞典";
-  const en = entry?.nameEn ?? "";
-  const category = entry ? categoryLabels[entry.category] : "INDEX";
+  const en = sentenceCaseEn(entry?.nameEn ?? "");
+  const category = entry ? categoryLabels[entry.category] : "Index";
 
-  const monoText = `${en} ${category} MOTION DICTIONARY monaka design. —`;
+  const monoText = `${en} ${category} Motion dictionary monaka design. —`;
   const [serif, mono] = await Promise.all([
     loadGoogleFont("Noto Sans JP", 900, title + "動きの伝え方辞典"),
     loadGoogleFont("IBM Plex Mono", 400, monoText),
@@ -92,7 +93,7 @@ export default async function Image({
             color: og.sumiSoft,
           }}
         >
-          <span>MOTION DICTIONARY</span>
+          <span>Motion dictionary</span>
           <span>monaka design.</span>
         </div>
       </div>

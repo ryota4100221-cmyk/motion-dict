@@ -61,7 +61,7 @@ export default function ToggleSwitch({ params }: { params: ParamValues }) {
         <span className={styles.track} style={trackStyle}>
           <span className={styles.knob} style={knobStyle} />
         </span>
-        <span className={styles.label}>{on ? "ON" : "OFF"}</span>
+        <span className={styles.label}>{on ? "On" : "Off"}</span>
       </button>
     </DemoStage>
   );

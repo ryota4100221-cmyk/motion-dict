@@ -6,7 +6,7 @@ import { addTick } from "@/lib/raf";
 import type { ParamValues } from "@/lib/types";
 import styles from "./HorizontalScroll.module.css";
 
-const PANELS = ["WORK 01", "WORK 02", "WORK 03", "WORK 04"];
+const PANELS = ["Work 01", "Work 02", "Work 03", "Work 04"];
 
 export default function HorizontalScroll({ params }: { params: ParamValues }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -63,7 +63,7 @@ export default function HorizontalScroll({ params }: { params: ParamValues }) {
       <div className={styles.scroller} ref={scrollerRef}>
         <div className={styles.content}>
           <div className={styles.card}>
-            <span className={styles.cardLabel}>SECTION 01</span>
+            <span className={styles.cardLabel}>Section 01</span>
             <span className={styles.cardLine} />
           </div>
           {/* 高さ=ステージ高+横移動距離。この中でstickyのビューポートを固定する */}
@@ -80,7 +80,7 @@ export default function HorizontalScroll({ params }: { params: ParamValues }) {
             </div>
           </div>
           <div className={styles.card}>
-            <span className={styles.cardLabel}>SECTION 02</span>
+            <span className={styles.cardLabel}>Section 02</span>
             <span className={styles.cardLine} />
           </div>
         </div>

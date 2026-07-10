@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { categoryLabels, entryList } from "@/content";
+import { sentenceCaseEn } from "@/lib/format";
 import type { MotionEntry } from "@/lib/types";
 import Hero from "@/components/home/Hero";
 import DictionaryList from "@/components/home/DictionaryList";
@@ -21,7 +22,9 @@ export default function MotionIndex() {
     byCategory.set(entry.category, list);
   }
 
-  const marqueeNames = entryList.map((e) => e.nameEn.split("/")[0].trim());
+  const marqueeNames = entryList.map((e) =>
+    sentenceCaseEn(e.nameEn.split("/")[0])
+  );
 
   // 辞典全体の通し番号(カテゴリをまたいで連番)
   let running = 0;

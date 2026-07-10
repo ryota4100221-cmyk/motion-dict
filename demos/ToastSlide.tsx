@@ -6,7 +6,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./ToastSlide.module.css";
 
-const LABELS = ["SAVED", "COPIED", "SENT", "ARCHIVED"];
+const LABELS = ["Saved", "Copied", "Sent", "Archived"];
 const TOAST_STEP = 52; // トースト高さ44px + 間隔8px
 const MAX_TOASTS = 4; // これ以上積まれたら古いものから退場
 const EASE_IN = "cubic-bezier(0.22, 1, 0.36, 1)"; // 入り: 減速で素早く
@@ -102,7 +102,7 @@ export default function ToastSlide({ params }: { params: ParamValues }) {
   return (
     <DemoStage hint="PC: クリックで通知を発行 / スマホ: タップ(連打でスタック)">
       <button className={styles.spawnBtn} onClick={spawn}>
-        NOTIFY
+        Notify
       </button>
       <div className={styles.toastLayer} aria-live="polite">
         {toasts.map((t, i) => (

@@ -125,7 +125,7 @@ export default function MosaicReveal({ params }: { params: ParamValues }) {
           </div>
         </div>
         <figcaption className={styles.caption}>
-          fig.03 — mosaic reveal study
+          Fig.03 — mosaic reveal study
         </figcaption>
       </figure>
     </DemoStage>

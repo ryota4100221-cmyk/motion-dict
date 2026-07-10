@@ -65,7 +65,7 @@ export default function PromptBox({ template, params, values }: Props) {
   return (
     <div className={styles.codebox}>
       <button className={styles.copyBtn} onClick={copy}>
-        {copied === "idle" ? "COPY" : copied === "copied" ? "COPIED" : "FAILED"}
+        {copied === "idle" ? "Copy" : copied === "copied" ? "Copied" : "Failed"}
       </button>
       <span ref={textRef}>
         {segments.map((seg, i) =>

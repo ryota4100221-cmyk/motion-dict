@@ -38,7 +38,7 @@ export default function KenBurns({ params }: { params: ParamValues }) {
           <div className={styles.img} style={imgStyle} />
         </div>
         <figcaption className={styles.caption}>
-          fig.02 — slow zoom study
+          Fig.02 — slow zoom study
         </figcaption>
       </figure>
     </DemoStage>

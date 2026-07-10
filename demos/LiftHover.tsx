@@ -48,9 +48,9 @@ export default function LiftHover({ params }: { params: ParamValues }) {
         onTouchStart={() => setHovered((h) => !h)}
       >
         <span className={styles.shadow} style={shadowStyle} aria-hidden />
-        <span className={styles.title}>LIFT</span>
+        <span className={styles.title}>Lift</span>
         <span className={styles.rule} aria-hidden />
-        <span className={styles.meta}>hover to float</span>
+        <span className={styles.meta}>Hover to float</span>
       </div>
     </DemoStage>
   );

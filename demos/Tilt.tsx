@@ -80,7 +80,7 @@ export default function Tilt({ params }: { params: ParamValues }) {
   return (
     <DemoStage stageRef={stageRef} hint="PC: ステージ内を動かす / スマホ: ドラッグ">
       <div className={styles.card} ref={cardRef}>
-        <span className={styles.cardLabel}>TILT ME</span>
+        <span className={styles.cardLabel}>Tilt me</span>
         <span className={styles.cardSub}>rotateX / rotateY</span>
       </div>
     </DemoStage>

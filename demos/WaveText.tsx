@@ -6,7 +6,7 @@ import { addTick } from "@/lib/raf";
 import type { ParamValues } from "@/lib/types";
 import styles from "./WaveText.module.css";
 
-const TEXT = "WAVE MOTION";
+const TEXT = "Wave motion";
 
 export default function WaveText({ params }: { params: ParamValues }) {
   const wordRef = useRef<HTMLSpanElement>(null);

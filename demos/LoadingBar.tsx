@@ -12,9 +12,9 @@ const HOLD_MS = 600;
 const FINISH_MS = 800;
 
 const LABELS = {
-  idle: "STANDBY",
-  loading: "LOADING",
-  done: "PAGE READY",
+  idle: "Standby",
+  loading: "Loading",
+  done: "Page ready",
 } as const;
 
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
@@ -99,7 +99,7 @@ export default function LoadingBar({ params }: { params: ParamValues }) {
   }, [reduce]);
 
   return (
-    <DemoStage hint="PLAY: 読み込みを再生">
+    <DemoStage hint="Play: 読み込みを再生">
       <div className={styles.frame}>
         <span
           ref={barRef}
@@ -120,7 +120,7 @@ export default function LoadingBar({ params }: { params: ParamValues }) {
         onClick={() => playRef.current()}
         disabled={busy}
       >
-        PLAY
+        Play
       </button>
     </DemoStage>
   );

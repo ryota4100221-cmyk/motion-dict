@@ -45,7 +45,7 @@ export default function UnderlineReveal({ params }: { params: ParamValues }) {
         onMouseLeave={() => setHovered(false)}
         onTouchStart={() => setHovered((h) => !h)}
       >
-        UNDERLINE
+        Underline
         <span className={styles.line} style={lineStyle} />
         <span
           className={styles.originMarker}

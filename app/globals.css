@@ -29,6 +29,8 @@ body {
   font-size: 15px;
   line-height: 1.9;
   -webkit-font-smoothing: antialiased;
+  /* フルブリード要素(50vw)の端数はみ出しを吸収。hiddenはstickyを殺すのでclip */
+  overflow-x: clip;
 }
 
 ::selection {

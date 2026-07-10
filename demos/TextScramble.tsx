@@ -6,7 +6,7 @@ import { addTick } from "@/lib/raf";
 import type { ParamValues } from "@/lib/types";
 import styles from "./TextScramble.module.css";
 
-const TEXT = "SCRAMBLE";
+const TEXT = "Scramble";
 
 // content/text-scramble.ts の charset options と同順
 const CHARSETS = [

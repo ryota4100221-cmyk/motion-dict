@@ -6,7 +6,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./GlitchHover.module.css";
 
-const TEXT = "GLITCH";
+const TEXT = "Glitch";
 
 export default function GlitchHover({ params }: { params: ParamValues }) {
   const [hovered, setHovered] = useState(false);

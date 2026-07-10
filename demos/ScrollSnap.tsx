@@ -8,7 +8,7 @@ import styles from "./ScrollSnap.module.css";
 const STRICTNESS = ["mandatory", "proximity"] as const;
 const ALIGN = ["start", "center"] as const;
 
-const SECTIONS = ["SECTION 01", "SECTION 02", "SECTION 03", "SECTION 04"];
+const SECTIONS = ["Section 01", "Section 02", "Section 03", "Section 04"];
 
 export default function ScrollSnap({ params }: { params: ParamValues }) {
   const strictness = STRICTNESS[Math.round(params.strictness)] ?? "mandatory";

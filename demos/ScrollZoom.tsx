@@ -54,16 +54,16 @@ export default function ScrollZoom({ params }: { params: ParamValues }) {
       <div className={styles.scroller} ref={scrollerRef}>
         <div className={styles.content}>
           <div className={styles.card}>
-            <span className={styles.cardLabel}>HERO SECTION</span>
+            <span className={styles.cardLabel}>Hero section</span>
             <span className={styles.cardLine} />
           </div>
           {/* overflow: clip のフレーム。拡縮は内側の面にかけ、はみ出しはここで断つ */}
           <div className={styles.frame} ref={frameRef}>
             <div className={styles.image} ref={imageRef} aria-hidden />
-            <span className={styles.frameLabel}>IMAGE 01</span>
+            <span className={styles.frameLabel}>Image 01</span>
           </div>
           <div className={styles.card}>
-            <span className={styles.cardLabel}>NEXT SECTION</span>
+            <span className={styles.cardLabel}>Next section</span>
             <span className={styles.cardLine} />
           </div>
         </div>

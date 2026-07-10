@@ -77,7 +77,7 @@ export default function CircularProgress({ params }: { params: ParamValues }) {
   };
 
   return (
-    <DemoStage hint="PLAY: 進捗の描画を再生">
+    <DemoStage hint="Play: 進捗の描画を再生">
       <div className={styles.wrap}>
         {/* svgごと-90deg回転させて弧を12時始まりにする(トラックは真円なので影響なし) */}
         <svg className={styles.svg} width="120" height="120" viewBox="0 0 120 120">
@@ -96,7 +96,7 @@ export default function CircularProgress({ params }: { params: ParamValues }) {
         </span>
       </div>
       <button className={styles.playBtn} onClick={play}>
-        {filled ? "REPLAY" : "PLAY"}
+        {filled ? "Replay" : "Play"}
       </button>
     </DemoStage>
   );

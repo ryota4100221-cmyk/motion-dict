@@ -40,7 +40,7 @@ export default function Crossfade({ params }: { params: ParamValues }) {
   };
 
   return (
-    <DemoStage hint="SWITCH: 画像を切り替え">
+    <DemoStage hint="Switch: 画像を切り替え">
       <div className={styles.frame}>
         <div className={`${styles.layer} ${styles.imgA}`} style={layerStyle(0)}>
           <span className={styles.tag}>01</span>
@@ -53,7 +53,7 @@ export default function Crossfade({ params }: { params: ParamValues }) {
         className={styles.playBtn}
         onClick={() => setActive((a) => 1 - a)}
       >
-        SWITCH
+        Switch
       </button>
     </DemoStage>
   );

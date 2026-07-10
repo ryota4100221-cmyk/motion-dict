@@ -44,7 +44,7 @@ export default function DuotoneHover({ params }: { params: ParamValues }) {
           <div className={styles.overlay} />
         </div>
         <figcaption className={styles.caption}>
-          fig.03 — duotone study
+          Fig.03 — duotone study
         </figcaption>
       </figure>
     </DemoStage>

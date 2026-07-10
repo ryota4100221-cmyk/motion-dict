@@ -96,9 +96,9 @@ export default function PreloaderCounter({ params }: { params: ParamValues }) {
       };
 
   return (
-    <DemoStage hint="PLAY: プリローダーを再生">
+    <DemoStage hint="Play: プリローダーを再生">
       <div className={styles.frame}>
-        <span className={styles.content}>WELCOME</span>
+        <span className={styles.content}>Welcome</span>
         <div className={styles.curtain} style={curtainStyle} aria-hidden>
           <span className={styles.count}>
             <span ref={numRef}>0</span>
@@ -111,7 +111,7 @@ export default function PreloaderCounter({ params }: { params: ParamValues }) {
         onClick={() => playRef.current()}
         disabled={busy || reduce}
       >
-        PLAY
+        Play
       </button>
     </DemoStage>
   );

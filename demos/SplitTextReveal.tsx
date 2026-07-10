@@ -5,7 +5,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./SplitTextReveal.module.css";
 
-const TEXT = "REVEAL";
+const TEXT = "Reveal";
 
 // transitionのリセットを確定させるため、reflowを強制する
 function forceReflow(el: HTMLElement) {

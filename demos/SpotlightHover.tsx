@@ -78,8 +78,8 @@ export default function SpotlightHover({ params }: { params: ParamValues }) {
   return (
     <DemoStage stageRef={stageRef} hint="PC: ステージ内を動かす / スマホ: ドラッグ">
       <div className={styles.content}>
-        <span className={styles.big}>SPOTLIGHT</span>
-        <span className={styles.small}>move the light to read this line</span>
+        <span className={styles.big}>Spotlight</span>
+        <span className={styles.small}>Move the light to read this line</span>
       </div>
       <div className={styles.light} ref={lightRef} />
     </DemoStage>

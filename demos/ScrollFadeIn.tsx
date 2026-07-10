@@ -7,12 +7,12 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./ScrollFadeIn.module.css";
 
 const CARDS = [
-  "SECTION 01",
-  "SECTION 02",
-  "SECTION 03",
-  "SECTION 04",
-  "SECTION 05",
-  "SECTION 06",
+  "Section 01",
+  "Section 02",
+  "Section 03",
+  "Section 04",
+  "Section 05",
+  "Section 06",
 ];
 
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";

@@ -119,7 +119,7 @@ export default function ImageTrail({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage stageRef={stageRef} hint="PC: ステージ内を動かす / スマホ: ドラッグ">
-      <p className={styles.text}>MOVE AROUND</p>
+      <p className={styles.text}>Move around</p>
     </DemoStage>
   );
 }

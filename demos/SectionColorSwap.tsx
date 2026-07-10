@@ -7,10 +7,10 @@ import styles from "./SectionColorSwap.module.css";
 
 // 各セクションが持つ背景色(実務ではdata-bg属性に相当)
 const SECTIONS = [
-  { label: "CHAPTER 01", color: "#111114" },
-  { label: "CHAPTER 02", color: "#1d2810" },
-  { label: "CHAPTER 03", color: "#2a2118" },
-  { label: "CHAPTER 04", color: "#0f1f22" },
+  { label: "Chapter 01", color: "#111114" },
+  { label: "Chapter 02", color: "#1d2810" },
+  { label: "Chapter 03", color: "#2a2118" },
+  { label: "Chapter 04", color: "#0f1f22" },
 ];
 
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";

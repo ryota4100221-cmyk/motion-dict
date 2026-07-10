@@ -72,7 +72,7 @@ export default function ImageParallaxHover({ params }: { params: ParamValues }) 
           <div className={styles.img} ref={imgRef} />
         </div>
         <figcaption className={styles.caption}>
-          fig.03 — depth study
+          Fig.03 — depth study
         </figcaption>
       </figure>
     </DemoStage>
