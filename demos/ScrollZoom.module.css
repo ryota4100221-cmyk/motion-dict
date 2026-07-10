@@ -55,14 +55,13 @@
   border: 1px solid rgba(216, 212, 200, 0.22);
 }
 
-/* 「画像」はCSSグラデーションで代用。拡縮はこの面にかかる */
+/* ダミー画像(/demo/dummy-03.svg)。拡縮はこの面にかかる */
 .image {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 30% 35%, rgba(165, 224, 46, 0.4), transparent 42%),
-    radial-gradient(circle at 72% 70%, rgba(216, 212, 200, 0.2), transparent 50%),
-    linear-gradient(160deg, #3a3a35 0%, #141412 62%, #55554e 100%);
+  background-image: url("/demo/dummy-03.svg");
+  background-size: cover;
+  background-position: center;
   transform-origin: center;
   will-change: transform;
 }

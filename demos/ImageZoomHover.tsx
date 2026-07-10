@@ -39,7 +39,13 @@ export default function ImageZoomHover({ params }: { params: ParamValues }) {
         onTouchStart={() => setZoomed((z) => !z)}
       >
         <div className={styles.frame}>
-          <div className={styles.img} style={imgStyle} />
+          <img
+            src="/demo/dummy-01.svg"
+            alt=""
+            draggable={false}
+            className={styles.img}
+            style={imgStyle}
+          />
         </div>
         <figcaption className={styles.caption}>
           Fig.01 — gradient study

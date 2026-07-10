@@ -13,15 +13,14 @@
   overflow: clip;
 }
 
-/* ダミー画像はCSSグラデーションで表現。
+/* ダミー画像(/demo/dummy-01.svg)。
    最大シフト量(28px)より広い32pxのブリードを敷いておく */
 .img {
   position: absolute;
   inset: -32px;
-  background:
-    radial-gradient(circle at 30% 68%, rgba(165, 224, 46, 0.4), transparent 46%),
-    radial-gradient(circle at 74% 26%, rgba(233, 230, 223, 0.8), transparent 38%),
-    linear-gradient(145deg, #232320 0%, #6f6f66 58%, #a5e02e 140%);
+  background-image: url("/demo/dummy-01.svg");
+  background-size: cover;
+  background-position: center;
   transform: translate(0, 0);
   transition-property: transform;
   transition-timing-function: ease-out;

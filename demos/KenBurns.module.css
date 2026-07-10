@@ -13,13 +13,14 @@
   overflow: clip;
 }
 
-/* ダミー画像はCSSグラデーションで表現。パン用に7%のブリードを敷いておく */
+/* ダミー画像(/demo/dummy-01.svg)。パン用に7%のブリードを敷いておく */
 .img {
   position: absolute;
   inset: -7%;
-  background:
-    radial-gradient(circle at 70% 28%, rgba(233, 230, 223, 0.9), transparent 42%),
-    linear-gradient(160deg, #232320 0%, #6f6f66 55%, #a5e02e 135%);
+  width: 114%;
+  height: 114%;
+  object-fit: cover;
+  display: block;
   animation-name: kenburns;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;

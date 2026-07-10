@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <!-- ダミー写真03: 夜の丘と月(ネイビー系) -->
+  <defs>
+    <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141a2b"/>
+      <stop offset="0.65" stop-color="#2c3d5c"/>
+      <stop offset="1" stop-color="#55708f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky3)"/>
+  <circle cx="900" cy="200" r="70" fill="#dfe6ee"/>
+  <circle cx="240" cy="150" r="4" fill="#dfe6ee" opacity="0.8"/>
+  <circle cx="420" cy="90" r="3" fill="#dfe6ee" opacity="0.6"/>
+  <circle cx="620" cy="180" r="3.5" fill="#dfe6ee" opacity="0.7"/>
+  <circle cx="1060" cy="120" r="3" fill="#dfe6ee" opacity="0.5"/>
+  <path d="M0 600 C240 500 460 640 720 560 C940 500 1100 600 1200 560 L1200 800 L0 800 Z" fill="#1c2740"/>
+  <path d="M0 700 C300 640 640 740 940 660 C1080 630 1160 690 1200 680 L1200 800 L0 800 Z" fill="#0e1526"/>
+  <text x="40" y="756" font-family="monospace" font-size="26" letter-spacing="4" fill="#dfe6ee" opacity="0.85">Dummy image 03</text>
+</svg>

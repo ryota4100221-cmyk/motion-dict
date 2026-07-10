@@ -93,25 +93,43 @@ export default function DictionaryList({
               </span>
             </h2>
             <div className={styles.rows}>
-              {sec.rows.map((r) => (
-                <Link
-                  className={styles.row}
-                  href={`/motion/${r.slug}`}
-                  key={r.slug}
-                >
-                  <span className={styles.rowIndex}>({r.num})</span>
-                  <span className={styles.rowNames}>
-                    <span className={`${styles.rowName} palt`}>{r.nameJa}</span>
-                    <span className={styles.rowEn}>
-                      {sentenceCaseEn(r.nameEn)}
+              {sec.rows.map((r) => {
+                // ホバー時に行内を流れる英語名(項目「無限マーキー」の自己実演)
+                const marqueeText = Array(8)
+                  .fill(sentenceCaseEn(r.nameEn.split("/")[0]))
+                  .join("　·　");
+                return (
+                  <Link
+                    className={styles.row}
+                    href={`/motion/${r.slug}`}
+                    key={r.slug}
+                  >
+                    <span className={styles.rowIndex}>({r.num})</span>
+                    <span className={styles.rowNames}>
+                      <span className={`${styles.rowName} palt`}>
+                        {r.nameJa}
+                      </span>
+                      <span className={styles.rowEn}>
+                        {sentenceCaseEn(r.nameEn)}
+                      </span>
                     </span>
-                  </span>
-                  <span className={styles.rowLede}>{r.lede}</span>
-                  <span className={styles.rowArrow} aria-hidden>
-                    →
-                  </span>
-                </Link>
-              ))}
+                    <span className={styles.rowLede}>{r.lede}</span>
+                    <span className={styles.rowArrow} aria-hidden>
+                      →
+                    </span>
+                    <span className={styles.rowMarquee} aria-hidden>
+                      <span className={styles.rowMarqueeTrack}>
+                        <span className={styles.rowMarqueeText}>
+                          {marqueeText}　·
+                        </span>
+                        <span className={styles.rowMarqueeText}>
+                          {marqueeText}　·
+                        </span>
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         ))

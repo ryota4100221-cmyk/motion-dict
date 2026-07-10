@@ -12,13 +12,12 @@
   overflow: hidden;
 }
 
-/* ダミー画像はCSSグラデーションで表現(カラー復帰が分かるよう暖色を混ぜる) */
+/* ダミー画像(/demo/dummy-02.svg・テラコッタ系)。カラー復帰がひと目で分かる */
 .img {
   width: 100%;
   height: 100%;
-  background:
-    radial-gradient(circle at 72% 30%, rgba(224, 169, 79, 0.85), transparent 46%),
-    linear-gradient(135deg, #b4543a 0%, #7d8c5c 55%, #2e4a6b 100%);
+  object-fit: cover;
+  display: block;
   filter: grayscale(1);
   transition: filter var(--dt-duration) ease-out;
 }

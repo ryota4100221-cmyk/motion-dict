@@ -14,20 +14,19 @@
   inset: 0;
 }
 
-/* 疑似写真: afterはライムの気配が差した仕上がり */
+/* ダミー画像(/demo/dummy-03.svg): afterはカラーそのまま */
 .after {
-  background:
-    radial-gradient(circle at 68% 30%, rgba(165, 224, 46, 0.7), transparent 45%),
-    radial-gradient(circle at 25% 72%, rgba(233, 230, 223, 0.35), transparent 45%),
-    linear-gradient(155deg, #16160f, #4c503c 55%, #202018);
+  background-image: url("/demo/dummy-03.svg");
+  background-size: cover;
+  background-position: center;
 }
 
-/* beforeは同じ構図のグレースケール。差分がひと目でわかる */
+/* beforeは同じ構図をグレースケール化。差分がひと目でわかる */
 .before {
-  background:
-    radial-gradient(circle at 68% 30%, rgba(122, 122, 114, 0.7), transparent 45%),
-    radial-gradient(circle at 25% 72%, rgba(233, 230, 223, 0.3), transparent 45%),
-    linear-gradient(155deg, #121210, #474740 55%, #1c1c19);
+  background-image: url("/demo/dummy-03.svg");
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(1);
   will-change: clip-path;
 }
 

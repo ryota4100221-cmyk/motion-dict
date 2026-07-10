@@ -116,6 +116,8 @@
 
 /* 行(罫線・ホバー反転帯とも画面全幅) */
 .row {
+  position: relative;
+  overflow: clip;
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr) minmax(0, 380px) 48px;
   align-items: center;
@@ -126,6 +128,64 @@
   text-decoration: none;
   color: var(--sumi);
   transition: background 0.25s, color 0.25s;
+}
+
+.rowIndex,
+.rowNames,
+.rowLede,
+.rowArrow {
+  transition: opacity 0.2s;
+}
+
+/* ホバー時: 行の中を英語名がライムで流れ続ける(項目「無限マーキー」の自己実演) */
+.rowMarquee {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.rowMarqueeTrack {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  animation: rowScroll 16s linear infinite;
+  animation-play-state: paused;
+}
+
+.rowMarqueeText {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 2.6vw, 38px);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--ai);
+}
+
+@keyframes rowScroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .row:hover .rowIndex,
+  .row:hover .rowNames,
+  .row:hover .rowLede,
+  .row:hover .rowArrow {
+    opacity: 0;
+  }
+
+  .row:hover .rowMarquee {
+    opacity: 1;
+  }
+
+  .row:hover .rowMarqueeTrack {
+    animation-play-state: running;
+  }
 }
 
 .row:first-child {

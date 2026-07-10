@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <!-- ダミー写真01: 黄昏の山景(ライム系) -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2e332a"/>
+      <stop offset="0.55" stop-color="#6d7a4e"/>
+      <stop offset="1" stop-color="#b8c98a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="820" cy="270" r="110" fill="#cde86b"/>
+  <path d="M0 560 L260 340 L470 540 L640 420 L860 620 L1200 480 L1200 800 L0 800 Z" fill="#3a4030"/>
+  <path d="M0 660 L320 500 L560 680 L820 560 L1200 700 L1200 800 L0 800 Z" fill="#23261d"/>
+  <text x="40" y="756" font-family="monospace" font-size="26" letter-spacing="4" fill="#e9e9e3" opacity="0.85">Dummy image 01</text>
+</svg>

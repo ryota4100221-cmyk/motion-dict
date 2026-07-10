@@ -7,7 +7,7 @@
   pointer-events: none;
 }
 
-/* 疑似画像カード。本番実装では<img>やbackground-imageに置き換える想定 */
+/* 画像カード */
 .card {
   position: absolute;
   top: 0;
@@ -15,6 +15,8 @@
   width: 84px;
   height: 56px;
   border-radius: 4px;
+  background-size: cover;
+  background-position: center;
   opacity: 0;
   transition-property: transform, opacity;
   transition-timing-function: ease-out;
@@ -22,19 +24,15 @@
   pointer-events: none;
 }
 
-/* CSSグラデによる疑似画像4種(ローテーションで使用) */
+/* ダミー画像3種(ローテーションで使用) */
 .v1 {
-  background: linear-gradient(135deg, var(--ai), rgba(165, 224, 46, 0.12));
+  background-image: url("/demo/dummy-01.svg");
 }
 
 .v2 {
-  background: linear-gradient(160deg, var(--paper), var(--sumi-soft));
+  background-image: url("/demo/dummy-02.svg");
 }
 
 .v3 {
-  background: radial-gradient(circle at 30% 30%, var(--ai-pale), var(--sumi-soft));
-}
-
-.v4 {
-  background: linear-gradient(20deg, var(--sumi-soft), var(--ai));
+  background-image: url("/demo/dummy-03.svg");
 }

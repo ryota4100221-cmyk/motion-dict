@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <!-- ダミー写真02: 砂丘と陽(テラコッタ系) -->
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a3a33"/>
+      <stop offset="0.6" stop-color="#a5714f"/>
+      <stop offset="1" stop-color="#d9b48a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky2)"/>
+  <circle cx="360" cy="240" r="90" fill="#f0d9a8"/>
+  <path d="M0 520 C300 420 520 620 800 540 C1000 480 1120 560 1200 520 L1200 800 L0 800 Z" fill="#8a5a3d"/>
+  <path d="M0 650 C260 580 560 720 880 640 C1040 600 1140 660 1200 640 L1200 800 L0 800 Z" fill="#5c3a29"/>
+  <text x="40" y="756" font-family="monospace" font-size="26" letter-spacing="4" fill="#f2e8d8" opacity="0.85">Dummy image 02</text>
+</svg>

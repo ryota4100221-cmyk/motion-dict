@@ -15,13 +15,17 @@
   will-change: opacity, transform;
 }
 
-/* ダミー画像はCSSグラデーションで表現 */
+/* ダミー画像(01=dummy-02.svg / 02=dummy-03.svg) */
 .imgA {
-  background: linear-gradient(135deg, #232320, #a5e02e);
+  background-image: url("/demo/dummy-02.svg");
+  background-size: cover;
+  background-position: center;
 }
 
 .imgB {
-  background: linear-gradient(135deg, #4a4a44, #d8d8cf);
+  background-image: url("/demo/dummy-03.svg");
+  background-size: cover;
+  background-position: center;
 }
 
 .tag {
@@ -31,7 +35,8 @@
   font-family: var(--font-mono), monospace;
   font-size: 10px;
   letter-spacing: 0.16em;
-  color: rgba(20, 19, 15, 0.65);
+  color: rgba(240, 238, 230, 0.85);
+  text-shadow: 0 1px 2px rgba(10, 10, 10, 0.45);
   user-select: none;
 }
 

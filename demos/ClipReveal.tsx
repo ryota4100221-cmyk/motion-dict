@@ -76,7 +76,13 @@ export default function ClipReveal({ params }: { params: ParamValues }) {
   return (
     <DemoStage hint="Play: リビールを再生">
       <div className={styles.frame}>
-        <div className={styles.img} style={imgStyle} />
+        <img
+          src="/demo/dummy-02.svg"
+          alt=""
+          draggable={false}
+          className={styles.img}
+          style={imgStyle}
+        />
       </div>
       <button className={styles.playBtn} onClick={play}>
         {revealed ? "Replay" : "Play"}

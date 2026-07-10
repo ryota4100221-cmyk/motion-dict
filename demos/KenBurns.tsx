@@ -35,7 +35,13 @@ export default function KenBurns({ params }: { params: ParamValues }) {
     <DemoStage hint="操作不要(自動でズーム+パンをループ再生)">
       <figure className={styles.card}>
         <div className={styles.frame}>
-          <div className={styles.img} style={imgStyle} />
+          <img
+            src="/demo/dummy-01.svg"
+            alt=""
+            draggable={false}
+            className={styles.img}
+            style={imgStyle}
+          />
         </div>
         <figcaption className={styles.caption}>
           Fig.02 — slow zoom study

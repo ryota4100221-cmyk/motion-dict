@@ -40,7 +40,12 @@ export default function DuotoneHover({ params }: { params: ParamValues }) {
         onTouchStart={() => setActive((a) => !a)}
       >
         <div className={styles.frame}>
-          <div className={styles.img} />
+          <img
+            src="/demo/dummy-02.svg"
+            alt=""
+            draggable={false}
+            className={styles.img}
+          />
           <div className={styles.overlay} />
         </div>
         <figcaption className={styles.caption}>
