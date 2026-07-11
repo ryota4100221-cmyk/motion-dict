@@ -1,0 +1,93 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 100px 140px 24px;
+}
+
+.section {
+  flex: none;
+  height: 190px;
+  border: 1px solid rgba(216, 212, 200, 0.18);
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.05);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sectionLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.sectionLine {
+  display: block;
+  height: 6px;
+  width: 60%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}
+
+/* 現在地の判定ライン(rootMarginで作る帯の位置を可視化) */
+.judgeLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed rgba(165, 224, 46, 0.45);
+  pointer-events: none;
+}
+
+.nav {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+/* 高さはScrollSpy.tsxのITEM_Hと合わせる */
+.navItem {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.45);
+  transition: color 0.2s;
+}
+
+.navItemActive {
+  color: var(--ai);
+}
+
+.indicator {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 2px;
+  height: 14px;
+  background: var(--ai);
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}

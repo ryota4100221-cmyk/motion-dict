@@ -45,7 +45,6 @@ import { imageParallaxHover } from "./image-parallax-hover";
 import { blurLoad } from "./blur-load";
 import { beforeAfter } from "./before-after";
 import { mosaicReveal } from "./mosaic-reveal";
-import { frostedGlass } from "./frosted-glass";
 import { accordion } from "./accordion";
 import { tabIndicator } from "./tab-indicator";
 import { modalPop } from "./modal-pop";
@@ -61,6 +60,38 @@ import { spinnerRing } from "./spinner-ring";
 import { dotsPulse } from "./dots-pulse";
 import { circularProgress } from "./circular-progress";
 
+import { hoverPreview } from "./hover-preview";
+import { hoverWave } from "./hover-wave";
+import { imageSwapHover } from "./image-swap-hover";
+import { mouseParallax } from "./mouse-parallax";
+import { scrollSpy } from "./scroll-spy";
+import { stackingCards } from "./stacking-cards";
+import { smoothScroll } from "./smooth-scroll";
+import { headerShrink } from "./header-shrink";
+import { footerReveal } from "./footer-reveal";
+import { scrollMarquee } from "./scroll-marquee";
+import { trackingIn } from "./tracking-in";
+import { textFlip } from "./text-flip";
+import { markerLine } from "./marker-line";
+import { rotatingBadge } from "./rotating-badge";
+import { splitScreen } from "./split-screen";
+import { sharedElement } from "./shared-element";
+import { lightbox } from "./lightbox";
+import { carousel } from "./carousel";
+import { logoMarquee } from "./logo-marquee";
+import { lineDraw } from "./line-draw";
+import { blobMorph } from "./blob-morph";
+import { grainOverlay } from "./grain-overlay";
+import { frostedGlass } from "./frosted-glass";
+import { pressFeedback } from "./press-feedback";
+import { flipCard } from "./flip-card";
+import { floatingLabel } from "./floating-label";
+import { dropdownReveal } from "./dropdown-reveal";
+import { errorShake } from "./error-shake";
+import { staggerGrid } from "./stagger-grid";
+import { liquidFill } from "./liquid-fill";
+import { bootSequence } from "./boot-sequence";
+
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
   magneticHover,
@@ -75,6 +106,10 @@ const all: MotionEntry[] = [
   imageTrail,
   glitchHover,
   textSlideSwap,
+  hoverPreview,
+  hoverWave,
+  imageSwapHover,
+  mouseParallax,
   scrollFadeIn,
   parallax,
   scrollProgress,
@@ -85,6 +120,12 @@ const all: MotionEntry[] = [
   horizontalScroll,
   scrollSnap,
   sectionColorSwap,
+  scrollSpy,
+  stackingCards,
+  smoothScroll,
+  headerShrink,
+  footerReveal,
+  scrollMarquee,
   splitTextReveal,
   typewriter,
   counter,
@@ -95,12 +136,18 @@ const all: MotionEntry[] = [
   outlineFill,
   gradientShine,
   numberRoll,
+  trackingIn,
+  textFlip,
+  markerLine,
+  rotatingBadge,
   curtainWipe,
   crossfade,
   circleReveal,
   menuReveal,
   shutterTransition,
   zoomThrough,
+  splitScreen,
+  sharedElement,
   imageZoomHover,
   clipReveal,
   kenBurns,
@@ -109,6 +156,12 @@ const all: MotionEntry[] = [
   blurLoad,
   beforeAfter,
   mosaicReveal,
+  lightbox,
+  carousel,
+  logoMarquee,
+  lineDraw,
+  blobMorph,
+  grainOverlay,
   frostedGlass,
   accordion,
   tabIndicator,
@@ -118,12 +171,20 @@ const all: MotionEntry[] = [
   tooltipPop,
   toggleSwitch,
   rippleTap,
+  pressFeedback,
+  flipCard,
+  floatingLabel,
+  dropdownReveal,
+  errorShake,
   preloaderCounter,
   skeletonShimmer,
   loadingBar,
   spinnerRing,
   dotsPulse,
   circularProgress,
+  staggerGrid,
+  liquidFill,
+  bootSequence,
 ];
 
 export const entries: Record<string, MotionEntry> = Object.fromEntries(

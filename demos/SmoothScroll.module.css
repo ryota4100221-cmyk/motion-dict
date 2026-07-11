@@ -1,0 +1,91 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+/* 実スクロール用の透明レイヤー。visualの上に重ね、入力はここが受ける */
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+/* 高さは .colInner のコンテンツ量と合わせる(可動域を一致させる) */
+.spacer {
+  height: 1076px;
+}
+
+.visual {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 16px;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+.col {
+  position: relative;
+  flex: 1;
+  overflow: clip; /* hiddenはsticky等を殺すのでclip(ここでは描画の断ち切りだけ) */
+}
+
+.colHead {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  z-index: 2;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(216, 212, 200, 0.6);
+}
+
+.colSmooth .colHead {
+  color: var(--ai);
+}
+
+.colInner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 44px 0 40px;
+  will-change: transform;
+}
+
+.card {
+  flex: none;
+  height: 110px;
+  border: 1px solid rgba(216, 212, 200, 0.18);
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.05);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.colSmooth .card {
+  border-color: rgba(165, 224, 46, 0.4);
+  background: rgba(165, 224, 46, 0.06);
+}
+
+.cardLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.cardLine {
+  display: block;
+  height: 6px;
+  width: 56%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}

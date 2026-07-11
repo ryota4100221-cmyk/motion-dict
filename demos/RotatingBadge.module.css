@@ -1,0 +1,40 @@
+.badge {
+  width: clamp(160px, 40vw, 200px);
+  height: clamp(160px, 40vw, 200px);
+  overflow: visible;
+  cursor: default;
+  user-select: none;
+}
+
+/* 回転はリングだけに与える。中心はviewBox基準でSVG中央に固定する */
+.ring {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: spin 12s linear infinite;
+  will-change: transform;
+}
+
+.ringText {
+  font-family: var(--font-mono), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  fill: var(--code-fg);
+}
+
+/* 中央の静止したスクロールサイン */
+.arrow {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  fill: var(--ai);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

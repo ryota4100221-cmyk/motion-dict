@@ -1,0 +1,85 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+/* padding-top / カード高 / margin は StackingCards.tsx の定数と合わせる */
+.content {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 24px 0;
+}
+
+.card {
+  position: sticky;
+  top: 24px; /* 実際の値はJSが top + 順番 × peek で上書きする */
+  flex: none;
+  height: 190px;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 4px;
+  /* 積層するので背景は不透明に(半透明だと奥のカードが透けて汚れる) */
+  background-color: var(--sumi);
+  background-image: linear-gradient(
+    rgba(216, 212, 200, 0.07),
+    rgba(216, 212, 200, 0.07)
+  );
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform-origin: center top;
+  will-change: transform;
+}
+
+.card + .card {
+  margin-top: 140px;
+}
+
+.cardLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.cardLabel::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ai);
+  margin-right: 10px;
+  vertical-align: 1px;
+}
+
+.cardLine {
+  display: block;
+  height: 6px;
+  width: 56%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}
+
+.tail {
+  flex: none;
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 48px;
+}
+
+.tailLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.45);
+}

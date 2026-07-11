@@ -1,0 +1,39 @@
+.link {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(20px, 5vw, 30px);
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+  cursor: default;
+  user-select: none;
+}
+
+/* インラインのspanはtransformが効かないためinline-block必須 */
+.char {
+  display: inline-block;
+  will-change: transform;
+}
+
+.bouncing {
+  animation-name: bounce;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+/* 上がって戻る1回きりの跳ね。高さは--h(負のpx値)で受け取る */
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(var(--h));
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bouncing {
+    animation: none;
+  }
+}

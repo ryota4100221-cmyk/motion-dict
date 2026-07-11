@@ -1,0 +1,76 @@
+/* 疑似ビューポート。オーバーレイと拡大画像はこの中に閉じ込める */
+.scene {
+  position: relative;
+  width: min(300px, 80%);
+  height: 190px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbs {
+  display: flex;
+  gap: 10px;
+}
+
+.thumb {
+  width: 76px;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: none;
+  border-radius: 2px;
+  overflow: hidden;
+  background: none;
+  display: block;
+  cursor: pointer;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 暗転オーバーレイ。opacityはdimパラメータでinline指定 */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--sumi);
+  cursor: pointer;
+  will-change: opacity;
+}
+
+/* 拡大画像。inset+marginで中央固定し、FLIPのtransformだけで動かす */
+.large {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 78%;
+  aspect-ratio: 16 / 9;
+  border-radius: 2px;
+  overflow: hidden;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+.close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.65);
+  color: var(--code-fg);
+  font-size: 13px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}

@@ -1,0 +1,104 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: rgba(10, 10, 10, 0.92);
+  border-bottom: 1px solid rgba(216, 212, 200, 0.22);
+  transition-property: height;
+  transition-timing-function: ease;
+  will-change: height;
+}
+
+.logo {
+  font-family: var(--font-display), sans-serif;
+  font-size: 24px;
+  letter-spacing: 0.04em;
+  color: var(--code-fg);
+  transform-origin: left center;
+  transition-property: transform;
+  transition-timing-function: ease;
+  will-change: transform;
+  user-select: none;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(216, 212, 200, 0.5);
+  user-select: none;
+}
+
+.content {
+  min-height: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 24px 56px;
+}
+
+.card {
+  flex: none;
+  height: 96px;
+  border: 1px solid rgba(216, 212, 200, 0.18);
+  border-radius: 4px;
+  background: rgba(216, 212, 200, 0.05);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cardLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+}
+
+.cardLine {
+  display: block;
+  height: 6px;
+  width: 60%;
+  border-radius: 3px;
+  background: rgba(216, 212, 200, 0.14);
+}
+
+/* 発火位置を示すガイド線。スクロールと一緒に流れる */
+.marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ai);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.markerLabel {
+  position: absolute;
+  right: 12px;
+  top: -16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ai);
+}

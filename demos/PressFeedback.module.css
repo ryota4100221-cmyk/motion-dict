@@ -1,0 +1,21 @@
+.btn {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 14px 34px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  transition-property: transform;
+  transition-timing-function: ease-out;
+  will-change: transform;
+}
+
+.btn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}

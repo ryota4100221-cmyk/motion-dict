@@ -1,0 +1,88 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 12px 20px;
+  border: 1px solid rgba(233, 233, 227, 0.16);
+  border-radius: 2px;
+  background: var(--code-bg);
+}
+
+.brand {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.navItem {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+  opacity: 0.55;
+  user-select: none;
+}
+
+/* トリガーとメニューを同じ親で包み、ホバー離脱判定を親で行う */
+.wrap {
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--code-fg);
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.chev {
+  font-size: 9px;
+  color: var(--ai);
+  transition: transform 0.2s ease-out;
+}
+
+.triggerOpen .chev {
+  transform: rotate(180deg);
+}
+
+/* 閉状態のopacity/transform/visibilityはJS側でインライン指定する */
+.menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  background: #1d1d19;
+  border: 1px solid rgba(233, 233, 227, 0.16);
+  border-radius: 6px;
+  transform-origin: top;
+  will-change: transform, opacity;
+  z-index: 2;
+}
+
+.item {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--code-fg);
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.item:hover {
+  background: rgba(233, 233, 227, 0.08);
+}

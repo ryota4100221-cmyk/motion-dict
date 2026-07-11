@@ -1,0 +1,42 @@
+.field {
+  position: relative;
+  width: min(240px, 76%);
+}
+
+.input {
+  width: 100%;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 14px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+/* 初期状態はプレースホルダー位置。浮上はtransformのみ(リフロー禁止) */
+.label {
+  position: absolute;
+  top: 15px;
+  left: 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  padding: 2px 5px;
+  margin-left: -5px;
+  background: var(--sumi); /* 入力枠の線を隠す下敷き */
+  transform-origin: left center;
+  transition-property: transform, color;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  pointer-events: none;
+  user-select: none;
+}

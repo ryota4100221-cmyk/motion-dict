@@ -1,0 +1,51 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+/* 横線はスクロールの動きを見せるためのガイド。DOMなしで背景に描く */
+.inner {
+  min-height: 900px;
+  padding: 24px 0 64px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(216, 212, 200, 0.07) 0 1px,
+    transparent 1px 56px
+  );
+}
+
+.sticky {
+  position: sticky;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* flexで並べて、inline-block間の空白による継ぎ目ギャップをなくす */
+.row {
+  display: flex;
+  font-family: var(--font-display), sans-serif;
+  font-size: 44px;
+  line-height: 1.1;
+  color: var(--ai);
+  will-change: transform;
+  user-select: none;
+}
+
+.rowDim {
+  color: rgba(216, 212, 200, 0.3);
+}
+
+.group {
+  flex: none;
+  white-space: nowrap;
+}

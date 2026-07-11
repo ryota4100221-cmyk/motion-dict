@@ -1,0 +1,54 @@
+.card {
+  margin: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* グレインを重ねる「写真」役のシーン。overflow: clipではみ出しを切り落とす */
+.frame {
+  position: relative;
+  width: min(300px, 74vw);
+  aspect-ratio: 3 / 2;
+  border-radius: 2px;
+  overflow: clip;
+  background: linear-gradient(165deg, #3b3b33 0%, #191917 55%, #0d0d0c 100%);
+}
+
+.moon {
+  position: absolute;
+  top: 22%;
+  right: 18%;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--ai);
+  opacity: 0.9;
+}
+
+.title {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: rgba(233, 233, 227, 0.85);
+}
+
+/* 200%サイズ(inset: -50%)で敷き、transformで飛ばしても端が露出しないようにする */
+.grain {
+  position: absolute;
+  inset: -50%;
+  background-repeat: repeat;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  will-change: transform, opacity;
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}

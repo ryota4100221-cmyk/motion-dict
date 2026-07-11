@@ -1,0 +1,55 @@
+.svg {
+  width: min(340px, 80%);
+  height: auto;
+  display: block;
+  margin-bottom: 28px;
+  user-select: none;
+}
+
+/* 初期状態は「描画済み」。再生時にJSがdasharray/dashoffsetを実測値で上書きする */
+.svg path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  will-change: stroke-dashoffset;
+}
+
+.ridgeBack {
+  stroke: rgba(216, 212, 200, 0.4);
+}
+
+.ridgeFront {
+  stroke: var(--code-fg);
+}
+
+.sun {
+  stroke: var(--ai);
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover:not(:disabled) {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+.playBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

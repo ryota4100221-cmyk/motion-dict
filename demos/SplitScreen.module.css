@@ -1,0 +1,56 @@
+.pageFrame {
+  position: relative;
+  width: min(280px, 72%);
+  height: 160px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--code-bg);
+}
+
+.faceB {
+  background: var(--ai);
+}
+
+.label,
+.labelB {
+  font-family: var(--font-mono), monospace;
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.labelB {
+  color: var(--paper);
+}
+
+/* 割れて逃げる2枚のパネル。位置・寸法はaxisに応じてinlineで指定 */
+.panel {
+  position: absolute;
+  overflow: hidden;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* パネルの中身=元ページ全体。ずらして重ねると継ぎ目で絵が1枚に繋がる */
+.inner {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--code-bg);
+}
+
+.innerB {
+  background: var(--ai);
+}

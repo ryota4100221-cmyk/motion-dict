@@ -1,0 +1,67 @@
+.terminal {
+  width: min(300px, 82%);
+  background: var(--code-bg);
+  border: 1px solid rgba(233, 233, 227, 0.16);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.titlebar {
+  display: flex;
+  gap: 5px;
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(233, 233, 227, 0.1);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(233, 233, 227, 0.22);
+}
+
+/* 行数分の高さは行を常にDOMに置くことで確保(opacityだけ切り替える) */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 14px 16px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  color: var(--code-fg);
+  opacity: 0;
+  user-select: none;
+}
+
+.prompt {
+  color: var(--ai);
+  flex-shrink: 0;
+}
+
+.cell {
+  position: relative;
+}
+
+.ghost {
+  /* 幅確保用のダミー。表示はしない */
+  visibility: hidden;
+  white-space: pre;
+}
+
+.live {
+  position: absolute;
+  inset: 0;
+  white-space: pre;
+}
+
+.caret {
+  color: var(--ai);
+  opacity: 0;
+}

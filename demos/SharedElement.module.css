@@ -1,0 +1,72 @@
+/* サムネ(list)⇄ヒーロー(detail)のモックページ。flexの向きで2レイアウトを切り替える */
+.pageFrame {
+  position: relative;
+  width: min(280px, 72%);
+  height: 200px;
+  padding: 14px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  background: var(--code-bg);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.detail {
+  flex-direction: column;
+}
+
+/* 共有要素。両レイアウトで同じDOMのままサイズだけ変わり、差分をFLIPで再生する */
+.figure {
+  position: relative;
+  z-index: 1;
+  width: 88px;
+  aspect-ratio: 16 / 9;
+  border-radius: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+.detail .figure {
+  width: 100%;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 本文のダミー行 */
+.bars {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bars span {
+  display: block;
+  height: 7px;
+  border-radius: 1px;
+  background: rgba(216, 212, 200, 0.22);
+}
+
+.bars span:nth-child(1) {
+  width: 90%;
+}
+
+.bars span:nth-child(2) {
+  width: 65%;
+}
+
+.bars span:nth-child(3) {
+  width: 40%;
+}

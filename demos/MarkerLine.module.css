@@ -1,0 +1,46 @@
+.sentence {
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(20px, 5vw, 30px);
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.05em;
+  color: var(--code-fg);
+  margin-bottom: 36px;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+/* 強調語。マーカーはbackground-sizeを0%→100%に伸ばして引く */
+.mark {
+  /* var(--ai)=#a5e02e の半透明。不透明ベタ塗りにせず文字の可読性を保つ */
+  background-image: linear-gradient(
+    rgba(165, 224, 46, 0.42),
+    rgba(165, 224, 46, 0.42)
+  );
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 45%;
+  padding: 0 0.08em;
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}

@@ -1,0 +1,82 @@
+.wrap {
+  position: relative;
+  margin-bottom: 36px;
+}
+
+.svg {
+  display: block;
+}
+
+/* 容器の輪郭 */
+.vessel {
+  fill: none;
+  stroke: rgba(216, 212, 200, 0.3);
+  stroke-width: 2;
+}
+
+.wave {
+  will-change: transform;
+}
+
+/* 波長60px×2=120px 動かすと元と同じ絵に戻る(シームレスループ) */
+.waving {
+  animation: drift 2.5s linear infinite;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-120px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waving {
+    animation: none;
+  }
+}
+
+/* 半透明のライムを2枚重ね、%表示の可読性と水の奥行きを両立する */
+.waveBack {
+  fill: rgba(165, 224, 46, 0.28);
+}
+
+.waveFront {
+  fill: rgba(165, 224, 46, 0.55);
+}
+
+.label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: var(--code-fg);
+  pointer-events: none;
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}

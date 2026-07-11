@@ -1,0 +1,93 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: min(320px, 78%);
+  /* Playボタンと重ならないよう上に寄せる */
+  margin-bottom: 44px;
+}
+
+/* ダッシュボードのカードを模したタイル。点灯前はopacity 0で隠す */
+.card {
+  aspect-ratio: 4 / 3;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 3px;
+  background: rgba(233, 233, 227, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 9px;
+  opacity: 0;
+}
+
+/* reduced-motion時の即時表示用 */
+.shown {
+  opacity: 1;
+}
+
+/* fill-mode: both で delay中(opacity 0)と終了後(opacity 1)を両方保つ */
+.lit {
+  animation-name: light;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes light {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  /* 点灯の瞬間だけライムに発光させ、通過が目で追えるようにする */
+  55% {
+    border-color: rgba(165, 224, 46, 0.7);
+    box-shadow: 0 0 14px rgba(165, 224, 46, 0.3);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    box-shadow: 0 0 0 rgba(165, 224, 46, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lit {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.bar {
+  height: 6px;
+  width: 72%;
+  border-radius: 2px;
+  background: rgba(233, 233, 227, 0.18);
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
