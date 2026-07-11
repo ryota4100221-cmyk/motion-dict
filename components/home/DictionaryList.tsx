@@ -85,7 +85,11 @@ export default function DictionaryList({
         </p>
       ) : (
         filtered.map((sec) => (
-          <section className={styles.section} key={sec.category}>
+          <section
+            className={styles.section}
+            id={sec.category}
+            key={sec.category}
+          >
             <h2 className={styles.secHead}>
               <span className={styles.secName}>{sec.label}</span>
               <span className={styles.secCount}>

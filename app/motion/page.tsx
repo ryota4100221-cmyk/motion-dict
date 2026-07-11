@@ -3,6 +3,7 @@ import { categoryLabels, entryList } from "@/content";
 import { sentenceCaseEn } from "@/lib/format";
 import type { MotionEntry } from "@/lib/types";
 import Hero from "@/components/home/Hero";
+import CategoryNav from "@/components/home/CategoryNav";
 import DictionaryList from "@/components/home/DictionaryList";
 import type { DictionarySection } from "@/components/home/DictionaryList";
 import TopBar from "@/components/TopBar";
@@ -54,6 +55,14 @@ export default function MotionIndex() {
           total={entryList.length}
           categories={byCategory.size}
           names={marqueeNames}
+        />
+
+        <CategoryNav
+          items={sections.map((s) => ({
+            category: s.category,
+            label: s.label,
+            count: s.rows.length,
+          }))}
         />
 
         <DictionaryList sections={sections} />
