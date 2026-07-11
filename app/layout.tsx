@@ -26,7 +26,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   // monakadesign.com の /motion/ 配下に置く想定(公開時に要確認)
-  metadataBase: new URL("https://monakadesign.com"),
+  metadataBase: new URL("https://motion-dict.monakadesign.com"),
   title: {
     default: "動きの伝え方辞典 — monaka design.",
     template: "%s — 動きの伝え方辞典",
