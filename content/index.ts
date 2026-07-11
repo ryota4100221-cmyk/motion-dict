@@ -47,6 +47,7 @@ import { beforeAfter } from "./before-after";
 import { mosaicReveal } from "./mosaic-reveal";
 import { accordion } from "./accordion";
 import { tabIndicator } from "./tab-indicator";
+import { stepper } from "./stepper";
 import { modalPop } from "./modal-pop";
 import { drawerSlide } from "./drawer-slide";
 import { toastSlide } from "./toast-slide";
@@ -165,6 +166,7 @@ const all: MotionEntry[] = [
   frostedGlass,
   accordion,
   tabIndicator,
+  stepper,
   modalPop,
   drawerSlide,
   toastSlide,

@@ -73,6 +73,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "frosted-glass": d(() => import("./FrostedGlass")),
   accordion: d(() => import("./Accordion")),
   "tab-indicator": d(() => import("./TabIndicator")),
+  stepper: d(() => import("./Stepper")),
   "modal-pop": d(() => import("./ModalPop")),
   "drawer-slide": d(() => import("./DrawerSlide")),
   "toast-slide": d(() => import("./ToastSlide")),
