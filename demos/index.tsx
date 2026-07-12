@@ -112,6 +112,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "flip-card": d(() => import("./FlipCard")),
   "floating-label": d(() => import("./FloatingLabel")),
   "dropdown-reveal": d(() => import("./DropdownReveal")),
+  "menu-toggle": d(() => import("./MenuToggle")),
   "error-shake": d(() => import("./ErrorShake")),
   "stagger-grid": d(() => import("./StaggerGrid")),
   "liquid-fill": d(() => import("./LiquidFill")),

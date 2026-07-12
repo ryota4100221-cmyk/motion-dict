@@ -88,6 +88,7 @@ import { pressFeedback } from "./press-feedback";
 import { flipCard } from "./flip-card";
 import { floatingLabel } from "./floating-label";
 import { dropdownReveal } from "./dropdown-reveal";
+import { menuToggle } from "./menu-toggle";
 import { errorShake } from "./error-shake";
 import { staggerGrid } from "./stagger-grid";
 import { liquidFill } from "./liquid-fill";
@@ -177,6 +178,7 @@ const all: MotionEntry[] = [
   flipCard,
   floatingLabel,
   dropdownReveal,
+  menuToggle,
   errorShake,
   preloaderCounter,
   skeletonShimmer,

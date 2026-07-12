@@ -1,0 +1,41 @@
+/* クリック領域はアイコン+ラベル全体 */
+.button {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 3本線を絶対配置する基準。全体をrotateさせる回転体でもある */
+.icon {
+  position: relative;
+  display: block;
+  width: 32px;
+  height: 24px;
+  will-change: transform;
+}
+
+/* 各線: 中央(top:50%)を基準にtransformで上下・回転させる */
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%; /* 縦中央はtransformのtranslateY(-50%)で取る(太さに依存しない) */
+  border-radius: 999px;
+  background: var(--code-fg);
+  will-change: transform, opacity;
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  color: var(--code-fg);
+  min-width: 5ch;
+  text-align: left;
+  user-select: none;
+}
