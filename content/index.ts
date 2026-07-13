@@ -6,6 +6,7 @@ import { textScramble } from "./text-scramble";
 import { underlineReveal } from "./underline-reveal";
 import { spotlightHover } from "./spotlight-hover";
 import { fillHover } from "./fill-hover";
+import { directionalHover } from "./directional-hover";
 import { liftHover } from "./lift-hover";
 import { borderDraw } from "./border-draw";
 import { imageTrail } from "./image-trail";
@@ -103,6 +104,7 @@ const all: MotionEntry[] = [
   underlineReveal,
   spotlightHover,
   fillHover,
+  directionalHover,
   liftHover,
   borderDraw,
   imageTrail,

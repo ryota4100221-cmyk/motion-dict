@@ -31,6 +31,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "underline-reveal": d(() => import("./UnderlineReveal")),
   "spotlight-hover": d(() => import("./SpotlightHover")),
   "fill-hover": d(() => import("./FillHover")),
+  "directional-hover": d(() => import("./DirectionalHover")),
   "lift-hover": d(() => import("./LiftHover")),
   "scroll-fade-in": d(() => import("./ScrollFadeIn")),
   parallax: d(() => import("./Parallax")),
