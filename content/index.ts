@@ -13,6 +13,7 @@ import { imageTrail } from "./image-trail";
 import { glitchHover } from "./glitch-hover";
 import { textSlideSwap } from "./text-slide-swap";
 import { scrollFadeIn } from "./scroll-fade-in";
+import { perspectiveReveal } from "./perspective-reveal";
 import { parallax } from "./parallax";
 import { scrollProgress } from "./scroll-progress";
 import { velocitySkew } from "./velocity-skew";
@@ -115,6 +116,7 @@ const all: MotionEntry[] = [
   imageSwapHover,
   mouseParallax,
   scrollFadeIn,
+  perspectiveReveal,
   parallax,
   scrollProgress,
   velocitySkew,
