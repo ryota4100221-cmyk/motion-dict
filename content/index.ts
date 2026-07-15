@@ -8,6 +8,7 @@ import { spotlightHover } from "./spotlight-hover";
 import { fillHover } from "./fill-hover";
 import { directionalHover } from "./directional-hover";
 import { liftHover } from "./lift-hover";
+import { focusDim } from "./focus-dim";
 import { borderDraw } from "./border-draw";
 import { imageTrail } from "./image-trail";
 import { glitchHover } from "./glitch-hover";
@@ -107,6 +108,7 @@ const all: MotionEntry[] = [
   fillHover,
   directionalHover,
   liftHover,
+  focusDim,
   borderDraw,
   imageTrail,
   glitchHover,

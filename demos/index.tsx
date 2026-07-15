@@ -33,6 +33,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "fill-hover": d(() => import("./FillHover")),
   "directional-hover": d(() => import("./DirectionalHover")),
   "lift-hover": d(() => import("./LiftHover")),
+  "focus-dim": d(() => import("./FocusDim")),
   "scroll-fade-in": d(() => import("./ScrollFadeIn")),
   "perspective-reveal": d(() => import("./PerspectiveReveal")),
   parallax: d(() => import("./Parallax")),
