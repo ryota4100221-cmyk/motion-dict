@@ -87,6 +87,6 @@ npm run build      # 型エラー・ビルド失敗はここで捕まえる
 ## 7. 報告
 
 Slack通知には以下を含める:
-- 追加した項目名（nameJa / slug）と公開URL `https://motion-dict-monaka.netlify.app/motion/<slug>`
+- 追加した項目名（nameJa / slug）と公開URL `https://motion-dict.monakadesign.com/motion/<slug>`
 - 出典サイト
 - スキップした場合はその理由
