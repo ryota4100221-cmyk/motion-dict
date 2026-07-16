@@ -1,0 +1,70 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* カードは全てこの中に絶対配置で完全に重ねる。束に見せるのは rotate と scale だけ */
+.deck {
+  position: relative;
+  width: min(150px, 38vw);
+  aspect-ratio: 3 / 4;
+  cursor: pointer;
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--sumi);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.drop {
+  animation: drop var(--drop-duration) cubic-bezier(0.6, 0, 0.2, 1) forwards;
+}
+
+/* 横へ逃がしてから、最奥のカードの静止状態と同じ transform へ着地させる。
+   z-index は経路の中盤で落とし、束の下へ潜り込ませる */
+@keyframes drop {
+  0% {
+    z-index: 10;
+    transform: rotate(var(--front-rot)) scale(1);
+  }
+  40% {
+    z-index: -1;
+    transform: translateX(-90%) rotate(-3deg) scale(0.925);
+  }
+  100% {
+    z-index: -1;
+    transform: rotate(var(--back-rot)) scale(var(--back-scale));
+  }
+}
+
+.button {
+  margin-top: 18px;
+  padding: 7px 16px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--code-fg);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: rgba(216, 212, 200, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop {
+    animation: none;
+  }
+}
