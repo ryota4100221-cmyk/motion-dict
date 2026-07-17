@@ -34,6 +34,7 @@ import { wordRotate } from "./word-rotate";
 import { outlineFill } from "./outline-fill";
 import { gradientShine } from "./gradient-shine";
 import { numberRoll } from "./number-roll";
+import { splitFlap } from "./split-flap";
 import { curtainWipe } from "./curtain-wipe";
 import { crossfade } from "./crossfade";
 import { circleReveal } from "./circle-reveal";
@@ -145,6 +146,7 @@ const all: MotionEntry[] = [
   outlineFill,
   gradientShine,
   numberRoll,
+  splitFlap,
   trackingIn,
   textFlip,
   markerLine,

@@ -67,6 +67,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "outline-fill": d(() => import("./OutlineFill")),
   "gradient-shine": d(() => import("./GradientShine")),
   "number-roll": d(() => import("./NumberRoll")),
+  "split-flap": d(() => import("./SplitFlap")),
   "shutter-transition": d(() => import("./ShutterTransition")),
   "zoom-through": d(() => import("./ZoomThrough")),
   "image-parallax-hover": d(() => import("./ImageParallaxHover")),
