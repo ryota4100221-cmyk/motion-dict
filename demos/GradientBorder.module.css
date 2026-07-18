@@ -1,0 +1,65 @@
+.wrap {
+  position: relative;
+  width: min(300px, 76vw);
+  height: 176px;
+}
+
+/* 枠本体と発光は同じconic-gradientを共有する。--angleの回転で明るい帯が周回する。
+   大部分をベース色にし、78〜114deg付近だけ明るくして「1本の光」に見せる */
+.card,
+.glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    rgba(165, 224, 46, 0.14) 0deg,
+    rgba(165, 224, 46, 0.14) 44deg,
+    var(--ai) 80deg,
+    #eaf7c6 96deg,
+    var(--ai) 112deg,
+    rgba(165, 224, 46, 0.14) 148deg,
+    rgba(165, 224, 46, 0.14) 360deg
+  );
+}
+
+/* 同じ図形をぼかして背後へ。ブラーが縁の外へにじみ出て発光になる */
+.glow {
+  filter: blur(var(--glow, 0px));
+  opacity: 0.6;
+}
+
+/* 内側に地色を重ね、--thicknessぶんだけグラデをリングとして覗かせる */
+.inner {
+  position: absolute;
+  inset: var(--thickness, 2px);
+  border-radius: calc(16px - var(--thickness, 2px));
+  background: var(--sumi);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 24px;
+}
+
+.kicker {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--ai);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(233, 233, 227, 0.95);
+}
+
+.sub {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: rgba(216, 212, 200, 0.5);
+}

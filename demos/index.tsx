@@ -75,6 +75,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "before-after": d(() => import("./BeforeAfter")),
   "mosaic-reveal": d(() => import("./MosaicReveal")),
   "frosted-glass": d(() => import("./FrostedGlass")),
+  "gradient-border": d(() => import("./GradientBorder")),
   accordion: d(() => import("./Accordion")),
   "tab-indicator": d(() => import("./TabIndicator")),
   stepper: d(() => import("./Stepper")),

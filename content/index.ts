@@ -89,6 +89,7 @@ import { lineDraw } from "./line-draw";
 import { blobMorph } from "./blob-morph";
 import { grainOverlay } from "./grain-overlay";
 import { frostedGlass } from "./frosted-glass";
+import { gradientBorder } from "./gradient-border";
 import { pressFeedback } from "./press-feedback";
 import { flipCard } from "./flip-card";
 import { floatingLabel } from "./floating-label";
@@ -175,6 +176,7 @@ const all: MotionEntry[] = [
   blobMorph,
   grainOverlay,
   frostedGlass,
+  gradientBorder,
   accordion,
   tabIndicator,
   stepper,
