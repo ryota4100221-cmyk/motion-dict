@@ -1,0 +1,46 @@
+.frame {
+  position: relative;
+  width: min(320px, 80%);
+  overflow: clip;
+  cursor: grab;
+  /* 自前ドラッグなのでブラウザ既定のジェスチャは全部止める */
+  touch-action: none;
+  user-select: none;
+}
+
+.frame:active {
+  cursor: grabbing;
+}
+
+.track {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  will-change: transform;
+}
+
+.card {
+  flex-shrink: 0;
+  width: 84px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(233, 233, 227, 0.28);
+  background: rgba(233, 233, 227, 0.06);
+  color: rgba(233, 233, 227, 0.75);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+
+/* 可動域の左端。はみ出したときにここから離れるので抵抗が目で見える */
+.edge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ai);
+  pointer-events: none;
+}
