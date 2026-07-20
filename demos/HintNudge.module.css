@@ -1,0 +1,85 @@
+.hintStage {
+  /* 横スクロールはブラウザに任せる(自前ドラッグではない) */
+  touch-action: pan-x;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 84px 0 24px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  touch-action: pan-x;
+  scrollbar-width: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  flex-shrink: 0;
+  width: 96px;
+  height: 124px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(233, 233, 227, 0.28);
+  background: rgba(233, 233, 227, 0.06);
+  color: rgba(233, 233, 227, 0.75);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+
+/* 右端をぼかして「まだ続く」ことを静的にも示す(動きに頼りきらない) */
+.fade {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 96px;
+  background: linear-gradient(90deg, rgba(10, 10, 10, 0), var(--sumi));
+  pointer-events: none;
+}
+
+.cue {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  margin-top: -12px;
+  font-size: 20px;
+  line-height: 24px;
+  color: var(--ai);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* 揺れ幅はJS側から --nudge-distance で渡す */
+.cueOn {
+  animation-name: nudge;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+/* 1周で2回ゆらす。休止はJS側でこのクラスを外して作る */
+@keyframes nudge {
+  0%,
+  50%,
+  100% {
+    transform: translateX(0);
+  }
+  25%,
+  75% {
+    transform: translateX(var(--nudge-distance));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cueOn {
+    animation: none;
+  }
+}

@@ -100,6 +100,7 @@ import { staggerGrid } from "./stagger-grid";
 import { liquidFill } from "./liquid-fill";
 import { bootSequence } from "./boot-sequence";
 import { rubberBand } from "./rubber-band";
+import { hintNudge } from "./hint-nudge";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -194,6 +195,7 @@ const all: MotionEntry[] = [
   dropdownReveal,
   menuToggle,
   errorShake,
+  hintNudge,
   preloaderCounter,
   skeletonShimmer,
   loadingBar,

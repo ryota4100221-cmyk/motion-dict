@@ -124,4 +124,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "liquid-fill": d(() => import("./LiquidFill")),
   "boot-sequence": d(() => import("./BootSequence")),
   "rubber-band": d(() => import("./RubberBand")),
+  "hint-nudge": d(() => import("./HintNudge")),
 };
