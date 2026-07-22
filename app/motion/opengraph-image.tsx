@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+
+export const dynamic = "force-static";
 import { loadGoogleFont, og } from "@/lib/og";
 
 export const alt = "動きの伝え方辞典 — monaka design.";

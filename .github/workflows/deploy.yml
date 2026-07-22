@@ -1,18 +1,25 @@
-# push(main)ごとに検証→Netlify本番デプロイ。
-# 毎朝のアニメデモルーティンが public/daily/ にpushするだけでサイトが更新される。
-name: Deploy
+# push(main)ごとに Next を静的エクスポート → GitHub Pages へ公開。
+# Framer移行に伴い Netlify から GitHub Pages へ切替（2026-07-22）。
+# 公開物は /demo/[slug]（裸のライブデモ）と /videos/*.mp4（録画）。
+# 辞典の front-end は Framer CMS 側。ここはデモ/動画のホストに徹する。
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 concurrency:
-  group: deploy
-  cancel-in-progress: false
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,8 +37,24 @@ jobs:
       - name: Validate content
         run: npm run validate
 
-      - name: Deploy to Netlify
-        run: npx netlify-cli@17 deploy --build --prod --message "GitHub Actions ${{ github.sha }}"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      - name: Build (static export)
+        run: npm run build
+
+      - name: Add .nojekyll (serve _next assets)
+        run: touch out/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

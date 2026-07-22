@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+
+export const dynamic = "force-static";
 import { categoryLabels, entries } from "@/content";
 import { sentenceCaseEn } from "@/lib/format";
 import { loadGoogleFont, og } from "@/lib/og";
