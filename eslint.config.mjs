@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // netlify-cliのローカル実行が生成する成果物
     ".netlify/**",
+    // 毎朝ルーティンのツール群（Node/execサンドボックス用でrequire必須・アプリコードではない）
+    "scripts/**",
   ]),
 ]);
 
