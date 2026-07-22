@@ -75,8 +75,7 @@ npm run build      # 型エラー・ビルド失敗はここで捕まえる
 ```
 
 **1つでも落ちたらpush禁止。** 直せない場合は追加をスキップし、Slack報告に理由を書く。
-（CIはlint+validateしか回さない。buildはNetlifyデプロイ時に走るため、
-ローカルでbuildを通さずにpushするとmainが壊れたまま公開が止まる。）
+（CIはlint+validate＋**静的export build**を回し、成功すると **GitHub Pages** に公開＝`/demo/<slug>` と `/videos/*.mp4`。2026-07-22にNetlify→GitHub Pagesへ移行済み。ローカルでbuildを通さずにpushするとPagesデプロイが失敗する。）
 
 ## 6. コミット規約
 
@@ -87,6 +86,8 @@ npm run build      # 型エラー・ビルド失敗はここで捕まえる
 ## 7. 報告
 
 Slack通知には以下を含める:
-- 追加した項目名（nameJa / slug）と公開URL `https://motion-dict.monakadesign.com/motion/<slug>`
+- 追加した項目名（nameJa / slug）とライブデモURL `https://ryota4100221-cmyk.github.io/motion-dict/demo/<slug>`
 - 出典サイト
 - スキップした場合はその理由
+
+> 辞典本体（Framer CMS）への同期は skill の仕事ではなく、`daily.sh` が push後に `scripts/sync-to-framer.mts` で自動実行する（録画→動画push→CMS upsert）。Framerの辞典項目URL `https://focused-gibbon-217531.framer.app/entries/<slug>` は同期完了時に daily.sh が別途Slack通知する。
