@@ -1,17 +1,19 @@
 /* 裸ルート（録画・GH Pagesライブデモ）専用。
-   デモ本体(DemoStage=.stage)を全画面いっぱいに充填し、
-   周囲に明るい余白を作らない（録画に#F4F4F1が写り込むのを防ぐ）。 */
+   デモ本体(DemoStage)は自然な高さのまま中央に置き、周囲の背景を
+   デモと同じ暗色(--sumi)にする。これで録画に明るい余白(#F4F4F1)が
+   写り込まず、かつデモ内容の縦位置が全デモで一定に保たれる。 */
 .bareFill {
-  width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
   background: var(--sumi);
-  overflow: hidden;
 }
 
-/* Demoの直下ルート（=DemoStageの.stage div）を全画面・角丸なしに上書き。
-   モジュールのハッシュクラス名に依存せず、要素セレクタで当てる。 */
+/* Demoの直下ルート(=DemoStageの.stage div)。自然な高さを保ちつつ幅だけ広げ、
+   周囲の暗色と地続きにするため角丸を消す。 */
 .bareFill > div {
-  width: 100vw !important;
-  height: 100vh !important;
+  width: 100%;
+  max-width: 1040px;
   border-radius: 0 !important;
 }
