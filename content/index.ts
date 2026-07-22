@@ -83,6 +83,7 @@ import { splitScreen } from "./split-screen";
 import { sharedElement } from "./shared-element";
 import { lightbox } from "./lightbox";
 import { carousel } from "./carousel";
+import { dragScroll } from "./drag-scroll";
 import { cardShuffle } from "./card-shuffle";
 import { logoMarquee } from "./logo-marquee";
 import { lineDraw } from "./line-draw";
@@ -174,6 +175,7 @@ const all: MotionEntry[] = [
   mosaicReveal,
   lightbox,
   carousel,
+  dragScroll,
   cardShuffle,
   logoMarquee,
   lineDraw,

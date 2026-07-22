@@ -1,0 +1,47 @@
+/* トラックは絶対配置でステージ左端に固定し、幅は中身なりに横へあふれさせる
+   (DemoStageのflex中央寄せを無視して、はみ出したぶんをドラッグで手繰る) */
+.stage {
+  justify-content: flex-start;
+}
+
+.track {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  will-change: transform;
+}
+
+.grabbing {
+  cursor: grabbing;
+}
+
+.panel {
+  position: relative;
+  flex: 0 0 auto;
+  width: 150px;
+  height: 200px;
+  background: var(--code-fg);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: flex-end;
+  padding: 14px;
+}
+
+.accent {
+  background: var(--ai);
+}
+
+.num {
+  font-family: var(--font-mono), monospace;
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  color: var(--sumi);
+}

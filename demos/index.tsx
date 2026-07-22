@@ -109,6 +109,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "shared-element": d(() => import("./SharedElement")),
   lightbox: d(() => import("./Lightbox")),
   carousel: d(() => import("./Carousel")),
+  "drag-scroll": d(() => import("./DragScroll")),
   "card-shuffle": d(() => import("./CardShuffle")),
   "logo-marquee": d(() => import("./LogoMarquee")),
   "line-draw": d(() => import("./LineDraw")),
