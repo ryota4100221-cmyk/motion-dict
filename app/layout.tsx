@@ -25,8 +25,11 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  // monakadesign.com の /motion/ 配下に置く想定(公開時に要確認)
-  metadataBase: new URL("https://motion-dict.monakadesign.com"),
+  metadataBase: new URL("https://motion-dict.framer.website"),
+  // 正面(canonical)は Framer 本番(motion-dict.framer.website)に一本化。
+  // この GH Pages(Next)サイトは動画・デモ配信の倉庫として残すが、
+  // 検索重複を避けるため noindex にする(2026-07-23)。
+  robots: { index: false, follow: false },
   title: {
     default: "動きの伝え方辞典 — monaka design.",
     template: "%s — 動きの伝え方辞典",
