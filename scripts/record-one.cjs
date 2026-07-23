@@ -70,7 +70,33 @@ async function interact(page, category) {
 
   const webm = fs.readdirSync(TMP).filter((f) => f.endsWith(".webm")).map((f) => path.join(TMP, f)).pop();
   const out = path.join(VIDEODIR, `${slug}.mp4`);
-  execSync(`ffmpeg -y -i "${webm}" -movflags +faststart -pix_fmt yuv420p -c:v libx264 -crf 26 -an "${out}"`, { stdio: "ignore" });
+  const raw = path.join(TMP, "raw.mp4");
+  execSync(`ffmpeg -y -i "${webm}" -movflags +faststart -pix_fmt yuv420p -c:v libx264 -crf 26 -an "${raw}"`, { stdio: "ignore" });
+
+  // ページ読み込み中の「真っ白なフレーム」が先頭に焼き込まれ、Framerのホバー再生時に
+  // 一瞬白くフラッシュする。YMIN(最小輝度)が閾値を下回る=暗いテキスト/UIが描画された
+  // 最初のフレーム=コンテンツ開始点。そこから切り直して白リードを落とす。
+  // ダークモード系デモは先頭から暗い(START≈0)ので実質そのまま。上限を超える異常時も無トリム。
+  let start = 0;
+  try {
+    const stats = execSync(
+      `ffmpeg -i "${raw}" -vf "signalstats,metadata=print:key=lavfi.signalstats.YMIN" -an -f null - 2>&1`,
+      { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }
+    );
+    const lines = stats.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const mt = lines[i].match(/pts_time:([0-9.]+)/);
+      if (!mt) continue;
+      const my = (lines[i + 1] || "").match(/YMIN=([0-9]+)/);
+      if (my && Number(my[1]) < 100) { start = Number(mt[1]); break; }
+    }
+  } catch (e) { start = 0; }
+  if (start > 0 && start <= 2.5) {
+    execSync(`ffmpeg -y -ss ${start} -i "${raw}" -movflags +faststart -pix_fmt yuv420p -c:v libx264 -crf 26 -an "${out}"`, { stdio: "ignore" });
+    console.log(`[trim] leading white ${start}s dropped`);
+  } else {
+    fs.copyFileSync(raw, out);
+  }
   fs.rmSync(TMP, { recursive: true, force: true });
   console.log(out);
 })().catch((e) => { console.error("RECORD FAIL:", e); process.exit(1); });
