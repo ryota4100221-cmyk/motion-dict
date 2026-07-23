@@ -99,6 +99,14 @@ async function interact(page, category) {
   } else {
     fs.copyFileSync(raw, out);
   }
+  // ポスター＝トリム済み動画の先頭フレーム（＝暗いデモ箱。YAVGトリムでコンテンツ開始点に
+  // なっているので、ポスターと動画の頭が一致しホバー再生時のジャンプ/白フラッシュが出ない）。
+  const POSTERDIR = path.resolve(__dirname, "..", "public", "posters");
+  fs.mkdirSync(POSTERDIR, { recursive: true });
+  const poster = path.join(POSTERDIR, `${slug}.jpg`);
+  execSync(`ffmpeg -y -loglevel error -i "${out}" -frames:v 1 -q:v 3 "${poster}"`, { stdio: "ignore" });
+
   fs.rmSync(TMP, { recursive: true, force: true });
   console.log(out);
+  console.log(poster);
 })().catch((e) => { console.error("RECORD FAIL:", e); process.exit(1); });

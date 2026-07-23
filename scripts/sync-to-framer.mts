@@ -41,18 +41,23 @@ const run = (cmd: string, opts: any = {}) => execSync(cmd, { cwd: REPO, stdio: "
   // 1) デモがGH Pagesに載るのを待つ（skillのpush→Pagesデプロイ）
   await waitUrl(`${GH}/demo/${slug}/`, `demo/${slug}`);
 
-  // 2) 録画 → public/videos/<slug>.mp4
+  // 2) 録画 → public/videos/<slug>.mp4 ＋ public/posters/<slug>.jpg（record-oneが両方生成）
   console.log(`[rec] recording ${slug} (${e.category})`);
   execFileSync("node", [path.join(REPO, "scripts/record-one.cjs"), slug, e.category],
     { cwd: REPO, stdio: "inherit", env: { ...process.env, NODE_PATH: PW_PATH } });
 
-  // 3) 動画をpush
-  run(`git add public/videos/${slug}.mp4`);
-  try { run(`git commit -q -m "video: ${slug} ループ動画（毎朝同期）"`); run(`git push origin main`); }
-  catch { console.log("[git] nothing to commit (video unchanged) — skip push"); }
+  // 2.5) ホーム一覧(コードコンポーネントMotionDictionary)が読む entries.json を再生成
+  //      ＝これを忘れると新項目が一覧に出てこない。
+  run(`npx --yes tsx ${path.join(REPO, "scripts/export-entries-json.mts")}`);
 
-  // 4) 動画がGH Pagesに載るのを待つ
+  // 3) 動画・ポスター・entries.json をpush
+  run(`git add public/videos/${slug}.mp4 public/posters/${slug}.jpg public/entries.json`);
+  try { run(`git commit -q -m "video: ${slug} ループ動画＋ポスター＋一覧（毎朝同期）"`); run(`git push origin main`); }
+  catch { console.log("[git] nothing to commit (unchanged) — skip push"); }
+
+  // 4) 動画・ポスターがGH Pagesに載るのを待つ（uploadFile/uploadImageがGHから取得するため）
   await waitUrl(`${GH}/videos/${slug}.mp4`, `videos/${slug}.mp4`);
+  await waitUrl(`${GH}/posters/${slug}.jpg`, `posters/${slug}.jpg`);
 
   // 5) Framer CMS へ upsert
   const payload = {
@@ -63,6 +68,7 @@ const run = (cmd: string, opts: any = {}) => execSync(cmd, { cwd: REPO, stdio: "
     ng: `**言い方:** 「${e.ngExample.say}」\n\n**なぜNG:** ${e.ngExample.why}`,
     ok: `**言い方:** 「${e.okExample.say}」\n\n**なぜOK:** ${e.okExample.why}`,
     videoUrl: `${GH}/videos/${slug}.mp4`,
+    posterUrl: `${GH}/posters/${slug}.jpg`,
   };
   writeFileSync("/tmp/framer-sync-payload.json", JSON.stringify(payload));
 

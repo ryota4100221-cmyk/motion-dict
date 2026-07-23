@@ -11,8 +11,14 @@ const F = {}; for (const f of fields) F[f.name] = f;
 const caseByName = {}; for (const c of F["Category"].cases) caseByName[c.name] = c.id;
 
 // 動画をFramerに取り込み（GH Pages URL→framerusercontent）
+// ⚠️Framerはカードで「アップロード済みコピー」を再生するため、GHのファイルを直すだけでは
+// 反映されない＝ここでCMSへ取り込むのが必須。uploadFileはhttp URL必須。
 let videoAsset = null;
 if (p.videoUrl) videoAsset = await framer.uploadFile({ name: p.slug + ".mp4", file: p.videoUrl });
+
+// ポスターもFramerに取り込み（Posterフィールド）。動画の暗い箱frame0と一致した静止画。
+let posterAsset = null;
+if (p.posterUrl) posterAsset = await framer.uploadImage({ image: p.posterUrl, name: p.slug + "-poster" });
 
 const ft = (v) => ({ type: "formattedText", value: v || "", contentType: "markdown" });
 const existing = (await col.getItems()).find((i) => i.slug === p.slug);
@@ -29,6 +35,7 @@ const fd = {
   [F["OK Example"].id]: ft(p.ok),
 };
 if (videoAsset) fd[F["Demo Video"].id] = { type: "file", value: videoAsset.url };
+if (posterAsset) fd[F["Poster"].id] = { type: "image", value: posterAsset.url };
 
 const item = { slug: p.slug, fieldData: fd };
 if (existing) item.id = existing.id;
