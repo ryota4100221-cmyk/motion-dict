@@ -1,0 +1,33 @@
+.floor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--sumi);
+  background: var(--ai);
+  border-radius: 999px;
+  padding: 14px 26px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* 跳ねはこの要素のtranslateYだけで表現する(top/marginは触らない) */
+  will-change: transform;
+}
+
+.badge:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 4px;
+}
+
+/* 接地面。落ちる先が見えていると跳ねの減衰が読み取りやすい */
+.ground {
+  width: 140px;
+  height: 1px;
+  background: rgba(233, 233, 227, 0.28);
+}

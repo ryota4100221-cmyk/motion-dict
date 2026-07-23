@@ -115,6 +115,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "line-draw": d(() => import("./LineDraw")),
   "blob-morph": d(() => import("./BlobMorph")),
   "grain-overlay": d(() => import("./GrainOverlay")),
+  "bounce-in": d(() => import("./BounceIn")),
   "press-feedback": d(() => import("./PressFeedback")),
   "confetti-burst": d(() => import("./ConfettiBurst")),
   "flip-card": d(() => import("./FlipCard")),

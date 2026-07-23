@@ -103,6 +103,7 @@ import { bootSequence } from "./boot-sequence";
 import { rubberBand } from "./rubber-band";
 import { hintNudge } from "./hint-nudge";
 import { confettiBurst } from "./confetti-burst";
+import { bounceIn } from "./bounce-in";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -187,6 +188,7 @@ const all: MotionEntry[] = [
   tabIndicator,
   stepper,
   modalPop,
+  bounceIn,
   drawerSlide,
   toastSlide,
   tooltipPop,
