@@ -70,5 +70,5 @@ const run = (cmd: string, opts: any = {}) => execSync(cmd, { cwd: REPO, stdio: "
   console.log(`[framer] session ${sid}`);
   const out = execSync(`npx --yes @framer/agent@latest exec -s ${sid} -f ${path.join(REPO, "scripts/framer-upsert-one.cjs")}`, { cwd: REPO }).toString();
   console.log(out);
-  console.log(`[done] synced ${slug} → https://focused-gibbon-217531.framer.app/entries/${slug}`);
+  console.log(`[done] synced ${slug} → https://motion-dict.framer.website/entries/${slug}`);
 })().catch((err) => { console.error("SYNC FAIL:", err); process.exit(1); });

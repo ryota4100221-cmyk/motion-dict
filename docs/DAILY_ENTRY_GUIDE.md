@@ -90,4 +90,4 @@ Slack通知には以下を含める:
 - 出典サイト
 - スキップした場合はその理由
 
-> 辞典本体（Framer CMS）への同期は skill の仕事ではなく、`daily.sh` が push後に `scripts/sync-to-framer.mts` で自動実行する（録画→動画push→CMS upsert）。Framerの辞典項目URL `https://focused-gibbon-217531.framer.app/entries/<slug>` は同期完了時に daily.sh が別途Slack通知する。
+> 辞典本体（Framer CMS）への同期は skill の仕事ではなく、`daily.sh` が push後に `scripts/sync-to-framer.mts` で自動実行する（録画→動画push→CMS upsert）。Framerの辞典項目URL `https://motion-dict.framer.website/entries/<slug>` は同期完了時に daily.sh が別途Slack通知する。
