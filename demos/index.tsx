@@ -128,4 +128,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "boot-sequence": d(() => import("./BootSequence")),
   "rubber-band": d(() => import("./RubberBand")),
   "hint-nudge": d(() => import("./HintNudge")),
+  "motion-path": d(() => import("./MotionPath")),
 };

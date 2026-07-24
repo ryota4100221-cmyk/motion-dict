@@ -1,0 +1,47 @@
+.stage {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 6px;
+  border-radius: var(--radius);
+}
+
+/* パスに沿って動くチップ。位置はoffset-path/offset-distanceだけで作り、
+   top/leftは触らない(リフローさせない)。要素の中心が軌道に乗る。 */
+.chip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  /* offset-anchorの既定(center)で要素の中心が軌道に乗る。top/left/marginでの位置合わせは不要 */
+  border-radius: 10px;
+  background: var(--ai);
+  color: var(--sumi);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  will-change: offset-distance;
+}
+
+/* 着地スロット。落ち着く先の目印 */
+.targets {
+  position: absolute;
+}
+
+.slot {
+  position: absolute;
+  left: -17px;
+  margin-top: -17px; /* topで渡す着地点(チップ中心)にスロット中心を合わせる */
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px dashed var(--line);
+  opacity: 0.5;
+}
