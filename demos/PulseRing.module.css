@@ -1,0 +1,66 @@
+.beacon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* コアと同心リングの基準枠。この16px四方が拡大の起点になる */
+.dot {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+}
+
+/* 動かない中心の点。拍動の「発信源」 */
+.core {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ai);
+  z-index: 1;
+}
+
+/* コアと同じ位置・同じ径から scale で広がりながら消えるリング */
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--ai);
+  opacity: 0.85;
+  animation-name: ping;
+  /* 広がり始めが速く外側で減速する ease-out。水面の波紋に寄せる */
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  animation-iteration-count: infinite;
+  /* 拡大は transform のみ。width/box-shadow と違いリフローが走らない */
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+@keyframes ping {
+  from {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  to {
+    transform: scale(var(--spread));
+    opacity: 0;
+  }
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--ai);
+}
+
+/* JSのフォールバック(初回描画時など)としてCSS側でも拡大を止める */
+@media (prefers-reduced-motion: reduce) {
+  .ring {
+    animation: none;
+    opacity: 0;
+  }
+}
