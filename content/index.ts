@@ -106,6 +106,7 @@ import { pulseRing } from "./pulse-ring";
 import { confettiBurst } from "./confetti-burst";
 import { bounceIn } from "./bounce-in";
 import { motionPath } from "./motion-path";
+import { progressiveBlur } from "./progressive-blur";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -144,6 +145,7 @@ const all: MotionEntry[] = [
   headerShrink,
   footerReveal,
   scrollMarquee,
+  progressiveBlur,
   rubberBand,
   splitTextReveal,
   typewriter,

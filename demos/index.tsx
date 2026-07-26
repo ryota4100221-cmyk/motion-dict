@@ -130,4 +130,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "hint-nudge": d(() => import("./HintNudge")),
   "pulse-ring": d(() => import("./PulseRing")),
   "motion-path": d(() => import("./MotionPath")),
+  "progressive-blur": d(() => import("./ProgressiveBlur")),
 };

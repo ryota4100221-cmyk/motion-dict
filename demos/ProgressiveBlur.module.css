@@ -1,0 +1,53 @@
+.blurStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px 28px 40px;
+}
+
+.line {
+  flex: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--code-fg);
+}
+
+/* 帯。高さ・掛ける端(top/bottom)・出し入れのopacityはJS側からインラインで指定する */
+.veil {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  transition-property: opacity;
+  transition-timing-function: ease-out;
+}
+
+/* ぼかし量とグラデーションマスクはJS側からインラインで指定する。
+   層が重なることで端に向かってぼかしが累積する */
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* ぼかしだけでは輝度が残るため、背景色(--sumi)へのグラデーションを添えて完全に溶かす */
+.scrim {
+  position: absolute;
+  inset: 0;
+}
+
+/* backdrop-filter非対応環境では層が効かないのでscrimだけで見せる */
+@supports not (backdrop-filter: blur(1px)) {
+  .layer {
+    display: none;
+  }
+}
