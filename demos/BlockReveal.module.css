@@ -1,0 +1,37 @@
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.3em;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(30px, 8vw, 54px);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--code-fg);
+  cursor: default;
+  user-select: none;
+}
+
+/* バーの重ね先。単語ごとに独立して覆う */
+.word {
+  position: relative;
+  display: inline-block;
+}
+
+.text {
+  /* 初回再生前にちらつかせないため、伏せた状態から始める */
+  opacity: 0;
+}
+
+/* 単語を覆うベタ塗りのバー。高さは--bar-h(行高比)で可変 */
+.bar {
+  position: absolute;
+  left: -0.06em;
+  right: -0.06em;
+  top: 50%;
+  height: var(--bar-h, 100%);
+  transform: translateY(-50%) scaleX(0);
+  background: var(--ai);
+  pointer-events: none;
+  will-change: transform;
+}

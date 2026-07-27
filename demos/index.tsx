@@ -131,4 +131,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "pulse-ring": d(() => import("./PulseRing")),
   "motion-path": d(() => import("./MotionPath")),
   "progressive-blur": d(() => import("./ProgressiveBlur")),
+  "block-reveal": d(() => import("./BlockReveal")),
 };
