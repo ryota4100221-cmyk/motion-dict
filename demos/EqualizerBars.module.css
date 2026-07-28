@@ -1,0 +1,79 @@
+/* 再生ボタンを模したフレーム。バーの上下だけが主役 */
+.player {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  border: 1px solid rgba(216, 212, 200, 0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--code-fg);
+  cursor: pointer;
+}
+
+.icon {
+  font-size: 11px;
+  line-height: 1;
+  color: var(--ai);
+  /* 「▶」と「❚❚」で幅が変わってバーが動かないよう固定 */
+  width: 14px;
+  text-align: center;
+}
+
+/* バーは下端揃え。track側の高さでレイアウトが決まるので伸縮しても行が動かない */
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 22px;
+}
+
+.bar {
+  width: 3px;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* heightではなくscaleYで伸ばす(レイアウト計算を走らせない) */
+.fill {
+  width: 100%;
+  height: 100%;
+  background: var(--ai);
+  transform-origin: bottom;
+  transform: scaleY(var(--floor));
+}
+
+.playing .fill {
+  animation: eq var(--dur) linear infinite alternate;
+  will-change: transform;
+}
+
+/* 停止中は静止、reduced-motion時は高さ違いのまま静止させて「鳴っている」を形で残す */
+.frozen .fill {
+  transform: scaleY(var(--peak));
+}
+
+@keyframes eq {
+  from {
+    transform: scaleY(var(--floor));
+  }
+  to {
+    transform: scaleY(var(--peak));
+  }
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(233, 233, 227, 0.7);
+}
+
+/* JSのフォールバック(初回描画時など)としてCSS側でも止める */
+@media (prefers-reduced-motion: reduce) {
+  .playing .fill {
+    animation: none;
+    transform: scaleY(var(--peak));
+  }
+}

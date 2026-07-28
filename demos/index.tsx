@@ -132,4 +132,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "motion-path": d(() => import("./MotionPath")),
   "progressive-blur": d(() => import("./ProgressiveBlur")),
   "block-reveal": d(() => import("./BlockReveal")),
+  "equalizer-bars": d(() => import("./EqualizerBars")),
 };
