@@ -133,4 +133,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "progressive-blur": d(() => import("./ProgressiveBlur")),
   "block-reveal": d(() => import("./BlockReveal")),
   "equalizer-bars": d(() => import("./EqualizerBars")),
+  "scroll-scrub": d(() => import("./ScrollScrub")),
 };

@@ -109,6 +109,7 @@ import { motionPath } from "./motion-path";
 import { progressiveBlur } from "./progressive-blur";
 import { blockReveal } from "./block-reveal";
 import { equalizerBars } from "./equalizer-bars";
+import { scrollScrub } from "./scroll-scrub";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -138,6 +139,7 @@ const all: MotionEntry[] = [
   textHighlight,
   scrollZoom,
   stickyPin,
+  scrollScrub,
   horizontalScroll,
   scrollSnap,
   sectionColorSwap,
