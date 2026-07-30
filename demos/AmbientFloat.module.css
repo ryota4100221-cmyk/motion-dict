@@ -1,0 +1,55 @@
+.floatStage {
+  /* 常時ループなのでスクロールを妨げない */
+  touch-action: manipulation;
+}
+
+/* ステージ全体を停止トグルにする(PCのクリックとスマホのタップを兼ねる) */
+.field {
+  position: absolute;
+  inset: 0;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item {
+  position: absolute;
+  /* left/top は中心基準。translate(-50%, -50%) は浮遊アニメ側でも維持する */
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  background: rgba(233, 233, 227, 0.06);
+  will-change: transform;
+}
+
+.itemAccent {
+  border-color: rgba(165, 224, 46, 0.55);
+  background: rgba(165, 224, 46, 0.1);
+}
+
+/* 振れ幅・周期・位相はJS側から渡す。折り返しは alternate に任せる */
+.itemOn {
+  animation-name: float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes float {
+  from {
+    transform: translate(-50%, calc(-50% - var(--float-distance) / 2))
+      rotate(calc(var(--float-rotate) * -1));
+  }
+  to {
+    transform: translate(-50%, calc(-50% + var(--float-distance) / 2))
+      rotate(var(--float-rotate));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .itemOn {
+    animation: none;
+  }
+}

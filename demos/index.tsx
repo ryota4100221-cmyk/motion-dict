@@ -134,4 +134,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "block-reveal": d(() => import("./BlockReveal")),
   "equalizer-bars": d(() => import("./EqualizerBars")),
   "scroll-scrub": d(() => import("./ScrollScrub")),
+  "ambient-float": d(() => import("./AmbientFloat")),
 };

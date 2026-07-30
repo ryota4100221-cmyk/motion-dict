@@ -110,6 +110,7 @@ import { progressiveBlur } from "./progressive-blur";
 import { blockReveal } from "./block-reveal";
 import { equalizerBars } from "./equalizer-bars";
 import { scrollScrub } from "./scroll-scrub";
+import { ambientFloat } from "./ambient-float";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -213,6 +214,7 @@ const all: MotionEntry[] = [
   errorShake,
   hintNudge,
   pulseRing,
+  ambientFloat,
   preloaderCounter,
   skeletonShimmer,
   loadingBar,
