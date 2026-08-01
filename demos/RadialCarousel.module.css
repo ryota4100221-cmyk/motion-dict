@@ -1,0 +1,105 @@
+/* ステージ全面を掴めるようにする。回転の入力は横方向のドラッグだけ */
+.field {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.grabbing {
+  cursor: grabbing;
+}
+
+/* 円の中心はステージ下端よりさらに --ring-sink だけ下。
+   sink = 半径 - 210px にしてあるので、半径を変えても真上の項目の高さは動かず
+   「弧のゆるさ」だけが変わる */
+.ring,
+.wheel {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + var(--ring-sink));
+}
+
+.ring {
+  width: calc(var(--ring-r) * 2);
+  height: calc(var(--ring-r) * 2);
+  margin: calc(var(--ring-r) * -1) 0 0 calc(var(--ring-r) * -1);
+  border: 1px dashed rgba(216, 212, 200, 0.14);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* 中心点そのもの。0x0なので transform-origin は常にこの1点になる */
+.wheel {
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+
+/* 選択位置の目印。真上に来た項目のすぐ上に立つ */
+.marker {
+  position: absolute;
+  left: 50%;
+  top: 62px;
+  width: 1px;
+  height: 22px;
+  background: var(--ai);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* 中心から半径ぶん押し出すだけの点。見た目は持たない */
+.slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.pill {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 128px;
+  height: 44px;
+  margin: -22px 0 0 -64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 22px;
+  background: transparent;
+  color: rgba(216, 212, 200, 0.8);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  cursor: pointer;
+  will-change: transform;
+}
+
+.active {
+  border-color: var(--ai);
+  background: var(--ai);
+  color: var(--sumi);
+}
+
+.num {
+  opacity: 0.55;
+}
+
+.active .num {
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wheel,
+  .slot,
+  .pill {
+    transition: none !important;
+  }
+}
