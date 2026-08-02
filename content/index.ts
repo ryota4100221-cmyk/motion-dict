@@ -73,6 +73,7 @@ import { scrollSpy } from "./scroll-spy";
 import { stackingCards } from "./stacking-cards";
 import { smoothScroll } from "./smooth-scroll";
 import { headerShrink } from "./header-shrink";
+import { headerInvert } from "./header-invert";
 import { footerReveal } from "./footer-reveal";
 import { scrollMarquee } from "./scroll-marquee";
 import { trackingIn } from "./tracking-in";
@@ -149,6 +150,7 @@ const all: MotionEntry[] = [
   stackingCards,
   smoothScroll,
   headerShrink,
+  headerInvert,
   footerReveal,
   scrollMarquee,
   progressiveBlur,

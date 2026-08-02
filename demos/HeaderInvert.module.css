@@ -1,0 +1,123 @@
+.scrollStage {
+  touch-action: pan-y;
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  /* difference合成をステージの中だけに閉じ込める */
+  isolation: isolate;
+}
+
+/* 反転はこの2変数の差し替えだけで済ませる(明るいセクションの上が初期状態) */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  --header-fg: var(--sumi);
+  --header-bg: rgba(244, 244, 241, 0.86);
+  color: var(--header-fg);
+  background: var(--header-bg);
+  transition-property: color, background-color;
+  transition-timing-function: ease;
+}
+
+/* 暗いセクションが判定ラインを跨いでいる間 */
+.invert {
+  --header-fg: var(--paper);
+  --header-bg: rgba(10, 10, 10, 0.86);
+}
+
+/* JSの判定を使わず合成モードに任せる方式 */
+.blend {
+  --header-fg: #fff;
+  --header-bg: transparent;
+  mix-blend-mode: difference;
+}
+
+.logo {
+  font-family: var(--font-display), sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: var(--header-fg);
+  user-select: none;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--header-fg);
+  opacity: 0.72;
+  user-select: none;
+}
+
+/* difference合成では半透明にすると反転が中途半端になり読めなくなる */
+.blend .nav {
+  opacity: 1;
+}
+
+/* セクションは隙間なく積む(ヘッダーの下が必ずどれかのセクションになる) */
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  flex: none;
+  height: 200px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--paper);
+  color: var(--sumi);
+}
+
+/* ステージ背景(--sumi)と地続きに見えないよう、ほんの少しだけ持ち上げる */
+/* 先頭セクションだけはヘッダーぶんを空ける(実務のヒーローと同じ) */
+.section:first-child {
+  padding-top: 76px;
+}
+
+.dark {
+  background: #111114;
+  color: var(--paper);
+}
+
+.sectionLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: currentColor;
+}
+
+.sectionLine {
+  display: block;
+  height: 6px;
+  width: 60%;
+  border-radius: 3px;
+  background: currentColor;
+  opacity: 0.18;
+}
+
+/* 判定ラインのガイド。ステージに固定 */
+.probe {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 3;
+  background: var(--ai);
+  opacity: 0.7;
+  pointer-events: none;
+}
