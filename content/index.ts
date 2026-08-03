@@ -88,6 +88,7 @@ import { dragScroll } from "./drag-scroll";
 import { cardShuffle } from "./card-shuffle";
 import { logoMarquee } from "./logo-marquee";
 import { lineDraw } from "./line-draw";
+import { marchingAnts } from "./marching-ants";
 import { blobMorph } from "./blob-morph";
 import { grainOverlay } from "./grain-overlay";
 import { frostedGlass } from "./frosted-glass";
@@ -193,6 +194,7 @@ const all: MotionEntry[] = [
   cardShuffle,
   logoMarquee,
   lineDraw,
+  marchingAnts,
   blobMorph,
   grainOverlay,
   frostedGlass,

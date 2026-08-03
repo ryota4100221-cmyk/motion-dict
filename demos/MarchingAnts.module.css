@@ -1,0 +1,62 @@
+.svg {
+  width: min(340px, 86%);
+  height: auto;
+  display: block;
+  margin-bottom: 30px;
+  user-select: none;
+}
+
+.node {
+  fill: none;
+  stroke: rgba(216, 212, 200, 0.32);
+  stroke-width: 1;
+}
+
+.label {
+  fill: rgba(216, 212, 200, 0.5);
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+/* 経路そのもの。動かさず、破線の下敷きとして常に見えている */
+.base {
+  fill: none;
+  stroke: rgba(216, 212, 200, 0.16);
+  stroke-width: 1.4;
+}
+
+/* 流れる破線。JSが stroke-dashoffset だけを毎フレーム書き換える */
+.march {
+  fill: none;
+  stroke: var(--ai);
+  stroke-width: 1.6;
+  /* roundにすると線分が両端に伸びてgapが潰れ、流れが読めなくなる */
+  stroke-linecap: butt;
+  will-change: stroke-dashoffset;
+}
+
+.arrow {
+  fill: rgba(216, 212, 200, 0.55);
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
