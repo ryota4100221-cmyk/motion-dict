@@ -1,0 +1,120 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(400px, 86%);
+  user-select: none;
+}
+
+/* 1コマぶんの「窓」。ここからはみ出た残りのコマが見えないことが全て */
+.window {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  overflow: hidden;
+  border: 1px solid rgba(216, 212, 200, 0.4);
+  background: rgba(216, 212, 200, 0.04);
+  cursor: pointer;
+}
+
+/* 帯。窓のn倍の幅を持ち、transformで1コマぶんずつ送られる */
+.strip {
+  display: flex;
+  width: calc(100% * var(--n));
+  height: 100%;
+  animation-name: play;
+  animation-duration: var(--dur);
+  animation-timing-function: var(--timing);
+  animation-iteration-count: var(--iter);
+  animation-direction: var(--dir);
+  animation-fill-mode: both;
+  will-change: transform;
+}
+
+@keyframes play {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(var(--shift));
+  }
+}
+
+/* 手送り用。CSSアニメーションは載せずinline transformだけで位置を決める */
+.frozen {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .strip {
+    animation: none;
+  }
+}
+
+.cel {
+  position: relative;
+  flex: 0 0 calc(100% / var(--n));
+  height: 100%;
+}
+
+.no {
+  position: absolute;
+  top: 6px;
+  left: 7px;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: rgba(216, 212, 200, 0.42);
+}
+
+.ground {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 10%;
+  height: 1px;
+  background: rgba(216, 212, 200, 0.22);
+}
+
+.ball {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.caption {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.5);
+}
+
+/* 帯の全景(コンタクトシート)。窓と同じ絵が並んでいることを見せる */
+.sheet {
+  display: flex;
+  width: 100%;
+  border: 1px dashed rgba(216, 212, 200, 0.2);
+}
+
+.sheetCel {
+  flex: 1 1 0;
+  height: 44px;
+}
+
+.sheetCel + .sheetCel {
+  border-left: 1px solid rgba(216, 212, 200, 0.14);
+}
+
+.sheetCel .no {
+  top: 3px;
+  left: 4px;
+  font-size: 7px;
+}
+
+.sheetCel .ball {
+  width: 9px;
+  height: 9px;
+}

@@ -91,6 +91,7 @@ import { lineDraw } from "./line-draw";
 import { marchingAnts } from "./marching-ants";
 import { blobMorph } from "./blob-morph";
 import { grainOverlay } from "./grain-overlay";
+import { spriteSheet } from "./sprite-sheet";
 import { frostedGlass } from "./frosted-glass";
 import { gradientBorder } from "./gradient-border";
 import { pressFeedback } from "./press-feedback";
@@ -197,6 +198,7 @@ const all: MotionEntry[] = [
   marchingAnts,
   blobMorph,
   grainOverlay,
+  spriteSheet,
   frostedGlass,
   gradientBorder,
   accordion,
