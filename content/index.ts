@@ -115,6 +115,7 @@ import { equalizerBars } from "./equalizer-bars";
 import { scrollScrub } from "./scroll-scrub";
 import { ambientFloat } from "./ambient-float";
 import { radialCarousel } from "./radial-carousel";
+import { shadowPop } from "./shadow-pop";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -136,6 +137,7 @@ const all: MotionEntry[] = [
   hoverWave,
   imageSwapHover,
   mouseParallax,
+  shadowPop,
   scrollFadeIn,
   perspectiveReveal,
   parallax,

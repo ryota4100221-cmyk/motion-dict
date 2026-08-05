@@ -139,4 +139,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "ambient-float": d(() => import("./AmbientFloat")),
   "radial-carousel": d(() => import("./RadialCarousel")),
   "header-invert": d(() => import("./HeaderInvert")),
+  "shadow-pop": d(() => import("./ShadowPop")),
 };
