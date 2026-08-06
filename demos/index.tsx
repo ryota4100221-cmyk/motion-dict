@@ -99,6 +99,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "stacking-cards": d(() => import("./StackingCards")),
   "smooth-scroll": d(() => import("./SmoothScroll")),
   "header-shrink": d(() => import("./HeaderShrink")),
+  "header-hide-on-scroll": d(() => import("./HeaderHideOnScroll")),
   "footer-reveal": d(() => import("./FooterReveal")),
   "scroll-marquee": d(() => import("./ScrollMarquee")),
   "tracking-in": d(() => import("./TrackingIn")),
