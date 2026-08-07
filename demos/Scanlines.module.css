@@ -1,0 +1,123 @@
+.card {
+  margin: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* 走査線を重ねる「ブラウン管の画面」役。overflow: clipで走査バーのはみ出しを切り落とす */
+.screen {
+  position: relative;
+  width: min(300px, 74vw);
+  aspect-ratio: 4 / 3;
+  border-radius: 3px;
+  overflow: clip;
+  background: radial-gradient(120% 90% at 50% 38%, #16211a 0%, #0a0e0c 68%, #050706 100%);
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 22px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.brand {
+  margin-bottom: 6px;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--ai);
+}
+
+.row {
+  color: rgba(216, 212, 200, 0.62);
+}
+
+/* 最前面のオーバーレイ。当たり判定から外さないと画面全体が押せなくなる */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 2;
+}
+
+/* ラスタ。等間隔の縞は要素を並べずグラデーション1枚で敷く */
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent calc(var(--spacing) / 2),
+    rgba(0, 0, 0, 0.9) calc(var(--spacing) / 2),
+    rgba(0, 0, 0, 0.9) var(--spacing)
+  );
+  animation: jitter 1s steps(12) infinite;
+}
+
+/* 走査バー。帯は要素の上端付近だけに描いてあるので、+100%(画面の下)から
+   -4%(上端の外)まで動かせば画面をちょうど1回下から上へ横切る */
+.scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(233, 233, 227, 0) 0,
+    rgba(233, 233, 227, 0.5) 1.2%,
+    rgba(233, 233, 227, 0) 2.6%
+  );
+  animation: sweep var(--sweep) linear infinite;
+  will-change: transform;
+}
+
+/* sweep=0はバー無しの指定。duration 0sで固まった帯を残さない */
+.scanlines[data-sweep="off"]::before {
+  display: none;
+}
+
+/* 繰り返し背景なので、縦に送っても端は露出しない */
+@keyframes jitter {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: var(--jitter);
+  }
+}
+
+@keyframes sweep {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, -4%, 0);
+  }
+}
+
+/* 走査バーの移動と明滅は止め、静止したラスタとしてだけ重ねる */
+@media (prefers-reduced-motion: reduce) {
+  .scanlines::before {
+    display: none;
+  }
+
+  .scanlines::after {
+    animation: none;
+  }
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}

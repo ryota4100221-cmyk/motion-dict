@@ -117,6 +117,7 @@ import { ambientFloat } from "./ambient-float";
 import { radialCarousel } from "./radial-carousel";
 import { shadowPop } from "./shadow-pop";
 import { headerHideOnScroll } from "./header-hide-on-scroll";
+import { scanlines } from "./scanlines";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -202,6 +203,7 @@ const all: MotionEntry[] = [
   marchingAnts,
   blobMorph,
   grainOverlay,
+  scanlines,
   spriteSheet,
   frostedGlass,
   gradientBorder,
