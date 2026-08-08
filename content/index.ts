@@ -118,6 +118,7 @@ import { radialCarousel } from "./radial-carousel";
 import { shadowPop } from "./shadow-pop";
 import { headerHideOnScroll } from "./header-hide-on-scroll";
 import { scanlines } from "./scanlines";
+import { openingCrawl } from "./opening-crawl";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -178,6 +179,7 @@ const all: MotionEntry[] = [
   textFlip,
   markerLine,
   rotatingBadge,
+  openingCrawl,
   curtainWipe,
   crossfade,
   circleReveal,

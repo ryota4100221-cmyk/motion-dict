@@ -1,0 +1,100 @@
+.card {
+  margin: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* 消失点を持つ面の親。perspectiveはここに置かないと行ごとにバラバラの遠近になる */
+.space {
+  position: relative;
+  width: min(340px, 78vw);
+  aspect-ratio: 4 / 3;
+  border-radius: 3px;
+  overflow: clip;
+  background: radial-gradient(120% 80% at 50% 18%, #12121a 0%, #06060a 62%, #030305 100%);
+  perspective: var(--perspective);
+  perspective-origin: 50% 25%;
+  /* 奥(上端)へ行くほど暗闇に溶かす。opacityでは要素ごと薄まるのでmaskで削る */
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade));
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade));
+}
+
+/* 傾けた面そのもの。下端(手前)を軸に倒すのでtransform-originは 50% 100% */
+.crawl {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 82%;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotateX(var(--tilt)) translateY(100%);
+  animation: crawl var(--duration) linear infinite;
+  font-family: var(--font-display), sans-serif;
+  color: var(--ai);
+  text-align: justify;
+  will-change: transform;
+}
+
+/* ホバー/タップ中は送りを止めて読ませる。再生位置は保持される */
+.space[data-paused="on"] .crawl {
+  animation-play-state: paused;
+}
+
+.episode {
+  margin: 0 0 0.6em;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+}
+
+.title {
+  margin: 0 0 1em;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.body {
+  margin: 0 0 0.9em;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* 手前(下端の外)から奥(上端の外)へ1本ぶん送りきる。
+   -160%は本文の高さぶん抜けきるための余白込み */
+@keyframes crawl {
+  from {
+    transform: translateX(-50%) rotateX(var(--tilt)) translateY(100%);
+  }
+  to {
+    transform: translateX(-50%) rotateX(var(--tilt)) translateY(-160%);
+  }
+}
+
+/* 傾けず流さず、ただの静止テキストとして読める状態に落とす */
+@media (prefers-reduced-motion: reduce) {
+  .space {
+    mask-image: none;
+    -webkit-mask-image: none;
+    perspective: none;
+    overflow-y: auto;
+  }
+
+  .crawl {
+    position: static;
+    width: 86%;
+    margin: 6% auto;
+    transform: none;
+    animation: none;
+  }
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}
