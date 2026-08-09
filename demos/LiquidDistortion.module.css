@@ -1,0 +1,58 @@
+.card {
+  margin: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* フィルタ定義の置き場。display: noneにするとSafariで参照が切れるので、
+   0×0の絶対配置で「描画はされているが見えない」状態にする */
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.frame {
+  position: relative;
+  width: min(300px, 74vw);
+  aspect-ratio: 3 / 2;
+  overflow: clip;
+  background: var(--sumi);
+}
+
+/* 歪みは端がめくれるので、面をframeより一回り大きく敷いて切れ端を隠す */
+.surface {
+  position: absolute;
+  inset: -12%;
+  display: grid;
+  place-items: center;
+  will-change: filter;
+}
+
+.stripes {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--ai) 0 2px,
+    transparent 2px 16px
+  );
+  opacity: 0.5;
+}
+
+.word {
+  position: relative;
+  font-family: var(--font-mono), monospace;
+  font-size: 34px;
+  letter-spacing: 0.24em;
+  color: var(--code-fg);
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}
