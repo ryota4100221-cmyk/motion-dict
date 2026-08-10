@@ -1,0 +1,121 @@
+.set {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+/* 画面の外枠。潰れた線が浮かぶ「消えた画面」の余白をここが担保する */
+.bezel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(300px, 74vw);
+  aspect-ratio: 4 / 3;
+  padding: 10px;
+  border: 1px solid rgba(216, 212, 200, 0.16);
+  border-radius: 6px;
+  background: #050706;
+}
+
+/* 潰れる本体。transform-originがcenterでないと中央に線が残らない */
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  overflow: clip;
+  transform-origin: center;
+  transform: scaleY(1) scaleX(1);
+  filter: brightness(1);
+  background: radial-gradient(120% 90% at 50% 40%, #16211a 0%, #0a0e0c 66%, #050706 100%);
+  will-change: transform, filter, opacity;
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 22px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  user-select: none;
+}
+
+/* 発光レイヤー。暗い画面をscaleYで潰すだけでは「光る線」にならないので、
+   潰れる要素の中でこれ1枚のopacityを同時に上げる */
+.glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(233, 233, 227, 0.55) 0,
+    #ffffff 50%,
+    rgba(233, 233, 227, 0.55) 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.brand {
+  margin-bottom: 6px;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--ai);
+}
+
+.row {
+  color: rgba(216, 212, 200, 0.62);
+}
+
+/* 電圧が落ちる前のちらつき。回数はanimation-iteration-countで制御する */
+.flickering {
+  animation: flicker var(--flick-dur) steps(2, end) var(--flick-count);
+}
+
+@keyframes flicker {
+  0% {
+    filter: brightness(1.35);
+  }
+  100% {
+    filter: brightness(0.65);
+  }
+}
+
+.powerBtn {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.powerBtn:hover:not(:disabled) {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+.powerBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 潰す動きも明滅もさせない。切り替えはフェードだけ(JS側でも同じ分岐を持つ) */
+@media (prefers-reduced-motion: reduce) {
+  .screen {
+    transform: none;
+    filter: none;
+  }
+
+  .flickering {
+    animation: none;
+  }
+}
