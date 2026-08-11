@@ -1,0 +1,65 @@
+.tile {
+  position: relative;
+  width: min(320px, 80vw);
+  height: 200px;
+  padding: 18px;
+  background: var(--sumi);
+  border-radius: var(--radius);
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+}
+
+.caption {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(233, 233, 227, 0.5);
+}
+
+/* ピルを置く帯。ピルはこの中でabsoluteにして、幅の変化をタイルの外へ波及させない */
+.rail {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  height: 40px;
+}
+
+/* 起点の目印(underline-revealと同じ約束でライムの点=transform-origin) */
+.dot {
+  position: absolute;
+  bottom: -5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+/* すりガラスのカプセル。角丸を999pxにしておくと幅が変わっても両端が半円のまま */
+.pill {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(244, 244, 241, 0.14);
+  border: 0.5px solid rgba(244, 244, 241, 0.35);
+  box-shadow:
+    inset 0 0.5px 1px rgba(244, 244, 241, 0.3),
+    0 2px 6px rgba(10, 10, 10, 0.2);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  backdrop-filter: blur(6px) saturate(120%);
+  will-change: width, transform, opacity;
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: var(--paper);
+}
