@@ -122,6 +122,7 @@ import { openingCrawl } from "./opening-crawl";
 import { liquidDistortion } from "./liquid-distortion";
 import { crtPowerOff } from "./crt-power-off";
 import { pillExpand } from "./pill-expand";
+import { rowExpand } from "./row-expand";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -144,6 +145,7 @@ const all: MotionEntry[] = [
   imageSwapHover,
   mouseParallax,
   shadowPop,
+  rowExpand,
   scrollFadeIn,
   perspectiveReveal,
   parallax,

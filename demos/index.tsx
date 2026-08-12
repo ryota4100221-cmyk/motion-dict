@@ -146,4 +146,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "shadow-pop": d(() => import("./ShadowPop")),
   "crt-power-off": d(() => import("./CrtPowerOff")),
   "pill-expand": d(() => import("./PillExpand")),
+  "row-expand": d(() => import("./RowExpand")),
 };

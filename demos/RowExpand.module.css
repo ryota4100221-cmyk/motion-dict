@@ -1,0 +1,53 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(380px, 84vw);
+  /* 行の高さが動く演出なので、レイアウト再計算を一覧の中に閉じ込める */
+  contain: layout;
+}
+
+.row {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 動かすのはこの帯の height だけ。サムネイルは高さに追従させる */
+.strip {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  overflow: hidden;
+  transition-property: height;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: height;
+}
+
+/* height: 100% + aspect-ratio で幅が自動的に広がる(伸ばす値は高さ1つで済む) */
+.thumb {
+  flex: none;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+}
+
+/* height: auto は畳めないので max-height を 0 へ動かす。
+   畳んだ高さ(行間+上マージン)は帯の height 側に足している */
+.caption {
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  line-height: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(233, 233, 227, 0.62);
+  transition-property: max-height, margin-top, opacity;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: max-height, opacity;
+}
+
+.meta {
+  color: rgba(233, 233, 227, 0.34);
+}
