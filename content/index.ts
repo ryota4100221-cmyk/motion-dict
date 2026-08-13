@@ -123,6 +123,7 @@ import { liquidDistortion } from "./liquid-distortion";
 import { crtPowerOff } from "./crt-power-off";
 import { pillExpand } from "./pill-expand";
 import { rowExpand } from "./row-expand";
+import { moireDrift } from "./moire-drift";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -212,6 +213,7 @@ const all: MotionEntry[] = [
   blobMorph,
   grainOverlay,
   scanlines,
+  moireDrift,
   liquidDistortion,
   spriteSheet,
   frostedGlass,

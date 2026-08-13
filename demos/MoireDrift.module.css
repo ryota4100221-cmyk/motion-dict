@@ -1,0 +1,77 @@
+.card {
+  margin: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* 干渉を起こす帯。isolationで重なりをこの中に閉じる */
+.band {
+  position: relative;
+  width: min(360px, 82vw);
+  height: 200px;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--radius);
+  background: var(--sumi);
+}
+
+/* 2枚のドットグリッド。inset を負にして、回転しても隅が空かないよう広めに敷く。
+   上下は mask-image でぼかして切る(hard edgeだと装飾ではなくパネルに見える) */
+.band::before,
+.band::after {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image: radial-gradient(var(--ai) 30%, transparent 32%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 26%,
+    #000 74%,
+    transparent
+  );
+  mask-image: linear-gradient(to bottom, transparent, #000 26%, #000 74%, transparent);
+}
+
+/* 1枚目は静止。基準の格子 */
+.band::before {
+  background-size: var(--pitch) var(--pitch);
+}
+
+/* 2枚目だけがピッチ違い・傾き付きで動く。動かすのはこの1枚だけ */
+.band::after {
+  background-size: var(--pitch2) var(--pitch2);
+  transform: rotate(var(--angle));
+  animation: drift var(--cycle) linear infinite;
+  transition: opacity 0.25s;
+  will-change: transform;
+}
+
+/* 自分の回転軸に沿ってちょうど1タイル分。1タイル送れば背景の並びが元に戻るので継ぎ目が出ない */
+@keyframes drift {
+  to {
+    transform: rotate(var(--angle)) translate3d(var(--pitch2), 0, 0);
+  }
+}
+
+/* 比較用。2枚目を消すと縞は消え、等間隔のドットだけが残る */
+.band[data-solo="on"]::after {
+  opacity: 0;
+}
+
+/* ドリフトは止め、静止した干渉パターンとしてだけ敷く */
+@media (prefers-reduced-motion: reduce) {
+  .band::after {
+    animation: none;
+  }
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}
