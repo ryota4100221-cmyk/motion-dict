@@ -1,0 +1,138 @@
+.scene {
+  position: relative;
+  width: min(440px, 84vw);
+  height: 244px;
+}
+
+/* 被写体は重ねて置く。手前は大きく下、奥は小さく上——この配置差が奥行きの手掛かり。
+   .in / .out はトグルのたびに必ず入れ替わるので animation-name が変わり、
+   その都度アニメーションが頭から走り直す(再マウント不要) */
+.subject {
+  position: absolute;
+  cursor: pointer;
+  user-select: none;
+  animation-duration: var(--dur);
+  animation-timing-function: cubic-bezier(0.3, 0.15, 0.25, 1);
+  animation-fill-mode: both;
+  will-change: filter, opacity;
+}
+
+.near {
+  left: 0;
+  bottom: 0;
+  width: 232px;
+  max-width: 58%;
+  z-index: 2;
+}
+
+.far {
+  right: 0;
+  top: 0;
+  width: 168px;
+  max-width: 42%;
+  z-index: 1;
+}
+
+/* 被写体の枠。overflow: hiddenでボケてにじんだ縁を枠の外へ出さない */
+.plate {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: #0f110d;
+  border: 1px solid rgba(216, 212, 200, 0.18);
+  overflow: hidden;
+}
+
+.near .plate {
+  aspect-ratio: 4 / 3;
+}
+
+.far .plate {
+  aspect-ratio: 1 / 1;
+}
+
+/* シーメンススター(レンズのピント確認用チャート)。中心へ寄るほど縞が密になり、
+   高周波の成分から先に潰れる=ボケ量の差がそのまま見た目に出る */
+.star {
+  width: 76%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.near .star {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(216, 212, 200, 0.92) 0deg 6deg,
+    #0f110d 6deg 12deg
+  );
+}
+
+/* 奥は縞をさらに細かく、色味も落として距離感を出す */
+.far .star {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(165, 224, 46, 0.82) 0deg 4deg,
+    #0f110d 4deg 8deg
+  );
+}
+
+.tag {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}
+
+.in {
+  animation-name: rackIn;
+}
+
+.out {
+  animation-name: rackOut;
+}
+
+/* 到着側だけがハントする。45%でほぼ合焦→62%で一度ぼけ側へ戻る→100%で収まる。
+   ピントが外れる側(rackOut)にハントを入れると、探しているのがどちらか分からなくなる */
+@keyframes rackIn {
+  0% {
+    filter: blur(calc(var(--b) * 1px));
+    opacity: 0.55;
+  }
+  45% {
+    filter: blur(calc(var(--b) * 0.08 * 1px));
+    opacity: 1;
+  }
+  62% {
+    filter: blur(calc(var(--b) * var(--hunt) * 1px));
+    opacity: 1;
+  }
+  100% {
+    filter: blur(0px);
+    opacity: 1;
+  }
+}
+
+/* ピントが外れる側。ボケと同時にコントラストも落ちるのでopacityを連動させる */
+@keyframes rackOut {
+  0% {
+    filter: blur(0px);
+    opacity: 1;
+  }
+  100% {
+    filter: blur(calc(var(--b) * 1px));
+    opacity: 0.55;
+  }
+}
+
+.readout {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ai);
+  pointer-events: none;
+}

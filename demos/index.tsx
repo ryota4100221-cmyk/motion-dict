@@ -148,4 +148,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "crt-power-off": d(() => import("./CrtPowerOff")),
   "pill-expand": d(() => import("./PillExpand")),
   "row-expand": d(() => import("./RowExpand")),
+  "rack-focus": d(() => import("./RackFocus")),
 };
