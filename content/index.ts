@@ -125,6 +125,7 @@ import { pillExpand } from "./pill-expand";
 import { rowExpand } from "./row-expand";
 import { moireDrift } from "./moire-drift";
 import { rackFocus } from "./rack-focus";
+import { asciiEffect } from "./ascii-effect";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -217,6 +218,7 @@ const all: MotionEntry[] = [
   scanlines,
   moireDrift,
   liquidDistortion,
+  asciiEffect,
   spriteSheet,
   frostedGlass,
   gradientBorder,

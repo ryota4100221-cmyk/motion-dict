@@ -149,4 +149,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "pill-expand": d(() => import("./PillExpand")),
   "row-expand": d(() => import("./RowExpand")),
   "rack-focus": d(() => import("./RackFocus")),
+  "ascii-effect": d(() => import("./AsciiEffect")),
 };
