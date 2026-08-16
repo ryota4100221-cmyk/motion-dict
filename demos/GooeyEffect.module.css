@@ -1,0 +1,51 @@
+.wrap {
+  position: relative;
+  width: min(340px, 92%);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* 広げたフィルタ領域をviewBoxの端で切り落とさない */
+  overflow: visible;
+}
+
+.blobs {
+  pointer-events: none;
+}
+
+.stop {
+  fill: var(--ai);
+  opacity: 0.5;
+}
+
+.blob,
+.tail {
+  fill: var(--ai);
+  will-change: transform;
+}
+
+/* 追従側は主ブロブより薄くしない。融合の輪郭が二重に見えるため同じ塗りにする */
+.tail {
+  opacity: 1;
+}
+
+.hit {
+  position: absolute;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hit:focus-visible {
+  outline: 1px solid var(--ai);
+  outline-offset: -6px;
+}

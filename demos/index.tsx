@@ -150,4 +150,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "row-expand": d(() => import("./RowExpand")),
   "rack-focus": d(() => import("./RackFocus")),
   "ascii-effect": d(() => import("./AsciiEffect")),
+  "gooey-effect": d(() => import("./GooeyEffect")),
 };
