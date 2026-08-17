@@ -1,0 +1,85 @@
+.bounceStage {
+  /* 常時ループなのでスクロールを妨げない */
+  touch-action: manipulation;
+}
+
+/* ロゴの可動域そのもの。ここのclientWidth/HeightからmaxX/maxYを出す */
+.field {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.logo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  aspect-ratio: 5 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ai);
+  /* 反射ごとのhue-rotateとtranslateはJSが直接書き込む */
+  will-change: transform, filter;
+}
+
+/* reduced-motion時の静止位置。JSはループを回さないのでtransformは空いている */
+.logoStill {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+  color: currentColor;
+  transform-origin: center;
+}
+
+/* コーナーヒットの祝福。倍率はJSが --pop-scale で渡す */
+.pop {
+  animation: corner-pop 0.45s ease;
+}
+
+@keyframes corner-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(var(--pop-scale, 1.35));
+  }
+}
+
+.readout {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.45);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop {
+    animation: none;
+  }
+}

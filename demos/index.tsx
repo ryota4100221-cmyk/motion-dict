@@ -151,4 +151,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "rack-focus": d(() => import("./RackFocus")),
   "ascii-effect": d(() => import("./AsciiEffect")),
   "gooey-effect": d(() => import("./GooeyEffect")),
+  "dvd-bounce": d(() => import("./DvdBounce")),
 };

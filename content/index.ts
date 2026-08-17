@@ -127,6 +127,7 @@ import { moireDrift } from "./moire-drift";
 import { rackFocus } from "./rack-focus";
 import { asciiEffect } from "./ascii-effect";
 import { gooeyEffect } from "./gooey-effect";
+import { dvdBounce } from "./dvd-bounce";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -247,6 +248,7 @@ const all: MotionEntry[] = [
   hintNudge,
   pulseRing,
   ambientFloat,
+  dvdBounce,
   preloaderCounter,
   skeletonShimmer,
   loadingBar,
