@@ -152,4 +152,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "ascii-effect": d(() => import("./AsciiEffect")),
   "gooey-effect": d(() => import("./GooeyEffect")),
   "dvd-bounce": d(() => import("./DvdBounce")),
+  "flicker-on": d(() => import("./FlickerOn")),
 };

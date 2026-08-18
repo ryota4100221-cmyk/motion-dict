@@ -128,6 +128,7 @@ import { rackFocus } from "./rack-focus";
 import { asciiEffect } from "./ascii-effect";
 import { gooeyEffect } from "./gooey-effect";
 import { dvdBounce } from "./dvd-bounce";
+import { flickerOn } from "./flicker-on";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -248,6 +249,7 @@ const all: MotionEntry[] = [
   hintNudge,
   pulseRing,
   ambientFloat,
+  flickerOn,
   dvdBounce,
   preloaderCounter,
   skeletonShimmer,

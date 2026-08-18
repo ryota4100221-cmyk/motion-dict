@@ -1,0 +1,42 @@
+.board {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(320px, 78vw);
+  height: 150px;
+  border: 1px solid rgba(216, 212, 200, 0.16);
+  border-radius: 6px;
+  background: radial-gradient(120% 100% at 50% 50%, #0d1210 0%, #050706 72%);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.board:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 4px;
+}
+
+/* ネオン管。白の芯 + 発光色の滲み + その倍の広い滲み の3枚重ねで「光っている」に見せる。
+   点灯はこの要素のopacityだけで表現する(box-shadowのぼかし半径を動かすと再描画が重い) */
+.sign {
+  font-family: var(--font-mono), monospace;
+  font-size: 40px;
+  letter-spacing: 0.24em;
+  /* letter-spacingは最後の1字の後ろにも入る。その分だけ左へ戻して中央に見せる */
+  margin-right: -0.24em;
+  color: #f4fff8;
+  opacity: 0;
+  text-shadow:
+    0 0 calc(var(--glow, 18px) * 0.25) #ffffff,
+    0 0 var(--glow, 18px) var(--ai),
+    0 0 calc(var(--glow, 18px) * 2) var(--ai);
+  will-change: opacity;
+}
+
+/* 明滅させない。JS側でも同じ分岐を持つ(こちらはJSが走る前の保険) */
+@media (prefers-reduced-motion: reduce) {
+  .sign {
+    opacity: 1;
+  }
+}
