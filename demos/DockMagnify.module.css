@@ -1,0 +1,49 @@
+/* 拡大が上へ抜けるので、帯の上に余白を確保して当たり判定も広げる */
+.band {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: min(420px, 92vw);
+  padding: 56px 0 20px;
+}
+
+.dock {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(233, 233, 227, 0.16);
+  border-radius: var(--radius);
+  background: rgba(233, 233, 227, 0.06);
+}
+
+.item {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  background: rgba(233, 233, 227, 0.14);
+  color: rgba(233, 233, 227, 0.72);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  line-height: 1;
+  /* 底辺を揃えたまま上へせり出させる */
+  transform-origin: bottom center;
+  /* 動かすのは transform だけ。width/height を動かすと列全体にリフローが波及する */
+  transition: transform var(--dock-dur, 0.12s) ease-out, background 0.15s ease;
+  will-change: transform;
+}
+
+/* reduced-motion時は拡大の代わりに、指している1つをここで示す */
+.item[data-near="1"] {
+  background: rgba(233, 233, 227, 0.36);
+  color: var(--code-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: background 0.15s ease;
+  }
+}

@@ -153,4 +153,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "gooey-effect": d(() => import("./GooeyEffect")),
   "dvd-bounce": d(() => import("./DvdBounce")),
   "flicker-on": d(() => import("./FlickerOn")),
+  "dock-magnify": d(() => import("./DockMagnify")),
 };
