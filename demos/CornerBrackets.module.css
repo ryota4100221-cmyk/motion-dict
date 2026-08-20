@@ -1,0 +1,81 @@
+.frame {
+  position: relative;
+  width: min(360px, 84%);
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.frame:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 6px;
+}
+
+/* L字の腕。担当する2辺だけに1pxのborderを立てる(四辺は閉じない) */
+.corner {
+  position: absolute;
+  border-style: solid;
+  border-width: 0;
+  border-color: var(--code-fg);
+  /* JSがtransform/opacityだけを動かす。top/left/widthは触らない */
+  will-change: transform, opacity;
+}
+
+/* transform-originは各自のコーナー側。中央にすると回転が滑って収まりが出ない */
+.tl {
+  top: 0;
+  left: 0;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  transform-origin: 0 0;
+}
+
+.tr {
+  top: 0;
+  right: 0;
+  border-top-width: 1px;
+  border-right-width: 1px;
+  transform-origin: 100% 0;
+}
+
+.bl {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+  transform-origin: 0 100%;
+}
+
+.br {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+  transform-origin: 100% 100%;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.eyebrow {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--ai);
+}
+
+.title {
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  color: var(--code-fg);
+}

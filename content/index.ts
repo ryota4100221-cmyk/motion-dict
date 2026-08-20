@@ -89,6 +89,7 @@ import { cardShuffle } from "./card-shuffle";
 import { logoMarquee } from "./logo-marquee";
 import { lineDraw } from "./line-draw";
 import { marchingAnts } from "./marching-ants";
+import { cornerBrackets } from "./corner-brackets";
 import { blobMorph } from "./blob-morph";
 import { grainOverlay } from "./grain-overlay";
 import { spriteSheet } from "./sprite-sheet";
@@ -218,6 +219,7 @@ const all: MotionEntry[] = [
   logoMarquee,
   lineDraw,
   marchingAnts,
+  cornerBrackets,
   blobMorph,
   grainOverlay,
   scanlines,
