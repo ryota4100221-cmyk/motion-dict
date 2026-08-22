@@ -1,0 +1,80 @@
+.card {
+  margin: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* 光を落とす舞台。夜明け前の空の想定で、上ほど明るいベースを敷く */
+.frame {
+  position: relative;
+  width: min(360px, 82vw);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #1b1b24 0%, #121218 55%, #0b0b0e 100%);
+}
+
+/* 光条レイヤー。「自分の中心=光源」になる正方形をフレーム上辺の中央に置く。
+   中心が自分の真ん中にあるので、rotateしても光源が動かない(off-centerだと光源が公転する)。
+   フレームの隅まで届く半径が要るので、幅はフレームの300%取る。 */
+.rays {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 300%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: var(--glow);
+  transition: opacity 0.3s;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    var(--ai) var(--half),
+    transparent var(--spread),
+    transparent var(--period)
+  );
+  /* 光は縁が立たない。ぼかしてバンディングも一緒に消す */
+  filter: blur(9px);
+  /* 下端(=フレームの底)へ向かって減衰させ、床で切れたようなハードエッジを消す */
+  -webkit-mask-image: radial-gradient(closest-side, #000 18%, transparent 92%);
+  mask-image: radial-gradient(closest-side, #000 18%, transparent 92%);
+  animation: sweep var(--cycle) linear infinite;
+  will-change: transform;
+}
+
+/* 1周ではなく1周期ぶん。パターンが同一の位置に戻るので継ぎ目が出ず、尺も短い */
+@keyframes sweep {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(var(--period));
+  }
+}
+
+.title {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: rgba(233, 233, 227, 0.86);
+}
+
+/* 回転だけ止め、静止した光条としては残す */
+@media (prefers-reduced-motion: reduce) {
+  .rays {
+    animation: none;
+  }
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}

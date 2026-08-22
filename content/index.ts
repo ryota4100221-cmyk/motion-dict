@@ -132,6 +132,7 @@ import { dvdBounce } from "./dvd-bounce";
 import { flickerOn } from "./flicker-on";
 import { dockMagnify } from "./dock-magnify";
 import { storyProgress } from "./story-progress";
+import { godRays } from "./god-rays";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -225,6 +226,7 @@ const all: MotionEntry[] = [
   grainOverlay,
   scanlines,
   moireDrift,
+  godRays,
   liquidDistortion,
   asciiEffect,
   spriteSheet,
