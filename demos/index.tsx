@@ -157,4 +157,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "flicker-on": d(() => import("./FlickerOn")),
   "dock-magnify": d(() => import("./DockMagnify")),
   "story-progress": d(() => import("./StoryProgress")),
+  "fly-to-cart": d(() => import("./FlyToCart")),
 };

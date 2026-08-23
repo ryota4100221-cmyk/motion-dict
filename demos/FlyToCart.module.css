@@ -1,0 +1,211 @@
+/* ステージいっぱいの場。分身はこの中を絶対配置で飛ぶ */
+.field {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── 受け皿(カート) ───────────────────────────────── */
+/* 商品より下に置く。上に放って落とし込む軌道のほうが弧が読め、
+   ステージ(320px)の上端で分身が切れない */
+.cart {
+  position: absolute;
+  right: 26px;
+  bottom: 40px;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(228, 245, 189, 0.35);
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.6);
+  will-change: transform;
+}
+
+.cartBump {
+  animation: bump 0.34s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+/* 着地を受け止める一瞬の膨らみ。--bump は着地サイズと独立に触れる */
+@keyframes bump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(var(--bump));
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cartGlyph {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(228, 245, 189, 0.7);
+  user-select: none;
+}
+
+/* key={count} で作り直されるので、数字が変わるたび入場アニメが走る */
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--ai);
+  color: var(--sumi);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  animation: badgeIn 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes badgeIn {
+  from {
+    transform: scale(0.55);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ── 商品カード ───────────────────────────────────── */
+.card {
+  position: absolute;
+  left: 26px;
+  top: 52px;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  width: 148px;
+}
+
+.thumb {
+  display: block;
+  width: 84px;
+  height: 84px;
+  border-radius: 2px;
+  background: linear-gradient(140deg, var(--ai) 0%, var(--ai-pale) 100%);
+}
+
+.name {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(216, 212, 200, 0.75);
+  user-select: none;
+}
+
+.button {
+  padding: 9px 14px;
+  border: 1px solid var(--ai);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ai);
+  font-size: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease-out, color 0.15s ease-out,
+    transform 0.12s ease-out;
+}
+
+.button:hover {
+  background: var(--ai);
+  color: var(--sumi);
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+/* ── 分身 ─────────────────────────────────────────── */
+/* 外側は位置だけを持つ。中間キーフレームで --arc ぶん持ち上げて弧にする */
+.flyer {
+  position: absolute;
+  pointer-events: none;
+  animation-name: flyPath;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  animation-fill-mode: forwards;
+  will-change: transform;
+}
+
+@keyframes flyPath {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(
+      calc(var(--dx) * 0.5),
+      calc(var(--dy) * 0.5 - var(--arc))
+    );
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy));
+  }
+}
+
+/* 内側は拡縮とフェードだけ。位置と同じ要素に書くと後勝ちで片方が消える */
+.flyerInner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(140deg, var(--ai) 0%, var(--ai-pale) 100%);
+  animation-name: flyShrink;
+  animation-timing-function: cubic-bezier(0.5, 0, 0.75, 1);
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes flyShrink {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(var(--end));
+    opacity: 0.35;
+  }
+}
+
+/* 狭い画面ではヒント文が2行に折り返すので、カートを上げて重なりを避ける。
+   併せて商品も小さくし、弧の頂点がステージ上端を越えないよう縦の余白を残す */
+@media (max-width: 520px) {
+  .cart {
+    bottom: 76px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .card {
+    top: 34px;
+    width: 132px;
+  }
+
+  .thumb {
+    width: 68px;
+    height: 68px;
+  }
+}
+
+/* 分身アニメーションは万一の環境でも走らせない安全網
+   (JS側で reduced-motion 時は分身自体を作らない) */
+@media (prefers-reduced-motion: reduce) {
+  .flyer {
+    display: none;
+  }
+
+  .cartBump,
+  .badge {
+    animation: none;
+  }
+}

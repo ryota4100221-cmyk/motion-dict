@@ -132,6 +132,7 @@ import { dvdBounce } from "./dvd-bounce";
 import { flickerOn } from "./flicker-on";
 import { dockMagnify } from "./dock-magnify";
 import { storyProgress } from "./story-progress";
+import { flyToCart } from "./fly-to-cart";
 import { godRays } from "./god-rays";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
@@ -249,6 +250,7 @@ const all: MotionEntry[] = [
   rippleTap,
   pressFeedback,
   confettiBurst,
+  flyToCart,
   flipCard,
   floatingLabel,
   dropdownReveal,
