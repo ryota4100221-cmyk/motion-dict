@@ -1,0 +1,18 @@
+.word {
+  /* 1文字ずつspanに割るとカーニングが切れるため字詰めを無効化して揃える */
+  font-kerning: none;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(32px, 8vw, 56px);
+  letter-spacing: 0.04em;
+  color: var(--code-fg);
+  cursor: default;
+  user-select: none;
+}
+
+.char {
+  display: inline-block;
+  /* 半角スペースも1文字として波に参加させる */
+  white-space: pre;
+  opacity: 0.15;
+  will-change: color, opacity;
+}

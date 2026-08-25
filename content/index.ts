@@ -78,6 +78,7 @@ import { footerReveal } from "./footer-reveal";
 import { scrollMarquee } from "./scroll-marquee";
 import { trackingIn } from "./tracking-in";
 import { textFlip } from "./text-flip";
+import { colorWave } from "./color-wave";
 import { markerLine } from "./marker-line";
 import { rotatingBadge } from "./rotating-badge";
 import { splitScreen } from "./split-screen";
@@ -195,6 +196,7 @@ const all: MotionEntry[] = [
   splitFlap,
   trackingIn,
   textFlip,
+  colorWave,
   markerLine,
   rotatingBadge,
   openingCrawl,

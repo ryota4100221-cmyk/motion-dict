@@ -42,6 +42,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "text-highlight": d(() => import("./TextHighlight")),
   "scroll-zoom": d(() => import("./ScrollZoom")),
   "split-text-reveal": d(() => import("./SplitTextReveal")),
+  "color-wave": d(() => import("./ColorWave")),
   typewriter: d(() => import("./Typewriter")),
   counter: d(() => import("./Counter")),
   marquee: d(() => import("./Marquee")),
