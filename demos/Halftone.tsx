@@ -25,6 +25,10 @@ const INK = "#e9e9e3";
 const PLATE_A = "#a5e02e"; // --ai
 const PLATE_B = "#2ea5e0";
 
+// カーソルが無いときに版ズレの中心が自走する周期(ms)。
+// 触らなくても何が起きる演出なのかが分かるようにするための待機モーション
+const SWEEP = 7200;
+
 // 素材は外部画像ではなく自前で描く(canvasを汚染させずに getImageData を通すため)。
 // 太い文字となだらかな階調帯を混ぜると、網点の粗密の差がいちばんよく見える。
 function drawSource(ctx: CanvasRenderingContext2D, w: number, h: number) {
@@ -110,7 +114,7 @@ export default function Halftone({ params }: { params: ParamValues }) {
       return (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
     };
 
-    const paint = () => {
+    const paint = (time: number) => {
       const p = paramsRef.current;
       const gap = Math.max(2, Math.round(p.gap));
       const reach = p.reach;
@@ -119,8 +123,17 @@ export default function Halftone({ params }: { params: ParamValues }) {
       const cos = Math.cos(rad);
       const sin = Math.sin(rad);
 
+      // カーソルがあればそこ、無ければ画面内をゆっくり8の字に巡る点を中心にする
       const pointer = pointerRef.current;
-      const live = !reduce && pointer.x > -9000;
+      const hasPointer = pointer.x > -9000;
+      const phase = (time / SWEEP) * Math.PI * 2;
+      const spotX = hasPointer
+        ? pointer.x
+        : width * (0.5 + 0.34 * Math.sin(phase));
+      const spotY = hasPointer
+        ? pointer.y
+        : height * (0.5 + 0.26 * Math.sin(phase * 2));
+      const live = !reduce;
       // 回転しても画面が欠けないよう、格子は対角線ぶんまで広げて敷く
       const reachOut = Math.ceil(Math.hypot(width, height) / 2 / gap) + 1;
       const cx = width / 2;
@@ -143,7 +156,7 @@ export default function Halftone({ params }: { params: ParamValues }) {
 
           let k = 0;
           if (live) {
-            const d = Math.hypot(x - pointer.x, y - pointer.y);
+            const d = Math.hypot(x - spotX, y - spotY);
             if (d < reach) k = 1 - d / reach;
           }
           // 近づくほど粒が太る。空白の網点まで浮かび上がらせないよう、元の濃さに比例させる
@@ -176,16 +189,16 @@ export default function Halftone({ params }: { params: ParamValues }) {
       ctx.globalAlpha = 1;
     };
 
-    const removeTick = addTick(() => {
+    const removeTick = addTick((time) => {
       if (width === 0 || height === 0 || !data) return;
       // reduced-motion: カーソル追従も版ズレも止め、網点化した1枚だけを静止表示する
       if (reduce) {
         if (stillDrawn) return;
         stillDrawn = true;
-        paint();
+        paint(0);
         return;
       }
-      paint();
+      paint(time);
     });
 
     return () => {
@@ -206,7 +219,7 @@ export default function Halftone({ params }: { params: ParamValues }) {
   };
 
   return (
-    <DemoStage hint="PC: 網の上をマウスで動かす / スマホ: 指でなぞる">
+    <DemoStage hint="PC: 網の上をマウスで動かす / スマホ: 指でなぞる（放置中は自動で巡回）">
       <figure
         className={styles.card}
         onPointerMove={(e) => track(e.clientX, e.clientY)}
