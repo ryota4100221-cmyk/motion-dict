@@ -154,6 +154,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "row-expand": d(() => import("./RowExpand")),
   "rack-focus": d(() => import("./RackFocus")),
   "ascii-effect": d(() => import("./AsciiEffect")),
+  "halftone": d(() => import("./Halftone")),
   "gooey-effect": d(() => import("./GooeyEffect")),
   "dvd-bounce": d(() => import("./DvdBounce")),
   "flicker-on": d(() => import("./FlickerOn")),
