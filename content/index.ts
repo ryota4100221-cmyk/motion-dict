@@ -138,6 +138,7 @@ import { godRays } from "./god-rays";
 import { quadtreeReveal } from "./quadtree-reveal";
 import { halftone } from "./halftone";
 import { spiralReveal } from "./spiral-reveal";
+import { cubeRoll } from "./cube-roll";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -162,6 +163,7 @@ const all: MotionEntry[] = [
   shadowPop,
   rowExpand,
   dockMagnify,
+  cubeRoll,
   scrollFadeIn,
   perspectiveReveal,
   parallax,

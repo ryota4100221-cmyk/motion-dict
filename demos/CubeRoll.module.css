@@ -1,0 +1,85 @@
+.scene {
+  width: var(--w);
+  height: var(--h);
+  perspective: 900px;
+  cursor: pointer;
+}
+
+/* translateZ(-d/2)で回転の中心を箱の中心に合わせる。
+   これが無いと手前の面を軸に振り回され「ころがり」に見えない */
+.cube {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition-property: transform;
+  will-change: transform;
+}
+
+.face {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.front,
+.back {
+  width: var(--w);
+  height: var(--h);
+  background: var(--ai);
+}
+
+.front {
+  transform: translate(-50%, -50%) translateZ(calc(var(--d) / 2));
+}
+
+.back {
+  background: var(--code-fg);
+  transform: translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--d) / 2));
+}
+
+/* 側面は回転中しか見えない「断面」。文字は置かず色だけで厚みを示す */
+.side {
+  background: #5f7d1a;
+}
+
+.top,
+.bottom {
+  width: var(--w);
+  height: var(--d);
+}
+
+.top {
+  transform: translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--h) / 2));
+}
+
+.bottom {
+  transform: translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2));
+}
+
+.left,
+.right {
+  width: var(--d);
+  height: var(--h);
+}
+
+.right {
+  transform: translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--w) / 2));
+}
+
+.left {
+  transform: translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2));
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--sumi);
+  user-select: none;
+  white-space: nowrap;
+}

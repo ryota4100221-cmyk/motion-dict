@@ -162,4 +162,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "story-progress": d(() => import("./StoryProgress")),
   "fly-to-cart": d(() => import("./FlyToCart")),
   "spiral-reveal": d(() => import("./SpiralReveal")),
+  "cube-roll": d(() => import("./CubeRoll")),
 };
