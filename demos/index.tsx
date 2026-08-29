@@ -163,4 +163,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "fly-to-cart": d(() => import("./FlyToCart")),
   "spiral-reveal": d(() => import("./SpiralReveal")),
   "cube-roll": d(() => import("./CubeRoll")),
+  "text-on-path": d(() => import("./TextOnPath")),
 };

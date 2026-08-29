@@ -1,0 +1,40 @@
+.stage {
+  touch-action: pan-y;
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 文字が乗るパスのガイド。主役は文字なので線は気配だけ残す */
+.guide {
+  fill: none;
+  stroke: rgba(216, 212, 200, 0.16);
+  stroke-width: 1;
+}
+
+.text {
+  font-family: var(--font-mono), monospace;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  fill: var(--code-fg);
+  user-select: none;
+}
+
+/* スクロールを受けるのはこの層。中身は空でtrackの高さぶんだけ動く */
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+}
+
+/* 高さはJS側からステージ高の倍率(length)で指定する */
+.track {
+  width: 100%;
+}
