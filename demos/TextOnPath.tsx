@@ -15,6 +15,10 @@ const VB_W = 480;
 const VB_H = 200;
 const BASE_Y = 112;
 
+// 送りの開始位置(パス長に対する%)。0%から始めず«頭出し»した位置に置くことで、
+// スクロールする前から見出しの先頭が画面に掛かる
+const START = 70;
+
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 
 function useReducedMotion(): boolean {
@@ -54,7 +58,7 @@ export default function TextOnPath({ params }: { params: ParamValues }) {
 
     // 現在の送り位置(パス長に対する%)。スクロール値へ毎フレーム寄せて
     // ホイールの粒を均す。実務のstickyピンでも同じ扱いになる
-    let current = 100;
+    let current = START;
     // 最後にDOMへ書き戻した値。差が小さいフレームは属性更新を省く
     let applied = Number.NaN;
 
@@ -62,7 +66,7 @@ export default function TextOnPath({ params }: { params: ParamValues }) {
       const { travel } = paramsRef.current;
       const max = scroller.scrollHeight - scroller.clientHeight;
       const progress = max > 0 ? scroller.scrollTop / max : 0;
-      const target = 100 - progress * travel;
+      const target = START - progress * travel;
       current += (target - current) * 0.18;
 
       if (!Number.isNaN(applied) && Math.abs(current - applied) < 0.1) return;
@@ -93,7 +97,7 @@ export default function TextOnPath({ params }: { params: ParamValues }) {
           <textPath
             ref={textPathRef}
             href={`#${pathId}`}
-            startOffset={reduce ? "50%" : "100%"}
+            startOffset={reduce ? "50%" : `${START}%`}
             textAnchor={reduce ? "middle" : "start"}
           >
             {SENTENCE}
