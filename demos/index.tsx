@@ -164,4 +164,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "spiral-reveal": d(() => import("./SpiralReveal")),
   "cube-roll": d(() => import("./CubeRoll")),
   "text-on-path": d(() => import("./TextOnPath")),
+  "gradient-wipe": d(() => import("./GradientWipe")),
 };

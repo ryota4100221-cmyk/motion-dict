@@ -140,6 +140,7 @@ import { halftone } from "./halftone";
 import { spiralReveal } from "./spiral-reveal";
 import { cubeRoll } from "./cube-roll";
 import { textOnPath } from "./text-on-path";
+import { gradientWipe } from "./gradient-wipe";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -208,6 +209,7 @@ const all: MotionEntry[] = [
   openingCrawl,
   curtainWipe,
   crossfade,
+  gradientWipe,
   circleReveal,
   menuReveal,
   shutterTransition,

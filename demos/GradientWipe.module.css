@@ -1,0 +1,76 @@
+.frame {
+  position: relative;
+  width: min(240px, 64%);
+  aspect-ratio: 16 / 9;
+  margin-bottom: 36px;
+  border-radius: 2px;
+  overflow: hidden;
+  /* マスクで上の層が抜けている間に背景が透けないよう、不透明な面を敷く */
+  background: #14130f;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* 下の層(02)。斜めのストライプで、境目がどこまで進んだかを読ませる */
+.imgB {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(244, 244, 241, 0.9) 0 6px,
+      rgba(244, 244, 241, 0.72) 6px 12px
+    );
+}
+
+/* 掃かれる側(01)。マスクは JS が mask-image に流し込む */
+.imgA {
+  background:
+    radial-gradient(circle at 32% 34%, var(--ai) 0 22%, transparent 23%),
+    linear-gradient(150deg, #2b3120 0%, #12140d 68%);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  will-change: mask-image;
+}
+
+.tag {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  user-select: none;
+}
+
+.tagA {
+  color: rgba(240, 238, 230, 0.85);
+}
+
+.tagB {
+  color: rgba(10, 10, 10, 0.6);
+}
+
+.playBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.playBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
