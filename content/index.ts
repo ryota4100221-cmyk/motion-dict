@@ -141,6 +141,7 @@ import { spiralReveal } from "./spiral-reveal";
 import { cubeRoll } from "./cube-roll";
 import { textOnPath } from "./text-on-path";
 import { gradientWipe } from "./gradient-wipe";
+import { morphingDropdown } from "./morphing-dropdown";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -267,6 +268,7 @@ const all: MotionEntry[] = [
   flipCard,
   floatingLabel,
   dropdownReveal,
+  morphingDropdown,
   menuToggle,
   errorShake,
   hintNudge,

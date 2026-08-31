@@ -1,0 +1,79 @@
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* ナビ+開いたパネルの最大高さぶんを先に確保し、開閉でステージが揺れないようにする */
+  padding-bottom: 178px;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 999px;
+  background: var(--code-bg);
+}
+
+.trigger {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: rgba(233, 233, 227, 0.5);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+  user-select: none;
+}
+
+.on {
+  color: var(--sumi);
+  background: var(--ai);
+}
+
+/* ナビ全体で1枚だけの器。中身が変わっても作り直さない */
+.panel {
+  position: absolute;
+  left: 0;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  border-radius: 14px;
+  background: var(--code-bg);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  will-change: transform, width, height;
+}
+
+/* 中身は全部パネル内に置いて実寸を測る。表示中の1つだけを見せる */
+.content {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: max-content;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.live {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.link {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(233, 233, 227, 0.62);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.link:first-child {
+  color: var(--ai);
+}

@@ -165,4 +165,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "cube-roll": d(() => import("./CubeRoll")),
   "text-on-path": d(() => import("./TextOnPath")),
   "gradient-wipe": d(() => import("./GradientWipe")),
+  "morphing-dropdown": d(() => import("./MorphingDropdown")),
 };
