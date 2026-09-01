@@ -1,0 +1,133 @@
+/* @property で型付き登録して初めて、CSSはこれらを補間できる。
+   登録しないと transition を書いてもグラデーションはパッと切り替わる(この項目の核心)。
+   カスタムプロパティ名は CSS Modules でもスコープされないので --gm- を付けて衝突を避ける。 */
+@property --gm-x {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+@property --gm-y {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+@property --gm-size-x {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 40%;
+}
+@property --gm-size-y {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 40%;
+}
+@property --gm-c1 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #f4fbe2;
+}
+@property --gm-c2 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #a5e02e;
+}
+@property --gm-c3 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #101508;
+}
+@property --gm-s1 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 4%;
+}
+@property --gm-s2 {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 34%;
+}
+
+.frame {
+  position: relative;
+  width: min(320px, 82%);
+  height: 196px;
+  margin-bottom: 40px;
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #0d0f08;
+}
+
+/* 光源そのもの。JSは変数を書き換えるだけで、補間はここのtransitionが持つ */
+.bg {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    var(--gm-size-x) var(--gm-size-y) at var(--gm-x) var(--gm-y),
+    var(--gm-c1) var(--gm-s1),
+    var(--gm-c2) var(--gm-s2),
+    var(--gm-c3) 100%
+  );
+  transition-property: --gm-x, --gm-y, --gm-size-x, --gm-size-y, --gm-c1, --gm-c2,
+    --gm-c3, --gm-s1, --gm-s2;
+  transition-duration: 1.8s;
+  transition-timing-function: ease-in-out;
+}
+
+/* 背景の上に乗る前景。背景が動いていることを読ませるための目盛りでもある */
+.label {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  /* 背景が明にも暗にも振れるので、単色ではどちらかで沈む。
+     difference なら明側では黒く、暗側では白く出て前景が常に読める */
+  color: #fff;
+  mix-blend-mode: difference;
+  user-select: none;
+}
+
+.dots {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  mix-blend-mode: difference;
+  transition: background-color 0.35s ease;
+}
+
+.dotOn {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.nextBtn {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.nextBtn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
