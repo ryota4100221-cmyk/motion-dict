@@ -143,6 +143,7 @@ import { textOnPath } from "./text-on-path";
 import { gradientWipe } from "./gradient-wipe";
 import { morphingDropdown } from "./morphing-dropdown";
 import { gradientMorph } from "./gradient-morph";
+import { letterSpacingHover } from "./letter-spacing-hover";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -168,6 +169,7 @@ const all: MotionEntry[] = [
   rowExpand,
   dockMagnify,
   cubeRoll,
+  letterSpacingHover,
   scrollFadeIn,
   perspectiveReveal,
   parallax,

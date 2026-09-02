@@ -1,0 +1,72 @@
+.wrap {
+  position: relative;
+  width: min(440px, 86%);
+  padding-bottom: 46px;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  /* 中央寄せにすると字間が開いた分だけ行全体が左右へ逃げ、
+     「隣を押している」のか「行ごと動いた」のかが読めなくなる。必ず左端を固定する */
+  justify-content: flex-start;
+  gap: 26px;
+  border-bottom: 1px solid rgba(216, 212, 200, 0.18);
+  padding-bottom: 14px;
+}
+
+.link {
+  /* 開いた途中で折り返すと幅の話が見えなくなる */
+  white-space: nowrap;
+  font-family: var(--font-mono), monospace;
+  font-size: 15px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(216, 212, 200, 0.62);
+  cursor: pointer;
+  /* 動かすのは字間と、その打ち消し用のマージンだけ。色は開いていることの合図に留める */
+  transition-property: letter-spacing, margin-inline-start, margin-inline-end, color;
+  transition-duration: var(--lsh-dur);
+  transition-timing-function: var(--lsh-ease);
+}
+
+.link[data-on="1"] {
+  color: var(--ai);
+}
+
+/* margin-left:auto で右端に貼り付けてはいけない。押されないと reflow が見えない */
+.badge {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(216, 212, 200, 0.4);
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  padding: 3px 7px;
+  user-select: none;
+}
+
+/* 静止状態の行末に立てる基準線。これ自体は絶対に動かさない */
+.guide {
+  position: absolute;
+  top: -10px;
+  height: 46px;
+  border-left: 1px dashed rgba(165, 224, 46, 0.55);
+  pointer-events: none;
+}
+
+.caption {
+  position: absolute;
+  left: 0;
+  bottom: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(216, 212, 200, 0.45);
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}
