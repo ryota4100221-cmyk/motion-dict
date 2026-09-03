@@ -1,0 +1,123 @@
+/* 角度は @property で型付き登録して初めて補間される。登録を外すと弧は伸びず、
+   キーフレームの区切りでパッと切り替わるだけになる(この項目の核心)。
+   カスタムプロパティ名は CSS Modules でもスコープされないので --cs- を付けて衝突を避ける。 */
+@property --cs-start {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --cs-end {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.ring {
+  position: relative;
+  width: min(200px, 52vw);
+  aspect-ratio: 1;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ring:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 10px;
+}
+
+/* 弧が乗る下地の輪。太さを --cs-thick で共有するので、弧とぴったり重なる */
+.track {
+  position: absolute;
+  inset: 0;
+  border: var(--cs-thick) solid rgba(216, 212, 200, 0.14);
+  border-radius: 50%;
+}
+
+/* 塗りは円盤のまま作り、中心をマスクでくり抜いて輪にする。
+   border-width を動かす実装と違い、太さが変わっても再レイアウトが走らない */
+.arc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg var(--cs-start),
+    var(--ai) var(--cs-start) var(--cs-end),
+    transparent var(--cs-end) 360deg
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--cs-thick)),
+    #000 calc(100% - var(--cs-thick))
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--cs-thick)),
+    #000 calc(100% - var(--cs-thick))
+  );
+  will-change: transform;
+}
+
+/* chase: 頭(--cs-end)が先に arc まで伸び、そこから両端を360degへ送って
+   尻尾(--cs-start)が頭に追いつく。終端は開始とちょうど360deg差なので継ぎ目が出ない */
+@keyframes chase {
+  0% {
+    --cs-start: 0deg;
+    --cs-end: 0deg;
+  }
+  45% {
+    --cs-start: 0deg;
+    --cs-end: var(--cs-arc);
+  }
+  100% {
+    --cs-start: 360deg;
+    --cs-end: 360deg;
+  }
+}
+
+/* spin: 弧の長さは固定。回すのは角度ではなく transform */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.chase {
+  animation: chase var(--cs-dur) linear infinite;
+}
+
+.spin {
+  --cs-start: 0deg;
+  --cs-end: var(--cs-arc);
+  animation: spin var(--cs-dur) linear infinite;
+}
+
+.paused {
+  animation-play-state: paused;
+}
+
+.label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: rgba(216, 212, 200, 0.55);
+  pointer-events: none;
+}
+
+/* 動かさず、伸びきった弧を1枚だけ見せる。JS側に分岐を持たない純CSS実装なので
+   ここが reduced-motion 対応の本体 */
+@media (prefers-reduced-motion: reduce) {
+  .chase,
+  .spin {
+    --cs-start: 0deg;
+    --cs-end: var(--cs-arc);
+    animation: none;
+    transform: none;
+  }
+}

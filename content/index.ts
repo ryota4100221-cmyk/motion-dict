@@ -122,6 +122,7 @@ import { headerHideOnScroll } from "./header-hide-on-scroll";
 import { scanlines } from "./scanlines";
 import { openingCrawl } from "./opening-crawl";
 import { liquidDistortion } from "./liquid-distortion";
+import { conicSweep } from "./conic-sweep";
 import { crtPowerOff } from "./crt-power-off";
 import { pillExpand } from "./pill-expand";
 import { rowExpand } from "./row-expand";
@@ -280,6 +281,7 @@ const all: MotionEntry[] = [
   ambientFloat,
   flickerOn,
   dvdBounce,
+  conicSweep,
   preloaderCounter,
   skeletonShimmer,
   loadingBar,

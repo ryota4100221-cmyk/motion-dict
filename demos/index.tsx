@@ -168,4 +168,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "gradient-morph": d(() => import("./GradientMorph")),
   "morphing-dropdown": d(() => import("./MorphingDropdown")),
   "letter-spacing-hover": d(() => import("./LetterSpacingHover")),
+  "conic-sweep": d(() => import("./ConicSweep")),
 };
