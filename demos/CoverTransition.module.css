@@ -1,0 +1,42 @@
+.pageFrame {
+  position: relative;
+  width: min(280px, 72%);
+  height: 176px;
+  border: 1px solid rgba(216, 212, 200, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--code-bg);
+}
+
+.faceB {
+  background: var(--ai);
+}
+
+/* 覆う側のレイヤー。静止時は上辺から100%切り取られて完全に隠れている */
+.cover {
+  clip-path: inset(100% 0 0);
+  will-change: clip-path, transform;
+  pointer-events: none;
+}
+
+.label,
+.labelB {
+  font-family: var(--font-mono), monospace;
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  color: var(--code-fg);
+  user-select: none;
+}
+
+.labelB {
+  color: var(--paper);
+}

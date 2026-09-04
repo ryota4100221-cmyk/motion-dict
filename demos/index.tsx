@@ -50,6 +50,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "wave-text": d(() => import("./WaveText")),
   "curtain-wipe": d(() => import("./CurtainWipe")),
   crossfade: d(() => import("./Crossfade")),
+  "cover-transition": d(() => import("./CoverTransition")),
   "circle-reveal": d(() => import("./CircleReveal")),
   "menu-reveal": d(() => import("./MenuReveal")),
   "image-zoom-hover": d(() => import("./ImageZoomHover")),
