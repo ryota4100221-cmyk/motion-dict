@@ -1,0 +1,73 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: min(100%, 420px);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* チップが走る距離。track幅からチップ幅を引いた値 */
+  --travel: 232px;
+}
+
+.wrap:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 8px;
+  border-radius: var(--radius);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(233, 233, 227, 0.62);
+  width: 58px;
+  flex: none;
+  text-align: right;
+}
+
+.track {
+  position: relative;
+  width: 264px;
+  height: 32px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+}
+
+.chip {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 24px;
+  border-radius: 999px;
+  /* 動かすのは translate だけ。left を動かすとリフローが走る */
+  translate: var(--x);
+  will-change: translate;
+}
+
+.spring {
+  background: var(--ai);
+  transition: translate var(--dur) var(--spring);
+}
+
+/* 対照側は同じ尺のまま、標準的な ease-out で走らせる */
+.easeOut {
+  background: rgba(233, 233, 227, 0.45);
+  transition: translate var(--dur) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.readout {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: rgba(233, 233, 227, 0.55);
+  text-align: center;
+}

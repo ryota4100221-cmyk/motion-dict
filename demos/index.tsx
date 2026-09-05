@@ -128,6 +128,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "opening-crawl": d(() => import("./OpeningCrawl")),
   "sprite-sheet": d(() => import("./SpriteSheet")),
   "bounce-in": d(() => import("./BounceIn")),
+  "spring-easing": d(() => import("./SpringEasing")),
   "press-feedback": d(() => import("./PressFeedback")),
   "confetti-burst": d(() => import("./ConfettiBurst")),
   "flip-card": d(() => import("./FlipCard")),

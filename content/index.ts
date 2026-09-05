@@ -110,6 +110,7 @@ import { hintNudge } from "./hint-nudge";
 import { pulseRing } from "./pulse-ring";
 import { confettiBurst } from "./confetti-burst";
 import { bounceIn } from "./bounce-in";
+import { springEasing } from "./spring-easing";
 import { motionPath } from "./motion-path";
 import { progressiveBlur } from "./progressive-blur";
 import { blockReveal } from "./block-reveal";
@@ -262,6 +263,7 @@ const all: MotionEntry[] = [
   radialCarousel,
   modalPop,
   bounceIn,
+  springEasing,
   drawerSlide,
   toastSlide,
   tooltipPop,
