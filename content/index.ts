@@ -147,6 +147,7 @@ import { morphingDropdown } from "./morphing-dropdown";
 import { gradientMorph } from "./gradient-morph";
 import { letterSpacingHover } from "./letter-spacing-hover";
 import { coverTransition } from "./cover-transition";
+import { squashStretch } from "./squash-stretch";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -263,6 +264,7 @@ const all: MotionEntry[] = [
   radialCarousel,
   modalPop,
   bounceIn,
+  squashStretch,
   springEasing,
   drawerSlide,
   toastSlide,

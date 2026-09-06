@@ -1,0 +1,84 @@
+.rig {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 64px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rig:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 10px;
+  border-radius: 4px;
+}
+
+.lane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 頂点まで跳んでも刈られないよう、あらかじめ高さを確保しておく */
+.pit {
+  height: 140px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.chip {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  border-radius: 8px;
+  padding: 16px 22px;
+  /* 変形の基準は接地面側。center のままだと潰れたときに床へめり込む */
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+.ok {
+  color: var(--sumi);
+  background: var(--ai);
+}
+
+/* 比較用は主役より落として、目が正解側へ行くようにする */
+.ng {
+  color: rgba(233, 233, 227, 0.62);
+  background: rgba(233, 233, 227, 0.14);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+}
+
+.ground {
+  width: 150px;
+  height: 1px;
+  background: rgba(233, 233, 227, 0.28);
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+@media (max-width: 560px) {
+  .rig {
+    gap: 28px;
+  }
+
+  .chip {
+    padding: 14px 16px;
+    font-size: 11px;
+  }
+
+  .ground {
+    width: 110px;
+  }
+
+  .label {
+    font-size: 9px;
+  }
+}
