@@ -172,4 +172,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "morphing-dropdown": d(() => import("./MorphingDropdown")),
   "letter-spacing-hover": d(() => import("./LetterSpacingHover")),
   "conic-sweep": d(() => import("./ConicSweep")),
+  "notched-corner": d(() => import("./NotchedCorner")),
 };

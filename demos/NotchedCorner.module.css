@@ -1,0 +1,45 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: min(420px, 84vw);
+}
+
+.caption {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: rgba(233, 233, 227, 0.45);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* 角の欠けは clip-path だけで作る。padding や border-radius は状態で動かさない
+   (動かすとリフローが走り、欠けの補間とタイミングもずれる) */
+.chip {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 22px 30px;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  cursor: pointer;
+  background: rgba(244, 244, 241, 0.16);
+  color: var(--paper);
+  will-change: clip-path;
+}
+
+/* 選択中。ステージが暗いので --line ではなくライムで塗り分ける */
+.chip.current {
+  background: var(--ai);
+  color: var(--sumi);
+}
