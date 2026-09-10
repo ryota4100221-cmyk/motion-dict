@@ -173,4 +173,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "letter-spacing-hover": d(() => import("./LetterSpacingHover")),
   "conic-sweep": d(() => import("./ConicSweep")),
   "notched-corner": d(() => import("./NotchedCorner")),
+  "sliced-text": d(() => import("./SlicedText")),
 };

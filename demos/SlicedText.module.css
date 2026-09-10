@@ -1,0 +1,57 @@
+/* 帯を重ねる基準。inline-blockで文字ぴったりの箱にする */
+.wrap {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(34px, 9vw, 64px);
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--code-fg);
+  cursor: default;
+  user-select: none;
+}
+
+/* 箱の大きさだけを決める。見えるのは帯側 */
+.ghost {
+  visibility: hidden;
+}
+
+/* 同じ文字を重ね、clip-pathで斜めの帯に切り分ける */
+.slice {
+  position: absolute;
+  inset: 0;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* 刃が通った瞬間を示す走査線。伸びる向きを左端に固定する */
+.line {
+  position: absolute;
+  left: -12%;
+  top: 50%;
+  width: 124%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(233, 233, 227, 0.35) 22%,
+    var(--ai) 50%,
+    rgba(233, 233, 227, 0.35) 78%,
+    transparent
+  );
+  transform-origin: left center;
+  transform: scaleX(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 帯はaria-hiddenなので、読み上げ用のテキストを1つだけ残す */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
