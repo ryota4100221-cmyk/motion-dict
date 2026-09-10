@@ -139,6 +139,7 @@ import { flyToCart } from "./fly-to-cart";
 import { godRays } from "./god-rays";
 import { quadtreeReveal } from "./quadtree-reveal";
 import { halftone } from "./halftone";
+import { ditherDissolve } from "./dither-dissolve";
 import { spiralReveal } from "./spiral-reveal";
 import { cubeRoll } from "./cube-roll";
 import { textOnPath } from "./text-on-path";
@@ -256,6 +257,7 @@ const all: MotionEntry[] = [
   liquidDistortion,
   asciiEffect,
   halftone,
+  ditherDissolve,
   spriteSheet,
   frostedGlass,
   gradientBorder,
