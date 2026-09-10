@@ -1,0 +1,78 @@
+.doc {
+  position: relative;
+  width: 260px;
+  padding: 22px 24px 30px;
+  background: #141414;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 2px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.docHead {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(233, 233, 227, 0.62);
+}
+
+.docLines {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: 20px;
+}
+
+.line {
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: rgba(233, 233, 227, 0.24);
+}
+
+.short {
+  width: 62%;
+}
+
+.seal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* 位置合わせは margin で済ませ、transform は判子の動きだけに使う
+     (translate を混ぜるとアニメーション側で毎回書き直す必要が出る)。
+     真ん中ではなく少し右下にずらして、台紙の見出しを潰さない */
+  margin: -33px 0 0 -19px;
+  width: 94px;
+  height: 94px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 2px solid var(--ai);
+  border-radius: 50%;
+  color: var(--ai);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.sealTop {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.sealBar {
+  display: block;
+  width: 52px;
+  height: 1px;
+  background: var(--ai);
+}
+
+.sealDate {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}

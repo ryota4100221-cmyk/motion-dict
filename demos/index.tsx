@@ -175,4 +175,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "notched-corner": d(() => import("./NotchedCorner")),
   "sliced-text": d(() => import("./SlicedText")),
   "dither-dissolve": d(() => import("./DitherDissolve")),
+  "stamp-in": d(() => import("./StampIn")),
 };

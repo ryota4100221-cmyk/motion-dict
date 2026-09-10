@@ -149,6 +149,7 @@ import { gradientMorph } from "./gradient-morph";
 import { letterSpacingHover } from "./letter-spacing-hover";
 import { coverTransition } from "./cover-transition";
 import { squashStretch } from "./squash-stretch";
+import { stampIn } from "./stamp-in";
 import { notchedCorner } from "./notched-corner";
 import { slicedText } from "./sliced-text";
 
@@ -280,6 +281,7 @@ const all: MotionEntry[] = [
   equalizerBars,
   rippleTap,
   pressFeedback,
+  stampIn,
   confettiBurst,
   flyToCart,
   flipCard,
