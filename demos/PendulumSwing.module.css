@@ -1,0 +1,106 @@
+.rack {
+  position: absolute;
+  top: 54px;
+  left: 50%;
+  width: min(420px, 86%);
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: space-around;
+}
+
+/* 吊り具のレール。ここは一切動かさない */
+.rail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(233, 233, 227, 0.24);
+}
+
+.slot {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  /* 吊り点からタグ上辺までの紐の長さ */
+  padding-top: var(--pivot);
+}
+
+/* 吊り点(=transform-origin の位置)。ライムの点が回転の中心 */
+.pin {
+  position: absolute;
+  top: -3.5px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: var(--ai);
+  z-index: 1;
+}
+
+.tag {
+  position: relative;
+  width: 68px;
+  height: 100px;
+  padding: 0 0 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: #141414;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 14px 14px 6px 6px;
+  color: rgba(233, 233, 227, 0.62);
+  font: inherit;
+  cursor: pointer;
+  /* 回転の中心はタグの中ではなく、上辺から pivot px 上の吊り点 */
+  transform-origin: 50% calc(var(--pivot) * -1);
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tag:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 3px;
+}
+
+.accent {
+  background: var(--ai);
+  border-color: var(--ai);
+  color: var(--sumi);
+}
+
+/* 紐。タグの内側に持たせているので、タグと一緒に回る */
+.string {
+  position: absolute;
+  top: calc(var(--pivot) * -1 - 1px);
+  left: calc(50% - 0.5px);
+  width: 1px;
+  height: calc(var(--pivot) + 14px);
+  background: rgba(233, 233, 227, 0.55);
+  pointer-events: none;
+}
+
+.hole {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--sumi);
+  border: 1.5px solid rgba(233, 233, 227, 0.55);
+  pointer-events: none;
+}
+
+.accent .hole {
+  border-color: rgba(10, 10, 10, 0.55);
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}

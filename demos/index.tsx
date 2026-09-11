@@ -176,4 +176,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "sliced-text": d(() => import("./SlicedText")),
   "dither-dissolve": d(() => import("./DitherDissolve")),
   "stamp-in": d(() => import("./StampIn")),
+  "pendulum-swing": d(() => import("./PendulumSwing")),
 };

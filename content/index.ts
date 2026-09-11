@@ -152,6 +152,7 @@ import { squashStretch } from "./squash-stretch";
 import { stampIn } from "./stamp-in";
 import { notchedCorner } from "./notched-corner";
 import { slicedText } from "./sliced-text";
+import { pendulumSwing } from "./pendulum-swing";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -293,6 +294,7 @@ const all: MotionEntry[] = [
   hintNudge,
   pulseRing,
   ambientFloat,
+  pendulumSwing,
   flickerOn,
   dvdBounce,
   conicSweep,
