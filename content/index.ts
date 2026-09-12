@@ -107,6 +107,7 @@ import { liquidFill } from "./liquid-fill";
 import { bootSequence } from "./boot-sequence";
 import { rubberBand } from "./rubber-band";
 import { hintNudge } from "./hint-nudge";
+import { gestureHint } from "./gesture-hint";
 import { pulseRing } from "./pulse-ring";
 import { confettiBurst } from "./confetti-burst";
 import { bounceIn } from "./bounce-in";
@@ -292,6 +293,7 @@ const all: MotionEntry[] = [
   menuToggle,
   errorShake,
   hintNudge,
+  gestureHint,
   pulseRing,
   ambientFloat,
   pendulumSwing,
