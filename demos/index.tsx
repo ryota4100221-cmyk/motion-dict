@@ -178,4 +178,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "stamp-in": d(() => import("./StampIn")),
   "pendulum-swing": d(() => import("./PendulumSwing")),
   "gesture-hint": d(() => import("./GestureHint")),
+  "cover-flow": d(() => import("./CoverFlow")),
 };

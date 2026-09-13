@@ -119,6 +119,7 @@ import { equalizerBars } from "./equalizer-bars";
 import { scrollScrub } from "./scroll-scrub";
 import { ambientFloat } from "./ambient-float";
 import { radialCarousel } from "./radial-carousel";
+import { coverFlow } from "./cover-flow";
 import { shadowPop } from "./shadow-pop";
 import { headerHideOnScroll } from "./header-hide-on-scroll";
 import { scanlines } from "./scanlines";
@@ -246,6 +247,7 @@ const all: MotionEntry[] = [
   quadtreeReveal,
   lightbox,
   carousel,
+  coverFlow,
   dragScroll,
   cardShuffle,
   logoMarquee,

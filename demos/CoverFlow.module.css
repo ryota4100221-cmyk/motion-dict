@@ -1,0 +1,116 @@
+/* ステージ全面を掴めるようにする。送りの入力は横方向のドラッグだけ */
+.field {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.field:active {
+  cursor: grabbing;
+}
+
+.field:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: -4px;
+}
+
+/* 遠近はこの1点から見る。カードはここの直接の子なので全員が同じ消失点を共有する */
+.scene {
+  position: absolute;
+  inset: 0;
+  perspective: 700px;
+  perspective-origin: 50% 42%;
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 48px;
+  width: 144px;
+  height: 144px;
+  margin-left: -72px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  will-change: transform;
+  --shade: 0;
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--cover);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  color: rgba(233, 233, 227, 0.9);
+  font-family: var(--font-mono), monospace;
+  text-align: left;
+}
+
+.card[data-active="true"] .art {
+  border-color: var(--ai);
+}
+
+.num {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  opacity: 0.62;
+}
+
+.title {
+  font-size: 13px;
+  letter-spacing: 0.16em;
+}
+
+/* 中央から離れたカードに重ねる暗幕。濃さはtickが --shade で渡す */
+.shade {
+  position: absolute;
+  inset: 0;
+  background: var(--sumi);
+  opacity: var(--shade);
+  pointer-events: none;
+}
+
+/* 映り込み。box-reflectは使わず、上下反転した複製を下へ消えるマスクで切る */
+.mirror {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 3px);
+  width: 100%;
+  height: 34%;
+  background: var(--cover);
+  background-size: 100% 294%;
+  background-position: center bottom;
+  transform: scaleY(-1);
+  opacity: calc(0.32 - var(--shade) * 0.3);
+  mask-image: linear-gradient(rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 0.85) 100%);
+  pointer-events: none;
+}
+
+/* カードが立っている床の線 */
+.floor {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 193px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(233, 233, 227, 0.24) 50%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    will-change: auto;
+  }
+}
