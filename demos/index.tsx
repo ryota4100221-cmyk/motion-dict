@@ -179,4 +179,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "pendulum-swing": d(() => import("./PendulumSwing")),
   "gesture-hint": d(() => import("./GestureHint")),
   "cover-flow": d(() => import("./CoverFlow")),
+  twinkle: d(() => import("./Twinkle")),
 };

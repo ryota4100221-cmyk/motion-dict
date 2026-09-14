@@ -1,0 +1,90 @@
+.skyStage {
+  /* 常時ループなのでスクロールを妨げない */
+  touch-action: manipulation;
+}
+
+/* 夜空。上ほどわずかに青みを残し、地平側を沈める */
+.sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 0%, #161a26 0%, #0d0f15 60%, transparent 100%);
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: rgb(233, 233, 227);
+  box-shadow: 0 0 var(--glow) rgba(233, 233, 227, 0.8);
+  /* 静止時(reduced-motion)の明るさ。星ごとにばらつかせる */
+  opacity: var(--rest);
+  will-change: opacity, transform;
+}
+
+.starAccent {
+  background: var(--ai);
+  box-shadow: 0 0 var(--glow) rgba(165, 224, 46, 0.7);
+}
+
+/* keyframesは全星で共有し、周期と位相だけをJS側から個別に渡す */
+.starOn {
+  animation-name: twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+}
+
+/* 流れ星。進行方向(右)を頭にして尾を透明へ抜く。動きはWeb Animations APIで付ける */
+.meteor {
+  position: absolute;
+  width: 96px;
+  height: 1px;
+  opacity: 0;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(233, 233, 227, 0) 0%, rgba(233, 233, 227, 0.9) 100%);
+  filter: drop-shadow(0 0 3px rgba(233, 233, 227, 0.6));
+}
+
+.toggle {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  padding: 6px 10px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  background: rgba(13, 15, 21, 0.6);
+  color: rgba(233, 233, 227, 0.62);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle[aria-pressed="true"] {
+  border-color: rgba(165, 224, 46, 0.55);
+  color: var(--ai);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .starOn {
+    animation: none;
+  }
+}

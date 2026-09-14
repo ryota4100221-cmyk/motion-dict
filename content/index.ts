@@ -139,6 +139,7 @@ import { dockMagnify } from "./dock-magnify";
 import { storyProgress } from "./story-progress";
 import { flyToCart } from "./fly-to-cart";
 import { godRays } from "./god-rays";
+import { twinkle } from "./twinkle";
 import { quadtreeReveal } from "./quadtree-reveal";
 import { halftone } from "./halftone";
 import { ditherDissolve } from "./dither-dissolve";
@@ -259,6 +260,7 @@ const all: MotionEntry[] = [
   scanlines,
   moireDrift,
   godRays,
+  twinkle,
   liquidDistortion,
   asciiEffect,
   halftone,
