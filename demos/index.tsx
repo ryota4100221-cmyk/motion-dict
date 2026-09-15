@@ -180,4 +180,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "gesture-hint": d(() => import("./GestureHint")),
   "cover-flow": d(() => import("./CoverFlow")),
   twinkle: d(() => import("./Twinkle")),
+  "floating-reactions": d(() => import("./FloatingReactions")),
 };

@@ -140,6 +140,7 @@ import { storyProgress } from "./story-progress";
 import { flyToCart } from "./fly-to-cart";
 import { godRays } from "./god-rays";
 import { twinkle } from "./twinkle";
+import { floatingReactions } from "./floating-reactions";
 import { quadtreeReveal } from "./quadtree-reveal";
 import { halftone } from "./halftone";
 import { ditherDissolve } from "./dither-dissolve";
@@ -289,6 +290,7 @@ const all: MotionEntry[] = [
   pressFeedback,
   stampIn,
   confettiBurst,
+  floatingReactions,
   flyToCart,
   flipCard,
   floatingLabel,

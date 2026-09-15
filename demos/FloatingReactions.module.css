@@ -1,0 +1,112 @@
+/* ボタンを下寄せに置き、その上の空間を粒が昇る */
+.field {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 64px;
+}
+
+/* 発生点=ボタン上端中央。幅0の原点から粒を積む */
+.emitter {
+  position: absolute;
+  left: 50%;
+  bottom: 118px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* 外側: 上昇＋出だしのscale＋終盤のフェード */
+.rise {
+  position: absolute;
+  bottom: 0;
+  transform: translate(-50%, 0) scale(0.4);
+  opacity: 0;
+  animation-name: rise;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes rise {
+  0% {
+    transform: translate(-50%, 0) scale(0.4);
+    opacity: 0;
+  }
+  12% {
+    transform: translate(-50%, calc(var(--rise) * -0.1)) scale(1);
+    opacity: 1;
+  }
+  65% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, calc(var(--rise) * -1)) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* 内側: 左右の揺れと傾き。周期と位相は粒ごとにインラインで散らす */
+.sway {
+  display: block;
+  animation-name: sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.sway svg {
+  display: block;
+}
+
+@keyframes sway {
+  from {
+    transform: translateX(calc(var(--sway) * var(--dir) * -1)) rotate(calc(-8deg * var(--dir)));
+  }
+  to {
+    transform: translateX(calc(var(--sway) * var(--dir))) rotate(calc(8deg * var(--dir)));
+  }
+}
+
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px 12px 18px;
+  background: var(--ai);
+  color: var(--sumi);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease-out;
+}
+
+.button:active {
+  transform: scale(0.94);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 3px;
+}
+
+.count {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+/* 万一の環境でも粒を動かさない安全網 */
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    display: none;
+  }
+}
