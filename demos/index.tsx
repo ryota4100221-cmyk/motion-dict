@@ -181,4 +181,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "cover-flow": d(() => import("./CoverFlow")),
   twinkle: d(() => import("./Twinkle")),
   "floating-reactions": d(() => import("./FloatingReactions")),
+  "theme-toggle-transition": d(() => import("./ThemeToggleTransition")),
 };

@@ -157,6 +157,7 @@ import { stampIn } from "./stamp-in";
 import { notchedCorner } from "./notched-corner";
 import { slicedText } from "./sliced-text";
 import { pendulumSwing } from "./pendulum-swing";
+import { themeToggleTransition } from "./theme-toggle-transition";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -285,6 +286,7 @@ const all: MotionEntry[] = [
   tooltipPop,
   pillExpand,
   toggleSwitch,
+  themeToggleTransition,
   equalizerBars,
   rippleTap,
   pressFeedback,
