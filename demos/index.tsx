@@ -174,6 +174,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "conic-sweep": d(() => import("./ConicSweep")),
   "notched-corner": d(() => import("./NotchedCorner")),
   "sliced-text": d(() => import("./SlicedText")),
+  "weight-morph": d(() => import("./WeightMorph")),
   "dither-dissolve": d(() => import("./DitherDissolve")),
   "stamp-in": d(() => import("./StampIn")),
   "pendulum-swing": d(() => import("./PendulumSwing")),

@@ -158,6 +158,7 @@ import { notchedCorner } from "./notched-corner";
 import { slicedText } from "./sliced-text";
 import { pendulumSwing } from "./pendulum-swing";
 import { themeToggleTransition } from "./theme-toggle-transition";
+import { weightMorph } from "./weight-morph";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -226,6 +227,7 @@ const all: MotionEntry[] = [
   rotatingBadge,
   openingCrawl,
   slicedText,
+  weightMorph,
   curtainWipe,
   crossfade,
   coverTransition,
