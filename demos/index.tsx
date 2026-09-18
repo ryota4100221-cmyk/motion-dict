@@ -163,6 +163,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "flicker-on": d(() => import("./FlickerOn")),
   "dock-magnify": d(() => import("./DockMagnify")),
   "story-progress": d(() => import("./StoryProgress")),
+  "ruler-scrubber": d(() => import("./RulerScrubber")),
   "fly-to-cart": d(() => import("./FlyToCart")),
   "spiral-reveal": d(() => import("./SpiralReveal")),
   "cube-roll": d(() => import("./CubeRoll")),

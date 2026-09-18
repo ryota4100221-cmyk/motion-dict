@@ -159,6 +159,7 @@ import { slicedText } from "./sliced-text";
 import { pendulumSwing } from "./pendulum-swing";
 import { themeToggleTransition } from "./theme-toggle-transition";
 import { weightMorph } from "./weight-morph";
+import { rulerScrubber } from "./ruler-scrubber";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -278,6 +279,7 @@ const all: MotionEntry[] = [
   gooeyEffect,
   stepper,
   storyProgress,
+  rulerScrubber,
   radialCarousel,
   modalPop,
   bounceIn,

@@ -1,0 +1,116 @@
+.gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+}
+
+.readout {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+}
+
+.value {
+  font-size: 52px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--code-fg);
+  /* 桁が入れ替わっても幅が動かないようにする(定規の読みは等幅が前提) */
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+/* 目盛が流れる窓。左右端はmaskで溶かし「まだ先がある」を出す */
+.window {
+  position: relative;
+  width: min(420px, 78vw);
+  height: 52px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent 100%
+  );
+}
+
+.grabbing {
+  cursor: grabbing;
+}
+
+/* 動くのは帯だけ。針は窓に固定したまま */
+.track {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  will-change: transform;
+}
+
+.tick {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.line {
+  display: block;
+  width: 1px;
+  height: 9px;
+  background: rgba(233, 233, 227, 0.35);
+  /* 上端を揃えたまま下へ伸ばす。centerだと目盛の頭が波打つ */
+  transform-origin: center top;
+  will-change: transform;
+}
+
+.major .line {
+  height: 18px;
+  background: rgba(233, 233, 227, 0.62);
+}
+
+.label {
+  margin-top: 5px;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+/* 読み取り位置の針。ここだけアクセント色に置いて視線を集める */
+.needle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 18px;
+  margin-left: -1px;
+  background: var(--ai);
+  pointer-events: none;
+}
+
+.needle::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--ai);
+}
