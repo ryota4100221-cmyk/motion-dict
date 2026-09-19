@@ -55,6 +55,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "menu-reveal": d(() => import("./MenuReveal")),
   "image-zoom-hover": d(() => import("./ImageZoomHover")),
   "clip-reveal": d(() => import("./ClipReveal")),
+  "counter-scale": d(() => import("./CounterScale")),
   "ken-burns": d(() => import("./KenBurns")),
   "duotone-hover": d(() => import("./DuotoneHover")),
   "border-draw": d(() => import("./BorderDraw")),

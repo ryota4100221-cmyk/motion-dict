@@ -43,6 +43,7 @@ import { shutterTransition } from "./shutter-transition";
 import { zoomThrough } from "./zoom-through";
 import { imageZoomHover } from "./image-zoom-hover";
 import { clipReveal } from "./clip-reveal";
+import { counterScale } from "./counter-scale";
 import { kenBurns } from "./ken-burns";
 import { duotoneHover } from "./duotone-hover";
 import { imageParallaxHover } from "./image-parallax-hover";
@@ -243,6 +244,7 @@ const all: MotionEntry[] = [
   sharedElement,
   imageZoomHover,
   clipReveal,
+  counterScale,
   kenBurns,
   duotoneHover,
   imageParallaxHover,
