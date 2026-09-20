@@ -139,6 +139,7 @@ import { flickerOn } from "./flicker-on";
 import { dockMagnify } from "./dock-magnify";
 import { storyProgress } from "./story-progress";
 import { flyToCart } from "./fly-to-cart";
+import { dropZone } from "./drop-zone";
 import { godRays } from "./god-rays";
 import { twinkle } from "./twinkle";
 import { floatingReactions } from "./floating-reactions";
@@ -300,6 +301,7 @@ const all: MotionEntry[] = [
   confettiBurst,
   floatingReactions,
   flyToCart,
+  dropZone,
   flipCard,
   floatingLabel,
   dropdownReveal,

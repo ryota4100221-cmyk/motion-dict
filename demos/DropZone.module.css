@@ -1,0 +1,156 @@
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(30px, 10vw, 86px);
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 手元スロット。カードが出払っても並びが崩れないよう枠だけ残す */
+.home {
+  position: relative;
+  width: 128px;
+  height: 94px;
+  border-radius: 10px;
+  border: 1px dashed rgba(233, 233, 227, 0.24);
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  background: #141414;
+  box-shadow: 0 var(--settle) var(--settle-blur) rgba(0, 0, 0, 0.55);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+/* ダミー画像は本番で404になるのでCSSだけで絵柄を作る */
+.face {
+  display: block;
+  flex: 1;
+  border-radius: 5px;
+  background:
+    linear-gradient(135deg, rgba(165, 224, 46, 0.55), rgba(165, 224, 46, 0) 62%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(233, 233, 227, 0.16) 0 4px,
+      rgba(233, 233, 227, 0.04) 4px 8px
+    );
+}
+
+.tag {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+.caption,
+.zoneLabel {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(233, 233, 227, 0.45);
+}
+
+/* 受け皿。待機中は影で少し浮き、受け入れ時にその浮きをリングと交換する */
+.zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  background: #121212;
+  box-shadow:
+    0 0 0 0 rgba(165, 224, 46, 0),
+    0 var(--settle) var(--settle-blur) rgba(0, 0, 0, 0.55);
+  transition:
+    border-color var(--respond) ease-out,
+    box-shadow var(--respond) ease-out;
+}
+
+/* spreadで輪を出すので箱の寸法は変わらない=リフローしない */
+.ready {
+  border-color: var(--ai);
+  box-shadow:
+    0 0 0 var(--ring) rgba(165, 224, 46, 0.16),
+    0 0 0 rgba(0, 0, 0, 0.55);
+}
+
+.slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 128px;
+  height: 94px;
+  border-radius: 10px;
+  border: 1px dashed rgba(233, 233, 227, 0.24);
+  transition: border-color var(--respond) ease-out;
+}
+
+.ready .slot {
+  border-color: rgba(165, 224, 46, 0.55);
+}
+
+.plus {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  opacity: 0.45;
+}
+
+.plus::before,
+.plus::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: rgba(233, 233, 227, 0.75);
+}
+
+.plus::after {
+  inset: 0 50% auto;
+  width: 1px;
+  height: 100%;
+}
+
+/* 着地後に受け皿の中身になる分身 */
+.filled {
+  position: absolute;
+  inset: 5px;
+  display: flex;
+  opacity: 0;
+  transition: opacity var(--respond) ease-out;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .zone,
+  .slot,
+  .filled {
+    transition: none;
+  }
+}
