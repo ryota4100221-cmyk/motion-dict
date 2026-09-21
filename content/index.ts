@@ -140,6 +140,7 @@ import { dockMagnify } from "./dock-magnify";
 import { storyProgress } from "./story-progress";
 import { flyToCart } from "./fly-to-cart";
 import { dropZone } from "./drop-zone";
+import { swipeDismiss } from "./swipe-dismiss";
 import { godRays } from "./god-rays";
 import { twinkle } from "./twinkle";
 import { floatingReactions } from "./floating-reactions";
@@ -302,6 +303,7 @@ const all: MotionEntry[] = [
   floatingReactions,
   flyToCart,
   dropZone,
+  swipeDismiss,
   flipCard,
   floatingLabel,
   dropdownReveal,

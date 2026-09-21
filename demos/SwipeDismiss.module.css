@@ -1,0 +1,112 @@
+.field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: min(360px, 84vw);
+}
+
+/* しきい値の位置を示す破線。札がこの線を越えて離されると消える、が目で読める */
+.guide {
+  position: absolute;
+  top: -14px;
+  bottom: -14px;
+  /* thresholdは最大160pxまで開くので、札より外へ引き伸ばして線が切れないようにする */
+  left: -130px;
+  right: -130px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.guide::before,
+.guide::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dashed rgba(233, 233, 227, 0.24);
+}
+
+.guide::before {
+  left: calc(50% - var(--edge));
+}
+
+.guide::after {
+  left: calc(50% + var(--edge));
+}
+
+/* 判定の状態を言葉でも出す。録画でもしきい値の意味が読める */
+.tag {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(233, 233, 227, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  /* 文言が出入りしても札の位置が動かないよう行を確保しておく */
+  min-height: 12px;
+}
+
+.tag[data-armed="on"] {
+  color: var(--ai);
+}
+
+.stack {
+  position: relative;
+  width: 268px;
+  height: 112px;
+  max-width: 100%;
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 268px;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  background: #171717;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+  /* 後ろの札が前へ繰り上がるときだけ効かせる。先頭は.frontで切る */
+  transition: transform 0.34s ease, opacity 0.34s ease;
+  transform-origin: 50% 140%;
+  will-change: transform, opacity;
+}
+
+/* 先頭の札は毎フレームJSがtransformを書くのでtransitionを当てない */
+.front {
+  z-index: 3;
+  transition: none;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.grabbing {
+  cursor: grabbing;
+}
+
+.from {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ai);
+}
+
+.body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(233, 233, 227, 0.86);
+}
