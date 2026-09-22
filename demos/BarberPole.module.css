@@ -1,0 +1,101 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: min(320px, 78vw);
+  cursor: default;
+  user-select: none;
+}
+
+/* 注意帯。ラベルと縞は高さを揃えて1本の帯に見せる */
+.tag {
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  height: 38px;
+  border-radius: 2px;
+  overflow: clip;
+  background: var(--ai);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  white-space: nowrap;
+  color: var(--sumi);
+}
+
+/* 縞の窓。ここをclipしないとトラックのはみ出しが見える */
+.stripes {
+  position: relative;
+  flex: 1 1 auto;
+  overflow: clip;
+}
+
+/* 進捗率の出せないバー。柄は注意帯と同一で、地の暗さだけが違う */
+.bar {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  overflow: clip;
+  background: #1b1b18;
+}
+
+/* 縞を敷いた内側トラック。左へ1周期ぶん伸ばしてあるので、
+   右へ--period送りきった瞬間も窓は柄で埋まったまま */
+.track {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: calc(-1 * var(--period));
+  background-image: repeating-linear-gradient(
+    var(--angle),
+    currentColor 0,
+    currentColor var(--barw),
+    transparent var(--barw),
+    transparent var(--pitch)
+  );
+  animation: slide var(--cycle) linear infinite;
+  animation-direction: var(--dir);
+  will-change: transform;
+}
+
+.tag .track {
+  color: var(--sumi);
+}
+
+.bar .track {
+  color: var(--ai);
+}
+
+/* 送る距離は横方向の1周期ちょうど。終端の絵が始端と一致するので継ぎ目が出ない */
+@keyframes slide {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--period), 0, 0);
+  }
+}
+
+.caption {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}
+
+/* 流れを止め、静止した縞としてだけ残す。「注意」「処理中」は柄と色で伝わる */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}
