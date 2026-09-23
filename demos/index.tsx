@@ -188,4 +188,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   twinkle: d(() => import("./Twinkle")),
   "floating-reactions": d(() => import("./FloatingReactions")),
   "theme-toggle-transition": d(() => import("./ThemeToggleTransition")),
+  "line-boil": d(() => import("./LineBoil")),
 };

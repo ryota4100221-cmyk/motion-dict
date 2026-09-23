@@ -164,6 +164,7 @@ import { pendulumSwing } from "./pendulum-swing";
 import { themeToggleTransition } from "./theme-toggle-transition";
 import { weightMorph } from "./weight-morph";
 import { rulerScrubber } from "./ruler-scrubber";
+import { lineBoil } from "./line-boil";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -190,6 +191,7 @@ const all: MotionEntry[] = [
   dockMagnify,
   cubeRoll,
   letterSpacingHover,
+  lineBoil,
   scrollFadeIn,
   perspectiveReveal,
   parallax,

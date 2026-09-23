@@ -1,0 +1,104 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  user-select: none;
+}
+
+.doodle {
+  width: 64px;
+  height: 64px;
+  overflow: visible;
+}
+
+.doodle path {
+  fill: none;
+  stroke: var(--ai);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+
+/* 常時ボイル。周期は4姿勢 ÷ fps */
+.boil {
+  animation: boil var(--cycle) steps(1) infinite;
+}
+
+.button {
+  position: relative;
+  padding: 15px 36px;
+  border: 0;
+  background: none;
+  color: var(--sumi);
+  cursor: pointer;
+}
+
+/* 板(背景)。文字とは別の層にして独立に震わせる */
+.plate {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--paper);
+  border: 1.5px solid var(--sumi);
+  border-radius: var(--radius);
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* 板は少し遅い周期、文字は逆再生。同じ周期で回すと1枚の画像が揺れて見える */
+.on .plate {
+  animation: boil var(--cycle-plate) steps(1) infinite;
+}
+
+.on .label {
+  animation: boil var(--cycle) steps(1) infinite reverse;
+}
+
+/* 4姿勢。補間しない(steps(1))ので、各姿勢が1/fps秒ずつ保持される。
+   100%は0%と同じにして周回の継ぎ目を消す */
+@keyframes boil {
+  0% {
+    transform: translate(calc(var(--amp) * -1), calc(var(--amp) * 0.5)) rotate(calc(var(--rot) * -1));
+  }
+  25% {
+    transform: translate(var(--amp), calc(var(--amp) * -0.6)) rotate(calc(var(--rot) * 1.1));
+  }
+  50% {
+    transform: translate(calc(var(--amp) * -0.6), calc(var(--amp) * -0.4)) rotate(calc(var(--rot) * -0.4));
+  }
+  75% {
+    transform: translate(calc(var(--amp) * 0.8), calc(var(--amp) * 0.7)) rotate(calc(var(--rot) * 0.7));
+  }
+  100% {
+    transform: translate(calc(var(--amp) * -1), calc(var(--amp) * 0.5)) rotate(calc(var(--rot) * -1));
+  }
+}
+
+.caption {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.6);
+}
+
+.button:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 6px;
+}
+
+/* 震えを止め、静止した1枚の姿勢として残す */
+@media (prefers-reduced-motion: reduce) {
+  .boil,
+  .on .plate,
+  .on .label {
+    animation: none;
+  }
+}
