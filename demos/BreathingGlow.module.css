@@ -1,0 +1,142 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  user-select: none;
+}
+
+.statuses {
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 本体の点。光彩は持たせず、::before 側に任せる */
+.dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.dot::before,
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* ぼかし値は固定。動かすのはこの層の opacity だけ(box-shadow を毎フレーム描き直さない) */
+  box-shadow: 0 0 var(--glow) calc(var(--glow) * 0.15) var(--ai);
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(233, 233, 227, 0.62);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 200px;
+  padding: 22px 0 20px;
+  border: 1px solid var(--ai);
+  border-radius: 10px;
+  background: var(--sumi);
+}
+
+.badge {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ai);
+}
+
+.plan {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--code-fg);
+}
+
+.price {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+/* sine in-out: 両端でゆっくり切り返すので、点滅ではなく呼吸に見える */
+.breathe,
+.breatheCard {
+  animation: inhale var(--period) cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+.breathe::before,
+.breatheCard::before {
+  animation: glow var(--period) cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  animation-delay: inherit;
+}
+
+.breatheCard {
+  --grow: var(--grow-card);
+}
+
+/* 0%/100% が吐き切り、50% が吸い切り */
+@keyframes inhale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(var(--grow));
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.caption {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.6);
+}
+
+/* ループを止め、光彩を中間の強さで静止させる */
+@media (prefers-reduced-motion: reduce) {
+  .breathe,
+  .breatheCard,
+  .breathe::before,
+  .breatheCard::before {
+    animation: none;
+  }
+
+  .dot::before,
+  .card::before {
+    opacity: 0.6;
+  }
+}

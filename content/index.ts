@@ -111,6 +111,7 @@ import { rubberBand } from "./rubber-band";
 import { hintNudge } from "./hint-nudge";
 import { gestureHint } from "./gesture-hint";
 import { pulseRing } from "./pulse-ring";
+import { breathingGlow } from "./breathing-glow";
 import { confettiBurst } from "./confetti-burst";
 import { bounceIn } from "./bounce-in";
 import { springEasing } from "./spring-easing";
@@ -317,6 +318,7 @@ const all: MotionEntry[] = [
   hintNudge,
   gestureHint,
   pulseRing,
+  breathingGlow,
   ambientFloat,
   pendulumSwing,
   flickerOn,

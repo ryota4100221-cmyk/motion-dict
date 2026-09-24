@@ -145,6 +145,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "rubber-band": d(() => import("./RubberBand")),
   "hint-nudge": d(() => import("./HintNudge")),
   "pulse-ring": d(() => import("./PulseRing")),
+  "breathing-glow": d(() => import("./BreathingGlow")),
   "motion-path": d(() => import("./MotionPath")),
   "progressive-blur": d(() => import("./ProgressiveBlur")),
   "block-reveal": d(() => import("./BlockReveal")),
