@@ -121,6 +121,7 @@ import { blockReveal } from "./block-reveal";
 import { equalizerBars } from "./equalizer-bars";
 import { scrollScrub } from "./scroll-scrub";
 import { ambientFloat } from "./ambient-float";
+import { orbit } from "./orbit";
 import { radialCarousel } from "./radial-carousel";
 import { coverFlow } from "./cover-flow";
 import { shadowPop } from "./shadow-pop";
@@ -320,6 +321,7 @@ const all: MotionEntry[] = [
   pulseRing,
   breathingGlow,
   ambientFloat,
+  orbit,
   pendulumSwing,
   flickerOn,
   dvdBounce,

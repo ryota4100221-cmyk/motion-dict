@@ -152,6 +152,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "equalizer-bars": d(() => import("./EqualizerBars")),
   "scroll-scrub": d(() => import("./ScrollScrub")),
   "ambient-float": d(() => import("./AmbientFloat")),
+  orbit: d(() => import("./Orbit")),
   "radial-carousel": d(() => import("./RadialCarousel")),
   "header-invert": d(() => import("./HeaderInvert")),
   "shadow-pop": d(() => import("./ShadowPop")),

@@ -1,0 +1,178 @@
+/* 角度と混合率は @property で型付き登録して初めて補間される。
+   カスタムプロパティ名は CSS Modules でもスコープされないので --ob- を付けて衝突を避ける。 */
+@property --ob-orbit {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --ob-mix {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  user-select: none;
+}
+
+.system {
+  --ob-mix: 1;
+  --ob-unit: 2.2px;
+  position: relative;
+  width: 280px;
+  height: 196px;
+}
+
+.core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--code-fg);
+}
+
+/* 1点ぶんの原点。子の guide と dot はここを中心に置く */
+.slot {
+  --ob-r: calc(var(--ob-rr) * var(--ob-radius));
+  --ob-t: min(1, var(--ob-tilt) * var(--ob-tm));
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+
+/* 軌道面の目安。楕円を --ob-start だけ回した形が dot の通り道と一致する */
+.guide {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(2 * var(--ob-r));
+  height: calc(2 * var(--ob-r) * var(--ob-t));
+  border: 1px dashed rgba(233, 233, 227, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(var(--ob-start));
+}
+
+.dot {
+  --ob-size: calc(var(--ob-s) * var(--ob-unit));
+  --ob-angle: calc(var(--ob-orbit) + var(--ob-phase));
+  /* mix=0 で位相の静止配置、mix=1 で周回。途中は両者の線形補間 */
+  --ob-x: calc(
+    cos(var(--ob-angle)) * var(--ob-mix) + cos(var(--ob-phase)) * (1 - var(--ob-mix))
+  );
+  --ob-y: calc(
+    sin(var(--ob-angle)) * var(--ob-mix) + sin(var(--ob-phase)) * (1 - var(--ob-mix))
+  );
+  --ob-dx: calc(var(--ob-r) * var(--ob-x));
+  --ob-dy: calc(var(--ob-r) * var(--ob-t) * var(--ob-y));
+  position: absolute;
+  left: calc(var(--ob-size) / -2);
+  top: calc(var(--ob-size) / -2);
+  width: var(--ob-size);
+  height: var(--ob-size);
+  border-radius: 50%;
+  background: var(--ai);
+  /* 楕円上の点を軌道面の傾き --ob-start だけ回転させる(top/left は動かさない) */
+  translate:
+    calc(var(--ob-dx) * cos(var(--ob-start)) - var(--ob-dy) * sin(var(--ob-start)))
+    calc(var(--ob-dx) * sin(var(--ob-start)) + var(--ob-dy) * cos(var(--ob-start)));
+  /* 軌道の手前(y>0)ほど大きく濃く、奥ほど小さく薄く */
+  scale: calc(1 + var(--ob-depth) * var(--ob-y));
+  opacity: calc(0.725 + 0.275 * var(--ob-y));
+  animation: orbit calc(var(--ob-period) * var(--ob-pm)) linear infinite;
+  animation-direction: var(--ob-dir);
+}
+
+@keyframes orbit {
+  to {
+    --ob-orbit: 360deg;
+  }
+}
+
+.button {
+  --ob-radius: 8px;
+  --ob-unit: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 100vh;
+  background: var(--sumi);
+  color: var(--code-fg);
+  font: inherit;
+  cursor: pointer;
+  /* 戻りは 1.1s とゆっくり。回り終えた点が元の星座へ漂って帰る */
+  transition:
+    --ob-mix 1.1s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.button:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .button:hover {
+    --ob-mix: 1;
+    border-color: var(--ai);
+    transition-duration: 0.5s, 0.3s;
+  }
+}
+
+.button:focus-visible,
+.on {
+  --ob-mix: 1;
+  border-color: var(--ai);
+  transition-duration: 0.5s, 0.3s;
+}
+
+.icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(233, 233, 227, 0.08);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 100vh;
+  background: rgba(233, 233, 227, 0.08);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* 周回を止め、--ob-phase の静止配置のまま見せる(ホバーでも回さない) */
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+  }
+
+  .system,
+  .button,
+  .button:hover,
+  .button:focus-visible,
+  .on {
+    --ob-mix: 0;
+    transition: border-color 0.3s;
+  }
+}
