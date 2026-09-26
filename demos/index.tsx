@@ -191,4 +191,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "floating-reactions": d(() => import("./FloatingReactions")),
   "theme-toggle-transition": d(() => import("./ThemeToggleTransition")),
   "line-boil": d(() => import("./LineBoil")),
+  "holo-sheen": d(() => import("./HoloSheen")),
 };
