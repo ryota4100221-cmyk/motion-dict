@@ -192,4 +192,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "theme-toggle-transition": d(() => import("./ThemeToggleTransition")),
   "line-boil": d(() => import("./LineBoil")),
   "holo-sheen": d(() => import("./HoloSheen")),
+  "page-turn": d(() => import("./PageTurn")),
 };

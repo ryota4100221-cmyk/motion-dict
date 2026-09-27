@@ -1,0 +1,215 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  outline: none;
+  user-select: none;
+}
+
+.wrap:focus-visible {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 12px;
+}
+
+/* 見開き。左右の台紙の上に、右半分を起点にしたリーフを重ねる */
+.book {
+  position: relative;
+  display: flex;
+  width: 320px;
+  height: 186px;
+}
+
+.page {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  background: var(--sumi);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+}
+
+.left {
+  border-radius: 6px 0 0 6px;
+}
+
+.right {
+  border-radius: 0 6px 6px 0;
+}
+
+/* 綴じ目が回転軸。transform-origin: left center で右ページを左へ倒す */
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform: perspective(var(--perspective)) rotateY(0deg);
+  transition: transform var(--duration) cubic-bezier(0.45, 0, 0.25, 1);
+}
+
+.turned {
+  transform: perspective(var(--perspective)) rotateY(-180deg);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sumi);
+  border: 1px solid var(--ai);
+  backface-visibility: hidden;
+}
+
+.front {
+  border-radius: 0 6px 6px 0;
+}
+
+/* 裏面は最初から裏返しておく。リーフが-180degまで倒れると正しい向きで左に来る */
+.back {
+  border-radius: 6px 0 0 6px;
+  transform: rotateY(180deg);
+}
+
+/* 陰り。綴じ目側が濃い黒のグラデーションを、めくり途中だけ濃くする */
+.face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.front::after {
+  background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.35));
+}
+
+.back::after {
+  background: linear-gradient(to left, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.35));
+}
+
+/* 進む/戻るでアニメーション名を変え、同じリーフでも毎回頭から再生させる */
+.shadeFwd .face::after {
+  animation: shadeFwd var(--duration) cubic-bezier(0.45, 0, 0.25, 1);
+}
+
+.shadeBack .face::after {
+  animation: shadeBack var(--duration) cubic-bezier(0.45, 0, 0.25, 1);
+}
+
+@keyframes shadeFwd {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: var(--shade);
+  }
+}
+
+@keyframes shadeBack {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: var(--shade);
+  }
+}
+
+.spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(233, 233, 227, 0.24);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 16px 16px 12px;
+  box-sizing: border-box;
+}
+
+.title {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--code-fg);
+}
+
+.line {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(233, 233, 227, 0.24);
+}
+
+.folio {
+  margin-top: auto;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--ai);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.btn {
+  padding: 8px 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.caption {
+  min-width: 96px;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.6);
+}
+
+.fade {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* reduced-motion 時は回転の見開きを出さない(TSX側でクロスフェード版に差し替え)。念のため遷移も切る */
+@media (prefers-reduced-motion: reduce) {
+  .leaf,
+  .face::after {
+    transition: none;
+    animation: none;
+  }
+}

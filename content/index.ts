@@ -168,6 +168,7 @@ import { weightMorph } from "./weight-morph";
 import { rulerScrubber } from "./ruler-scrubber";
 import { lineBoil } from "./line-boil";
 import { holoSheen } from "./holo-sheen";
+import { pageTurn } from "./page-turn";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -313,6 +314,7 @@ const all: MotionEntry[] = [
   dropZone,
   swipeDismiss,
   flipCard,
+  pageTurn,
   floatingLabel,
   dropdownReveal,
   morphingDropdown,
