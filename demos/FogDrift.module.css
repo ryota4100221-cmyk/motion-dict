@@ -1,0 +1,122 @@
+.card {
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 夜の谷の想定。霧が「何かの前を流れている」と読めるよう、静止した稜線を奥に置く */
+.frame {
+  position: relative;
+  width: min(360px, 82vw);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #16161d 0%, #1d1d25 50%, #111116 100%);
+}
+
+.hills {
+  position: absolute;
+  inset: 38% 0 0;
+  background: #0a0a0d;
+  clip-path: polygon(
+    0 46%, 9% 34%, 18% 40%, 30% 18%, 41% 36%, 52% 28%, 63% 44%, 74% 22%,
+    86% 38%, 100% 26%, 100% 100%, 0 100%
+  );
+}
+
+/* 霧の帯。上下の縁をマスクで溶かし、はみ出した層は clip で切る */
+.bank {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8%;
+  height: 72%;
+  overflow: clip;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(transparent, #000 24%, #000 70%, transparent);
+  mask-image: linear-gradient(transparent, #000 24%, #000 70%, transparent);
+}
+
+/* 霧の層。枠より左右に大きく取り、流しても端が見えないようにする。
+   テクスチャは画像を使わず、ぼかした楕円の重ねで作る */
+.wisp,
+.counter {
+  position: absolute;
+  inset: -8% -30%;
+  opacity: var(--op);
+  transition: opacity 0.4s;
+  background:
+    radial-gradient(20% 42% at 10% 60%, rgba(233, 233, 227, 0.85), transparent 62%),
+    radial-gradient(14% 30% at 27% 38%, rgba(233, 233, 227, 0.6), transparent 62%),
+    radial-gradient(22% 46% at 48% 66%, rgba(233, 233, 227, 0.8), transparent 62%),
+    radial-gradient(12% 26% at 66% 40%, rgba(233, 233, 227, 0.55), transparent 62%),
+    radial-gradient(20% 44% at 88% 58%, rgba(233, 233, 227, 0.75), transparent 62%);
+  filter: blur(10px);
+  will-change: transform;
+  animation: drift var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+
+.counter {
+  animation-name: counterdrift;
+}
+
+.bank[data-paused="true"] .wisp,
+.bank[data-paused="true"] .counter {
+  animation-play-state: paused;
+}
+
+.bank[data-solo="true"] [data-front="false"] {
+  opacity: 0;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(calc(var(--travel) * -1), 4%, 0) scale(1.04);
+  }
+  52% {
+    transform: translate3d(calc(var(--travel) * 0.1), -5%, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(var(--travel), 2%, 0) scale(1.03);
+  }
+}
+
+/* 逆向き。scaleX(-1)で同じ霧を左右反転し、模様の重複を隠す */
+@keyframes counterdrift {
+  0% {
+    transform: translate3d(var(--travel), -4%, 0) scale(1.13) scaleX(-1);
+  }
+  58% {
+    transform: translate3d(calc(var(--travel) * -0.2), 5%, 0) scale(1.05) scaleX(-1);
+  }
+  100% {
+    transform: translate3d(calc(var(--travel) * -1), -2%, 0) scale(1.1) scaleX(-1);
+  }
+}
+
+.title {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: rgba(233, 233, 227, 0.86);
+}
+
+/* 流れだけ止め、静止した霧の層としては残す */
+@media (prefers-reduced-motion: reduce) {
+  .wisp,
+  .counter {
+    animation: none;
+  }
+}
+
+.caption {
+  margin-top: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.6);
+}

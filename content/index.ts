@@ -145,6 +145,7 @@ import { flyToCart } from "./fly-to-cart";
 import { dropZone } from "./drop-zone";
 import { swipeDismiss } from "./swipe-dismiss";
 import { godRays } from "./god-rays";
+import { fogDrift } from "./fog-drift";
 import { twinkle } from "./twinkle";
 import { floatingReactions } from "./floating-reactions";
 import { quadtreeReveal } from "./quadtree-reveal";
@@ -280,6 +281,7 @@ const all: MotionEntry[] = [
   scanlines,
   moireDrift,
   godRays,
+  fogDrift,
   twinkle,
   liquidDistortion,
   asciiEffect,

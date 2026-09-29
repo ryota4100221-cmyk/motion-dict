@@ -126,6 +126,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   scanlines: d(() => import("./Scanlines")),
   "moire-drift": d(() => import("./MoireDrift")),
   "god-rays": d(() => import("./GodRays")),
+  "fog-drift": d(() => import("./FogDrift")),
   "liquid-distortion": d(() => import("./LiquidDistortion")),
   "opening-crawl": d(() => import("./OpeningCrawl")),
   "sprite-sheet": d(() => import("./SpriteSheet")),
