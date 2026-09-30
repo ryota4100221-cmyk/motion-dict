@@ -135,6 +135,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "spring-easing": d(() => import("./SpringEasing")),
   "press-feedback": d(() => import("./PressFeedback")),
   "confetti-burst": d(() => import("./ConfettiBurst")),
+  "like-burst": d(() => import("./LikeBurst")),
   "flip-card": d(() => import("./FlipCard")),
   "floating-label": d(() => import("./FloatingLabel")),
   "dropdown-reveal": d(() => import("./DropdownReveal")),

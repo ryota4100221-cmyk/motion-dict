@@ -1,0 +1,170 @@
+/* 粒がボタンの外まで飛べるよう、広い場の中央にボタンを置く */
+.field {
+  --size: 48px;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 220px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 8px 22px 8px 14px;
+  background: transparent;
+  color: rgba(233, 233, 227, 0.62);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 3px;
+}
+
+.icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
+}
+
+/* OFF=輪郭だけ、ON=ライムの塗り。reduced-motion ではこの切り替えだけが残る */
+.heart {
+  position: relative;
+  width: calc(var(--size) * 0.72);
+  height: calc(var(--size) * 0.72);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  z-index: 1;
+}
+
+.on {
+  color: var(--ai);
+  border-color: rgba(165, 224, 46, 0.45);
+}
+
+.on .heart {
+  fill: var(--ai);
+  stroke: var(--ai);
+}
+
+/* ハート: 尺の40〜70%で startScale→1。待ち時間中は backwards で縮んだまま */
+.pop {
+  animation: heartGrow calc(var(--dur) * 0.3) linear calc(var(--dur) * 0.4) 1
+    backwards;
+}
+
+@keyframes heartGrow {
+  from {
+    transform: scale(var(--start));
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* 円と粒の原点=アイコン中央 */
+.burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 円: 尺の0〜60%で scale 0.2→1 に広げ、後半で抜く */
+.circle {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--ai);
+  opacity: 0;
+  animation: circleGrow calc(var(--dur) * 0.6) linear 0s 1;
+}
+
+@keyframes circleGrow {
+  0% {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* 粒: rotate(角度) → translateX(距離) の順で1本のキーフレームを全方向に使い回す */
+.particle {
+  position: absolute;
+  top: calc(50% - var(--size) * 0.05);
+  left: calc(50% - var(--size) * 0.05);
+  width: calc(var(--size) * 0.1);
+  height: calc(var(--size) * 0.1);
+  border-radius: 50%;
+  opacity: 0;
+  animation-duration: calc(var(--dur) * 0.8);
+  animation-delay: calc(var(--dur) * 0.2);
+  animation-timing-function: ease;
+  animation-fill-mode: backwards;
+  will-change: transform, opacity;
+}
+
+.big {
+  background: var(--ai);
+  animation-name: burstBig;
+}
+
+.small {
+  background: var(--ai-pale);
+  animation-name: burstSmall;
+}
+
+@keyframes burstBig {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(0);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateX(var(--spread));
+  }
+}
+
+@keyframes burstSmall {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(calc(var(--spread) * 0.25));
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateX(calc(var(--spread) * 0.88))
+      scale(0.5);
+  }
+}
+
+.count {
+  font-family: var(--font-mono), monospace;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burst {
+    display: none;
+  }
+  .pop {
+    animation: none;
+  }
+}
