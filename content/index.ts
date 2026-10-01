@@ -58,6 +58,7 @@ import { drawerSlide } from "./drawer-slide";
 import { toastSlide } from "./toast-slide";
 import { tooltipPop } from "./tooltip-pop";
 import { toggleSwitch } from "./toggle-switch";
+import { checkboxCheck } from "./checkbox-check";
 import { rippleTap } from "./ripple-tap";
 import { preloaderCounter } from "./preloader-counter";
 import { skeletonShimmer } from "./skeleton-shimmer";
@@ -308,6 +309,7 @@ const all: MotionEntry[] = [
   tooltipPop,
   pillExpand,
   toggleSwitch,
+  checkboxCheck,
   themeToggleTransition,
   equalizerBars,
   rippleTap,

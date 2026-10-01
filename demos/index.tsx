@@ -88,6 +88,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "toast-slide": d(() => import("./ToastSlide")),
   "tooltip-pop": d(() => import("./TooltipPop")),
   "toggle-switch": d(() => import("./ToggleSwitch")),
+  "checkbox-check": d(() => import("./CheckboxCheck")),
   "ripple-tap": d(() => import("./RippleTap")),
   "preloader-counter": d(() => import("./PreloaderCounter")),
   "skeleton-shimmer": d(() => import("./SkeletonShimmer")),
