@@ -1,0 +1,66 @@
+.svg {
+  width: min(580px, 94%);
+  height: auto;
+  display: block;
+  margin-bottom: 24px;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* 接続線そのもの。動かさず、ビームの下敷きとして常に見えている */
+.base {
+  fill: none;
+  stroke: rgba(233, 233, 227, 0.2);
+  stroke-width: 1;
+}
+
+/* 発光はグループにまとめて掛ける(パスごとのfilterより安い) */
+.glow {
+  filter: drop-shadow(0 0 3px var(--ai));
+}
+
+/* 走る光。JSが dasharray / dashoffset / opacity だけを毎フレーム書き換える */
+.beam {
+  fill: none;
+  stroke: var(--ai);
+  stroke-width: 1.8;
+  /* roundにすると長さ0の瞬間も始点に点が残る */
+  stroke-linecap: butt;
+  stroke-dasharray: 0 2;
+  opacity: 0;
+  will-change: stroke-dasharray, stroke-dashoffset;
+}
+
+.node {
+  fill: #0d0d0d;
+  stroke: rgba(233, 233, 227, 0.45);
+  stroke-width: 1;
+  cursor: pointer;
+  transition:
+    fill 0.5s ease-out,
+    stroke 0.5s ease-out;
+}
+
+/* 光が終点に届いている間だけ点灯。入りは速く、抜けはゆっくり */
+.node.lit {
+  fill: var(--ai);
+  stroke: var(--ai);
+  transition-duration: 0.08s;
+}
+
+.hub {
+  fill: var(--ai);
+  stroke: rgba(233, 233, 227, 0.6);
+  stroke-width: 1;
+}
+
+/* reduced-motion: 光は走らせず、線を少し明るい静止線にする */
+.still .base {
+  stroke: rgba(233, 233, 227, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node {
+    transition: none;
+  }
+}

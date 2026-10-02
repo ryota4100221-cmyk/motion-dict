@@ -92,6 +92,7 @@ import { cardShuffle } from "./card-shuffle";
 import { logoMarquee } from "./logo-marquee";
 import { lineDraw } from "./line-draw";
 import { marchingAnts } from "./marching-ants";
+import { animatedBeam } from "./animated-beam";
 import { barberPole } from "./barber-pole";
 import { cornerBrackets } from "./corner-brackets";
 import { blobMorph } from "./blob-morph";
@@ -276,6 +277,7 @@ const all: MotionEntry[] = [
   logoMarquee,
   lineDraw,
   marchingAnts,
+  animatedBeam,
   barberPole,
   cornerBrackets,
   blobMorph,

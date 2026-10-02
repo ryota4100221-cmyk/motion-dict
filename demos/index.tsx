@@ -120,6 +120,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "logo-marquee": d(() => import("./LogoMarquee")),
   "line-draw": d(() => import("./LineDraw")),
   "marching-ants": d(() => import("./MarchingAnts")),
+  "animated-beam": d(() => import("./AnimatedBeam")),
   "barber-pole": d(() => import("./BarberPole")),
   "corner-brackets": d(() => import("./CornerBrackets")),
   "blob-morph": d(() => import("./BlobMorph")),
