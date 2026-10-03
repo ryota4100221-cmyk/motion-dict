@@ -1,0 +1,78 @@
+/* ファーストビューの見立て。キューが主役なので控えめに */
+.hero {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.eyebrow {
+  color: rgba(233, 233, 227, 0.55);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+}
+
+.title {
+  color: rgba(233, 233, 227, 0.85);
+  font-size: 34px;
+  letter-spacing: 0.02em;
+}
+
+/* 最初の画面の下端(フォールド)。キューはこの真上に置く */
+.fold {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 44px;
+  border-top: 1px dashed rgba(233, 233, 227, 0.24);
+  pointer-events: none;
+}
+
+.cue {
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* マウスの輪郭。粒(ホイール)は上寄りに置き、下へ流れる余白を残す */
+.mouse {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 52px;
+  border: 2px solid rgba(233, 233, 227, 0.75);
+  border-radius: 17px;
+  will-change: transform;
+}
+
+.wheel {
+  position: absolute;
+  left: 50%;
+  top: 9px;
+  width: 3px;
+  height: 9px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--ai);
+  transform-origin: 50% 0;
+  will-change: transform, opacity;
+}
+
+.label {
+  color: rgba(233, 233, 227, 0.62);
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+}

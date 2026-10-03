@@ -112,6 +112,7 @@ import { bootSequence } from "./boot-sequence";
 import { rubberBand } from "./rubber-band";
 import { hintNudge } from "./hint-nudge";
 import { gestureHint } from "./gesture-hint";
+import { scrollCue } from "./scroll-cue";
 import { pulseRing } from "./pulse-ring";
 import { breathingGlow } from "./breathing-glow";
 import { confettiBurst } from "./confetti-burst";
@@ -332,6 +333,7 @@ const all: MotionEntry[] = [
   errorShake,
   hintNudge,
   gestureHint,
+  scrollCue,
   pulseRing,
   breathingGlow,
   ambientFloat,
