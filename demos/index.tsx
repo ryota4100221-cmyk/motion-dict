@@ -199,4 +199,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "holo-sheen": d(() => import("./HoloSheen")),
   "page-turn": d(() => import("./PageTurn")),
   "arrow-slide-through": d(() => import("./ArrowSlideThrough")),
+  "list-add-remove": d(() => import("./ListAddRemove")),
 };
