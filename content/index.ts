@@ -124,6 +124,7 @@ import { motionPath } from "./motion-path";
 import { progressiveBlur } from "./progressive-blur";
 import { blockReveal } from "./block-reveal";
 import { equalizerBars } from "./equalizer-bars";
+import { barChartGrow } from "./bar-chart-grow";
 import { scrollScrub } from "./scroll-scrub";
 import { ambientFloat } from "./ambient-float";
 import { orbit } from "./orbit";
@@ -316,6 +317,7 @@ const all: MotionEntry[] = [
   checkboxCheck,
   themeToggleTransition,
   equalizerBars,
+  barChartGrow,
   rippleTap,
   pressFeedback,
   stampIn,
