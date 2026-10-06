@@ -1,0 +1,154 @@
+.wrap {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 18px;
+  height: 220px;
+}
+
+/* 幅と高さは idle のラベルに合わせて固定。中身が替わってもボタンの大きさは動かさない */
+.btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 200px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(233, 233, 227, 0.92);
+  color: var(--sumi);
+  font: inherit;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background-color 0.3s;
+}
+
+.btn[aria-disabled="true"] {
+  cursor: default;
+}
+
+.btn[data-phase="success"] {
+  background: var(--ai);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 3px;
+}
+
+.label {
+  animation: fadeIn 0.15s ease-out both;
+}
+
+/* スピナー: 円全体を 2s で回し、弧の長さを 1.5s で伸縮させる(Wixのフォーム部品と同じ値) */
+.spinner {
+  width: 26px;
+  height: 26px;
+  animation: rotate 2s linear infinite;
+}
+
+.spinner circle {
+  fill: none;
+  stroke: var(--sumi);
+  stroke-width: 4;
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+.checkWrap {
+  display: grid;
+  place-items: center;
+  animation: bounceIn var(--check) ease both;
+}
+
+.check {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: var(--sumi);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.caption {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* 下から入り、上へ5px行き過ぎて、2px戻って止まる */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--rise));
+  }
+  32% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+  68% {
+    opacity: 1;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+  .label,
+  .checkWrap {
+    animation: none;
+  }
+}

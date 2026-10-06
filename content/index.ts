@@ -101,6 +101,7 @@ import { spriteSheet } from "./sprite-sheet";
 import { frostedGlass } from "./frosted-glass";
 import { gradientBorder } from "./gradient-border";
 import { pressFeedback } from "./press-feedback";
+import { statefulButton } from "./stateful-button";
 import { flipCard } from "./flip-card";
 import { floatingLabel } from "./floating-label";
 import { dropdownReveal } from "./dropdown-reveal";
@@ -320,6 +321,7 @@ const all: MotionEntry[] = [
   barChartGrow,
   rippleTap,
   pressFeedback,
+  statefulButton,
   stampIn,
   confettiBurst,
   likeBurst,
