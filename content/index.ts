@@ -102,6 +102,7 @@ import { frostedGlass } from "./frosted-glass";
 import { gradientBorder } from "./gradient-border";
 import { pressFeedback } from "./press-feedback";
 import { statefulButton } from "./stateful-button";
+import { expandingSearch } from "./expanding-search";
 import { flipCard } from "./flip-card";
 import { floatingLabel } from "./floating-label";
 import { dropdownReveal } from "./dropdown-reveal";
@@ -333,6 +334,7 @@ const all: MotionEntry[] = [
   flipCard,
   pageTurn,
   floatingLabel,
+  expandingSearch,
   dropdownReveal,
   morphingDropdown,
   menuToggle,

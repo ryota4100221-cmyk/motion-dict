@@ -1,0 +1,211 @@
+.wrap {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 18px;
+  width: 100%;
+  height: 220px;
+}
+
+/* ヘッダーの1行。検索欄はこの行の上に absolute で被せるので、行の高さも並びも動かない */
+.bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: min(520px, 90%);
+  height: 56px;
+  padding: 0 6px 0 22px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  background: var(--code-bg);
+}
+
+.bar[data-anchor="left"] {
+  padding: 0 22px 0 6px;
+}
+
+.logo {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: rgba(233, 233, 227, 0.92);
+  user-select: none;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.55);
+  user-select: none;
+}
+
+/* left 固定のときは虫眼鏡を行の先頭へ、ナビを右端へ */
+.bar[data-anchor="left"] .toggle {
+  order: -1;
+}
+
+.bar[data-anchor="right"] .toggle {
+  margin-left: 4px;
+}
+
+.toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(233, 233, 227, 0.1);
+  color: rgba(233, 233, 227, 0.92);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background-color 0.2s;
+}
+
+.toggle:hover {
+  background: rgba(233, 233, 227, 0.18);
+}
+
+.toggle svg,
+.formIcon svg,
+.close svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.toggle:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+/* 検索欄: 固定した端から var(--start) → 行いっぱいへ。中身は overflow で切り取る */
+.form {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: calc(100% - 10px);
+  padding: 0 4px 0 14px;
+  border-radius: 999px;
+  background: rgb(233, 233, 227); /* 不透明にして下のナビを透かさない */
+  color: var(--sumi);
+  overflow: hidden;
+  animation: expand var(--dur) ease-out both;
+}
+
+.bar[data-anchor="right"] .form {
+  right: 5px;
+}
+
+.bar[data-anchor="left"] .form {
+  left: 5px;
+}
+
+.form[data-phase="closing"] {
+  animation: collapse var(--dur) ease-out forwards;
+}
+
+.formIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  opacity: 0.7;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--sumi);
+}
+
+.input::placeholder {
+  color: rgba(10, 10, 10, 0.45);
+}
+
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.08);
+  color: var(--sumi);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.caption {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+@keyframes expand {
+  from {
+    width: var(--start);
+  }
+  to {
+    width: calc(100% - 10px);
+  }
+}
+
+@keyframes collapse {
+  from {
+    width: calc(100% - 10px);
+  }
+  to {
+    width: var(--start);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form,
+  .form[data-phase="closing"] {
+    animation: none;
+  }
+  .toggle {
+    transition: none;
+  }
+}
