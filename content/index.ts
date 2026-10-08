@@ -129,6 +129,7 @@ import { equalizerBars } from "./equalizer-bars";
 import { barChartGrow } from "./bar-chart-grow";
 import { scrollScrub } from "./scroll-scrub";
 import { ambientFloat } from "./ambient-float";
+import { eyeBlink } from "./eye-blink";
 import { orbit } from "./orbit";
 import { radialCarousel } from "./radial-carousel";
 import { coverFlow } from "./cover-flow";
@@ -345,6 +346,7 @@ const all: MotionEntry[] = [
   pulseRing,
   breathingGlow,
   ambientFloat,
+  eyeBlink,
   orbit,
   pendulumSwing,
   flickerOn,
