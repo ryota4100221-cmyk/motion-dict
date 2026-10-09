@@ -204,4 +204,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "arrow-slide-through": d(() => import("./ArrowSlideThrough")),
   "list-add-remove": d(() => import("./ListAddRemove")),
   "expanding-search": d(() => import("./ExpandingSearch")),
+  "chat-sequence": d(() => import("./ChatSequence")),
 };

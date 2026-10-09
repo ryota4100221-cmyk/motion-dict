@@ -180,6 +180,7 @@ import { lineBoil } from "./line-boil";
 import { holoSheen } from "./holo-sheen";
 import { pageTurn } from "./page-turn";
 import { arrowSlideThrough } from "./arrow-slide-through";
+import { chatSequence } from "./chat-sequence";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -332,6 +333,7 @@ const all: MotionEntry[] = [
   dropZone,
   swipeDismiss,
   listAddRemove,
+  chatSequence,
   flipCard,
   pageTurn,
   floatingLabel,
