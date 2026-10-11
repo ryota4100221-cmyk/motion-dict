@@ -1,0 +1,181 @@
+.card {
+  position: absolute;
+  top: calc(50% - 14px);
+  left: 50%;
+  width: min(400px, 86vw);
+  transform: translate(-50%, -50%);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 表と裏は同じ並び・同じ寸法。色と注釈だけが違うので、穴の中で位置がずれない */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 22px 18px;
+}
+
+.front {
+  background: #f4f4f2;
+  color: var(--sumi);
+}
+
+/* 裏(設計図)。普段は半径0の円で切り抜かれて見えない */
+.back {
+  position: absolute;
+  inset: 0;
+  background-color: var(--sumi);
+  background-image:
+    linear-gradient(rgba(233, 233, 227, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(233, 233, 227, 0.07) 1px, transparent 1px);
+  background-size: 16px 16px;
+  color: var(--code-fg);
+  clip-path: circle(0 at 50% 50%);
+  pointer-events: none;
+}
+
+.eyebrow {
+  position: relative;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}
+
+.title {
+  position: relative;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+}
+
+.body {
+  position: relative;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.media {
+  position: relative;
+  height: 52px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #d9d9d2, #b9b9b0);
+}
+
+.button {
+  position: relative;
+  align-self: flex-start;
+  height: 34px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--sumi);
+  color: #f4f4f2;
+  font-size: 13px;
+}
+
+/* 裏では各ブロックが枠線だけの設計図になり、寸法のラベルが付く */
+.back .eyebrow,
+.back .title,
+.back .body,
+.back .media,
+.back .button {
+  outline: 1px dashed rgba(233, 233, 227, 0.45);
+  outline-offset: 2px;
+}
+
+.back .media {
+  background: transparent;
+  background-image: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    rgba(233, 233, 227, 0.35) 50%,
+    transparent calc(50% + 0.5px)
+  );
+}
+
+.back .button {
+  background: transparent;
+  color: var(--code-fg);
+  outline-style: solid;
+}
+
+.note {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  transform: translateY(-100%);
+  padding: 2px 5px;
+  background: var(--ai);
+  color: var(--sumi);
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.back .button .note,
+.back .eyebrow .note {
+  right: auto;
+  left: -2px;
+}
+
+/* レンズの縁・十字線・座標。大きさは rAF 側で半径から決める */
+.ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border: 1.5px solid var(--ai);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.crossX,
+.crossY {
+  position: absolute;
+  background: rgba(165, 224, 46, 0.55);
+}
+
+.crossX {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.crossY {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+
+.coord {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  background: var(--sumi);
+  color: var(--code-fg);
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+}

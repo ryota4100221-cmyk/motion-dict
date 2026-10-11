@@ -206,4 +206,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "expanding-search": d(() => import("./ExpandingSearch")),
   "chat-sequence": d(() => import("./ChatSequence")),
   "ai-orb": d(() => import("./AiOrb")),
+  "xray-lens": d(() => import("./XrayLens")),
 };

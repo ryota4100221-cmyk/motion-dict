@@ -182,6 +182,7 @@ import { pageTurn } from "./page-turn";
 import { arrowSlideThrough } from "./arrow-slide-through";
 import { chatSequence } from "./chat-sequence";
 import { aiOrb } from "./ai-orb";
+import { xrayLens } from "./xray-lens";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -211,6 +212,7 @@ const all: MotionEntry[] = [
   lineBoil,
   holoSheen,
   arrowSlideThrough,
+  xrayLens,
   scrollFadeIn,
   perspectiveReveal,
   parallax,
