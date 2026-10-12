@@ -1,0 +1,196 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  padding-bottom: 12px;
+}
+
+.wheel {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  flex: none;
+}
+
+/* 回すのは円盤だけ。針と軸は外に置いて止めておく */
+.disc {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.disc svg,
+.hub {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hub {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rim {
+  fill: rgba(233, 233, 227, 0.92);
+}
+
+.seg[data-tone="a"] {
+  fill: var(--ai);
+}
+
+.seg[data-tone="b"] {
+  fill: #1c1c1a;
+}
+
+.seg[data-tone="c"] {
+  fill: rgba(233, 233, 227, 0.45);
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-anchor: middle;
+}
+
+.label[data-tone="a"],
+.label[data-tone="c"] {
+  fill: var(--sumi);
+}
+
+.label[data-tone="b"] {
+  fill: rgba(233, 233, 227, 0.92);
+}
+
+.peg {
+  fill: var(--sumi);
+}
+
+.hubOuter {
+  fill: rgba(233, 233, 227, 0.92);
+}
+
+.hubInner,
+.pointer path {
+  fill: #ff4a3d;
+}
+
+/* 当たり枠を2回明滅させる */
+.win {
+  fill: #fff;
+  opacity: 0;
+  animation: flash 0.9s ease-out both;
+}
+
+.pointer {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 24px;
+  height: 26px;
+  margin-left: -12px;
+  pointer-events: none;
+}
+
+.pointer path {
+  stroke: rgba(233, 233, 227, 0.92);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.side {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  width: 150px;
+}
+
+.head {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(233, 233, 227, 0.92);
+}
+
+.btn {
+  width: 140px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ai);
+  color: var(--sumi);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: opacity 0.2s;
+}
+
+.btn[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 3px;
+}
+
+.result {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: rgba(233, 233, 227, 0.62);
+}
+
+@keyframes flash {
+  0%,
+  50%,
+  100% {
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 520px) {
+  /* 2行に折り返す操作ヒントと重ならないよう、上に寄せる */
+  .wrap {
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 56px;
+  }
+  .wheel {
+    width: 150px;
+    height: 150px;
+  }
+  .side {
+    justify-items: center;
+    gap: 8px;
+    width: auto;
+  }
+  .head {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disc,
+  .btn {
+    transition: none;
+  }
+  .win {
+    animation: none;
+    opacity: 0.3;
+  }
+}
