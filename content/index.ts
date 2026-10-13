@@ -184,6 +184,7 @@ import { chatSequence } from "./chat-sequence";
 import { aiOrb } from "./ai-orb";
 import { xrayLens } from "./xray-lens";
 import { prizeWheel } from "./prize-wheel";
+import { scratchCard } from "./scratch-card";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -333,6 +334,7 @@ const all: MotionEntry[] = [
   confettiBurst,
   likeBurst,
   prizeWheel,
+  scratchCard,
   floatingReactions,
   flyToCart,
   dropZone,

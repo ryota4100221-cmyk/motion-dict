@@ -208,4 +208,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "ai-orb": d(() => import("./AiOrb")),
   "xray-lens": d(() => import("./XrayLens")),
   "prize-wheel": d(() => import("./PrizeWheel")),
+  "scratch-card": d(() => import("./ScratchCard")),
 };
