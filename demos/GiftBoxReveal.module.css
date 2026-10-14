@@ -1,0 +1,138 @@
+.field {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 300px;
+}
+
+/* 観察元のポップアップカード(縦長)を縮めて再現 */
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.media {
+  display: grid;
+  place-items: center;
+  height: 150px;
+  padding: 0;
+  border: 0;
+  background: radial-gradient(
+      closest-side at 50% 62%,
+      rgba(165, 224, 46, 0.22),
+      rgba(165, 224, 46, 0)
+    ),
+    rgba(233, 233, 227, 0.04);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.media:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: -4px;
+}
+
+.gift {
+  display: block;
+  width: 124px;
+  height: auto;
+  overflow: visible;
+}
+
+.box {
+  fill: var(--ai);
+}
+
+.shade {
+  fill: #0a0a0a;
+  opacity: 0.18;
+}
+
+.ribbon {
+  fill: rgba(233, 233, 227, 0.92);
+}
+
+.lidTop {
+  fill: var(--ai-pale);
+}
+
+.knot {
+  fill: rgba(233, 233, 227, 0.62);
+}
+
+/* 蝶番=フタ自身の外接矩形の左下18%。fill-box が無いとSVG全体の左上が原点になる */
+.lid {
+  transform-box: fill-box;
+  transform-origin: 18% 100%;
+}
+
+/* きらめきは JS の再生まで隠しておく(reduced-motion では最初から灯す) */
+.spark {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  opacity: 0;
+}
+
+.spark path {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.sparkAi {
+  stroke: var(--ai);
+}
+
+.sparkPale {
+  stroke: rgba(233, 233, 227, 0.9);
+}
+
+.still {
+  opacity: 1;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+
+.head {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(233, 233, 227, 0.92);
+}
+
+.sub {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+.cta {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--ai);
+  color: #0a0a0a;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark {
+    opacity: 1;
+  }
+}

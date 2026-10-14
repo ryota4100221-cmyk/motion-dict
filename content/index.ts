@@ -185,6 +185,7 @@ import { aiOrb } from "./ai-orb";
 import { xrayLens } from "./xray-lens";
 import { prizeWheel } from "./prize-wheel";
 import { scratchCard } from "./scratch-card";
+import { giftBoxReveal } from "./gift-box-reveal";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -335,6 +336,7 @@ const all: MotionEntry[] = [
   likeBurst,
   prizeWheel,
   scratchCard,
+  giftBoxReveal,
   floatingReactions,
   flyToCart,
   dropZone,
