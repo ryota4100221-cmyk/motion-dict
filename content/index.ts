@@ -156,6 +156,7 @@ import { swipeDismiss } from "./swipe-dismiss";
 import { godRays } from "./god-rays";
 import { fogDrift } from "./fog-drift";
 import { twinkle } from "./twinkle";
+import { snowfall } from "./snowfall";
 import { floatingReactions } from "./floating-reactions";
 import { quadtreeReveal } from "./quadtree-reveal";
 import { halftone } from "./halftone";
@@ -300,6 +301,7 @@ const all: MotionEntry[] = [
   godRays,
   fogDrift,
   twinkle,
+  snowfall,
   liquidDistortion,
   asciiEffect,
   halftone,

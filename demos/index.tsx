@@ -196,6 +196,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "scroll-cue": d(() => import("./ScrollCue")),
   "cover-flow": d(() => import("./CoverFlow")),
   twinkle: d(() => import("./Twinkle")),
+  snowfall: d(() => import("./Snowfall")),
   "floating-reactions": d(() => import("./FloatingReactions")),
   "theme-toggle-transition": d(() => import("./ThemeToggleTransition")),
   "line-boil": d(() => import("./LineBoil")),

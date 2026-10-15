@@ -1,0 +1,99 @@
+.snowStage {
+  /* 常時ループなのでスクロールを妨げない */
+  touch-action: manipulation;
+}
+
+/* 冬の夜空。上ほど青みを残し、雪が「何かの前を降っている」と読めるよう稜線を置く */
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(180deg, #151a26 0%, #10131b 62%, #0b0c10 100%);
+}
+
+.ridge {
+  position: absolute;
+  inset: 62% 0 0;
+  background: #07080b;
+  clip-path: polygon(
+    0 52%, 8% 38%, 17% 46%, 29% 14%, 37% 30%, 45% 22%, 56% 44%, 68% 10%,
+    79% 34%, 90% 24%, 100% 40%, 100% 100%, 0 100%
+  );
+}
+
+/* 出現帯は領域の上端より26px上。ステージ内で生まれると粒が点滅して見える */
+.snow {
+  position: absolute;
+  inset: -26px 0 0;
+  overflow: hidden;
+}
+
+/* 外側=落下だけ。linearで一定速度、上下の端でopacityを抜く */
+.flake {
+  position: absolute;
+  top: -8px;
+  opacity: 0;
+  font-style: normal;
+}
+
+.fallOn {
+  animation-name: snowfall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* 内側=揺れだけ。2〜3pxは角丸が効かず四角く見えるので、radial-gradientで芯と縁を描く */
+.dot {
+  display: block;
+  width: var(--d);
+  height: var(--d);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(233, 233, 227, 0.95) 0%,
+    rgba(233, 233, 227, 0.72) 30%,
+    rgba(233, 233, 227, 0.18) 55%,
+    rgba(233, 233, 227, 0) 72%
+  );
+}
+
+.swayOn {
+  animation-name: snowsway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes snowfall {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--op);
+  }
+  82% {
+    opacity: var(--op);
+  }
+  100% {
+    transform: translate3d(0, 356px, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes snowsway {
+  from {
+    transform: translate3d(calc(var(--sw) * -1), 0, 0);
+  }
+  to {
+    transform: translate3d(var(--sw), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fallOn,
+  .swayOn {
+    animation: none;
+  }
+}
