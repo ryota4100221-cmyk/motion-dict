@@ -211,4 +211,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "prize-wheel": d(() => import("./PrizeWheel")),
   "scratch-card": d(() => import("./ScratchCard")),
   "gift-box-reveal": d(() => import("./GiftBoxReveal")),
+  "flame-flicker": d(() => import("./FlameFlicker")),
 };

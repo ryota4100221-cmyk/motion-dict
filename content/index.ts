@@ -184,6 +184,7 @@ import { arrowSlideThrough } from "./arrow-slide-through";
 import { chatSequence } from "./chat-sequence";
 import { aiOrb } from "./ai-orb";
 import { xrayLens } from "./xray-lens";
+import { flameFlicker } from "./flame-flicker";
 import { prizeWheel } from "./prize-wheel";
 import { scratchCard } from "./scratch-card";
 import { giftBoxReveal } from "./gift-box-reveal";
@@ -217,6 +218,7 @@ const all: MotionEntry[] = [
   holoSheen,
   arrowSlideThrough,
   xrayLens,
+  flameFlicker,
   scrollFadeIn,
   perspectiveReveal,
   parallax,
