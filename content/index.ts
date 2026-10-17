@@ -185,6 +185,7 @@ import { chatSequence } from "./chat-sequence";
 import { aiOrb } from "./ai-orb";
 import { xrayLens } from "./xray-lens";
 import { flameFlicker } from "./flame-flicker";
+import { stickerPeel } from "./sticker-peel";
 import { prizeWheel } from "./prize-wheel";
 import { scratchCard } from "./scratch-card";
 import { giftBoxReveal } from "./gift-box-reveal";
@@ -350,6 +351,7 @@ const all: MotionEntry[] = [
   aiOrb,
   flipCard,
   pageTurn,
+  stickerPeel,
   floatingLabel,
   expandingSearch,
   dropdownReveal,

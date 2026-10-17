@@ -1,0 +1,109 @@
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 44px 52px;
+  width: min(560px, 100%);
+  padding: 48px 32px;
+  border: 1px solid rgba(233, 233, 227, 0.14);
+  border-radius: 18px;
+  /* 貼られている面。めくれた跡にこの面がのぞく */
+  background:
+    radial-gradient(rgba(233, 233, 227, 0.07) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    #161615;
+}
+
+.sticker {
+  position: relative;
+  flex: none;
+  width: var(--sp-w);
+  height: var(--sp-h);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sticker:focus-visible {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 8px;
+}
+
+/* 外枠ごと回すと、折り目(この枠の水平線)が画面上で angle だけ傾く */
+.peel {
+  position: absolute;
+  inset: 0;
+  rotate: var(--sp-angle);
+  /* 折り目: 上端の外(-pad)→上から depth% を --sp-peel で補間 */
+  --sp-cut: calc(var(--sp-pad) * -1 + var(--sp-peel) * (var(--sp-depth) + var(--sp-pad)));
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(-200% var(--sp-cut), 300% var(--sp-cut), 300% 300%, -200% 300%);
+}
+
+.flapShadow {
+  position: absolute;
+  inset: 0;
+  /* clip した flap の外側で影を落とす(同じ要素に付けると影まで切られる) */
+  filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.45));
+  pointer-events: none;
+}
+
+/* 表と同じ箱を「折り目の2倍の位置」へ置いて上下反転 = 折り目を軸にした鏡写し */
+.flap {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  top: calc(-100% + 2 * var(--sp-cut));
+  transform: scaleY(-1);
+  clip-path: polygon(-200% -200%, 300% -200%, 300% var(--sp-cut), -200% var(--sp-cut));
+}
+
+/* 外枠の回転を打ち消して、シール自体は正立させる */
+.turn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--sp-w);
+  height: var(--sp-h);
+  translate: -50% -50%;
+  rotate: calc(var(--sp-angle) * -1);
+}
+
+.art {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--sp-r);
+  background: var(--sp-face);
+  color: var(--sp-ink);
+  font-family: var(--font-mono), monospace;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  user-select: none;
+}
+
+/* 裏紙は表の絵柄ではなく単色。反るほど光を受けて明るくなる */
+.back {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--sp-r);
+  background: var(--sp-back);
+  filter: brightness(calc(1 + var(--sp-peel) * 0.22));
+}
+
+@media (max-width: 520px) {
+  .board {
+    gap: 32px 28px;
+    padding: 36px 16px;
+  }
+}
