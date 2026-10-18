@@ -150,6 +150,7 @@ import { dvdBounce } from "./dvd-bounce";
 import { flickerOn } from "./flicker-on";
 import { dockMagnify } from "./dock-magnify";
 import { storyProgress } from "./story-progress";
+import { dotPagination } from "./dot-pagination";
 import { flyToCart } from "./fly-to-cart";
 import { dropZone } from "./drop-zone";
 import { swipeDismiss } from "./swipe-dismiss";
@@ -318,6 +319,7 @@ const all: MotionEntry[] = [
   gooeyEffect,
   stepper,
   storyProgress,
+  dotPagination,
   rulerScrubber,
   radialCarousel,
   modalPop,

@@ -1,0 +1,136 @@
+.wrap {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 中身は主役ではないので、番号だけのカードにして下の点に目を向けさせる */
+.card {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 4px;
+  width: min(240px, 64vw);
+  aspect-ratio: 4 / 3;
+  border-radius: 6px;
+  background: var(--sumi);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+/* スマホではステージ下端の操作ヒントと点の列が重ならないよう、カードを平たくする */
+@media (max-width: 600px) {
+  .card {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.num {
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ai);
+  font-variant-numeric: tabular-nums;
+}
+
+.cap {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.arrow {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(233, 233, 227, 0.62);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.arrow:focus-visible,
+.dot:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+/* 窓。hiddenだと点にフォーカスやクリックが当たったとき中身がスクロールしてトラックとずれるのでclip */
+.viewport {
+  position: relative;
+  height: 20px;
+  overflow: clip;
+}
+
+.track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  will-change: transform;
+}
+
+.dot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* 窓の端で縮める層。弾み(fill側のanimation)とtransformを奪い合わないよう分けている */
+.scale {
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fill {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(233, 233, 227, 0.45);
+  transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fill[data-current] {
+  background: var(--ai);
+}
+
+/* 0.6→blip→1。cubic-bezierの第2・第4値が1を超えるので、戻りでもう一度わずかに越える */
+.blip {
+  animation: dp-blip 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes dp-blip {
+  0% {
+    transform: scale(0.6);
+  }
+  55% {
+    transform: scale(var(--dp-blip, 1.5));
+  }
+  100% {
+    transform: scale(1);
+  }
+}
