@@ -59,6 +59,7 @@ import { toastSlide } from "./toast-slide";
 import { tooltipPop } from "./tooltip-pop";
 import { toggleSwitch } from "./toggle-switch";
 import { checkboxCheck } from "./checkbox-check";
+import { starRating } from "./star-rating";
 import { rippleTap } from "./ripple-tap";
 import { preloaderCounter } from "./preloader-counter";
 import { skeletonShimmer } from "./skeleton-shimmer";
@@ -332,6 +333,7 @@ const all: MotionEntry[] = [
   pillExpand,
   toggleSwitch,
   checkboxCheck,
+  starRating,
   themeToggleTransition,
   equalizerBars,
   barChartGrow,

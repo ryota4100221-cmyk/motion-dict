@@ -1,0 +1,109 @@
+.field {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  width: 100%;
+  padding: 24px 0;
+}
+
+.caption {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: rgba(233, 233, 227, 0.62);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+/* ヒット領域は44px以上。星の絵はその中央に置く */
+.star {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(233, 233, 227, 0.45);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* 観察元: transition: color .15s, transform .15s */
+  transition:
+    color var(--sr-dur) ease,
+    transform var(--sr-dur) ease;
+}
+
+.star svg {
+  width: 34px;
+  height: 34px;
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transition: fill var(--sr-dur) ease;
+  transition-delay: inherit;
+}
+
+.star:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+/* 1番目から表示値までを塗る */
+.lit {
+  color: var(--ai);
+}
+
+.lit svg {
+  fill: currentColor;
+}
+
+/* 拡大するのはポインタの下の1つだけ */
+.lifted {
+  transform: scale(var(--sr-lift));
+}
+
+.label {
+  min-width: 6.5em;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: rgba(233, 233, 227, 0.62);
+  user-select: none;
+}
+
+.score {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(233, 233, 227, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.score strong {
+  color: var(--ai);
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star,
+  .star svg {
+    transition: none;
+  }
+  .lifted {
+    transform: none;
+  }
+}
