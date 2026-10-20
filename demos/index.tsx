@@ -205,6 +205,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "page-turn": d(() => import("./PageTurn")),
   "arrow-slide-through": d(() => import("./ArrowSlideThrough")),
   "list-add-remove": d(() => import("./ListAddRemove")),
+  "paper-crumple": d(() => import("./PaperCrumple")),
   "expanding-search": d(() => import("./ExpandingSearch")),
   "chat-sequence": d(() => import("./ChatSequence")),
   "ai-orb": d(() => import("./AiOrb")),

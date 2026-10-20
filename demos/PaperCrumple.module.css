@@ -1,0 +1,142 @@
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 紙玉の行き先。紙の中心から toss だけ右、少し下に置く */
+.bin {
+  position: absolute;
+  top: calc(50% + var(--pc-toss) * 0.4 + 6px);
+  left: calc(50% + var(--pc-toss) / 2);
+  width: 44px;
+  height: 30px;
+  margin-left: -22px;
+  border: 1px solid rgba(233, 233, 227, 0.32);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  pointer-events: none;
+}
+
+.bin::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -6px;
+  right: -6px;
+  height: 1px;
+  background: rgba(233, 233, 227, 0.32);
+}
+
+/* 紙と行き先をまとめて中央に寄せるため、toss の半分だけ左へずらす */
+.paper {
+  position: absolute;
+  top: 50%;
+  left: calc(50% - var(--pc-toss) / 2);
+  width: 152px;
+  margin: -112px 0 0 -76px;
+  padding: 16px 14px 20px;
+  background: var(--paper);
+  color: var(--sumi);
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* 上下の辺をギザギザに切ったレシートの縁(観察元と同じ conic-gradient のマスク) */
+  mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 8px 51% repeat-x,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 8px 51% repeat-x;
+  will-change: transform, clip-path, opacity;
+}
+
+.head {
+  margin: 0;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.plan {
+  margin: 4px 0 0;
+  padding-bottom: 8px;
+  text-align: center;
+  color: var(--sumi-soft);
+  border-bottom: 1px dashed rgba(10, 10, 10, 0.3);
+}
+
+.rows {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px dashed rgba(10, 10, 10, 0.3);
+}
+
+.rows li {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.rows i {
+  flex: 1;
+  border-bottom: 1px dotted rgba(10, 10, 10, 0.35);
+}
+
+.total {
+  margin: 10px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.total strong {
+  font-size: 12px;
+}
+
+/* しわ。斜めの硬いグラデーションを重ねた影(観察元 offer__paper::after の写し) */
+.crease {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, #0000 38%, rgba(10, 10, 10, 0.16) 38.5%, #0000 53%),
+    linear-gradient(205deg, #0000 28%, rgba(10, 10, 10, 0.12) 28.5%, #0000 46%),
+    linear-gradient(68deg, #0000 54%, rgba(10, 10, 10, 0.18) 54.5%, #0000 71%),
+    linear-gradient(158deg, #0000 60%, rgba(10, 10, 10, 0.13) 60.5%, #0000 76%),
+    linear-gradient(20deg, #0000 18%, rgba(255, 255, 255, 0.5) 18.5%, #0000 30%),
+    conic-gradient(
+      from 25deg at 42% 46%,
+      rgba(10, 10, 10, 0.14),
+      #0000 18%,
+      rgba(10, 10, 10, 0.1) 37%,
+      #0000 58%,
+      rgba(10, 10, 10, 0.16) 79%,
+      #0000
+    );
+}
+
+.discard {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 7px 12px;
+  border: 1px solid rgba(233, 233, 227, 0.32);
+  background: transparent;
+  color: rgba(233, 233, 227, 0.86);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.discard:hover,
+.discard:focus-visible {
+  border-color: var(--ai);
+  color: var(--ai);
+}
