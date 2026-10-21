@@ -1,0 +1,175 @@
+.field {
+  --gm-color: var(--ai);
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 100%;
+  /* 下端はステージの操作ヒント(スマホでは2行)のぶん空ける */
+  padding: 0 0 40px;
+}
+
+/* 危険域を超えたら弧と針を赤に切り替える */
+.failing {
+  --gm-color: #e05e4a;
+}
+
+.meter {
+  position: relative;
+  width: min(232px, 64vw);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.track {
+  fill: none;
+  stroke: rgba(233, 233, 227, 0.16);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+/* 弧は pathLength=100 の dashoffset で描く。針と同じ時間・同じイージング */
+.arc {
+  fill: none;
+  stroke: var(--gm-color);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  transition:
+    stroke-dashoffset var(--gm-dur) var(--gm-ease),
+    stroke 0.2s ease;
+}
+
+.failing .arc {
+  animation: gm-throb 1.4s ease-in-out infinite;
+}
+
+.tick {
+  stroke: rgba(233, 233, 227, 0.45);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.tickLabel {
+  fill: rgba(233, 233, 227, 0.55);
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.limit {
+  stroke: #e05e4a;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+/* 観察元: .pressure-gauge-needle { transition: transform .64s cubic-bezier(.22,1,.36,1) } */
+.needle {
+  transition: transform var(--gm-dur) var(--gm-ease);
+}
+
+.needle line {
+  stroke: var(--code-fg);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke 0.2s ease;
+}
+
+.failing .needle line {
+  stroke: var(--gm-color);
+}
+
+.hub {
+  fill: var(--code-fg);
+}
+
+.readout {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4%;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.value {
+  font-family: var(--font-mono), monospace;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--code-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(233, 233, 227, 0.62);
+}
+
+.failing .unit {
+  color: var(--gm-color);
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.preset {
+  min-width: 48px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(233, 233, 227, 0.62);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.preset[aria-pressed="true"] {
+  border-color: var(--ai);
+  color: var(--ai);
+}
+
+.preset:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+@keyframes gm-throb {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arc,
+  .needle,
+  .needle line,
+  .preset {
+    transition: none;
+  }
+  .failing .arc {
+    animation: none;
+  }
+}

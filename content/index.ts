@@ -129,6 +129,7 @@ import { progressiveBlur } from "./progressive-blur";
 import { blockReveal } from "./block-reveal";
 import { equalizerBars } from "./equalizer-bars";
 import { barChartGrow } from "./bar-chart-grow";
+import { gaugeMeter } from "./gauge-meter";
 import { scrollScrub } from "./scroll-scrub";
 import { ambientFloat } from "./ambient-float";
 import { eyeBlink } from "./eye-blink";
@@ -338,6 +339,7 @@ const all: MotionEntry[] = [
   themeToggleTransition,
   equalizerBars,
   barChartGrow,
+  gaugeMeter,
   rippleTap,
   pressFeedback,
   statefulButton,
