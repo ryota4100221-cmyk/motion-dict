@@ -103,6 +103,7 @@ import { frostedGlass } from "./frosted-glass";
 import { gradientBorder } from "./gradient-border";
 import { pressFeedback } from "./press-feedback";
 import { statefulButton } from "./stateful-button";
+import { copyToClipboard } from "./copy-to-clipboard";
 import { expandingSearch } from "./expanding-search";
 import { flipCard } from "./flip-card";
 import { floatingLabel } from "./floating-label";
@@ -343,6 +344,7 @@ const all: MotionEntry[] = [
   rippleTap,
   pressFeedback,
   statefulButton,
+  copyToClipboard,
   stampIn,
   confettiBurst,
   likeBurst,

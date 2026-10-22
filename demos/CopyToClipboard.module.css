@@ -1,0 +1,202 @@
+.wrap {
+  display: grid;
+  justify-items: stretch;
+  align-content: center;
+  gap: 14px;
+  width: min(420px, 86vw);
+  /* 上はラベルが浮くぶん、下はステージの操作ヒント(スマホでは2行)のぶん空ける */
+  padding: 36px 0 44px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 6px 0 14px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 12px;
+}
+
+.tag {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+.code {
+  overflow: hidden;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  color: var(--code-fg);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 幅は固定。フィードバックが出てもボタンの大きさは変えない */
+.btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--code-fg);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+/* 観察元: @keyframes _aSuccess { 0% { background-color: #70f74a } } を 0.47s ease-out。
+   0% にだけ色を置くと、そこから通常の背景(透明)へ戻る＝光って引く */
+.flash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  animation: cc-flash var(--cc-flash) ease-out both;
+  pointer-events: none;
+}
+
+.flash[data-result="error"] {
+  animation-name: cc-flash-error;
+}
+
+.icons {
+  position: relative;
+  display: grid;
+  width: 20px;
+  height: 20px;
+}
+
+.icons svg {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.check {
+  opacity: 0;
+  transform: scale(0.6);
+  color: var(--ai);
+}
+
+.check[data-result="error"] {
+  color: #e05e4a;
+}
+
+.icons[data-done="true"] .clip {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.icons[data-done="true"] .check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 観察元: bottom:150%・left:50% に置き、
+   _aTY 1.5s ease-out forwards(translateY -0.5rem) と _aO0 0.8s ease-in 0.7s(opacity 0) を重ねる */
+.label {
+  --cc-x: -50%;
+  position: absolute;
+  bottom: 150%;
+  left: 50%;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(233, 233, 227, 0.92);
+  color: var(--sumi);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  transform: translateX(var(--cc-x));
+  pointer-events: none;
+  animation:
+    cc-rise var(--cc-life) ease-out forwards,
+    cc-fade 0.8s ease-in var(--cc-hold) forwards;
+}
+
+/* 狭い画面ではボタンが右端に来るので、中央揃えだとラベルがステージの外へはみ出す。右端に揃える */
+@media (max-width: 520px) {
+  .label {
+    --cc-x: 0px;
+    left: auto;
+    right: 0;
+  }
+}
+
+.label[data-result="error"] {
+  background: #e05e4a;
+  color: #fff;
+}
+
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes cc-flash {
+  0% {
+    background-color: var(--ai);
+  }
+}
+
+@keyframes cc-flash-error {
+  0% {
+    background-color: #e05e4a;
+  }
+}
+
+@keyframes cc-rise {
+  100% {
+    transform: translate(var(--cc-x), var(--cc-rise));
+  }
+}
+
+@keyframes cc-fade {
+  100% {
+    opacity: 0;
+  }
+}
+
+/* reduced-motion: 光と浮き上がりを出さず、ラベルとチェックは静止表示して時間で外す */
+.reduce .label {
+  animation: none;
+}
+
+.reduce .icons svg {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .label,
+  .flash {
+    animation: none;
+  }
+  .icons svg {
+    transition: none;
+  }
+}
