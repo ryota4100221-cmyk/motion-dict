@@ -107,6 +107,7 @@ import { copyToClipboard } from "./copy-to-clipboard";
 import { expandingSearch } from "./expanding-search";
 import { flipCard } from "./flip-card";
 import { floatingLabel } from "./floating-label";
+import { passwordStrength } from "./password-strength";
 import { dropdownReveal } from "./dropdown-reveal";
 import { menuToggle } from "./menu-toggle";
 import { errorShake } from "./error-shake";
@@ -363,6 +364,7 @@ const all: MotionEntry[] = [
   pageTurn,
   stickerPeel,
   floatingLabel,
+  passwordStrength,
   expandingSearch,
   dropdownReveal,
   morphingDropdown,

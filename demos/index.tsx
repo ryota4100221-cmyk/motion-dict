@@ -143,6 +143,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "like-burst": d(() => import("./LikeBurst")),
   "flip-card": d(() => import("./FlipCard")),
   "floating-label": d(() => import("./FloatingLabel")),
+  "password-strength": d(() => import("./PasswordStrength")),
   "dropdown-reveal": d(() => import("./DropdownReveal")),
   "menu-toggle": d(() => import("./MenuToggle")),
   "error-shake": d(() => import("./ErrorShake")),
