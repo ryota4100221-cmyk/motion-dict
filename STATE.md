@@ -1,5 +1,17 @@
 # motion-dict v2 ブラッシュアップ（2026-10-24〜）— 再開はここから
 
+## 🟢 2026-10-25 本番移行済（Ryota「本番に入れていいよ」）
+- 本番 Framer（PnTJSNS3Yi1gInF6kBFb）へ v2 を反映・publish 済。手順は下の「本番移行の手順」どおり。
+  本番で新規ノードのIDは複製と違う（dTop=PTWVjbb6m / hReel=yoE4M8laN / Prompt Raw=HybwCt26x / Params JSON=Hxba1_vhG
+  / コード EntryLab=zIMde6u・EntryNav=fsJycbH・MotionDictionaryV2=U09rbnd・EntryTitle=ku8r2xA・SiteFooterCTA=wi8lhIo・HeroReel=eXBofvM）。
+  本番と複製の serialize を突き合わせて差分ゼロ（IDと件数以外）を確認済。
+- main = v2（毎朝パイプラインもv2：録画v2→ループ回転→Posterはv2のコマ）。以後は main で作業してよい。
+- 和文フォント 400/700 の2ウェイトに（Ryota「ウェイト減らそうか」）：1ページ 6.6MB→4.4MB。framer/fonts-canvas.js
+- デモの絵を写真に（Ryota「写真そっちで入れてほしい」）：public/demo/photo-01〜08.jpg（Unsplash License・PHOTO_CREDITS.md）。
+  47本を差し替えて録画v2撮り直し・Poster(og:image)も差し替え（framer/og-some.js）。
+  写真を入れていないもの＝文字・UI部品が主役のデモ（halftone 等）。skeleton-shimmer は録画では骨組みのまま（クリックで写真）。
+- 残りの判断：Framer有料プラン＋独自ドメイン／既定言語→日本語（UIのみ）／辞典の「署名」。
+
 ## 状態
 - 本番（https://motion-dict.framer.website・Framer PnTJSNS3Yi1gInF6kBFb）は **無変更**。
 - 作業は Framer の **複製プロジェクト** `4FmgcacdTtjanKiZQCuP`（プレビュー https://glorious-sandwich-453593.framer.app ・noindex）と、
