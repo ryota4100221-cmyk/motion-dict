@@ -7,7 +7,7 @@
 - GH Pages へは **追加のみ** push 済み（/stage/<slug>/・public/entry/*.json・entries-v2.json・録画v2スクリプト）。
   旧 /demo/・entries.json・videos/・posters/ は触っていない。
 
-## 🔴 翌朝7:30の毎朝ルーティン（anime-demo）の前に必ずやること
+## ✅（済 2026-10-24 22時台）翌朝7:30の毎朝ルーティンの前の片付け
 - ~/projects/motion-dict（main の作業ディレクトリ）に録画台本づくり用の未追跡ファイルが残っている：
   rec/、scripts/record-v2.cjs、scripts/poster-pick.py、scripts/rec-qa.py（.git/info/exclude で隠している）。
   ルーティンは `git pull` → `git add -A` するので、**pull が「未追跡ファイルが上書きされる」で止まる**。

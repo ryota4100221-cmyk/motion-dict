@@ -1,0 +1,14 @@
+{
+  "note": "画面外からテキストに乗せて下線が起点から伸びるのを見せ、離して縮むのを2回繰り返す",
+  "zoom": 2.0,
+  "steps": [
+    { "do": "move", "sel": "text=Underline", "dur": 350 },
+    { "do": "wait", "ms": 900 },
+    { "do": "move", "at": [0.5, 0.8], "dur": 300 },
+    { "do": "wait", "ms": 700 },
+    { "do": "move", "sel": "text=Underline", "dur": 300 },
+    { "do": "wait", "ms": 900 },
+    { "do": "leave", "dur": 400 },
+    { "do": "wait", "ms": 500 }
+  ]
+}

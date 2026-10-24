@@ -1,0 +1,36 @@
+{
+  "note": "Menuを押すとナビパネルが横から滑り込み背景が暗くなる→Closeで閉じて元の画面で終わる",
+  "zoom": 1.45,
+  "steps": [
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 380
+    },
+    {
+      "do": "wait",
+      "ms": 1100
+    },
+    {
+      "do": "move",
+      "at": [
+        0.62,
+        0.55
+      ],
+      "dur": 350
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 300
+    },
+    {
+      "do": "wait",
+      "ms": 900
+    },
+    {
+      "do": "leave",
+      "dur": 400
+    }
+  ]
+}

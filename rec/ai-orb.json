@@ -1,0 +1,52 @@
+{
+  "note": "同じオーブのまま、待機→思考中（色環が速まり光が締まる・中の点が波打つ）→発話中（音量バー）→待機へとボタンで演じ分けて一巡する",
+  "zoom": 1.3,
+  "before": [
+    {
+      "do": "click",
+      "sel": "button >> nth=0",
+      "dur": 1
+    },
+    {
+      "do": "leave",
+      "dur": 1
+    },
+    {
+      "do": "wait",
+      "ms": 900
+    }
+  ],
+  "steps": [
+    {
+      "do": "click",
+      "sel": "button >> nth=1",
+      "dur": 380
+    },
+    {
+      "do": "wait",
+      "ms": 1200
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=2",
+      "dur": 300
+    },
+    {
+      "do": "wait",
+      "ms": 1400
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=0",
+      "dur": 300
+    },
+    {
+      "do": "wait",
+      "ms": 500
+    },
+    {
+      "do": "leave",
+      "dur": 400
+    }
+  ]
+}

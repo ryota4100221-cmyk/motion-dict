@@ -1,0 +1,11 @@
+{
+  "note": "タイル01をクリックすると画面ごとそのタイルの中心へズームインして突き抜け、Page Bへ切り替わる。Bのタイルで同じく抜けてAへ戻る",
+  "zoom": 1.5,
+  "steps": [
+    { "do": "click", "sel": "button >> nth=2", "dur": 260 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "click", "sel": "button >> nth=3", "dur": 260 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "leave", "at": [0.6, 1.15], "dur": 220 }
+  ]
+}

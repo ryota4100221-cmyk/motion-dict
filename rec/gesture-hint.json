@@ -1,0 +1,8 @@
+{
+  "note": "自走1周：手が掴む→横へ動かす→離す、を演じる（周期3秒ちょうど）",
+  "cursor": false,
+  "keepHead": true,
+  "settle": 900,
+  "steps": [{ "do": "wait", "ms": 2680 }],
+  "tail": 200
+}

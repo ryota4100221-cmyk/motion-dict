@@ -79,13 +79,15 @@
   }
 }
 
-/* 原点の尺確保用。見た目は変えない */
+/* 原点の尺確保用。見た目は変えない。
+   ⚠️ opacity を使ってはいけない：子（破片）ごと不可視になり、紙吹雪が一切見えなかった（2026-10-24 発覚）。
+   見た目に効かない visibility:visible を両端に置いて、animationend の時刻だけ得る */
 @keyframes hold {
   from {
-    opacity: 0;
+    visibility: visible;
   }
   to {
-    opacity: 0;
+    visibility: visible;
   }
 }
 

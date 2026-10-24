@@ -1,0 +1,50 @@
+{
+ "note": "Work→Studio→Journal→Workとナビをなぞり、1枚のパネルがホバー先の真下へ滑りながら幅と高さを中身に合わせて変形するのを見せる（始まりと終わりはWorkが開いた状態）",
+ "zoom": 1.4,
+ "before": [
+  {
+   "do": "move",
+   "sel": "text=Work",
+   "dur": 200
+  },
+  {
+   "do": "wait",
+   "ms": 700
+  }
+ ],
+ "steps": [
+  {
+   "do": "move",
+   "sel": "text=Studio",
+   "dur": 220
+  },
+  {
+   "do": "wait",
+   "ms": 500
+  },
+  {
+   "do": "move",
+   "sel": "text=Journal",
+   "dur": 220
+  },
+  {
+   "do": "wait",
+   "ms": 500
+  },
+  {
+   "do": "move",
+   "sel": "text=Studio",
+   "dur": 300
+  },
+  {
+   "do": "move",
+   "sel": "text=Work",
+   "dur": 300
+  },
+  {
+   "do": "wait",
+   "ms": 500
+  }
+ ],
+ "tail": 0
+}

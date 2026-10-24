@@ -1,0 +1,8 @@
+{
+  "note": "自動ループ。sin波の2周期ぶん（3.2秒）をそのまま撮り、継ぎ目なく繋がるようにする",
+  "zoom": 1.5,
+  "cursor": false,
+  "keepHead": true,
+  "steps": [{ "do": "wait", "ms": 3080 }],
+  "tail": 0
+}

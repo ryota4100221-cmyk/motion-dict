@@ -1,0 +1,12 @@
+{
+  "note": "Playを押すと文字がぼけた状態から1文字ずつピントが合って現れる（2回再生）",
+  "zoom": 1.6,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 400 },
+    { "do": "wait", "ms": 1500 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 1500 },
+    { "do": "leave", "dur": 450 },
+    { "do": "wait", "ms": 150 }
+  ]
+}

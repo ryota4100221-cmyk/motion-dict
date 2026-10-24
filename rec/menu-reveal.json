@@ -1,0 +1,11 @@
+{
+  "note": "Menuを押して幕が下り項目が時間差で滑り込む→Closeで項目が引っ込み幕が上がって閉じる",
+  "zoom": 1.5,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 400 },
+    { "do": "wait", "ms": 1500 },
+    { "do": "click", "sel": "button", "dur": 150 },
+    { "do": "wait", "ms": 1100 },
+    { "do": "leave", "at": [0.75, 1.15], "dur": 350 }
+  ]
+}

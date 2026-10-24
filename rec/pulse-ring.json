@@ -1,0 +1,8 @@
+{
+  "note": "LIVEの点から同心円のリングが次々と広がって消える自動ループを、周期2.4秒のちょうど2周分だけ撮る",
+  "zoom": 1.8,
+  "cursor": false,
+  "keepHead": true,
+  "steps": [{ "do": "wait", "ms": 4630 }],
+  "tail": 0
+}

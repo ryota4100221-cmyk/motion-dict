@@ -1,0 +1,14 @@
+{
+  "note": "Notifyを3連打して通知が右端から減速で滑り込み上へ積まれる。数秒後に古い順に加速で退場し、残りが詰め直されて空に戻る",
+  "zoom": 1.3,
+  "steps": [
+    { "do": "click", "sel": "text=Notify", "dur": 350 },
+    { "do": "wait", "ms": 350 },
+    { "do": "click", "sel": "text=Notify", "dur": 60 },
+    { "do": "wait", "ms": 350 },
+    { "do": "click", "sel": "text=Notify", "dur": 60 },
+    { "do": "leave", "at": [0.3, 1.15], "dur": 500 },
+    { "do": "wait", "ms": 2500 }
+  ],
+  "tail": 300
+}

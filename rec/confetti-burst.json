@@ -1,0 +1,12 @@
+{
+  "note": "Celebrateを押すと破片が一点から放射状に弾け、重力で少し落ちながら消える。間を置いて2回",
+  "zoom": 1.2,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 350 },
+    { "do": "move", "at": [0.53, 0.52], "dur": 1000 },
+    { "do": "click", "sel": "button", "dur": 200 },
+    { "do": "move", "at": [0.47, 0.5], "dur": 1000 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 450 },
+    { "do": "wait", "ms": 250 }
+  ]
+}

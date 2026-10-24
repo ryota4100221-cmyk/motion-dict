@@ -1,0 +1,17 @@
+{
+  "note": "STUDIO→JOURNALと順にホバーし、字間がゆっくり開いて右隣を押す／離すと閉じる様子を見せる（無操作巡回が始まる前に終える）",
+  "zoom": 1.4,
+  "before": [
+    { "do": "move", "sel": "a >> nth=0", "dur": 1 },
+    { "do": "move", "at": [0.5, 0.995], "dur": 1 },
+    { "do": "wait", "ms": 400 }
+  ],
+  "steps": [
+    { "do": "move", "sel": "a >> nth=1", "dur": 350 },
+    { "do": "wait", "ms": 1200 },
+    { "do": "move", "sel": "a >> nth=2", "dur": 250 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "leave", "at": [0.5, 0.995], "dur": 300 },
+    { "do": "wait", "ms": 1300 }
+  ]
+}

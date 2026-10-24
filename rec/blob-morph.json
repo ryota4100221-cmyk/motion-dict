@@ -1,0 +1,8 @@
+{
+  "note": "有機的な塊がゆっくり形を変え続ける自動ループ。気配として見える長さだけ撮る",
+  "zoom": 1.2,
+  "cursor": false,
+  "keepHead": true,
+  "steps": [{ "do": "wait", "ms": 4500 }],
+  "tail": 0
+}

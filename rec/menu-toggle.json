@@ -1,0 +1,15 @@
+{
+  "note": "クリックでハンバーガーの3本線が×へ変形し、もう一度クリックで3本線へ戻る。2往復",
+  "zoom": 1.9,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 260 },
+    { "do": "wait", "ms": 750 },
+    { "do": "click", "sel": "button", "dur": 60 },
+    { "do": "wait", "ms": 650 },
+    { "do": "click", "sel": "button", "dur": 60 },
+    { "do": "wait", "ms": 750 },
+    { "do": "click", "sel": "button", "dur": 60 },
+    { "do": "wait", "ms": 650 },
+    { "do": "leave", "at": [0.55, 1.15], "dur": 200 }
+  ]
+}

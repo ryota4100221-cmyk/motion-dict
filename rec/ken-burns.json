@@ -1,0 +1,6 @@
+{
+  "note": "操作なし。静止画がゆっくりズームしながらパンし続ける自動ループをそのまま撮る",
+  "cursor": false,
+  "keepHead": true,
+  "steps": [{ "do": "wait", "ms": 6000 }]
+}

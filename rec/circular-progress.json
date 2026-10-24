@@ -1,0 +1,14 @@
+{
+  "note": "Replayでリングを0%に戻し、円周が72%まで描かれていく。2回再生し、描き終わり＝始まりと同じ状態で止める",
+  "zoom": 1.5,
+  "settle": 2600,
+  "steps": [
+    { "do": "click", "sel": "text=Replay", "dur": 260 },
+    { "do": "move", "at": [0.6, 0.98], "dur": 160 },
+    { "do": "wait", "ms": 1700 },
+    { "do": "click", "sel": "text=Replay", "dur": 160 },
+    { "do": "move", "at": [0.6, 0.98], "dur": 160 },
+    { "do": "wait", "ms": 1800 },
+    { "do": "leave", "at": [0.6, 1.15], "dur": 100 }
+  ]
+}

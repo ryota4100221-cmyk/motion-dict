@@ -1,0 +1,24 @@
+{
+  "note": "Nextで紙が背を軸に起き上がって左へ倒れ積もる×2→Prevで2枚戻して最初のページで終わる",
+  "zoom": 1.2,
+  "settle": 600,
+  "before": [
+    { "do": "click", "sel": "button >> nth=1", "dur": 1 },
+    { "do": "wait", "ms": 1150 },
+    { "do": "click", "sel": "button >> nth=0", "dur": 1 },
+    { "do": "leave", "dur": 1 },
+    { "do": "wait", "ms": 1150 }
+  ],
+  "steps": [
+    { "do": "click", "sel": "button >> nth=1", "dur": 300 },
+    { "do": "wait", "ms": 950 },
+    { "do": "click", "sel": "button >> nth=1", "dur": 150 },
+    { "do": "wait", "ms": 1100 },
+    { "do": "click", "sel": "button >> nth=0", "dur": 250 },
+    { "do": "wait", "ms": 950 },
+    { "do": "click", "sel": "button >> nth=0", "dur": 150 },
+    { "do": "wait", "ms": 1100 },
+    { "do": "leave", "dur": 350 }
+  ],
+  "tail": 100
+}

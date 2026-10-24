@@ -1,0 +1,29 @@
+{
+  "note": "Replayを押すと広い字間・透明から字間が詰まりつつフェードインして1語に収束、を2回",
+  "zoom": 1.5,
+  "settle": 2000,
+  "steps": [
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 300
+    },
+    {
+      "do": "wait",
+      "ms": 1500
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 200
+    },
+    {
+      "do": "wait",
+      "ms": 1500
+    },
+    {
+      "do": "leave",
+      "dur": 400
+    }
+  ]
+}

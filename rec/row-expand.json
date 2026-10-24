@@ -1,0 +1,14 @@
+{
+  "note": "一覧の行をなぞってサムネイル帯が伸び上がりキャプションを飲み込む様子を順に見せ、離れて全行が戻る",
+  "zoom": 1.15,
+  "steps": [
+    { "do": "move", "sel": "text=Europa", "dur": 400 },
+    { "do": "move", "sel": "[class*=strip] >> nth=0", "dur": 700 },
+    { "do": "move", "sel": "text=Molteni", "dur": 400 },
+    { "do": "move", "sel": "[class*=strip] >> nth=1", "dur": 700 },
+    { "do": "move", "sel": "text=Kessel", "dur": 400 },
+    { "do": "move", "sel": "[class*=strip] >> nth=2", "dur": 700 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 450 },
+    { "do": "wait", "ms": 600 }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "note": "想定ユーザー数のボタンを押すたび針と色弧が同じイージングで振れて止まる。1k→1M→100M(危険域)→1kへ戻す",
+  "settle": 700,
+  "before": [
+    {
+      "do": "click",
+      "sel": "button >> nth=0",
+      "dur": 1
+    },
+    {
+      "do": "leave",
+      "dur": 1
+    },
+    {
+      "do": "wait",
+      "ms": 1200
+    }
+  ],
+  "steps": [
+    {
+      "do": "click",
+      "sel": "button >> nth=3",
+      "dur": 300
+    },
+    {
+      "do": "wait",
+      "ms": 1000
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=4",
+      "dur": 250
+    },
+    {
+      "do": "wait",
+      "ms": 1000
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=0",
+      "dur": 350
+    },
+    {
+      "do": "wait",
+      "ms": 1000
+    },
+    {
+      "do": "leave",
+      "dur": 350
+    }
+  ]
+}

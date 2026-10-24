@@ -1,0 +1,55 @@
+{
+  "note": "Replayを2回押し、棒が基線から左→右へ時間差で伸びて値に届く様子を2度見せる（伸び切り→伸び切り）",
+  "zoom": 1.25,
+  "before": [
+    {
+      "do": "click",
+      "sel": "text=Replay",
+      "dur": 1
+    },
+    {
+      "do": "move",
+      "at": [
+        0.75,
+        0.995
+      ],
+      "dur": 1
+    },
+    {
+      "do": "wait",
+      "ms": 1400
+    }
+  ],
+  "steps": [
+    {
+      "do": "click",
+      "sel": "text=Replay",
+      "dur": 350
+    },
+    {
+      "do": "wait",
+      "ms": 1300
+    },
+    {
+      "do": "click",
+      "sel": "text=Replay",
+      "dur": 150
+    },
+    {
+      "do": "wait",
+      "ms": 1300
+    },
+    {
+      "do": "leave",
+      "at": [
+        0.75,
+        1.15
+      ],
+      "dur": 350
+    },
+    {
+      "do": "wait",
+      "ms": 200
+    }
+  ]
+}

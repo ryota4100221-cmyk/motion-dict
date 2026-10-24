@@ -1,0 +1,9 @@
+{
+  "note": "自走2周：弧の始点と終点が別々に送られ、輪がほどけて描き直される（周期1.6秒×2）",
+  "zoom": 1.4,
+  "cursor": false,
+  "keepHead": true,
+  "settle": 900,
+  "steps": [{ "do": "wait", "ms": 2880 }],
+  "tail": 200
+}

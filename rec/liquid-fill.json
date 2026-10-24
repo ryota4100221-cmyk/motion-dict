@@ -1,0 +1,29 @@
+{
+  "note": "Replayで水位が0に戻り、波打ちながら容器の65%まで満ちていく、を2回（波は揺れ続ける）",
+  "zoom": 1.6,
+  "settle": 2400,
+  "steps": [
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 350
+    },
+    {
+      "do": "wait",
+      "ms": 1900
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 200
+    },
+    {
+      "do": "wait",
+      "ms": 1900
+    },
+    {
+      "do": "leave",
+      "dur": 400
+    }
+  ]
+}

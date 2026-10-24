@@ -1,0 +1,14 @@
+{
+  "note": "途中までホイールを回すと次のセクションの頭へピタッと吸着するのを2回見せ、上へ戻して元のセクションに吸着して終わる",
+  "cursor": false,
+  "steps": [
+    { "do": "wheel", "dy": 120, "times": 2, "gap": 30 },
+    { "do": "wait", "ms": 800 },
+    { "do": "wheel", "dy": 120, "times": 2, "gap": 30 },
+    { "do": "wait", "ms": 800 },
+    { "do": "wheel", "dy": -120, "times": 2, "gap": 30 },
+    { "do": "wait", "ms": 800 },
+    { "do": "wheel", "dy": -120, "times": 2, "gap": 30 },
+    { "do": "wait", "ms": 700 }
+  ]
+}

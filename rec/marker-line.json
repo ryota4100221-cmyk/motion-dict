@@ -1,0 +1,13 @@
+{
+  "note": "Replayを押すたびに文中の強調語「余白」へ蛍光マーカーが左からスッと引かれる（3回再生）",
+  "zoom": 1.4,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 380 },
+    { "do": "wait", "ms": 950 },
+    { "do": "click", "sel": "button", "dur": 150 },
+    { "do": "wait", "ms": 950 },
+    { "do": "click", "sel": "button", "dur": 150 },
+    { "do": "wait", "ms": 950 },
+    { "do": "leave", "dur": 400 }
+  ]
+}

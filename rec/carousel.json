@@ -1,0 +1,13 @@
+{
+  "note": "右矢印で2枚目→3枚目へスライドし、1枚目のドットで先頭まで一気に戻る（トラックごとtranslateXで動く）",
+  "zoom": 1.5,
+  "steps": [
+    { "do": "click", "sel": "button >> nth=1", "dur": 260 },
+    { "do": "wait", "ms": 800 },
+    { "do": "click", "sel": "button >> nth=1", "dur": 120 },
+    { "do": "wait", "ms": 800 },
+    { "do": "click", "sel": "button >> nth=2", "dur": 260 },
+    { "do": "wait", "ms": 900 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 200 }
+  ]
+}

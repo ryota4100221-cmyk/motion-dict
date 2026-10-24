@@ -1,0 +1,50 @@
+{
+  "note": "クリックでノブが滑ってON（トラック色も同期）→OFFを2往復",
+  "zoom": 1.8,
+  "steps": [
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 400
+    },
+    {
+      "do": "wait",
+      "ms": 750
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 150
+    },
+    {
+      "do": "wait",
+      "ms": 650
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 150
+    },
+    {
+      "do": "wait",
+      "ms": 650
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 150
+    },
+    {
+      "do": "wait",
+      "ms": 650
+    },
+    {
+      "do": "leave",
+      "at": [
+        0.5,
+        1.15
+      ],
+      "dur": 350
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "note": "自走1周：フタが2度ぴょこっと跳ね(2度目は小さく逆傾き)、きらめきが膨らんで灯る→余韻。クリックで頭出しして周期3秒に合わせる",
+  "zoom": 1.2,
+  "cursor": false,
+  "keepHead": true,
+  "settle": 900,
+  "before": [{ "do": "click", "sel": "button", "dur": 1 }, { "do": "leave", "dur": 1 }],
+  "steps": [{ "do": "wait", "ms": 2680 }],
+  "tail": 200
+}

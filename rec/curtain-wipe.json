@@ -1,0 +1,12 @@
+{
+  "note": "Playでカーテンが覆って引けるとPage B、もう一度でPage Aへ戻る（覆う→引くの往復を2回）",
+  "zoom": 1.6,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 400 },
+    { "do": "wait", "ms": 1900 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 1900 },
+    { "do": "leave", "dur": 450 },
+    { "do": "wait", "ms": 100 }
+  ]
+}

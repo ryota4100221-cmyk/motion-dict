@@ -1,0 +1,8 @@
+{
+  "note": "自動ループ。conic-gradientの光が枠線を絶え間なく1周する（周期5sちょうどで継ぎ目なく繋がる）",
+  "cursor": false,
+  "zoom": 1.5,
+  "keepHead": true,
+  "steps": [{ "do": "wait", "ms": 4880 }],
+  "tail": 0
+}

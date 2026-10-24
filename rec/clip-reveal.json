@@ -1,0 +1,51 @@
+{
+ "note": "表示済みの画像でReplayを押し、clip-pathのマスクが左端から右へ切り開いて画像が現れ直すのを2回見せる（始まりと終わりは表示済み）",
+ "zoom": 1.4,
+ "before": [
+  {
+   "do": "click",
+   "sel": "button",
+   "dur": 1
+  },
+  {
+   "do": "wait",
+   "ms": 1200
+  },
+  {
+   "do": "leave",
+   "dur": 1
+  }
+ ],
+ "steps": [
+  {
+   "do": "click",
+   "sel": "button",
+   "dur": 230
+  },
+  {
+   "do": "wait",
+   "ms": 1200
+  },
+  {
+   "do": "click",
+   "sel": "button",
+   "dur": 200
+  },
+  {
+   "do": "wait",
+   "ms": 1100
+  },
+  {
+   "do": "leave",
+   "at": [
+    0.5,
+    1.15
+   ],
+   "dur": 450
+  },
+  {
+   "do": "wait",
+   "ms": 200
+  }
+ ]
+}
