@@ -1,0 +1,7 @@
+{
+  "note": "自動ループ。周期をずらした図形がごくゆっくり上下に漂い続ける気配を5秒見せる",
+  "cursor": false,
+  "keepHead": true,
+  "steps": [{ "do": "wait", "ms": 4880 }],
+  "tail": 0
+}

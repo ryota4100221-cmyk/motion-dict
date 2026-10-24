@@ -1,0 +1,14 @@
+{
+  "note": "上下に揺れるバー（再生中）をクリックで止めて床まで下ろし（停止中）、もう一度クリックで再び揺らす",
+  "zoom": 1.8,
+  "steps": [
+    { "do": "move", "sel": "button", "dur": 450 },
+    { "do": "wait", "ms": 600 },
+    { "do": "click", "sel": "button", "dur": 100 },
+    { "do": "wait", "ms": 1100 },
+    { "do": "click", "sel": "button", "dur": 100 },
+    { "do": "wait", "ms": 700 },
+    { "do": "leave", "dur": 450 },
+    { "do": "wait", "ms": 200 }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+ "note": "破棄を押すとレシートがギザギザの多角形へ縮みながらねじれ、しわの影が浮いて紙玉になり右下へ放られる→次の紙が印字されて出る。2回で元のレシートに戻る",
+ "settle": 600,
+ "before": [
+  {
+   "do": "click",
+   "sel": "text=破棄 / Discard",
+   "dur": 120
+  },
+  {
+   "do": "wait",
+   "ms": 1850
+  }
+ ],
+ "steps": [
+  {
+   "do": "click",
+   "sel": "text=破棄 / Discard",
+   "dur": 80
+  },
+  {
+   "do": "wait",
+   "ms": 1950
+  },
+  {
+   "do": "click",
+   "sel": "text=破棄 / Discard",
+   "dur": 60
+  },
+  {
+   "do": "wait",
+   "ms": 1950
+  }
+ ],
+ "tail": 0
+}

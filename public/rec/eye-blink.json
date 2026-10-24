@@ -1,0 +1,14 @@
+{
+  "note": "キャラを左から順にクリックするとその場で瞬く（自走の瞬きも毎回ずれて混ざる）",
+  "zoom": 1.4,
+  "steps": [
+    { "do": "click", "sel": "button >> nth=0", "dur": 380 },
+    { "do": "wait", "ms": 550 },
+    { "do": "click", "sel": "button >> nth=1", "dur": 350 },
+    { "do": "wait", "ms": 550 },
+    { "do": "click", "sel": "button >> nth=2", "dur": 350 },
+    { "do": "wait", "ms": 650 },
+    { "do": "leave", "dur": 400 },
+    { "do": "wait", "ms": 300 }
+  ]
+}

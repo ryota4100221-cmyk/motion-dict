@@ -1,0 +1,14 @@
+{
+  "note": "カードに乗ると2枚目へクロスフェードで切り替わり、外れると1枚目に戻る（2往復）",
+  "zoom": 1.5,
+  "steps": [
+    { "do": "move", "sel": "figure", "dur": 500 },
+    { "do": "wait", "ms": 700 },
+    { "do": "move", "at": [0.5, 0.92], "dur": 400 },
+    { "do": "wait", "ms": 500 },
+    { "do": "move", "sel": "figure", "dur": 400 },
+    { "do": "wait", "ms": 700 },
+    { "do": "leave", "dur": 450 },
+    { "do": "wait", "ms": 400 }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+ "note": "自動ループ。単語が床を軸に3D回転して次の単語へ入れ替わるのを3語ぶん（Design→Develop→Deliver→Design）見せ、始まりと同じ語で継ぎ目なく戻る",
+ "cursor": false,
+ "zoom": 1.6,
+ "steps": [
+  {
+   "do": "wait",
+   "ms": 6600
+  }
+ ],
+ "tail": 0,
+ "before": [
+  {
+   "do": "wait",
+   "ms": 600
+  }
+ ],
+ "keepHead": true
+}

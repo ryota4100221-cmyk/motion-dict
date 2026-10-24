@@ -1,0 +1,70 @@
+{
+  "note": "ハートをONにした瞬間に円→ハート→粒の3段で弾け、OFFに戻すときは何も弾けない。ON/OFFを2往復してOFFで終わる（自走は before のクリックで抑止）",
+  "zoom": 1.5,
+  "settle": 600,
+  "before": [
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 60
+    },
+    {
+      "do": "leave",
+      "at": [
+        0.5,
+        1.15
+      ],
+      "dur": 250
+    },
+    {
+      "do": "wait",
+      "ms": 400
+    }
+  ],
+  "steps": [
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 260
+    },
+    {
+      "do": "wait",
+      "ms": 1100
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 60
+    },
+    {
+      "do": "wait",
+      "ms": 550
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 60
+    },
+    {
+      "do": "wait",
+      "ms": 1100
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 60
+    },
+    {
+      "do": "wait",
+      "ms": 400
+    },
+    {
+      "do": "leave",
+      "at": [
+        0.5,
+        1.15
+      ],
+      "dur": 200
+    }
+  ]
+}

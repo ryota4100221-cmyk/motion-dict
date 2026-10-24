@@ -1,0 +1,14 @@
+{
+  "note": "入力欄をクリックするとラベルが上へ浮いて縮み、文字を入れても残る。消して外をクリックすると元の位置へ戻る",
+  "zoom": 1.6,
+  "steps": [
+    { "do": "click", "sel": "input", "dur": 260 },
+    { "do": "wait", "ms": 450 },
+    { "do": "type", "sel": "input", "text": "Monaka", "delay": 80 },
+    { "do": "wait", "ms": 600 },
+    { "do": "clear", "sel": "input" },
+    { "do": "click", "at": [0.5, 0.8], "dur": 200 },
+    { "do": "wait", "ms": 600 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 160 }
+  ]
+}

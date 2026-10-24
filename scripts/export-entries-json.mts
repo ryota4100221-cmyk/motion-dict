@@ -69,3 +69,11 @@ rows.forEach((r, i) => {
   );
 });
 console.log(`wrote ${rows.length} files -> public/entry/<slug>.json`);
+
+// 録画の台本をライブデモ（/stage/<slug>/）からも読めるように公開する（値を変えた後に同じ操作を流す）
+mkdirSync(path.join(REPO, "public/rec"), { recursive: true });
+let nrec = 0;
+for (const r of rows) {
+  try { writeFileSync(path.join(REPO, `public/rec/${r.slug}.json`), readFileSync(path.join(REPO, `rec/${r.slug}.json`), "utf8")); nrec++; } catch {}
+}
+console.log(`copied ${nrec} rec specs -> public/rec/`);

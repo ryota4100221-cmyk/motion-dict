@@ -1,0 +1,32 @@
+{
+  "note": "周期がばらついた本物の星空→ボタンで周期を揃えた電飾(NG)に切り替えて一斉点滅を見せ→元に戻す",
+  "steps": [
+    {
+      "do": "wait",
+      "ms": 500
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 450
+    },
+    {
+      "do": "wait",
+      "ms": 1800
+    },
+    {
+      "do": "click",
+      "sel": "button",
+      "dur": 250
+    },
+    {
+      "do": "wait",
+      "ms": 900
+    },
+    {
+      "do": "leave",
+      "dur": 450
+    }
+  ],
+  "keepHead": true
+}

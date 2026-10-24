@@ -1,0 +1,16 @@
+{
+  "note": "Open modalで背景が暗転しパネルがscale(0.96→1)でふわっと現れ、Closeで開きより速く閉じる。2回目は背景クリックで閉じる",
+  "zoom": 1.5,
+  "steps": [
+    { "do": "click", "sel": "text=Open modal", "dur": 380 },
+    { "do": "wait", "ms": 650 },
+    { "do": "click", "sel": "text=Close", "dur": 400 },
+    { "do": "wait", "ms": 450 },
+    { "do": "click", "sel": "text=Open modal", "dur": 350 },
+    { "do": "wait", "ms": 650 },
+    { "do": "click", "at": [0.25, 0.8], "dur": 400 },
+    { "do": "wait", "ms": 400 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 400 },
+    { "do": "wait", "ms": 150 }
+  ]
+}

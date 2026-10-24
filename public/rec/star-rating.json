@@ -1,0 +1,20 @@
+{
+  "note": "星をなぞると1つ目からその星までが一度に灯り指の下の星だけ膨らむ。4つ目で確定→離れても4のまま→同じ星をもう一度押して取り消し、空に戻る",
+  "zoom": 1.4,
+  "settle": 300,
+  "before": [{ "do": "move", "at": [0.48, 0.5], "dur": 60 }, { "do": "leave", "at": [0.5, 1.15], "dur": 60 }, { "do": "wait", "ms": 300 }],
+  "steps": [
+    { "do": "move", "sel": "button >> nth=0", "dur": 350 },
+    { "do": "move", "sel": "button >> nth=4", "dur": 700 },
+    { "do": "move", "sel": "button >> nth=3", "dur": 250 },
+    { "do": "click", "sel": "button >> nth=3", "dur": 150 },
+    { "do": "wait", "ms": 350 },
+    { "do": "move", "at": [0.48, 0.8], "dur": 350 },
+    { "do": "move", "at": [0.42, 0.82], "dur": 400 },
+    { "do": "move", "sel": "button >> nth=3", "dur": 300 },
+    { "do": "click", "sel": "button >> nth=3", "dur": 150 },
+    { "do": "wait", "ms": 300 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 450 },
+    { "do": "wait", "ms": 200 }
+  ]
+}

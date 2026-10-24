@@ -524,11 +524,8 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp, big, row }: Car
                         playsInline
                         autoPlay
                         preload="auto"
-                        onLoadedMetadata={(ev) => {
-                            // ポスターと同じ瞬間から再生する（ホバーした瞬間に別の場面へ飛ばない）
-                            const v = ev.currentTarget
-                            if (e.posterAt && e.posterAt < (v.duration || 0)) v.currentTime = e.posterAt
-                        }}
+                        // 再生は動きの頭から（ポスター＝見せ場の時刻から始めると途中から見せることになる）。
+                        // ポスターからの切り替えは 0.18s のフェードで繋ぐ
                         onPlaying={() => setReady(true)}
                         aria-hidden
                     />

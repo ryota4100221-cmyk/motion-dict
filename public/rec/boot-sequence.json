@@ -1,0 +1,8 @@
+{
+  "note": "自動ループ。起動ログが1行ずつ現れ行内でタイプされ、readyで止まって最初に戻る1周期（4.82s）",
+  "cursor": false,
+  "zoom": 1.5,
+  "keepHead": true,
+  "steps": [{ "do": "wait", "ms": 4700 }],
+  "tail": 0
+}

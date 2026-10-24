@@ -1,0 +1,12 @@
+{
+  "note": "スクロールで画面に入ったカードが床を軸に起き上がって現れるのを2枚順に見せ、上へ戻して始まりと同じ画面で終わる",
+  "cursor": false,
+  "steps": [
+    { "do": "wheel", "dy": 50, "times": 5, "gap": 40 },
+    { "do": "wait", "ms": 900 },
+    { "do": "wheel", "dy": 50, "times": 5, "gap": 40 },
+    { "do": "wait", "ms": 1000 },
+    { "do": "wheel", "dy": -60, "times": 9, "gap": 35 },
+    { "do": "wait", "ms": 400 }
+  ]
+}

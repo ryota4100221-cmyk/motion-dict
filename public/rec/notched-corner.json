@@ -1,0 +1,78 @@
+{
+  "note": "チップにホバーすると角の欠けが開き、クリックで選択が移る。Overview→Access→Specsと選び、始まりと同じSpecs選択で終わる（自走は直前のクリックで抑止）",
+  "zoom": 1.4,
+  "before": [
+    {
+      "do": "click",
+      "sel": "button >> nth=1",
+      "dur": 60
+    },
+    {
+      "do": "leave",
+      "at": [
+        0.5,
+        1.15
+      ],
+      "dur": 250
+    },
+    {
+      "do": "wait",
+      "ms": 700
+    }
+  ],
+  "steps": [
+    {
+      "do": "move",
+      "sel": "button >> nth=0",
+      "dur": 220
+    },
+    {
+      "do": "wait",
+      "ms": 250
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=0",
+      "dur": 60
+    },
+    {
+      "do": "wait",
+      "ms": 450
+    },
+    {
+      "do": "move",
+      "sel": "button >> nth=2",
+      "dur": 320
+    },
+    {
+      "do": "wait",
+      "ms": 250
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=2",
+      "dur": 60
+    },
+    {
+      "do": "wait",
+      "ms": 450
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=1",
+      "dur": 220
+    },
+    {
+      "do": "wait",
+      "ms": 450
+    },
+    {
+      "do": "leave",
+      "at": [
+        0.5,
+        1.15
+      ],
+      "dur": 200
+    }
+  ]
+}

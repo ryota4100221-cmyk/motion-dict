@@ -1,0 +1,18 @@
+{
+  "note": "画面外からボタンへ入ると左から色が満ちて文字が反転し、抜けると引いて元に戻る（3往復）",
+  "zoom": 1.8,
+  "steps": [
+    { "do": "move", "sel": "button", "dur": 450 },
+    { "do": "wait", "ms": 550 },
+    { "do": "move", "at": [0.5, 0.85], "dur": 350 },
+    { "do": "wait", "ms": 350 },
+    { "do": "move", "sel": "button", "dur": 350 },
+    { "do": "wait", "ms": 550 },
+    { "do": "move", "at": [0.5, 0.85], "dur": 350 },
+    { "do": "wait", "ms": 350 },
+    { "do": "move", "sel": "button", "dur": 350 },
+    { "do": "wait", "ms": 550 },
+    { "do": "leave", "dur": 400 },
+    { "do": "wait", "ms": 350 }
+  ]
+}

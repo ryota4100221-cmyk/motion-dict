@@ -1,0 +1,11 @@
+{
+  "note": "Playで画面が縦の帯に割れ時間差で開いて次のページへ→もう一度で元のページへ戻る",
+  "zoom": 1.3,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 350 },
+    { "do": "wait", "ms": 1150 },
+    { "do": "click", "sel": "button", "dur": 200 },
+    { "do": "wait", "ms": 1150 },
+    { "do": "leave", "dur": 400 }
+  ]
+}

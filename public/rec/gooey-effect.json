@@ -1,0 +1,13 @@
+{
+  "note": "ドットをクリックすると指標が糸を引いて離れ、着地で1つに融合する。遠くへ→近くへ→最初の位置へ戻して終わる",
+  "zoom": 1.8,
+  "steps": [
+    { "do": "click", "sel": "button >> nth=3", "dur": 420 },
+    { "do": "wait", "ms": 950 },
+    { "do": "click", "sel": "button >> nth=1", "dur": 300 },
+    { "do": "wait", "ms": 850 },
+    { "do": "click", "sel": "button >> nth=0", "dur": 250 },
+    { "do": "wait", "ms": 850 },
+    { "do": "leave", "dur": 400 }
+  ]
+}

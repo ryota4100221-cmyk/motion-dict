@@ -1,0 +1,16 @@
+{
+  "note": "行を上から順にホバーして他の行が沈む様子を見せ、一覧から離れて全行が戻る",
+  "zoom": 1.3,
+  "steps": [
+    { "do": "move", "sel": "text=ATLAS FILMS", "dur": 400 },
+    { "do": "wait", "ms": 700 },
+    { "do": "move", "sel": "text=NOIR STUDIO", "dur": 350 },
+    { "do": "wait", "ms": 600 },
+    { "do": "move", "sel": "text=HELIOS", "dur": 350 },
+    { "do": "wait", "ms": 600 },
+    { "do": "move", "sel": "text=MONSOON", "dur": 350 },
+    { "do": "wait", "ms": 700 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 450 },
+    { "do": "wait", "ms": 600 }
+  ]
+}

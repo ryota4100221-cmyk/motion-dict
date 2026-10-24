@@ -1,0 +1,108 @@
+{
+  "note": "先頭から「次へ」で4枚送り、現在地が中央を越えると点の列ごと横へ送られ端の点が縮む様子を見せ、「前へ」で4枚戻して先頭に帰る",
+  "zoom": 1.3,
+  "settle": 300,
+  "before": [
+    {
+      "do": "click",
+      "sel": "[aria-label='前へ']",
+      "dur": 1
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='前へ']",
+      "dur": 1
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='前へ']",
+      "dur": 1
+    },
+    {
+      "do": "leave",
+      "dur": 1
+    },
+    {
+      "do": "wait",
+      "ms": 600
+    }
+  ],
+  "steps": [
+    {
+      "do": "click",
+      "sel": "[aria-label='次へ']",
+      "dur": 220
+    },
+    {
+      "do": "wait",
+      "ms": 170
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='次へ']",
+      "dur": 120
+    },
+    {
+      "do": "wait",
+      "ms": 170
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='次へ']",
+      "dur": 120
+    },
+    {
+      "do": "wait",
+      "ms": 170
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='次へ']",
+      "dur": 120
+    },
+    {
+      "do": "wait",
+      "ms": 450
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='前へ']",
+      "dur": 350
+    },
+    {
+      "do": "wait",
+      "ms": 170
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='前へ']",
+      "dur": 120
+    },
+    {
+      "do": "wait",
+      "ms": 170
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='前へ']",
+      "dur": 120
+    },
+    {
+      "do": "wait",
+      "ms": 170
+    },
+    {
+      "do": "click",
+      "sel": "[aria-label='前へ']",
+      "dur": 120
+    },
+    {
+      "do": "wait",
+      "ms": 400
+    },
+    {
+      "do": "leave",
+      "dur": 400
+    }
+  ]
+}

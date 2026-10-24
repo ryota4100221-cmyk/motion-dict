@@ -1,0 +1,20 @@
+{
+  "note": "3つのピルに上から順に乗り、炎が根元を軸に伸び縮み・傾いで火の粉を吹き静まる様子を連鎖で見せる",
+  "zoom": 1.35,
+  "before": [
+    { "do": "move", "at": [0.5, 0.995], "dur": 1 },
+    { "do": "move", "sel": "button >> nth=2", "dur": 1 },
+    { "do": "move", "at": [0.5, 0.995], "dur": 1 },
+    { "do": "wait", "ms": 1600 }
+  ],
+  "steps": [
+    { "do": "move", "sel": "button >> nth=0", "dur": 350 },
+    { "do": "wait", "ms": 650 },
+    { "do": "move", "sel": "button >> nth=1", "dur": 200 },
+    { "do": "wait", "ms": 650 },
+    { "do": "move", "sel": "button >> nth=2", "dur": 200 },
+    { "do": "wait", "ms": 1000 },
+    { "do": "leave", "at": [0.5, 0.995], "dur": 250 },
+    { "do": "wait", "ms": 300 }
+  ]
+}

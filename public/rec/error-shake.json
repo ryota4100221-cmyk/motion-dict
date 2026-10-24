@@ -1,0 +1,16 @@
+{
+  "note": "空のままSubmitを押すと入力欄が赤くなって左右に小さく震え（首を横に振る）、もう一度押しても震え、打ち直すと解除されて元に戻る",
+  "zoom": 1.6,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 380 },
+    { "do": "wait", "ms": 750 },
+    { "do": "click", "sel": "button", "dur": 120 },
+    { "do": "wait", "ms": 750 },
+    { "do": "click", "sel": "input", "dur": 350 },
+    { "do": "type", "text": "hi@", "delay": 110 },
+    { "do": "wait", "ms": 350 },
+    { "do": "clear", "sel": "input" },
+    { "do": "leave", "dur": 400 },
+    { "do": "wait", "ms": 200 }
+  ]
+}

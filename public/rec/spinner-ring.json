@@ -1,0 +1,9 @@
+{
+  "note": "自走1周：回転(1.2秒)と弧の伸縮(1.8秒)の最小公倍数3.6秒ぶん撮り、継ぎ目を揃える",
+  "zoom": 2.4,
+  "cursor": false,
+  "keepHead": true,
+  "settle": 900,
+  "steps": [{ "do": "wait", "ms": 3280 }],
+  "tail": 200
+}

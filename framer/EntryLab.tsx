@@ -118,6 +118,8 @@ export default function EntryLab(props: Props) {
     const [live, setLive] = useState(false)
     const [rec, setRec] = useState<{ video: string; poster: string; posterAt: number } | null>(null)
     const [reducedM, setReducedM] = useState(false)
+    const recRef = useRef<HTMLVideoElement>(null)
+    useEffect(() => { if (live) recRef.current?.pause() }, [live])
 
     // slug：バインドが無ければURLから
     useEffect(() => {
@@ -320,11 +322,22 @@ export default function EntryLab(props: Props) {
                     <span>Demo</span>
                     <span style={jpSub}>触って、数値を決める</span>
                 </h2>
-                {demoSrc ? (
-                    <a href={demoSrc} target="_blank" rel="noopener" className="mdlab-link" style={{ color: muted, textDecoration: "none", textTransform: "none" }}>
-                        全画面で開く ↗
-                    </a>
-                ) : null}
+                <span style={{ display: "flex", gap: 16, alignItems: "center", textTransform: "none" }}>
+                    {demoSrc ? (
+                        <button
+                            className="mdlab-link"
+                            onClick={() => { setLive(true); frameRef.current?.contentWindow?.postMessage({ type: "md:demo" }, "*") }}
+                            style={{ border: 0, background: "transparent", padding: 0, cursor: "pointer", font: "inherit", color: ink }}
+                        >
+                            ▶ 動きを再生
+                        </button>
+                    ) : null}
+                    {demoSrc ? (
+                        <a href={demoSrc} target="_blank" rel="noopener" className="mdlab-link" style={{ color: muted, textDecoration: "none" }}>
+                            全画面で開く ↗
+                        </a>
+                    ) : null}
+                </span>
             </div>
             <div
                 style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", background: ink, borderRadius: 10, overflow: "hidden" }}
@@ -337,7 +350,7 @@ export default function EntryLab(props: Props) {
                         {reducedM ? (
                             <img src={rec.poster} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                         ) : (
-                            <video src={rec.video} poster={rec.poster} muted loop playsInline autoPlay preload="auto"
+                            <video ref={recRef} src={rec.video} poster={rec.poster} muted loop playsInline autoPlay preload="auto"
                                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                         )}
                         <span className="mdlab-recchip">{narrow ? "REC · タップでライブ" : "REC — 触るとライブに切り替わる"}</span>

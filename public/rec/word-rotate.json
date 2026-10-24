@@ -1,0 +1,9 @@
+{
+  "note": "自動ループ1周ぶん（デザイン→コピー→実装→デザイン）。周期6秒に合わせて継ぎ目を揃える",
+  "zoom": 1.6,
+  "cursor": false,
+  "keepHead": true,
+  "settle": 1500,
+  "steps": [{ "do": "wait", "ms": 5680 }],
+  "tail": 200
+}

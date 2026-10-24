@@ -1,0 +1,12 @@
+{
+  "note": "自動ループ。右端の矢印が数pxだけ小刻みに揺れて休む、を2周（休止1.2s＋揺れ1.5s）",
+  "cursor": false,
+  "keepHead": true,
+  "steps": [
+    {
+      "do": "wait",
+      "ms": 5280
+    }
+  ],
+  "tail": 0
+}

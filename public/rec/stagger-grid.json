@@ -1,0 +1,11 @@
+{
+  "note": "Playを押すとカード群が消えてから、左上から対角線に1枚ずつ時間差で点灯して組み上がる（2回再生）",
+  "zoom": 1.3,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 380 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "click", "sel": "button", "dur": 150 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "leave", "dur": 400 }
+  ]
+}

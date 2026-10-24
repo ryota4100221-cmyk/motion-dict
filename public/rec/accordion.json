@@ -1,0 +1,48 @@
+{
+  "note": "閉じた状態から 2問目→3問目を順に開き、最後に閉じて始まりと同じ状態で終わる",
+  "before": [
+    {
+      "do": "click",
+      "sel": "button >> nth=0",
+      "dur": 1
+    },
+    {
+      "do": "wait",
+      "ms": 600
+    }
+  ],
+  "steps": [
+    {
+      "do": "click",
+      "sel": "button >> nth=1",
+      "dur": 380
+    },
+    {
+      "do": "wait",
+      "ms": 850
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=2",
+      "dur": 500
+    },
+    {
+      "do": "wait",
+      "ms": 850
+    },
+    {
+      "do": "click",
+      "sel": "button >> nth=2",
+      "dur": 300
+    },
+    {
+      "do": "wait",
+      "ms": 600
+    },
+    {
+      "do": "leave",
+      "dur": 500
+    }
+  ],
+  "zoom": 1.6
+}

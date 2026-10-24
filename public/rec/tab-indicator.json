@@ -1,0 +1,13 @@
+{
+  "note": "Works→About→Homeと押し、1本の下線が伸びながら次のタブへスライドして戻ってくる",
+  "zoom": 1.5,
+  "steps": [
+    { "do": "click", "sel": "text=Works", "dur": 400 },
+    { "do": "wait", "ms": 650 },
+    { "do": "click", "sel": "text=About", "dur": 300 },
+    { "do": "wait", "ms": 650 },
+    { "do": "click", "sel": "text=Home", "dur": 350 },
+    { "do": "wait", "ms": 650 },
+    { "do": "leave", "at": [0.35, 1.15], "dur": 350 }
+  ]
+}

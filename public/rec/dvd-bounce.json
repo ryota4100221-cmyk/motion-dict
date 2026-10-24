@@ -1,0 +1,7 @@
+{
+  "note": "自動ループ。ロゴが等速で漂い、端に当たるたび反射して色が変わる",
+  "cursor": false,
+  "keepHead": true,
+  "steps": [{ "do": "wait", "ms": 4880 }],
+  "tail": 0
+}

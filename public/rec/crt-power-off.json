@@ -1,0 +1,12 @@
+{
+  "note": "Power offで画面が明滅→横一本の光る線に潰れ→点になって消える。Power onで線から元の画面へ戻して始まりと同じ状態で終わる",
+  "zoom": 1.1,
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 380 },
+    { "do": "wait", "ms": 1000 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 800 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 450 },
+    { "do": "wait", "ms": 200 }
+  ]
+}
