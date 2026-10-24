@@ -47,3 +47,12 @@
 3. 詳細ページ・一覧のキャンバス変更（detail-1.js / detail-2.js / round2.js / round3.js / home-1.js と、ヘッダーのリンク・h2・phone/tablet の余白）※IDは本番と複製で同じ（remix）＝そのまま流せる見込み。流す前に serialize で確認
 4. publish → 公開URLで実測
 5. 毎朝パイプライン：v2 ブランチの commit 85afcb8（sync-to-framer / framer-upsert-one の v2 対応）を main へ
+
+## 2026-10-25 プロンプトの盲検と補修（本番反映済）
+- 盲検：プロンプトだけを別のAI（Opus 5.5）に渡して単体HTMLを作らせ、同じ録画台本で撮って独立レビュアーが比較。層別ランダム10件
+  - 補修前：同じ動き5／半分5／別物0 → 補修後（同じ10件・別のレビュアー）：同じ9／半分1／別物0、指示破り0
+- 補修：全196件の先頭に「- きっかけ: 」（validate-content が必須化）／値・イージング・単位をデモ実物に合わせた／border-draw は1辺1要素に／gradient-morph はデモがクリックで再現していると注記
+- デモ修正：cover-transition の差し替えちらつき（flushSync）、page-turn の自走とクリックの二重送り（直近の実操作で自走を待たせる）。2本を撮り直し
+- 反映：main push（GH Pages）→ Framer CMS（本番196・複製195）の Prompt Raw/Template/Params/Vocab/NG/OK を一括更新 → 本番 publish。公開URLで「きっかけ」行を確認
+- 一括更新スクリプト：/tmp/md-bulk-update.cjs（消える。必要なら scripts/ に移す）
+- 方針：デモの「展示用の自動再生」はプロンプトに書かない。サイトでも要る自動再生（表示時に1回など）だけ書く
