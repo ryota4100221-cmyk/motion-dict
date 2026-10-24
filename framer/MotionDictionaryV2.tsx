@@ -309,8 +309,8 @@ export default function MotionDictionaryV2(props: Props) {
                 scrollMarginTop: sp ? 112 : 72,
             }}
         >
-            <span style={{ fontFamily: JP, fontWeight: 900, fontSize: sp ? 36 : w < 1100 ? 64 : 96, letterSpacing: "-0.045em", lineHeight: 0.9, color: ink }}>{c.label}</span>
-            <span style={{ fontFamily: JP, fontSize: sp ? 13 : 16, color: muted, fontWeight: 500 }}>{c.ja}</span>
+            <span style={{ fontFamily: JP, fontWeight: 700, fontSize: sp ? 36 : w < 1100 ? 64 : 96, letterSpacing: "-0.045em", lineHeight: 0.9, color: ink }}>{c.label}</span>
+            <span style={{ fontFamily: JP, fontSize: sp ? 13 : 16, color: muted, fontWeight: 400 }}>{c.ja}</span>
             <span style={{ fontFamily: MONO, fontSize: 12, color: muted, letterSpacing: "0.04em", marginLeft: "auto" }}>
                 {String(n).padStart(2, "0")} {n === 1 ? "motion" : "motions"}
             </span>

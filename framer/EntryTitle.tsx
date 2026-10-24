@@ -74,7 +74,7 @@ export default function EntryTitle(props: Props) {
                 style={{
                     margin: 0,
                     fontFamily: JP,
-                    fontWeight: 900,
+                    fontWeight: 700,
                     lineHeight: 1.12,
                     letterSpacing: "-0.04em",
                     fontFeatureSettings: '"palt"',
@@ -90,7 +90,7 @@ export default function EntryTitle(props: Props) {
                         style={{
                             display: "block",
                             marginTop: "0.5em",
-                            fontWeight: 700,
+                            fontWeight: 400,
                             lineHeight: 1.45,
                             letterSpacing: "-0.01em",
                             color: ink,

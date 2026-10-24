@@ -46,7 +46,7 @@ export default function SiteFooterCTA(props: Props) {
             <style>{`
 .mdf-wrap{max-width:1680px;margin:0 auto;padding:clamp(72px,10cqi,140px) clamp(16px,3.4cqi,40px) clamp(40px,5cqi,64px);display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(32px,5cqi,80px);align-items:end}
 @container (max-width: 760px){.mdf-wrap{grid-template-columns:1fr}}
-.mdf-h{margin:0;font-weight:900;font-size:clamp(44px,8cqi,96px);line-height:1.02;letter-spacing:-0.045em;white-space:pre-line;font-feature-settings:"palt"}
+.mdf-h{margin:0;font-weight:700;font-size:clamp(44px,8cqi,96px);line-height:1.02;letter-spacing:-0.045em;white-space:pre-line;font-feature-settings:"palt"}
 .mdf-h em{font-style:normal;color:${accent}}
 .mdf-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:24px;height:64px;padding:0 28px;border-radius:100px;background:${accent};color:${ink};font-weight:700;font-size:16px;text-decoration:none;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
 .mdf-cta:hover{transform:translateY(-2px)}
