@@ -252,6 +252,8 @@ function defaultSteps(hint) {
   // 一覧のカードが「ポスターと同じ瞬間から」再生できるよう、ポスターの時刻を残す（entries-v2.json に載る）
   fs.mkdirSync(path.join(OUT, "meta"), { recursive: true });
   fs.writeFileSync(path.join(OUT, "meta", `${slug}.json`), JSON.stringify({ posterAt: Number(at) || 0 }));
+  // ループを見せ場（ポスターの時刻）から始まるように回し、ポスターを1440幅で作り直す
+  try { execSync(`python3 "${path.join(__dirname, "rotate-loops.py")}" ${slug}`, { env: { ...process.env, MD_V2_OUT: OUT } }); } catch (e) { console.error("[rotate] failed (non-fatal)"); }
   const dur = execSync(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${out}"`).toString().trim();
   console.log(JSON.stringify({ slug, frames: frames.length, span: +span.toFixed(2), fpsReal: +(frames.length / span).toFixed(1), trimmed: +start.toFixed(2), dur: +dur, posterAt: at, spec: !!spec, hint }));
 })().catch((e) => { console.error("RECORD FAIL:", slug, e.message); process.exit(1); });

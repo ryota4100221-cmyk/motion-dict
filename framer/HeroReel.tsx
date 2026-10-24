@@ -43,6 +43,15 @@ export default function HeroReel(props: Props) {
     const [reduced, setReduced] = useState(false)
     const [paused, setPaused] = useState(false)
     const vRef = useRef<HTMLVideoElement>(null)
+    const rootRef = useRef<HTMLDivElement>(null)
+    const [inView, setInView] = useState(true)
+    // 画面外では再生しない（SPでスクロールした後も裏で回り続けていた）
+    useEffect(() => {
+        if (isStatic || !rootRef.current || typeof IntersectionObserver === "undefined") return
+        const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 })
+        io.observe(rootRef.current)
+        return () => io.disconnect()
+    }, [isStatic])
 
     useEffect(() => {
         if (isStatic) return
@@ -55,19 +64,19 @@ export default function HeroReel(props: Props) {
     }, [isStatic, slugs, base])
 
     useEffect(() => {
-        if (!list.length || reduced || paused) return
+        if (!list.length || reduced || paused || !inView) return
         const t = setTimeout(() => setI((x) => (x + 1) % list.length), interval)
         return () => clearTimeout(t)
-    }, [i, list, reduced, paused, interval])
+    }, [i, list, reduced, paused, interval, inView])
 
     const e = list[i]
     return (
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12, fontFamily: JP, color: ink, ...props.style }}
+        <div ref={rootRef} style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12, fontFamily: JP, color: ink, ...props.style }}
             onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
             <a href={e ? `/entries/${e.slug}` : "#"} aria-label={e ? `${e.nameJa} を見る` : undefined}
                 style={{ position: "relative", display: "block", width: "100%", aspectRatio: "16 / 9", borderRadius: 10, overflow: "hidden", background: "#0B0B0A" }}>
                 {e ? <img key={"p" + e.slug} src={e.poster} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-                {e && !reduced ? (
+                {e && !reduced && inView ? (
                     <video key={e.slug} ref={vRef} src={e.video} muted playsInline autoPlay loop preload="auto" aria-hidden
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : null}

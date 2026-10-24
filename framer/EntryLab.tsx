@@ -101,6 +101,15 @@ export default function EntryLab(props: Props) {
         Object.fromEntries((parseParams(props.paramsJson) || []).map((p) => [p.key, p.default]))
     )
     const [copied, setCopied] = useState<"idle" | "ok" | "ng">("idle")
+    // 出力先：プロンプトの頭に「何で書いてほしいか」を1行足す（AIに渡す最後の1歩。未指定だとAIが勝手に選ぶ）
+    const TARGETS: { key: string; label: string; line: string }[] = [
+        { key: "", label: "出力先：指定なし", line: "" },
+        { key: "css", label: "CSS + JS", line: "実装は素のHTML / CSS / JavaScript（ライブラリなし）で書いてください。" },
+        { key: "gsap", label: "GSAP", line: "実装は GSAP（必要なら ScrollTrigger）で書いてください。" },
+        { key: "react", label: "React + Motion", line: "実装は React + Motion（旧 Framer Motion）のコンポーネントとして書いてください。" },
+        { key: "framer", label: "Framer", line: "実装は Framer のコードコンポーネント（addPropertyControls で数値を調整可能に）として書いてください。" },
+    ]
+    const [target, setTarget] = useState("")
     const [flashKey, setFlashKey] = useState<string>("")
     const [frameReady, setFrameReady] = useState(false)
     const frameRef = useRef<HTMLIFrameElement>(null)
@@ -119,7 +128,24 @@ export default function EntryLab(props: Props) {
     const [rec, setRec] = useState<{ video: string; poster: string; posterAt: number } | null>(null)
     const [reducedM, setReducedM] = useState(false)
     const recRef = useRef<HTMLVideoElement>(null)
-    useEffect(() => { if (live) recRef.current?.pause() }, [live])
+    useEffect(() => {
+        const v = recRef.current
+        if (!v) return
+        if (live) v.pause()
+        else { try { v.currentTime = 0 } catch {} ; v.play().catch(() => {}) }
+    }, [live])
+    // 離れて5秒触られなければ録画に戻す（止まった画面のまま残っていた）。値を変えている間は戻さない（録画は初期値なので）
+    const idleT = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const leaveStage = () => {
+        if (idleT.current) clearTimeout(idleT.current)
+        idleT.current = setTimeout(() => {
+            setValues((cur) => {
+                if (params.every((p) => cur[p.key] === p.default)) setLive(false)
+                return cur
+            })
+        }, 5000)
+    }
+    const enterStage = () => { if (idleT.current) clearTimeout(idleT.current); setLive(true) }
 
     // slug：バインドが無ければURLから
     useEffect(() => {
@@ -316,13 +342,13 @@ export default function EntryLab(props: Props) {
 
     const demo = (
         <div style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
-            <div style={{ ...label, justifyContent: "space-between" }}>
+            <div style={{ ...label, justifyContent: "space-between", flexWrap: "wrap", rowGap: 8 }}>
                 <h2 style={{ display: "flex", gap: 10, alignItems: "center", margin: 0, font: "inherit", letterSpacing: "inherit" }}>
                     <span style={num}>01</span>
                     <span>Demo</span>
-                    <span style={jpSub}>触って、数値を決める</span>
+                    <span style={{ ...jpSub, whiteSpace: "nowrap" }}>触って、数値を決める</span>
                 </h2>
-                <span style={{ display: "flex", gap: 16, alignItems: "center", textTransform: "none" }}>
+                <span style={{ display: "flex", gap: 16, alignItems: "center", textTransform: "none", whiteSpace: "nowrap" }}>
                     {demoSrc ? (
                         <button
                             className="mdlab-link"
@@ -341,8 +367,9 @@ export default function EntryLab(props: Props) {
             </div>
             <div
                 style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", background: ink, borderRadius: 10, overflow: "hidden" }}
-                onPointerEnter={() => setLive(true)}
-                onPointerDown={() => setLive(true)}
+                onPointerEnter={enterStage}
+                onPointerLeave={leaveStage}
+                onPointerDown={enterStage}
                 onFocus={() => setLive(true)}
             >
                 {!isStatic && rec ? (
@@ -361,6 +388,7 @@ export default function EntryLab(props: Props) {
                         ref={frameRef}
                         src={demoSrc}
                         title="ライブデモ"
+                        className="mdlab-frame"
                         loading="lazy"
                         onLoad={() => setTimeout(() => send(values), 50)}
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, display: "block" }}
@@ -456,7 +484,12 @@ export default function EntryLab(props: Props) {
                     <span style={{ fontFamily: MONO, fontSize: 12, color: "rgba(233,233,227,.55)", letterSpacing: "0.06em" }}>
                         {changed.length ? `${changed.length} value${changed.length > 1 ? "s" : ""} tuned` : "prompt.md"}
                     </span>
-                    <span style={{ display: "flex", gap: 8 }}>
+                    <span style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                        <select className="mdlab-target" aria-label="プロンプトの出力先" value={target} onChange={(e) => setTarget(e.target.value)}>
+                            {TARGETS.map((t) => (
+                                <option key={t.key} value={t.key}>{t.label}</option>
+                            ))}
+                        </select>
                         {changed.length ? (
                             <button className="mdlab-btn" onClick={reset} style={btn(false)}>初期値に戻す</button>
                         ) : null}
@@ -477,6 +510,7 @@ export default function EntryLab(props: Props) {
                         overflowY: wide ? "auto" : undefined,
                     }}
                 >
+                    {target ? <span className="mdlab-dyn">{TARGETS.find((t) => t.key === target)?.line + "\n\n"}</span> : null}
                     {segments.map((s, i) =>
                         s.t === "x" ? (
                             <span key={i}>{s.text}</span>
@@ -509,6 +543,10 @@ export default function EntryLab(props: Props) {
 .mdlab-range:active::-webkit-slider-thumb{transform:scale(1.18)}
 .mdlab-opt:focus-visible,.mdlab-btn:focus-visible,.mdlab-link:focus-visible{outline:2px solid ${accent};outline-offset:2px}
 .mdlab-link:hover{color:${ink}!important}
+.mdlab-frame:focus-visible{outline:2px solid ${accent};outline-offset:2px}
+.mdlab-target{appearance:none;-webkit-appearance:none;font-family:${MONO};font-size:12px;height:32px;padding:0 28px 0 12px;border-radius:100px;border:1px solid rgba(233,233,227,.28);background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23E9E9E3' fill='none'/%3E%3C/svg%3E") no-repeat right 11px center;color:#E9E9E3;cursor:pointer}
+.mdlab-target:focus-visible{outline:2px solid ${accent};outline-offset:2px}
+.mdlab-target option{color:#0A0A0A}
 .mdlab-dyn{color:${accent};background:rgba(165,224,46,.12);border-radius:3px;padding:0 3px;transition:background .25s}
 .mdlab-dyn.on{background:rgba(165,224,46,.42)}
 .mdlab-rec{position:absolute;inset:0;z-index:2;pointer-events:none;transition:opacity .35s}

@@ -312,7 +312,7 @@ export default function MotionDictionaryV2(props: Props) {
             <span style={{ fontFamily: JP, fontWeight: 900, fontSize: sp ? 36 : w < 1100 ? 64 : 96, letterSpacing: "-0.045em", lineHeight: 0.9, color: ink }}>{c.label}</span>
             <span style={{ fontFamily: JP, fontSize: sp ? 13 : 16, color: muted, fontWeight: 500 }}>{c.ja}</span>
             <span style={{ fontFamily: MONO, fontSize: 12, color: muted, letterSpacing: "0.04em", marginLeft: "auto" }}>
-                {String(n).padStart(2, "0")} motions
+                {String(n).padStart(2, "0")} {n === 1 ? "motion" : "motions"}
             </span>
         </h2>
     )
@@ -399,7 +399,7 @@ export default function MotionDictionaryV2(props: Props) {
                         const n = c.key === "all" ? (query.trim() ? counts.all || 0 : total) : counts[c.key] || 0
                         const on = activeCat === c.key
                         return (
-                            <button key={c.key} className="mdx-chip" role="tab" aria-selected={on} aria-pressed={on} onClick={() => pick(c.key)} style={chip(on)}>
+                            <button key={c.key} className="mdx-chip" role="tab" aria-selected={on} onClick={() => pick(c.key)} style={chip(on)}>
                                 {c.label}
                                 <span style={{ opacity: 0.55, fontVariantNumeric: "tabular-nums" }}>{n || ""}</span>
                             </button>
@@ -420,7 +420,7 @@ export default function MotionDictionaryV2(props: Props) {
                         {searching ? `“${q}”` : ""}
                         {searching && activeCat !== "all" ? ` in ${CATS.find((c) => c.key === activeCat)?.label}` : ""}
                         {!searching ? `${CATS.find((c) => c.key === activeCat)?.label} — ${CATS.find((c) => c.key === activeCat)?.ja}` : ""}
-                        {` · ${filtered.length} motions`}
+                        {` · ${filtered.length} ${filtered.length === 1 ? "motion" : "motions"}`}
                     </div>
                     {filtered.length ? (
                         Grid({ items: filtered })
