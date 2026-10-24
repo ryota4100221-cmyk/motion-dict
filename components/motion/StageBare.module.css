@@ -1,0 +1,21 @@
+/* 裸ルート（録画・GH Pagesライブデモ・Framer詳細ページのiframe）専用。
+   2026-10-24 改：ステージを「ビューポートいっぱい」に広げる。
+   旧版はステージ(1040×320の横帯)を画面中央に置き、録画は画面ごと撮っていたため、
+   動画の中でデモが占めるのは画面の約26%しかなく、一覧カードでは2.3倍に引き伸ばして
+   ボケていた。ステージ＝画面にすれば、録画もiframeも枠いっぱいがデモになる。 */
+.bareFill {
+  height: 100vh;
+  height: 100dvh;
+  background: var(--sumi);
+  overflow: hidden;
+}
+
+/* Demoの直下ルート(=DemoStageの.stage div)。各デモが className で高さを
+   上書きしていても、裸ルートでは画面いっぱいに揃える。 */
+.bareFill > div {
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+}

@@ -15,9 +15,10 @@ export default function DemoStage({ hint, children, stageRef, className }: Props
     <div
       className={className ? `${styles.stage} ${className}` : styles.stage}
       ref={stageRef}
+      data-md-stage=""
     >
       {children}
-      <div className={styles.hint}>{hint}</div>
+      <div className={styles.hint} data-md-hint="">{hint}</div>
     </div>
   );
 }
