@@ -315,11 +315,11 @@ export default function EntryLab(props: Props) {
     const demo = (
         <div style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
             <div style={{ ...label, justifyContent: "space-between" }}>
-                <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <h2 style={{ display: "flex", gap: 10, alignItems: "center", margin: 0, font: "inherit", letterSpacing: "inherit" }}>
                     <span style={num}>01</span>
                     <span>Demo</span>
                     <span style={jpSub}>触って、数値を決める</span>
-                </span>
+                </h2>
                 {demoSrc ? (
                     <a href={demoSrc} target="_blank" rel="noopener" className="mdlab-link" style={{ color: muted, textDecoration: "none", textTransform: "none" }}>
                         全画面で開く ↗
@@ -340,7 +340,7 @@ export default function EntryLab(props: Props) {
                             <video src={rec.video} poster={rec.poster} muted loop playsInline autoPlay preload="auto"
                                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                         )}
-                        <span className="mdlab-recchip">● 録画 — 触るとライブに切り替わる</span>
+                        <span className="mdlab-recchip">{narrow ? "REC · タップでライブ" : "REC — 触るとライブに切り替わる"}</span>
                     </div>
                 ) : null}
                 {!isStatic && demoSrc ? (
@@ -433,11 +433,11 @@ export default function EntryLab(props: Props) {
 
     const prompt = (
         <div ref={promptRef} style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
-            <div style={label}>
+            <h2 style={{ ...label, margin: 0, fontWeight: 400 }}>
                 <span style={num}>02</span>
                 <span>Prompt</span>
                 <span style={jpSub}>数値はスライダーと連動</span>
-            </div>
+            </h2>
             <div style={{ background: ink, borderRadius: 10, overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: `10px ${pad}px 10px ${pad}px`, borderBottom: "1px solid rgba(233,233,227,0.12)" }}>
                     <span style={{ fontFamily: MONO, fontSize: 12, color: "rgba(233,233,227,.55)", letterSpacing: "0.06em" }}>
@@ -479,7 +479,8 @@ export default function EntryLab(props: Props) {
         </div>
     )
 
-    const showBar = narrow && !isStatic && labInView && !promptInView && template !== ""
+    // プロンプト本体が画面外の間は、下に「変えた値＋Copy」を出す（PCでも1画面目にCopyが無かった）
+    const showBar = !isStatic && labInView && !promptInView && template !== ""
 
     return (
         <div ref={rootRef} style={{ width: "100%", color: ink, fontFamily: JP, ...props.style }}>
@@ -499,8 +500,10 @@ export default function EntryLab(props: Props) {
 .mdlab-dyn.on{background:rgba(165,224,46,.42)}
 .mdlab-rec{position:absolute;inset:0;z-index:2;pointer-events:none;transition:opacity .35s}
 .mdlab-rec.off{opacity:0}
-.mdlab-recchip{position:absolute;left:12px;top:12px;font-family:${MONO};font-size:11px;letter-spacing:.04em;color:#E9E9E3;background:rgba(10,10,10,.72);padding:6px 10px;border-radius:100px;backdrop-filter:blur(6px)}
+.mdlab-recchip{position:absolute;right:10px;top:10px;font-family:${MONO};font-size:11px;letter-spacing:.04em;color:#E9E9E3;background:rgba(10,10,10,.72);padding:6px 10px;border-radius:100px;backdrop-filter:blur(6px)}
 .mdlab-bar{position:fixed;left:12px;right:12px;bottom:12px;z-index:20;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:100px;background:${ink};color:#E9E9E3;box-shadow:0 10px 30px rgba(0,0,0,.25);transform:translateY(0);transition:transform .25s cubic-bezier(.2,.7,.2,1),opacity .25s}
+.mdlab-bar.pc{left:50%;right:auto;bottom:20px;width:min(640px,calc(100% - 48px));transform:translateX(-50%)}
+.mdlab-bar.pc.off{transform:translate(-50%,140%)}
 .mdlab-bar.off{transform:translateY(140%);opacity:0;pointer-events:none}
 @media (prefers-reduced-motion: reduce){.mdlab-dyn,.mdlab-bar{transition:none}}
 `}</style>
@@ -521,8 +524,8 @@ export default function EntryLab(props: Props) {
                     {prompt}
                 </div>
             )}
-            {narrow && !isStatic ? (
-                <div className={"mdlab-bar" + (showBar ? "" : " off")} aria-hidden={!showBar}>
+            {!isStatic ? (
+                <div className={"mdlab-bar" + (showBar ? "" : " off") + (narrow ? "" : " pc")} aria-hidden={!showBar}>
                     <span style={{ flex: 1, minWidth: 0, fontFamily: MONO, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {changed.length
                             ? changed.map((p) => `${splitLabel(p.label)[0]} ${fmt(p, values[p.key])}`).join(" · ")

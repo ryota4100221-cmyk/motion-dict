@@ -28,6 +28,10 @@ const CAT: Record<string, string> = {
     media: "Media", ui: "UI", loading: "Loading", webgl: "WebGL",
 }
 
+function sentence(s: string) {
+    return (s || "").split("/").map((x) => { const t = x.trim(); return t.charAt(0).toUpperCase() + t.slice(1) }).join(" / ")
+}
+
 /**
  * Entry Nav
  *
@@ -80,6 +84,8 @@ export default function EntryNav(props: Props) {
 .mdnav-card .ph{position:relative;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:${ink}}
 .mdnav-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
 .mdnav-card:hover img{transform:scale(1.04)}
+.mdnav-card .nm{transition:box-shadow .2s}
+.mdnav-card:hover .nm{box-shadow:inset 0 -0.42em 0 ${accent}}
 .mdnav-card:focus-visible{outline:2px solid ${accent};outline-offset:4px;border-radius:8px}
 .mdnav-pg{display:flex;flex-direction:column;gap:6px;padding:22px 0;text-decoration:none;color:${ink};min-width:0;border-top:1px solid ${ink}}
 .mdnav-pg:hover .nm{text-decoration:underline;text-decoration-color:${accent};text-decoration-thickness:3px;text-underline-offset:5px}
@@ -88,11 +94,11 @@ export default function EntryNav(props: Props) {
 `}</style>
             {related.length ? (
                 <section style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    <div style={label}>
+                    <h2 style={{ ...label, margin: 0, fontWeight: 400 }}>
                         <span style={{ color: muted }}>05</span>
                         <span>Related</span>
                         <span style={{ color: muted, textTransform: "none", letterSpacing: "0.02em", fontFamily: JP }}>近い動き</span>
-                    </div>
+                    </h2>
                     <div style={{ display: "grid", gridTemplateColumns: narrow ? "repeat(2, minmax(0,1fr))" : "repeat(3, minmax(0,1fr))", gap: narrow ? 16 : 24 }}>
                         {related.map((r) => (
                             <a key={r.slug} className="mdnav-card" href={`/entries/${r.slug}`}>
@@ -100,8 +106,8 @@ export default function EntryNav(props: Props) {
                                     <img src={r.poster} alt="" loading="lazy" />
                                 </span>
                                 <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-                                    <span style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.45, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.nameJa}</span>
-                                    <span style={{ fontFamily: MONO, fontSize: 12, color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{CAT[r.category] || r.category}</span>
+                                    <span className="nm" style={{ alignSelf: "flex-start", maxWidth: "100%", fontSize: narrow ? 13.5 : 16, fontWeight: 700, lineHeight: 1.45, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.nameJa}</span>
+                                    <span style={{ fontFamily: MONO, fontSize: narrow ? 11 : 12, color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sentence(r.nameEn)} · {CAT[r.category] || r.category}</span>
                                 </span>
                             </a>
                         ))}

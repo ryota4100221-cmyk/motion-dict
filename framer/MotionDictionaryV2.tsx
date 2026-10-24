@@ -114,22 +114,37 @@ export default function MotionDictionaryV2(props: Props) {
         }
     }, [dataUrl, isStatic])
 
-    // 詳細から戻ったとき、読んでいた位置へ戻す（一覧は 24,000px あるので頭に戻ると見失う）
+    // 詳細から戻ったとき、開いたカードの位置へ戻してフォーカスも返す。
+    // scrollY を覚えて戻すだけだと、絞り込み状態の再構成や画像の読み込みで730pxずれた（独立レビュー3）。
     useEffect(() => {
         if (isStatic || typeof window === "undefined") return
-        const key = "mdx-scroll:" + window.location.pathname + window.location.search
-        const save = () => { try { sessionStorage.setItem(key, String(window.scrollY)) } catch {} }
-        window.addEventListener("pagehide", save)
-        const onClick = (ev: MouseEvent) => { if ((ev.target as HTMLElement)?.closest?.("a.mdx-card")) save() }
+        const onClick = (ev: MouseEvent) => {
+            const a = (ev.target as HTMLElement)?.closest?.("a.mdx-card") as HTMLAnchorElement | null
+            if (!a) return
+            try {
+                sessionStorage.setItem("mdx-back", JSON.stringify({ slug: a.dataset.slug, url: window.location.pathname + window.location.search, top: a.getBoundingClientRect().top }))
+            } catch {}
+        }
         document.addEventListener("click", onClick, true)
-        return () => { window.removeEventListener("pagehide", save); document.removeEventListener("click", onClick, true) }
-    }, [isStatic, query, activeCat])
+        return () => document.removeEventListener("click", onClick, true)
+    }, [isStatic])
     useEffect(() => {
         if (isStatic || !entries.length || typeof window === "undefined") return
-        let y = 0
-        try { y = Number(sessionStorage.getItem("mdx-scroll:" + window.location.pathname + window.location.search) || 0) } catch {}
-        if (y > 0) requestAnimationFrame(() => window.scrollTo(0, y))
-    }, [isStatic, entries.length])
+        let rec: { slug: string; url: string; top: number } | null = null
+        try { rec = JSON.parse(sessionStorage.getItem("mdx-back") || "null") } catch {}
+        if (!rec || rec.url !== window.location.pathname + window.location.search) return
+        let n = 0
+        const tryRestore = () => {
+            const el = document.querySelector(`a.mdx-card[data-slug="${rec!.slug}"]`) as HTMLAnchorElement | null
+            if (el) {
+                const y = el.getBoundingClientRect().top + window.scrollY - rec!.top
+                window.scrollTo(0, y)
+                el.focus({ preventScroll: true })
+                try { sessionStorage.removeItem("mdx-back") } catch {}
+            } else if (n++ < 20) requestAnimationFrame(tryRestore)
+        }
+        requestAnimationFrame(() => requestAnimationFrame(tryRestore))
+    }, [isStatic, entries.length, activeCat, query])
 
     // URL → 状態（初回のみ）
     useEffect(() => {
@@ -173,11 +188,17 @@ export default function MotionDictionaryV2(props: Props) {
         setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
     }, [])
 
+    // カテゴリの件数は検索語に連動（検索中も「All 195」のままだった）
     const counts = useMemo(() => {
         const c: Record<string, number> = {}
-        for (const e of entries) c[e.category] = (c[e.category] || 0) + 1
+        const nq0 = normalize(query.trim())
+        for (const e of entries) {
+            if (nq0 && !(normalize(e.nameJa).includes(nq0) || normalize(e.nameEn).includes(nq0) || normalize(e.lede).includes(nq0))) continue
+            c[e.category] = (c[e.category] || 0) + 1
+            c.all = (c.all || 0) + 1
+        }
         return c
-    }, [entries])
+    }, [entries, query])
 
     const q = query.trim()
     const nq = normalize(q)
@@ -200,6 +221,14 @@ export default function MotionDictionaryV2(props: Props) {
     const oneRow = w >= 1100
     const gutter = sp ? 16 : w < 1100 ? 32 : 40
 
+    // 検索・絞り込みをしたら、バーが画面の上端に来るまでスクロール＝結果がすぐ下に見える
+    // （PCは結果の1件目が画面外、SPは入力中に結果がキーボードの下に隠れていた）
+    const toTop = () => {
+        const bar = barRef.current
+        if (!bar || typeof window === "undefined") return
+        const top = bar.getBoundingClientRect().top + window.scrollY - stickyTop
+        if (Math.abs(window.scrollY - top) > 2 && window.scrollY < top) window.scrollTo({ top, behavior: reduced ? "auto" : "smooth" })
+    }
     const pick = (k: string) => {
         setActiveCat(k)
         // 絞り込んだら一覧の頭へ（バーの位置まで）
@@ -233,7 +262,7 @@ export default function MotionDictionaryV2(props: Props) {
         <div
             style={{
                 display: "grid",
-                gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                gridTemplateColumns: `repeat(${cols * 2}, minmax(0, 1fr))`,
                 columnGap: sp ? 12 : 28,
                 rowGap: sp ? 28 : 44,
                 padding: `${sp ? 16 : 24}px ${gutter}px 8px`,
@@ -244,11 +273,20 @@ export default function MotionDictionaryV2(props: Props) {
             }}
         >
             {items.map((e, k) => {
-                // 章の先頭1件は2列×2行の大判（同じ大きさの196枚が続く単調さを切る）
+                // 6分割のグリッドで組む（通常カード＝2、章頭の大判＝4×2行）。
+                // 最終行が1〜2枚だけ残ると右が空いて見えたので、残りの枚数で幅を割り直す（独立レビュー3）。
+                const unit = 2
                 const big = feature && k === 0 && cols >= 3
+                const slots = items.length + (feature && cols >= 3 ? 3 : 0)
+                const r = slots % cols
+                const tail = r && k >= items.length - r ? r : 0
+                let span = big ? unit * 2 : unit
+                if (tail === 1) span = cols * unit
+                if (tail === 2 && cols === 3) span = 3
+                const wideRow = tail === 1
                 return (
-                    <div key={e.slug} style={big ? { gridColumn: "span 2", gridRow: "span 2", minWidth: 0 } : { minWidth: 0 }}>
-                        <Card e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} big={big} />
+                    <div key={e.slug} style={{ gridColumn: `span ${span}`, gridRow: big ? "span 2" : undefined, minWidth: 0 }}>
+                        <Card e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} big={big} row={wideRow} />
                     </div>
                 )
             })}
@@ -288,8 +326,10 @@ export default function MotionDictionaryV2(props: Props) {
 .mdx-search::placeholder{color:${muted};opacity:1}
 .mdx-search:focus{outline:none}
 .mdx-search::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
-.mdx-searchwrap:focus-within{box-shadow:inset 0 -2px 0 ${ink}}
+.mdx-searchwrap:focus-within{box-shadow:inset 0 0 0 2px ${accent}}
 .mdx-card{display:flex;flex-direction:column;gap:12px;min-width:0;text-decoration:none;color:${ink}}
+.mdx-card.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:center}
+@media (min-width: 900px){.mdx-card.row{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}}
 .mdx-card .ph{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#0B0B0A;isolation:isolate}
 .mdx-card .ph img,.mdx-card .ph video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .mdx-card .ph video{opacity:0;transition:opacity .18s}
@@ -332,7 +372,8 @@ export default function MotionDictionaryV2(props: Props) {
                         className="mdx-search"
                         type="search"
                         value={query}
-                        onChange={(ev) => setQuery(ev.target.value)}
+                        onChange={(ev) => { setQuery(ev.target.value); toTop() }}
+                        onFocus={toTop}
                         placeholder={oneRow ? "動きを検索 — 例：ふわっと / magnetic" : "動きを検索（名前・英名・説明）"}
                         aria-label="動きを検索（名前・英名・説明から）"
                         style={{ flex: 1, minWidth: 0, height: "100%", border: "none", background: "transparent", fontFamily: JP, fontSize: 16, color: ink, padding: 0 }}
@@ -355,7 +396,7 @@ export default function MotionDictionaryV2(props: Props) {
                     style={{ display: "flex", gap: 8, padding: oneRow ? "0 20px" : `10px ${gutter}px`, overflowX: "auto", flexWrap: "nowrap", flex: oneRow ? 1 : undefined, alignItems: "center", minWidth: 0 }}
                 >
                     {[{ key: "all", label: "All", ja: "すべて" }, ...CATS].map((c) => {
-                        const n = c.key === "all" ? total : counts[c.key] || 0
+                        const n = c.key === "all" ? (query.trim() ? counts.all || 0 : total) : counts[c.key] || 0
                         const on = activeCat === c.key
                         return (
                             <button key={c.key} className="mdx-chip" role="tab" aria-selected={on} aria-pressed={on} onClick={() => pick(c.key)} style={chip(on)}>
@@ -421,9 +462,10 @@ interface CardProps {
     isStatic: boolean
     sp: boolean
     big?: boolean
+    row?: boolean
 }
 
-function Card({ e, ink, muted, hoverable, reduced, isStatic, sp, big }: CardProps) {
+function Card({ e, ink, muted, hoverable, reduced, isStatic, sp, big, row }: CardProps) {
     const [active, setActive] = useState(false)
     const [ready, setReady] = useState(false)
     const vRef = useRef<HTMLVideoElement>(null)
@@ -469,7 +511,7 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp, big }: CardProp
     const hov = !isStatic && hoverable ? { onMouseEnter: () => setActive(true), onMouseLeave: () => setActive(false), onFocus: () => setActive(true), onBlur: () => setActive(false) } : {}
 
     return (
-        <a ref={boxRef} className="mdx-card" href={"/entries/" + e.slug} title={`${e.nameJa} — ${sentence(e.nameEn)}`} {...hov}>
+        <a ref={boxRef} className={"mdx-card" + (row ? " row" : "")} data-slug={e.slug} href={"/entries/" + e.slug} title={`${e.nameJa} — ${sentence(e.nameEn)}`} {...hov}>
             <span className="ph">
                 <img src={e.poster} alt="" loading="lazy" decoding="async" />
                 {!isStatic && active ? (
@@ -514,7 +556,7 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp, big }: CardProp
                 <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.01em", color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {sentence(e.nameEn)}
                 </span>
-                {big ? (
+                {big || row ? (
                     <span style={{ marginTop: 8, fontSize: 14, lineHeight: 1.8, color: "#45453F", maxWidth: 640, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                         {e.lede}
                     </span>
