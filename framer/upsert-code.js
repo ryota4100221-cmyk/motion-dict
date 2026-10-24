@@ -1,5 +1,5 @@
 const fs = require('fs');
-const names = ["EntryLab.tsx", "EntryNav.tsx", "MotionDictionaryV2.tsx", "EntryTitle.tsx"];
+const names = ["EntryLab.tsx", "EntryNav.tsx", "MotionDictionaryV2.tsx", "EntryTitle.tsx", "SiteFooterCTA.tsx", "HeroReel.tsx"];
 const existing = await framer.getCodeFiles();
 const out = {};
 for (const n of names) {

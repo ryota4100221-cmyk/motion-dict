@@ -61,17 +61,20 @@ export default function EntryTitle(props: Props) {
     // 見出し語の字数と枠の幅（コンテナ単位 cqi）から文字サイズを決める。SSRの時点で確定する
     // ＝読み込み後に大きさが変わらない。1行に収まる大きさ・上限72px・下限30px。
     const len = Math.max(4, Math.min(Array.from(main).length, 11))
-    const size = `clamp(30px, ${(98 / len).toFixed(2)}cqi, 72px)`
-    const subSize = `clamp(17px, ${((98 / len) * 0.36).toFixed(2)}cqi, 26px)`
+    // round() で整数pxに丸める（小数の文字サイズ・字間はにじむ）。未対応ブラウザは clamp のまま
+    const raw = `clamp(30px, ${(98 / len).toFixed(2)}cqi, 72px)`
+    const rawSub = `clamp(17px, ${((98 / len) * 0.36).toFixed(2)}cqi, 26px)`
+    const cls = `mdt-${len}`
 
     return (
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14, color: ink, containerType: "inline-size", ...props.style }}>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14, color: ink, containerType: "inline-size", ...props.style } as CSSProperties}>
+            <style>{`.${cls}{font-size:${raw};font-size:round(${raw},1px)}.${cls} .mdt-sub{font-size:${rawSub};font-size:round(${rawSub},1px)}`}</style>
             <h1
+                className={cls}
                 style={{
                     margin: 0,
                     fontFamily: JP,
                     fontWeight: 900,
-                    fontSize: size,
                     lineHeight: 1.12,
                     letterSpacing: "-0.04em",
                     fontFeatureSettings: '"palt"',
@@ -83,10 +86,10 @@ export default function EntryTitle(props: Props) {
                 <span>{phrases(main)}</span>
                 {sub ? (
                     <span
+                        className="mdt-sub"
                         style={{
                             display: "block",
                             marginTop: "0.5em",
-                            fontSize: subSize,
                             fontWeight: 700,
                             lineHeight: 1.45,
                             letterSpacing: "-0.01em",

@@ -105,8 +105,19 @@ export default function EntryLab(props: Props) {
     const [frameReady, setFrameReady] = useState(false)
     const frameRef = useRef<HTMLIFrameElement>(null)
     const textRef = useRef<HTMLDivElement>(null)
-    const [narrow, setNarrow] = useState(false)
+    const [w, setW] = useState(860)
+    const narrow = w < 640
+    const wide = w >= 980
     const rootRef = useRef<HTMLDivElement>(null)
+    const promptRef = useRef<HTMLDivElement>(null)
+    const [labInView, setLabInView] = useState(false)
+    const [promptInView, setPromptInView] = useState(false)
+    const urlRead = useRef(false)
+    // 触る前は録画のループを重ねて見せる（ライブデモは触るまで止まっていて、何の動きか伝わらなかった）。
+    // ステージに触れる／スライダーを動かした瞬間にライブへ切り替え、以後は戻さない。
+    const [live, setLive] = useState(false)
+    const [rec, setRec] = useState<{ video: string; poster: string; posterAt: number } | null>(null)
+    const [reducedM, setReducedM] = useState(false)
 
     // slug：バインドが無ければURLから
     useEffect(() => {
@@ -114,6 +125,16 @@ export default function EntryLab(props: Props) {
         const s = slugFromLocation()
         if (s) setSlug(s)
     }, [props.slug])
+
+    // 録画（重ねるループ）の場所。項目JSONから取る
+    useEffect(() => {
+        if (isStatic || !slug) return
+        setReducedM(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+        fetch(`${base}/entry/${slug}.json`)
+            .then((r) => r.json())
+            .then((d) => d && d.video && setRec({ video: d.video, poster: d.poster, posterAt: d.posterAt || 0 }))
+            .catch(() => {})
+    }, [slug, isStatic, base])
 
     // バインドが空なら GH の項目JSONで補う
     useEffect(() => {
@@ -141,24 +162,70 @@ export default function EntryLab(props: Props) {
     useEffect(() => {
         if (typeof window === "undefined" || !rootRef.current) return
         const el = rootRef.current
-        const ro = new ResizeObserver(() => setNarrow(el.clientWidth < 640))
+        const ro = new ResizeObserver(() => setW(el.clientWidth))
         ro.observe(el)
+        setW(el.clientWidth)
         return () => ro.disconnect()
     }, [])
+
+    // SP：ラボが画面にあり、かつプロンプト本体が見えていない間だけ、下に「変えた値＋Copy」を貼る
+    useEffect(() => {
+        if (isStatic || typeof IntersectionObserver === "undefined") return
+        const a = rootRef.current, b = promptRef.current
+        if (!a || !b) return
+        const io = new IntersectionObserver((es) => {
+            for (const e of es) {
+                if (e.target === a) setLabInView(e.isIntersecting)
+                if (e.target === b) setPromptInView(e.isIntersecting)
+            }
+        }, { threshold: [0, 0.35] })
+        io.observe(a)
+        io.observe(b)
+        return () => io.disconnect()
+    }, [isStatic, template])
+
+    // 決めた値をURLに持つ（?strength=0.2）＝共有・再現できる。初回はURLから読む
+    useEffect(() => {
+        if (isStatic || typeof window === "undefined" || !params.length) return
+        if (!urlRead.current) {
+            urlRead.current = true
+            const sp = new URLSearchParams(window.location.search)
+            const v: Record<string, number> = {}
+            for (const p of params) {
+                const raw = sp.get(p.key)
+                if (raw == null) continue
+                const n = p.options ? p.options.indexOf(raw) : Number(raw)
+                if (Number.isFinite(n) && n >= p.min && n <= p.max) v[p.key] = n
+            }
+            if (Object.keys(v).length) setValues((prev) => ({ ...prev, ...v }))
+            return
+        }
+        const t = setTimeout(() => {
+            const u = new URL(window.location.href)
+            for (const p of params) {
+                const v = values[p.key]
+                if (v === p.default || v == null) u.searchParams.delete(p.key)
+                else u.searchParams.set(p.key, fmt(p, v))
+            }
+            window.history.replaceState(window.history.state, "", u.toString())
+        }, 250)
+        return () => clearTimeout(t)
+    }, [values, params, isStatic])
 
     // iframe の準備完了を受けて現在値を送る
     useEffect(() => {
         if (isStatic) return
         const onMsg = (ev: MessageEvent) => {
             if (ev.data && ev.data.type === "md:ready") setFrameReady(true)
+            if (ev.data && ev.data.type === "md:interact") setLive(true)
         }
         window.addEventListener("message", onMsg)
         return () => window.removeEventListener("message", onMsg)
     }, [isStatic])
 
-    const send = useCallback((v: Record<string, number>) => {
+    const send = useCallback((v: Record<string, number>, replay = false) => {
         const w = frameRef.current?.contentWindow
-        if (w) w.postMessage({ type: "md:params", values: v }, "*")
+        if (w) w.postMessage({ type: "md:params", values: v, replay }, "*")
     }, [])
 
     useEffect(() => {
@@ -166,8 +233,13 @@ export default function EntryLab(props: Props) {
     }, [frameReady, values, send])
 
     const setOne = (key: string, v: number) => {
-        setValues((prev) => ({ ...prev, [key]: v }))
+        setValues((prev) => {
+            const next = { ...prev, [key]: v }
+            send(next, true) // 値が落ち着いたらデモを頭から再生し直す（StageBare 側で350ms待つ）
+            return next
+        })
         setFlashKey(key)
+        setLive(true)
     }
     useEffect(() => {
         if (!flashKey) return
@@ -176,7 +248,9 @@ export default function EntryLab(props: Props) {
     }, [flashKey, values])
 
     const reset = () => {
-        setValues(Object.fromEntries(params.map((p) => [p.key, p.default])))
+        const d = Object.fromEntries(params.map((p) => [p.key, p.default]))
+        setValues(d)
+        send(d, true)
     }
     const dirty = params.some((p) => values[p.key] !== p.default)
 
@@ -205,7 +279,7 @@ export default function EntryLab(props: Props) {
         setTimeout(() => setCopied("idle"), 1600)
     }
 
-    const pad = narrow ? 16 : 24
+    const pad = narrow ? 16 : 22
     const label: CSSProperties = {
         fontFamily: MONO,
         fontSize: 12,
@@ -217,12 +291,13 @@ export default function EntryLab(props: Props) {
         gap: 10,
     }
     const num: CSSProperties = { color: muted, fontVariantNumeric: "tabular-nums" }
+    const jpSub: CSSProperties = { color: muted, textTransform: "none", letterSpacing: "0.02em", fontFamily: JP }
     const btn = (primary: boolean): CSSProperties => ({
         fontFamily: MONO,
         fontSize: 12,
         letterSpacing: "0.06em",
-        height: 36,
-        padding: "0 14px",
+        height: 40,
+        padding: "0 16px",
         borderRadius: 100,
         border: primary ? `1px solid ${accent}` : `1px solid rgba(233,233,227,0.28)`,
         background: primary ? accent : "transparent",
@@ -233,230 +308,229 @@ export default function EntryLab(props: Props) {
         gap: 8,
         whiteSpace: "nowrap",
     })
-
     const demoSrc = slug ? `${base}/stage/${slug}/` : ""
+    const changed = params.filter((p) => values[p.key] !== p.default)
+    const copyLabel = copied === "idle" ? "Copy prompt" : copied === "ok" ? "Copied ✓" : "Copy failed"
 
-    return (
+    const demo = (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
+            <div style={{ ...label, justifyContent: "space-between" }}>
+                <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                    <span style={num}>01</span>
+                    <span>Demo</span>
+                    <span style={jpSub}>触って、数値を決める</span>
+                </span>
+                {demoSrc ? (
+                    <a href={demoSrc} target="_blank" rel="noopener" className="mdlab-link" style={{ color: muted, textDecoration: "none", textTransform: "none" }}>
+                        全画面で開く ↗
+                    </a>
+                ) : null}
+            </div>
+            <div
+                style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", background: ink, borderRadius: 10, overflow: "hidden" }}
+                onPointerEnter={() => setLive(true)}
+                onPointerDown={() => setLive(true)}
+                onFocus={() => setLive(true)}
+            >
+                {!isStatic && rec ? (
+                    <div className={"mdlab-rec" + (live ? " off" : "")} aria-hidden={live}>
+                        {reducedM ? (
+                            <img src={rec.poster} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        ) : (
+                            <video src={rec.video} poster={rec.poster} muted loop playsInline autoPlay preload="auto"
+                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        )}
+                        <span className="mdlab-recchip">● 録画 — 触るとライブに切り替わる</span>
+                    </div>
+                ) : null}
+                {!isStatic && demoSrc ? (
+                    <iframe
+                        ref={frameRef}
+                        src={demoSrc}
+                        title="ライブデモ"
+                        loading="lazy"
+                        onLoad={() => setTimeout(() => send(values), 50)}
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, display: "block" }}
+                    />
+                ) : null}
+            </div>
+        </div>
+    )
+
+    const controls = params.length ? (
         <div
-            ref={rootRef}
             style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                gap: narrow ? 40 : 56,
-                color: ink,
-                fontFamily: JP,
-                ...props.style,
+                display: "grid",
+                gridTemplateColumns: !wide && !narrow && params.length > 1 ? "repeat(2, minmax(0, 1fr))" : "1fr",
+                columnGap: 36,
+                rowGap: wide ? 22 : 26,
             }}
         >
+            {params.map((p) => {
+                const [k, jp] = splitLabel(p.label)
+                const v = values[p.key] ?? p.default
+                const fill = p.max > p.min ? ((v - p.min) / (p.max - p.min)) * 100 : 0
+                const on = v !== p.default
+                return (
+                    <div key={p.key} style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+                            <label htmlFor={"mdlab-" + p.key} style={{ display: "flex", gap: 8, alignItems: "baseline", minWidth: 0, flexWrap: "wrap" }}>
+                                <span style={{ fontFamily: MONO, fontSize: 14, fontWeight: 500 }}>{k}</span>
+                                <span style={{ fontSize: 13, color: muted }}>{jp}</span>
+                            </label>
+                            <span
+                                style={{
+                                    fontFamily: MONO, fontSize: 14, fontVariantNumeric: "tabular-nums",
+                                    background: on ? accent : "transparent",
+                                    border: `1px solid ${on ? accent : "rgba(10,10,10,.18)"}`,
+                                    borderRadius: 4, padding: "1px 7px", transition: "background .2s", whiteSpace: "nowrap",
+                                }}
+                            >
+                                {fmt(p, v)}
+                            </span>
+                        </div>
+                        {p.options ? (
+                            <div role="radiogroup" aria-label={k} style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                {p.options.map((o, i) => {
+                                    const sel = Math.round(v) === i
+                                    return (
+                                        <button
+                                            key={o}
+                                            className="mdlab-opt"
+                                            role="radio"
+                                            aria-checked={sel}
+                                            onClick={() => setOne(p.key, i)}
+                                            style={{
+                                                fontFamily: MONO, fontSize: 13, minHeight: 40, padding: "0 14px", borderRadius: 100,
+                                                border: `1px solid ${sel ? ink : "rgba(10,10,10,.18)"}`,
+                                                background: sel ? ink : "transparent", color: sel ? paper : ink, cursor: "pointer",
+                                            }}
+                                        >
+                                            {o}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <input
+                                id={"mdlab-" + p.key}
+                                className="mdlab-range"
+                                type="range"
+                                min={p.min}
+                                max={p.max}
+                                step={p.step}
+                                value={v}
+                                onChange={(e) => setOne(p.key, parseFloat(e.target.value))}
+                                style={{ ["--fill" as any]: `${fill}%` }}
+                            />
+                        )}
+                        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.7, color: "#45453F" }}>{p.desc}</p>
+                    </div>
+                )
+            })}
+        </div>
+    ) : null
+
+    const prompt = (
+        <div ref={promptRef} style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
+            <div style={label}>
+                <span style={num}>02</span>
+                <span>Prompt</span>
+                <span style={jpSub}>数値はスライダーと連動</span>
+            </div>
+            <div style={{ background: ink, borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: `10px ${pad}px 10px ${pad}px`, borderBottom: "1px solid rgba(233,233,227,0.12)" }}>
+                    <span style={{ fontFamily: MONO, fontSize: 12, color: "rgba(233,233,227,.55)", letterSpacing: "0.06em" }}>
+                        {changed.length ? `${changed.length} value${changed.length > 1 ? "s" : ""} tuned` : "prompt.md"}
+                    </span>
+                    <span style={{ display: "flex", gap: 8 }}>
+                        {changed.length ? (
+                            <button className="mdlab-btn" onClick={reset} style={btn(false)}>初期値に戻す</button>
+                        ) : null}
+                        <button className="mdlab-btn" onClick={copy} style={btn(true)} aria-live="polite">{copyLabel}</button>
+                    </span>
+                </div>
+                <div
+                    ref={textRef}
+                    style={{
+                        padding: `${pad}px`,
+                        fontFamily: MONO,
+                        fontSize: narrow || wide ? 13 : 14,
+                        lineHeight: 1.8,
+                        color: "#E9E9E3",
+                        whiteSpace: "pre-wrap",
+                        overflowWrap: "anywhere",
+                        maxHeight: wide ? 520 : undefined,
+                        overflowY: wide ? "auto" : undefined,
+                    }}
+                >
+                    {segments.map((s, i) =>
+                        s.t === "x" ? (
+                            <span key={i}>{s.text}</span>
+                        ) : (
+                            <span key={i} className={"mdlab-dyn" + (flashKey === s.key ? " on" : "")}>
+                                {pByKey[s.key] ? fmt(pByKey[s.key], values[s.key] ?? pByKey[s.key].default) : `{{${s.key}}}`}
+                                {s.unit}
+                            </span>
+                        )
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+
+    const showBar = narrow && !isStatic && labInView && !promptInView && template !== ""
+
+    return (
+        <div ref={rootRef} style={{ width: "100%", color: ink, fontFamily: JP, ...props.style }}>
             <style>{`
-.mdlab-range{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0;cursor:pointer}
+.mdlab-range{-webkit-appearance:none;appearance:none;width:100%;height:32px;background:transparent;margin:0;cursor:pointer}
 .mdlab-range:focus{outline:none}
+.mdlab-range:focus-visible{outline:2px solid ${accent};outline-offset:2px;border-radius:4px}
 .mdlab-range::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right, ${ink} 0, ${ink} var(--fill), rgba(10,10,10,.16) var(--fill))}
 .mdlab-range::-moz-range-track{height:2px;background:rgba(10,10,10,.16)}
 .mdlab-range::-moz-range-progress{height:2px;background:${ink}}
-.mdlab-range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:${accent};border:2px solid ${ink};margin-top:-8px;transition:transform .15s}
-.mdlab-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:${accent};border:2px solid ${ink}}
+.mdlab-range::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:${accent};border:2px solid ${ink};margin-top:-9px;transition:transform .15s}
+.mdlab-range::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:${accent};border:2px solid ${ink}}
 .mdlab-range:active::-webkit-slider-thumb{transform:scale(1.18)}
-.mdlab-range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(165,224,46,.45)}
-.mdlab-opt:focus-visible,.mdlab-btn:focus-visible{outline:2px solid ${accent};outline-offset:2px}
+.mdlab-opt:focus-visible,.mdlab-btn:focus-visible,.mdlab-link:focus-visible{outline:2px solid ${accent};outline-offset:2px}
+.mdlab-link:hover{color:${ink}!important}
 .mdlab-dyn{color:${accent};background:rgba(165,224,46,.12);border-radius:3px;padding:0 3px;transition:background .25s}
 .mdlab-dyn.on{background:rgba(165,224,46,.42)}
-@media (prefers-reduced-motion: reduce){.mdlab-dyn{transition:none}}
+.mdlab-rec{position:absolute;inset:0;z-index:2;pointer-events:none;transition:opacity .35s}
+.mdlab-rec.off{opacity:0}
+.mdlab-recchip{position:absolute;left:12px;top:12px;font-family:${MONO};font-size:11px;letter-spacing:.04em;color:#E9E9E3;background:rgba(10,10,10,.72);padding:6px 10px;border-radius:100px;backdrop-filter:blur(6px)}
+.mdlab-bar{position:fixed;left:12px;right:12px;bottom:12px;z-index:20;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:100px;background:${ink};color:#E9E9E3;box-shadow:0 10px 30px rgba(0,0,0,.25);transform:translateY(0);transition:transform .25s cubic-bezier(.2,.7,.2,1),opacity .25s}
+.mdlab-bar.off{transform:translateY(140%);opacity:0;pointer-events:none}
+@media (prefers-reduced-motion: reduce){.mdlab-dyn,.mdlab-bar{transition:none}}
 `}</style>
-
-            {/* 01 Demo + Params */}
-            <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div style={{ ...label, justifyContent: "space-between" }}>
-                    <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        <span style={num}>01</span>
-                        <span>Demo</span>
-                        <span style={{ color: muted, textTransform: "none", letterSpacing: "0.02em", fontFamily: JP }}>
-                            触って、数値を決める
-                        </span>
+            {wide ? (
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.3fr) minmax(0, 1fr)", columnGap: 40, alignItems: "start" }}>
+                    <div style={{ position: "sticky", top: 24 }}>{demo}</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 40, paddingTop: 30 }}>
+                        {controls}
+                        {prompt}
+                    </div>
+                </div>
+            ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: narrow ? 40 : 48 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                        {demo}
+                        {controls}
+                    </div>
+                    {prompt}
+                </div>
+            )}
+            {narrow && !isStatic ? (
+                <div className={"mdlab-bar" + (showBar ? "" : " off")} aria-hidden={!showBar}>
+                    <span style={{ flex: 1, minWidth: 0, fontFamily: MONO, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {changed.length
+                            ? changed.map((p) => `${splitLabel(p.label)[0]} ${fmt(p, values[p.key])}`).join(" · ")
+                            : "初期値のプロンプト"}
                     </span>
-                    {demoSrc ? (
-                        <a
-                            href={demoSrc}
-                            target="_blank"
-                            rel="noopener"
-                            style={{ color: muted, textDecoration: "none", textTransform: "none" }}
-                        >
-                            全画面で開く ↗
-                        </a>
-                    ) : null}
+                    <button className="mdlab-btn" onClick={copy} style={btn(true)} tabIndex={showBar ? 0 : -1}>{copyLabel}</button>
                 </div>
-                <div
-                    style={{
-                        position: "relative",
-                        width: "100%",
-                        aspectRatio: "16 / 9",
-                        background: ink,
-                        borderRadius: 10,
-                        overflow: "hidden",
-                    }}
-                >
-                    {!isStatic && demoSrc ? (
-                        <iframe
-                            ref={frameRef}
-                            src={demoSrc}
-                            title="ライブデモ"
-                            loading="lazy"
-                            onLoad={() => setTimeout(() => send(values), 50)}
-                            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, display: "block" }}
-                        />
-                    ) : null}
-                </div>
-
-                {params.length ? (
-                    <div
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: narrow || params.length === 1 ? "1fr" : "repeat(2, minmax(0, 1fr))",
-                            columnGap: 40,
-                            rowGap: 28,
-                            marginTop: 12,
-                        }}
-                    >
-                        {params.map((p) => {
-                            const [k, jp] = splitLabel(p.label)
-                            const v = values[p.key] ?? p.default
-                            const fill = p.max > p.min ? ((v - p.min) / (p.max - p.min)) * 100 : 0
-                            return (
-                                <div key={p.key} style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
-                                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
-                                        <label
-                                            htmlFor={"mdlab-" + p.key}
-                                            style={{ display: "flex", gap: 8, alignItems: "baseline", minWidth: 0 }}
-                                        >
-                                            <span style={{ fontFamily: MONO, fontSize: 14, fontWeight: 500 }}>{k}</span>
-                                            <span style={{ fontSize: 13, color: muted }}>{jp}</span>
-                                        </label>
-                                        <span
-                                            style={{
-                                                fontFamily: MONO,
-                                                fontSize: 14,
-                                                fontVariantNumeric: "tabular-nums",
-                                                background: v !== p.default ? accent : "transparent",
-                                                border: `1px solid ${v !== p.default ? accent : "rgba(10,10,10,.18)"}`,
-                                                borderRadius: 4,
-                                                padding: "1px 7px",
-                                                transition: "background .2s",
-                                                whiteSpace: "nowrap",
-                                            }}
-                                        >
-                                            {fmt(p, v)}
-                                        </span>
-                                    </div>
-                                    {p.options ? (
-                                        <div role="radiogroup" aria-label={k} style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                                            {p.options.map((o, i) => {
-                                                const on = Math.round(v) === i
-                                                return (
-                                                    <button
-                                                        key={o}
-                                                        className="mdlab-opt"
-                                                        role="radio"
-                                                        aria-checked={on}
-                                                        onClick={() => setOne(p.key, i)}
-                                                        style={{
-                                                            fontFamily: MONO,
-                                                            fontSize: 13,
-                                                            minHeight: 36,
-                                                            padding: "0 12px",
-                                                            borderRadius: 100,
-                                                            border: `1px solid ${on ? ink : "rgba(10,10,10,.18)"}`,
-                                                            background: on ? ink : "transparent",
-                                                            color: on ? paper : ink,
-                                                            cursor: "pointer",
-                                                        }}
-                                                    >
-                                                        {o}
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                    ) : (
-                                        <input
-                                            id={"mdlab-" + p.key}
-                                            className="mdlab-range"
-                                            type="range"
-                                            min={p.min}
-                                            max={p.max}
-                                            step={p.step}
-                                            value={v}
-                                            onChange={(e) => setOne(p.key, parseFloat(e.target.value))}
-                                            style={{ ["--fill" as any]: `${fill}%` }}
-                                        />
-                                    )}
-                                    <p style={{ margin: 0, fontSize: 13, lineHeight: 1.75, color: "#45453F" }}>{p.desc}</p>
-                                </div>
-                            )
-                        })}
-                    </div>
-                ) : null}
-            </section>
-
-            {/* 02 Prompt */}
-            <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div style={label}>
-                    <span style={num}>02</span>
-                    <span>Prompt</span>
-                    <span style={{ color: muted, textTransform: "none", letterSpacing: "0.02em", fontFamily: JP }}>
-                        数値はスライダーと連動
-                    </span>
-                </div>
-                <div style={{ background: ink, borderRadius: 10, overflow: "hidden" }}>
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: 12,
-                            padding: `12px ${pad}px`,
-                            borderBottom: "1px solid rgba(233,233,227,0.12)",
-                        }}
-                    >
-                        <span style={{ fontFamily: MONO, fontSize: 12, color: "rgba(233,233,227,.55)", letterSpacing: "0.06em" }}>
-                            prompt.md
-                        </span>
-                        <span style={{ display: "flex", gap: 8 }}>
-                            {dirty ? (
-                                <button className="mdlab-btn" onClick={reset} style={btn(false)}>
-                                    初期値に戻す
-                                </button>
-                            ) : null}
-                            <button className="mdlab-btn" onClick={copy} style={btn(true)} aria-live="polite">
-                                {copied === "idle" ? "Copy prompt" : copied === "ok" ? "Copied ✓" : "Copy failed"}
-                            </button>
-                        </span>
-                    </div>
-                    <div
-                        ref={textRef}
-                        style={{
-                            padding: `${pad}px`,
-                            fontFamily: MONO,
-                            fontSize: narrow ? 13 : 14,
-                            lineHeight: 1.85,
-                            color: "#E9E9E3",
-                            whiteSpace: "pre-wrap",
-                            overflowWrap: "anywhere",
-                            wordBreak: "normal",
-                        }}
-                    >
-                        {segments.map((s, i) =>
-                            s.t === "x" ? (
-                                <span key={i}>{s.text}</span>
-                            ) : (
-                                <span key={i} className={"mdlab-dyn" + (flashKey === s.key ? " on" : "")}>
-                                    {pByKey[s.key] ? fmt(pByKey[s.key], values[s.key] ?? pByKey[s.key].default) : `{{${s.key}}}`}
-                                    {s.unit}
-                                </span>
-                            )
-                        )}
-                    </div>
-                </div>
-            </section>
+            ) : null}
         </div>
     )
 }

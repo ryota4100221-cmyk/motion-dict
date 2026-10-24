@@ -26,7 +26,11 @@ if (!slug) { console.error("usage: record-v2.cjs <slug>"); process.exit(2); }
 const recPath = path.join(REPO, "rec", `${slug}.json`);
 const spec = fs.existsSync(recPath) ? JSON.parse(fs.readFileSync(recPath, "utf8")) : null;
 
-const CURSOR_CSS = `#__pw_cursor{opacity:0;transition:opacity .15s,transform .08s ease-out;position:fixed;left:-40px;top:-40px;width:14px;height:14px;border-radius:50%;background:#A5E02E;box-shadow:0 0 0 4px rgba(165,224,46,.22),0 1px 6px rgba(0,0,0,.5);pointer-events:none;z-index:2147483647;transform:translate(-50%,-50%)}`;
+// 疑似カーソル：白い点＋細い墨の縁。アクセントのライムと同色だと、ライムの部品（トグルのつまみ等）と重なって見分けられなかった。
+// クリックは波紋で示す。
+const CURSOR_CSS = `#__pw_cursor{opacity:0;transition:opacity .15s,transform .08s ease-out;position:fixed;left:-40px;top:-40px;width:14px;height:14px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 1.5px rgba(10,10,10,.75),0 2px 8px rgba(0,0,0,.45);pointer-events:none;z-index:2147483647;transform:translate(-50%,-50%)}
+.__pw_ripple{position:fixed;width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(10,10,10,.4);pointer-events:none;z-index:2147483646;transform:translate(-50%,-50%) scale(1);animation:__pwr .45s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes __pwr{to{transform:translate(-50%,-50%) scale(3.2);opacity:0}}`;
 
 const P = (pt) => [Math.round(pt[0] * W), Math.round(pt[1] * H)];
 
@@ -55,12 +59,20 @@ async function glide(page, toRaw, dur) {
   const to = clampPt(toRaw);
   if (hidden && !outside(toRaw)) { hidden = false; await cursorVisible(page, true); }
   const from = cur.slice();
-  const n = Math.max(2, Math.round(dur / 16));
-  for (let i = 1; i <= n; i++) {
-    const t = ease(i / n);
-    await page.mouse.move(from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t);
-    await page.waitForTimeout(dur / n);
+  // ① ページ内で rAF ごと（60fps）に位置を補間し、疑似カーソルを描き、合成の pointermove/mousemove を流す。
+  //    Playwright の mouse.move は1回の往復に約30〜40msかかり、実イベントだけだと25Hzでカクついていた（独立レビュー2で実測）。
+  // ② 実マウスも同じ時刻ベースの経路で動かす（:hover と当たり判定は実イベントでしか変わらないため）。
+  const t0 = await page.evaluate(([a, b, d]) => window.__mdGlide(a, b, d), [from, to, dur]);
+  const start = Date.now();
+  while (true) {
+    const k = Math.min(1, (Date.now() - start) / dur);
+    const e = ease(k);
+    await page.mouse.move(from[0] + (to[0] - from[0]) * e, from[1] + (to[1] - from[1]) * e);
+    if (k >= 1) break;
+    // 実イベントを隙間なく送ると描画が飢えて24fpsに落ちる（実測）。:hover の更新には 12〜15Hz で足りる
+    await page.waitForTimeout(70);
   }
+  await page.evaluate(() => window.__mdGlideDone && window.__mdGlideDone());
   cur = to.slice();
   if (outside(toRaw)) { hidden = true; await cursorVisible(page, false); }
 }
@@ -71,9 +83,17 @@ async function runSteps(page, steps) {
     if (d === "wait") await page.waitForTimeout(s.ms || 500);
     else if (d === "move") await glide(page, await target(page, s), s.dur || 600);
     else if (d === "orbit") {
-      const c = await target(page, s); const r = (s.r || 0.12) * W; const dur = s.dur || 1600; const n = Math.round(dur / 16);
+      const c = await target(page, s); const r = (s.r || 0.12) * W; const dur = s.dur || 1600; const ry = s.ry || 0.7; const turns = s.turns || 1;
       await glide(page, [c[0] + r, c[1]], 250);
-      for (let i = 0; i <= n; i++) { const t = (i / n) * Math.PI * 2 * (s.turns || 1); const p = [c[0] + Math.cos(t) * r, c[1] + Math.sin(t) * r * (s.ry || 0.7)]; await page.mouse.move(p[0], p[1]); cur = p; await page.waitForTimeout(16); }
+      await page.evaluate(([a, b, rr, yy, tt, dd]) => window.__mdOrbit(a, b, rr, yy, tt, dd), [c[0], c[1], r, ry, turns, dur]);
+      const st = Date.now();
+      while (true) {
+        const k = Math.min(1, (Date.now() - st) / dur), t = k * Math.PI * 2 * turns;
+        const p = [c[0] + Math.cos(t) * r, c[1] + Math.sin(t) * r * ry];
+        await page.mouse.move(p[0], p[1]); cur = p;
+        if (k >= 1) break;
+        await page.waitForTimeout(70);
+      }
     }
     else if (d === "click") { const c = await target(page, s); await glide(page, c, s.dur || 450); await page.mouse.down(); await page.waitForTimeout(90); await page.mouse.up(); }
     else if (d === "drag") {
@@ -114,12 +134,55 @@ function defaultSteps(hint) {
   await page.waitForTimeout(spec?.settle ?? 900);
   const hint = await page.evaluate(() => document.querySelector("[data-md-hint]")?.textContent || "");
   const useCursor = spec?.cursor ?? true;
-  if (useCursor) {
-    await page.addStyleTag({ content: CURSOR_CSS });
+  {
+    // 補間ドライバー（__mdGlide/__mdOrbit）は常に入れる。カーソルを出さない台本では見た目だけ隠す
+    await page.addStyleTag({ content: CURSOR_CSS + (useCursor ? "" : "#__pw_cursor{display:none!important}") });
     await page.evaluate(() => {
       const c = document.createElement("div"); c.id = "__pw_cursor"; document.body.appendChild(c);
-      addEventListener("mousemove", (e) => { c.style.left = e.clientX + "px"; c.style.top = e.clientY + "px"; }, true);
-      addEventListener("mousedown", () => { c.style.transform = "translate(-50%,-50%) scale(.65)"; }, true);
+      // 疑似カーソルは rAF 補間（__mdGlide）が描く。実イベントでは動かさない（往復遅延で25Hzに落ちるため）。
+      const easeF = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      let raf = 0;
+      const put = (x, y) => { c.style.left = x + "px"; c.style.top = y + "px"; };
+      const fire = (x, y) => {
+        const el = document.elementFromPoint(x, y) || document.body;
+        const o = { clientX: x, clientY: y, bubbles: true, cancelable: true, composed: true, view: window, buttons: window.__mdDown ? 1 : 0 };
+        try { el.dispatchEvent(new PointerEvent("pointermove", { ...o, pointerId: 1, pointerType: "mouse", isPrimary: true })); } catch (e) {}
+        el.dispatchEvent(new MouseEvent("mousemove", o));
+      };
+      window.__mdGlide = (a, b, d) => {
+        cancelAnimationFrame(raf);
+        const s = performance.now();
+        const step = (now) => {
+          const k = Math.min(1, (now - s) / d), e = easeF(k);
+          const x = a[0] + (b[0] - a[0]) * e, y = a[1] + (b[1] - a[1]) * e;
+          put(x, y); fire(x, y);
+          if (k < 1) raf = requestAnimationFrame(step); else raf = 0;
+        };
+        raf = requestAnimationFrame(step);
+        return s;
+      };
+      window.__mdOrbit = (cx, cy, r, ry, turns, d) => {
+        cancelAnimationFrame(raf);
+        const s = performance.now();
+        const step = (now) => {
+          const k = Math.min(1, (now - s) / d), t = k * Math.PI * 2 * turns;
+          const x = cx + Math.cos(t) * r, y = cy + Math.sin(t) * r * ry;
+          put(x, y); fire(x, y);
+          if (k < 1) raf = requestAnimationFrame(step); else raf = 0;
+        };
+        raf = requestAnimationFrame(step);
+      };
+      window.__mdGlideDone = () => {};
+      addEventListener("mousedown", () => { window.__mdDown = true; }, true);
+      addEventListener("mouseup", () => { window.__mdDown = false; }, true);
+      // 台本の orbit・drag 以外（wheel 等）で実カーソルが動いたときは位置だけ合わせる
+      addEventListener("mousemove", (e) => { if (e.isTrusted && !raf) put(e.clientX, e.clientY); }, true);
+      addEventListener("mousedown", (e) => {
+        c.style.transform = "translate(-50%,-50%) scale(.65)";
+        const r = document.createElement("div"); r.className = "__pw_ripple";
+        r.style.left = c.style.left || e.clientX + "px"; r.style.top = c.style.top || e.clientY + "px";
+        document.body.appendChild(r); setTimeout(() => r.remove(), 600);
+      }, true);
       addEventListener("mouseup", () => { c.style.transform = "translate(-50%,-50%) scale(1)"; }, true);
     });
   }
@@ -132,7 +195,7 @@ function defaultSteps(hint) {
     frames.push({ t: f.metadata.timestamp, data: f.data });
     cdp.send("Page.screencastFrameAck", { sessionId: f.sessionId }).catch(() => {});
   });
-  await cdp.send("Page.startScreencast", { format: "png", maxWidth: W * DPR, maxHeight: H * DPR, everyNthFrame: 1 });
+  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, maxWidth: W * DPR, maxHeight: H * DPR, everyNthFrame: 1 });
   const t0 = Date.now();
   await page.waitForTimeout(120);
   await runSteps(page, spec?.steps || defaultSteps(hint));
@@ -144,19 +207,24 @@ function defaultSteps(hint) {
 
   // 時刻付きフレーム → concat 用リスト（各フレームの表示時間）→ 60fps CFR
   frames.sort((a, b) => a.t - b.t);
+  frames.forEach((f, i) => fs.writeFileSync(path.join(TMP, `f${String(i).padStart(5, "0")}.jpg`), Buffer.from(f.data, "base64")));
+  // 60fps の各刻みに「その時刻に画面に出ていたフレーム」を割り当てて並べる。
+  // ⚠️ concat に可変の duration を渡して fps=60 で変換すると、画像入力が既定の25fpsで読まれ、
+  //    実フレームは60来ているのに中身が2〜3コマごとにしか変わらない動画になっていた（独立レビュー2で実測）。
   const list = [];
-  frames.forEach((f, i) => {
-    const p = path.join(TMP, `f${String(i).padStart(5, "0")}.png`);
-    fs.writeFileSync(p, Buffer.from(f.data, "base64"));
-    // screencast は画が変わった時しかフレームを送らない＝最後の静止は来ない。最後の1枚は終了時刻まで出す
-    const next = frames[i + 1] ? frames[i + 1].t : Math.max(f.t + 1 / FPS, tEnd);
-    list.push(`file '${p}'\nduration ${Math.max(1 / FPS, next - f.t).toFixed(4)}`);
-  });
-  list.push(`file '${path.join(TMP, `f${String(frames.length - 1).padStart(5, "0")}.png`)}'`);
+  if (frames.length) {
+    const T0 = frames[0].t, T1 = Math.max(tEnd, frames[frames.length - 1].t + 1 / FPS);
+    let k = 0;
+    for (let tick = T0; tick < T1; tick += 1 / FPS) {
+      while (k + 1 < frames.length && frames[k + 1].t <= tick + 1e-4) k++;
+      list.push(`file '${path.join(TMP, `f${String(k).padStart(5, "0")}.jpg`)}'\nduration ${(1 / FPS).toFixed(6)}`);
+    }
+    list.push(`file '${path.join(TMP, `f${String(k).padStart(5, "0")}.jpg`)}'`);
+  }
   fs.writeFileSync(path.join(TMP, "list.txt"), list.join("\n"));
   const span = frames.length ? tEnd - frames[0].t : 0;
   const raw = path.join(TMP, "raw.mp4");
-  execSync(`ffmpeg -y -loglevel error -f concat -safe 0 -i "${path.join(TMP, "list.txt")}" -vf "fps=${FPS},scale=${W * DPR}:${H * DPR}:flags=lanczos,format=yuv420p" -c:v libx264 -preset slow -crf 20 -movflags +faststart -an "${raw}"`);
+  execSync(`ffmpeg -y -loglevel error -f concat -safe 0 -i "${path.join(TMP, "list.txt")}" -vf "settb=1/${FPS},setpts=N/${FPS}/TB,fps=${FPS},scale=${W * DPR}:${H * DPR}:flags=lanczos,format=yuv420p" -c:v libx264 -preset slow -crf 20 -movflags +faststart -an "${raw}"`);
 
   // 先頭の無動作を切る（最初に画が変わる点の0.15s手前から）
   let start = 0;
@@ -181,6 +249,9 @@ function defaultSteps(hint) {
   const poster = path.join(OUT, "posters", `${slug}.jpg`);
   execSync(`ffmpeg -y -loglevel error -ss ${at} -i "${out}" -frames:v 1 -vf "scale=960:-1:flags=lanczos" -q:v 3 "${poster}"`);
   fs.rmSync(TMP, { recursive: true, force: true });
+  // 一覧のカードが「ポスターと同じ瞬間から」再生できるよう、ポスターの時刻を残す（entries-v2.json に載る）
+  fs.mkdirSync(path.join(OUT, "meta"), { recursive: true });
+  fs.writeFileSync(path.join(OUT, "meta", `${slug}.json`), JSON.stringify({ posterAt: Number(at) || 0 }));
   const dur = execSync(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${out}"`).toString().trim();
   console.log(JSON.stringify({ slug, frames: frames.length, span: +span.toFixed(2), fpsReal: +(frames.length / span).toFixed(1), trimmed: +start.toFixed(2), dur: +dur, posterAt: at, spec: !!spec, hint }));
 })().catch((e) => { console.error("RECORD FAIL:", slug, e.message); process.exit(1); });

@@ -1,6 +1,6 @@
 // npx tsx scripts/export-entries-json.mts
 // Framerの検索/ホバー再生コードコンポーネント用に、全項目の軽量JSONを public/entries.json へ。
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const REPO = process.cwd();
@@ -31,8 +31,10 @@ console.log(`wrote ${rows.length} entries -> public/entries.json`);
 
 // v2（2026-10-24〜）：録画v2の動画・ポスター（public/v2/）を指す一覧。
 // 旧 entries.json は現行本番の一覧が読んでいるので、そのまま残す。
+const metaOf = (slug: string) => { try { return JSON.parse(readFileSync(path.join(REPO, `public/v2/meta/${slug}.json`), "utf8")); } catch { return {}; } };
 const rowsV2 = rows.map((r) => ({
   ...r,
+  posterAt: metaOf(r.slug).posterAt ?? 0,
   poster: `${GH}/v2/posters/${r.slug}.jpg`,
   video: `${GH}/v2/videos/${r.slug}.mp4`,
 }));
@@ -58,6 +60,9 @@ rows.forEach((r, i) => {
       params: e.params,
       promptTemplate: e.promptTemplate.trim(),
       related,
+      video: `${GH}/v2/videos/${e.slug}.mp4`,
+      poster: `${GH}/v2/posters/${e.slug}.jpg`,
+      posterAt: metaOf(e.slug).posterAt ?? 0,
       prev: pick(prev),
       next: pick(next),
     })

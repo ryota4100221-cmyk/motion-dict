@@ -101,7 +101,7 @@ export default function EntryNav(props: Props) {
                                 </span>
                                 <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
                                     <span style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.45, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.nameJa}</span>
-                                    <span style={{ fontFamily: MONO, fontSize: 11.5, color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{CAT[r.category] || r.category}</span>
+                                    <span style={{ fontFamily: MONO, fontSize: 12, color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{CAT[r.category] || r.category}</span>
                                 </span>
                             </a>
                         ))}

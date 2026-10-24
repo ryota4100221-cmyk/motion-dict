@@ -25,6 +25,7 @@ interface Entry {
     lede: string
     poster: string
     video: string
+    posterAt?: number
 }
 
 interface Props {
@@ -113,6 +114,23 @@ export default function MotionDictionaryV2(props: Props) {
         }
     }, [dataUrl, isStatic])
 
+    // 詳細から戻ったとき、読んでいた位置へ戻す（一覧は 24,000px あるので頭に戻ると見失う）
+    useEffect(() => {
+        if (isStatic || typeof window === "undefined") return
+        const key = "mdx-scroll:" + window.location.pathname + window.location.search
+        const save = () => { try { sessionStorage.setItem(key, String(window.scrollY)) } catch {} }
+        window.addEventListener("pagehide", save)
+        const onClick = (ev: MouseEvent) => { if ((ev.target as HTMLElement)?.closest?.("a.mdx-card")) save() }
+        document.addEventListener("click", onClick, true)
+        return () => { window.removeEventListener("pagehide", save); document.removeEventListener("click", onClick, true) }
+    }, [isStatic, query, activeCat])
+    useEffect(() => {
+        if (isStatic || !entries.length || typeof window === "undefined") return
+        let y = 0
+        try { y = Number(sessionStorage.getItem("mdx-scroll:" + window.location.pathname + window.location.search) || 0) } catch {}
+        if (y > 0) requestAnimationFrame(() => window.scrollTo(0, y))
+    }, [isStatic, entries.length])
+
     // URL → 状態（初回のみ）
     useEffect(() => {
         if (isStatic || typeof window === "undefined") return
@@ -179,6 +197,7 @@ export default function MotionDictionaryV2(props: Props) {
     const searching = nq.length > 0
     const grouped = !searching && activeCat === "all"
     const sp = w < 640
+    const oneRow = w >= 1100
     const gutter = sp ? 16 : w < 1100 ? 32 : 40
 
     const pick = (k: string) => {
@@ -210,7 +229,7 @@ export default function MotionDictionaryV2(props: Props) {
         transition: "background .2s, color .2s, border-color .2s",
     })
 
-    const Grid = ({ items }: { items: Entry[] }) => (
+    const Grid = ({ items, feature = false }: { items: Entry[]; feature?: boolean }) => (
         <div
             style={{
                 display: "grid",
@@ -224,9 +243,15 @@ export default function MotionDictionaryV2(props: Props) {
                 width: "100%",
             }}
         >
-            {items.map((e) => (
-                <Card key={e.slug} e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} />
-            ))}
+            {items.map((e, k) => {
+                // 章の先頭1件は2列×2行の大判（同じ大きさの196枚が続く単調さを切る）
+                const big = feature && k === 0 && cols >= 3
+                return (
+                    <div key={e.slug} style={big ? { gridColumn: "span 2", gridRow: "span 2", minWidth: 0 } : { minWidth: 0 }}>
+                        <Card e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} big={big} />
+                    </div>
+                )
+            })}
         </div>
     )
 
@@ -241,13 +266,13 @@ export default function MotionDictionaryV2(props: Props) {
                 maxWidth: 1680,
                 boxSizing: "border-box",
                 width: "100%",
-                padding: `${sp ? 36 : 56}px ${gutter}px 0`,
+                padding: `${sp ? 48 : 120}px ${gutter}px ${sp ? 4 : 12}px`,
                 fontWeight: 400,
-                scrollMarginTop: 140,
+                scrollMarginTop: sp ? 112 : 72,
             }}
         >
-            <span style={{ fontFamily: JP, fontWeight: 900, fontSize: sp ? 26 : 40, letterSpacing: "-0.03em", lineHeight: 1, color: ink }}>{c.label}</span>
-            <span style={{ fontFamily: JP, fontSize: sp ? 12 : 14, color: muted, fontWeight: 500 }}>{c.ja}</span>
+            <span style={{ fontFamily: JP, fontWeight: 900, fontSize: sp ? 36 : w < 1100 ? 64 : 96, letterSpacing: "-0.045em", lineHeight: 0.9, color: ink }}>{c.label}</span>
+            <span style={{ fontFamily: JP, fontSize: sp ? 13 : 16, color: muted, fontWeight: 500 }}>{c.ja}</span>
             <span style={{ fontFamily: MONO, fontSize: 12, color: muted, letterSpacing: "0.04em", marginLeft: "auto" }}>
                 {String(n).padStart(2, "0")} motions
             </span>
@@ -262,6 +287,7 @@ export default function MotionDictionaryV2(props: Props) {
 .mdx-chip:focus-visible,.mdx-card:focus-visible,.mdx-x:focus-visible{outline:2px solid ${accent};outline-offset:3px}
 .mdx-search::placeholder{color:${muted};opacity:1}
 .mdx-search:focus{outline:none}
+.mdx-search::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 .mdx-searchwrap:focus-within{box-shadow:inset 0 -2px 0 ${ink}}
 .mdx-card{display:flex;flex-direction:column;gap:12px;min-width:0;text-decoration:none;color:${ink}}
 .mdx-card .ph{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#0B0B0A;isolation:isolate}
@@ -286,9 +312,17 @@ export default function MotionDictionaryV2(props: Props) {
                     borderBottom: `1px solid ${ink}`,
                 }}
             >
+                <div style={{ display: "flex", flexDirection: oneRow ? "row" : "column", alignItems: oneRow ? "center" : "stretch" }}>
                 <div
                     className="mdx-searchwrap"
-                    style={{ display: "flex", alignItems: "center", gap: 12, padding: `0 ${gutter}px`, height: sp ? 52 : 60, borderBottom: "1px solid rgba(10,10,10,.12)" }}
+                    style={{
+                        display: "flex", alignItems: "center", gap: 12,
+                        padding: oneRow ? `0 20px 0 ${gutter}px` : `0 ${gutter}px`,
+                        height: sp ? 52 : 64,
+                        flex: oneRow ? "0 0 380px" : undefined,
+                        borderRight: oneRow ? "1px solid rgba(10,10,10,.12)" : undefined,
+                        borderBottom: oneRow ? undefined : "1px solid rgba(10,10,10,.12)",
+                    }}
                 >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden style={{ flex: "0 0 auto" }}>
                         <circle cx="11" cy="11" r="7" stroke={ink} strokeWidth="1.8" />
@@ -299,8 +333,8 @@ export default function MotionDictionaryV2(props: Props) {
                         type="search"
                         value={query}
                         onChange={(ev) => setQuery(ev.target.value)}
-                        placeholder={sp ? "動きを検索（名前・英名・説明）" : "動きを検索 — 名前・英名・説明から。例：ふわっと / スクロール / magnetic"}
-                        aria-label="動きを検索"
+                        placeholder={oneRow ? "動きを検索 — 例：ふわっと / magnetic" : "動きを検索（名前・英名・説明）"}
+                        aria-label="動きを検索（名前・英名・説明から）"
                         style={{ flex: 1, minWidth: 0, height: "100%", border: "none", background: "transparent", fontFamily: JP, fontSize: 16, color: ink, padding: 0 }}
                     />
                     {query ? (
@@ -308,26 +342,34 @@ export default function MotionDictionaryV2(props: Props) {
                             Clear ✕
                         </button>
                     ) : null}
-                    <span aria-live="polite" style={{ fontFamily: MONO, fontSize: 12, color: muted, letterSpacing: "0.04em", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
-                        {total ? `${filtered.length} / ${total}` : ""}
-                    </span>
+                    {!oneRow ? (
+                        <span aria-live="polite" style={{ fontFamily: MONO, fontSize: 12, color: muted, letterSpacing: "0.04em", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
+                            {total ? `${filtered.length} / ${total}` : ""}
+                        </span>
+                    ) : null}
                 </div>
                 <div
                     className="mdx-chips"
                     role="tablist"
                     aria-label="カテゴリ"
-                    style={{ display: "flex", gap: 8, padding: `10px ${gutter}px`, overflowX: "auto", flexWrap: sp ? "nowrap" : "wrap" }}
+                    style={{ display: "flex", gap: 8, padding: oneRow ? "0 20px" : `10px ${gutter}px`, overflowX: "auto", flexWrap: "nowrap", flex: oneRow ? 1 : undefined, alignItems: "center", minWidth: 0 }}
                 >
                     {[{ key: "all", label: "All", ja: "すべて" }, ...CATS].map((c) => {
                         const n = c.key === "all" ? total : counts[c.key] || 0
                         const on = activeCat === c.key
                         return (
-                            <button key={c.key} className="mdx-chip" role="tab" aria-selected={on} onClick={() => pick(c.key)} style={chip(on)}>
+                            <button key={c.key} className="mdx-chip" role="tab" aria-selected={on} aria-pressed={on} onClick={() => pick(c.key)} style={chip(on)}>
                                 {c.label}
                                 <span style={{ opacity: 0.55, fontVariantNumeric: "tabular-nums" }}>{n || ""}</span>
                             </button>
                         )
                     })}
+                </div>
+                {oneRow ? (
+                    <span aria-live="polite" style={{ fontFamily: MONO, fontSize: 12, color: muted, letterSpacing: "0.04em", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums", padding: `0 ${gutter}px 0 12px` }}>
+                        {total ? `${filtered.length} / ${total}` : ""}
+                    </span>
+                ) : null}
                 </div>
             </div>
 
@@ -359,7 +401,7 @@ export default function MotionDictionaryV2(props: Props) {
                     return (
                         <section key={c.key} aria-labelledby={"cat-" + c.key}>
                             {Heading({ c, n: items.length })}
-                            {Grid({ items })}
+                            {Grid({ items, feature: true })}
                         </section>
                     )
                 })
@@ -378,9 +420,10 @@ interface CardProps {
     reduced: boolean
     isStatic: boolean
     sp: boolean
+    big?: boolean
 }
 
-function Card({ e, ink, muted, hoverable, reduced, isStatic, sp }: CardProps) {
+function Card({ e, ink, muted, hoverable, reduced, isStatic, sp, big }: CardProps) {
     const [active, setActive] = useState(false)
     const [ready, setReady] = useState(false)
     const vRef = useRef<HTMLVideoElement>(null)
@@ -397,6 +440,15 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp }: CardProps) {
             setReady(false)
         }
     }, [active])
+
+    // 同時に再生するのは1枚だけ（タッチで2列が同時に帯に入ると2〜5本が回っていた）
+    useEffect(() => {
+        if (!active || typeof window === "undefined") return
+        window.dispatchEvent(new CustomEvent("mdx-play", { detail: e.slug }))
+        const off = (ev: Event) => { if ((ev as CustomEvent).detail !== e.slug) setActive(false) }
+        window.addEventListener("mdx-play", off)
+        return () => window.removeEventListener("mdx-play", off)
+    }, [active, e.slug])
 
     // タッチ端末：画面中央の帯に入った1枚だけ再生（reduced-motion 時は再生しない）
     useEffect(() => {
@@ -417,7 +469,7 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp }: CardProps) {
     const hov = !isStatic && hoverable ? { onMouseEnter: () => setActive(true), onMouseLeave: () => setActive(false), onFocus: () => setActive(true), onBlur: () => setActive(false) } : {}
 
     return (
-        <a ref={boxRef} className="mdx-card" href={"/entries/" + e.slug} {...hov}>
+        <a ref={boxRef} className="mdx-card" href={"/entries/" + e.slug} title={`${e.nameJa} — ${sentence(e.nameEn)}`} {...hov}>
             <span className="ph">
                 <img src={e.poster} alt="" loading="lazy" decoding="async" />
                 {!isStatic && active ? (
@@ -430,6 +482,11 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp }: CardProps) {
                         playsInline
                         autoPlay
                         preload="auto"
+                        onLoadedMetadata={(ev) => {
+                            // ポスターと同じ瞬間から再生する（ホバーした瞬間に別の場面へ飛ばない）
+                            const v = ev.currentTarget
+                            if (e.posterAt && e.posterAt < (v.duration || 0)) v.currentTime = e.posterAt
+                        }}
                         onPlaying={() => setReady(true)}
                         aria-hidden
                     />
@@ -442,7 +499,7 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp }: CardProps) {
                         alignSelf: "flex-start",
                         maxWidth: "100%",
                         fontFamily: JP,
-                        fontSize: sp ? 13.5 : 16,
+                        fontSize: big ? 24 : sp ? 13.5 : 16,
                         fontWeight: 700,
                         lineHeight: 1.45,
                         letterSpacing: "-0.005em",
@@ -457,6 +514,11 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp }: CardProps) {
                 <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.01em", color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {sentence(e.nameEn)}
                 </span>
+                {big ? (
+                    <span style={{ marginTop: 8, fontSize: 14, lineHeight: 1.8, color: "#45453F", maxWidth: 640, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {e.lede}
+                    </span>
+                ) : null}
             </span>
         </a>
     )
