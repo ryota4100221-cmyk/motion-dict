@@ -13,10 +13,25 @@
   ルーティンは `git pull` → `git add -A` するので、**pull が「未追跡ファイルが上書きされる」で止まる**。
   → rec/ を v2 に移し、3スクリプトを削除し、.git/info/exclude の4行を消し、`git pull` しておく。
 
-## 残り
-1. 録画台本（rec/*.json・5エージェント並列）→ v2 で最終録画（public/v2/videos・posters）→ push
-2. 複製Framerで一覧・詳細を独立レビュー → 直す、を基準到達まで
-3. Ryota承認後に本番へ移植：コードファイル4本（EntryLab/EntryNav/EntryTitle/MotionDictionaryV2）・CMSフィールド2本＋値・
-   詳細ページ/一覧のDSL（/tmp/md-framer/detail-*.js・home-1.js と同じ内容）・欠落3項目のCMS追加・publish
-4. 毎朝パイプラインの切替：record-one.cjs → record-v2.cjs（台本が無い日は既定動作）、CMS upsert に Prompt Raw/Params JSON を追加、
-   sync の NG/OK の「」二重を直す（scripts/export-entries-json と同じ q() ）
+## 独立レビュー（3レンズ・毎回経緯を渡さない別エージェント）
+| 回 | 動き | UX | ビジュアル |
+|---|---|---|---|
+| 1（現行本番） | 4.0 | 5.5 | 5.5 |
+| 2 | 5.5 | 7.0 | 5.5 |
+| 3 | 5.5 | 6.5 | 6.0 |
+| 4 | 6.0 | 7.0 | 6.0 |
+→ 4回目で「サイトの作りで直る点」はほぼ出尽くし。残りはRyotaの判断（下）。
+
+## Ryotaの判断待ち（作りでは上がらない）
+1. **本番へ移すか**（下の「本番移行の手順」）。移すまで本番は無変更。
+2. **デモの絵柄**：195本とも黒地×ライム×等幅英字の仮置き（Hover me / Page A / 山のイラスト）。写真系（ken-burns・duotone 等）は実写が要る。カテゴリで地色を変える等の方針。
+3. **和文フォントの重さ**：Noto Sans JP 3ウェイト×約2.2MB＝1ページ約10MBのうち6.7MB。Framerではサブセット不可→ウェイトを絞る or 本文をシステム書体に。
+4. **Framer有料プラン＋独自ドメイン**：Made in Framer バッジ、検索流入。サイト設定の「既定言語」が English（html lang が空）→ 日本語に（UIでしか変えられない）。
+5. 辞典としての「署名」（全項目共通のイージング曲線図など）を持つか。
+
+## 本番移行の手順（承認後）
+1. Framer本番（PnTJSNS3Yi1gInF6kBFb）に framer/*.tsx の7本をコードファイルとして入れる（upsert-code.js）
+2. CMS：Prompt Raw / Params JSON フィールド追加＋値（cms-upsert.js：欠落3項目の追加・NG/OKの「」二重も直る）・Poster を v2 ポスターに（og-posters.js）
+3. 詳細ページ・一覧のキャンバス変更（detail-1.js / detail-2.js / round2.js / round3.js / home-1.js と、ヘッダーのリンク・h2・phone/tablet の余白）※IDは本番と複製で同じ（remix）＝そのまま流せる見込み。流す前に serialize で確認
+4. publish → 公開URLで実測
+5. 毎朝パイプライン：v2 ブランチの commit 85afcb8（sync-to-framer / framer-upsert-one の v2 対応）を main へ
