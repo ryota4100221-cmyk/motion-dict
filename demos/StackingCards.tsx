@@ -7,6 +7,10 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./StackingCards.module.css";
 
 const CARDS = ["Card 01", "Card 02", "Card 03", "Card 04"];
+// 各カードの写真（public/demo/photo-XX.jpg）。ラベルが読めるよう上下に暗幕を重ねる
+const PHOTOS = [3, 6, 8, 2];
+const photoBg = (n: number) =>
+  `linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.05) 40%, rgba(10,10,10,0.05) 60%, rgba(10,10,10,0.6) 100%), url("/motion-dict/demo/photo-0${n}.jpg")`;
 
 // CSSと合わせるレイアウト定数(.content padding-top / .card height / カード間margin)
 const PAD_TOP = 24;
@@ -65,8 +69,13 @@ export default function StackingCards({ params }: { params: ParamValues }) {
       <div className={styles.scroller} ref={scrollerRef}>
         {/* 全カードを同じ親の直下に置く。1枚ずつ包むとstickyがすぐ剥がれて積み上がらない */}
         <div className={styles.content}>
-          {CARDS.map((label) => (
-            <div className={styles.card} data-card key={label}>
+          {CARDS.map((label, i) => (
+            <div
+              className={styles.card}
+              data-card
+              key={label}
+              style={{ backgroundImage: photoBg(PHOTOS[i]) }}
+            >
               <span className={styles.cardLabel}>{label}</span>
               <span className={styles.cardLine} />
             </div>

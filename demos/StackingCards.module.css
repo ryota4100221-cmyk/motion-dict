@@ -24,12 +24,11 @@
   height: 190px;
   border: 1px solid rgba(216, 212, 200, 0.22);
   border-radius: 4px;
-  /* 積層するので背景は不透明に(半透明だと奥のカードが透けて汚れる) */
+  /* 積層するので背景は不透明に(半透明だと奥のカードが透けて汚れる)。
+     写真はJSがinlineでbackground-imageに敷く(暗幕グラデーション+写真) */
   background-color: var(--sumi);
-  background-image: linear-gradient(
-    rgba(216, 212, 200, 0.07),
-    rgba(216, 212, 200, 0.07)
-  );
+  background-size: cover;
+  background-position: center;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
@@ -65,7 +64,7 @@
   height: 6px;
   width: 56%;
   border-radius: 3px;
-  background: rgba(216, 212, 200, 0.14);
+  background: rgba(233, 233, 227, 0.32);
 }
 
 .tail {

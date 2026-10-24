@@ -3,6 +3,8 @@
   width: min(280px, 72%);
   height: 160px;
   margin-bottom: 36px;
+  /* 帯の写真を枠の寸法(cqw/cqh)で敷くための基準 */
+  container-type: size;
   border: 1px solid rgba(216, 212, 200, 0.25);
   border-radius: 2px;
   overflow: hidden;
@@ -14,24 +16,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--code-bg);
+  background-color: var(--code-bg);
+  background-image: url("/motion-dict/demo/photo-06.jpg");
+  background-size: cover;
+  background-position: center;
 }
 
+/* 写真(A=photo-06.jpg / B=photo-08.jpg) */
 .faceB {
-  background: var(--ai);
+  background-image: url("/motion-dict/demo/photo-08.jpg");
 }
 
+/* 写真の上でも読めるよう、薄い暗幕を敷いたラベル。字間ぶん右の余白を詰めて中央に見せる */
 .label,
 .labelB {
+  padding: 6px 8px 6px 12px;
+  border-radius: 2px;
+  background: rgba(10, 10, 10, 0.42);
   font-family: var(--font-mono), monospace;
   font-size: 17px;
   letter-spacing: 0.24em;
-  color: var(--code-fg);
+  color: rgba(240, 238, 230, 0.92);
   user-select: none;
-}
-
-.labelB {
-  color: var(--paper);
 }
 
 /* 帯(スリット)。vertical=横並び / horizontal=縦積み */
@@ -46,15 +52,31 @@
   flex-direction: column;
 }
 
+/* 帯1本ごとに、枠全体へcoverした写真の「自分の区間」だけを敷く。
+   開き切ると帯どうしの絵が繋がって1枚の写真になる(--i=帯の番号 / --n=本数) */
 .panel {
+  --cover-w: max(100cqw, 160cqh); /* 写真は16:10 */
+  --cover-h: max(62.5cqw, 100cqh);
   flex: 1;
-  background: var(--code-bg);
+  background-color: var(--code-bg);
+  background-image: url("/motion-dict/demo/photo-06.jpg");
+  background-size: var(--cover-w) var(--cover-h);
+  background-repeat: no-repeat;
+  background-position:
+    calc((100cqw - var(--cover-w)) / 2 - var(--i) * 100cqw / var(--n))
+    calc((100cqh - var(--cover-h)) / 2);
   transform: scaleX(0);
   will-change: transform;
 }
 
+.panelsH .panel {
+  background-position:
+    calc((100cqw - var(--cover-w)) / 2)
+    calc((100cqh - var(--cover-h)) / 2 - var(--i) * 100cqh / var(--n));
+}
+
 .panelB {
-  background: var(--ai);
+  background-image: url("/motion-dict/demo/photo-08.jpg");
 }
 
 /* 次ページのラベル。帯の上に重ね、開き切る直前にフェードイン */

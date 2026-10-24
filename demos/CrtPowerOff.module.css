@@ -28,7 +28,13 @@
   transform-origin: center;
   transform: scaleY(1) scaleX(1);
   filter: brightness(1);
-  background: radial-gradient(120% 90% at 50% 40%, #16211a 0%, #0a0e0c 66%, #050706 100%);
+  /* 映っている絵=写真(photo-05.jpg)。上の文字が読めるよう周辺ほど暗く落とす */
+  background-color: #050706;
+  background-image:
+    radial-gradient(120% 90% at 50% 40%, rgba(10, 14, 12, 0.38) 0%, rgba(5, 7, 6, 0.72) 70%, #050706 100%),
+    url("/motion-dict/demo/photo-05.jpg");
+  background-size: cover;
+  background-position: center;
   will-change: transform, filter, opacity;
 }
 
@@ -69,7 +75,8 @@
 }
 
 .row {
-  color: rgba(216, 212, 200, 0.62);
+  color: rgba(233, 233, 227, 0.85);
+  text-shadow: 0 1px 2px rgba(5, 7, 6, 0.6);
 }
 
 /* 電圧が落ちる前のちらつき。回数はanimation-iteration-countで制御する */

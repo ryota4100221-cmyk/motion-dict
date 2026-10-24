@@ -64,11 +64,15 @@
   pointer-events: none;
 }
 
+/* 商品サムネイル＝写真(JSがinlineで敷く)。正方形にcoverで切り抜く */
 .thumb {
   flex: none;
   width: 30px;
   height: 30px;
   border-radius: 6px;
+  background-color: rgba(233, 233, 227, 0.08);
+  background-size: cover;
+  background-position: center;
 }
 
 .name {

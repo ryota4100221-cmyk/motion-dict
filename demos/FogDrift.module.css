@@ -4,7 +4,8 @@
   user-select: none;
 }
 
-/* 夜の谷の想定。霧が「何かの前を流れている」と読めるよう、静止した稜線を奥に置く */
+/* 夕暮れの谷の想定。霧が「何かの前を流れている」と読めるよう、静止した写真(/demo/photo-03.jpg)を奥に置く。
+   白い霧が乗る余地を残すため、写真は夜寄りに暗く沈めておく */
 .frame {
   position: relative;
   width: min(360px, 82vw);
@@ -12,17 +13,10 @@
   overflow: hidden;
   isolation: isolate;
   border-radius: var(--radius);
-  background: linear-gradient(180deg, #16161d 0%, #1d1d25 50%, #111116 100%);
-}
-
-.hills {
-  position: absolute;
-  inset: 38% 0 0;
-  background: #0a0a0d;
-  clip-path: polygon(
-    0 46%, 9% 34%, 18% 40%, 30% 18%, 41% 36%, 52% 28%, 63% 44%, 74% 22%,
-    86% 38%, 100% 26%, 100% 100%, 0 100%
-  );
+  background:
+    linear-gradient(180deg, rgba(22, 22, 29, 0.55) 0%, rgba(17, 17, 22, 0.72) 100%),
+    url("/motion-dict/demo/photo-03.jpg") center / cover,
+    #16161d;
 }
 
 /* 霧の帯。上下の縁をマスクで溶かし、はみ出した層は clip で切る */

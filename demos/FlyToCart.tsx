@@ -117,7 +117,7 @@ export default function FlyToCart({ params }: { params: ParamValues }) {
 
         <div className={styles.card}>
           <span ref={thumbRef} className={styles.thumb} aria-hidden />
-          <span className={styles.name}>Lime Tote</span>
+          <span className={styles.name}>Pour-over Set</span>
           <button className={styles.button} onClick={add}>
             カートに入れる
           </button>

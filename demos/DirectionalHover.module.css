@@ -18,18 +18,20 @@
   padding: 0;
 }
 
-/* 塗りレイヤー。初期は下辺の外へ退避させておく（JSが辺ごとに置き直す） */
+/* 塗りレイヤー(写真はTSX側でカードごとに指定)。初期は下辺の外へ退避させておく（JSが辺ごとに置き直す） */
 .fill {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: var(--ai);
+  background-color: var(--ai);
+  background-size: cover;
+  background-position: center;
   transform: translate(0%, 101%);
   will-change: transform;
   pointer-events: none;
 }
 
-/* テキストは塗りより上。differenceで塗りに対して自動反転させる */
+/* テキストは塗りより上。differenceで写真の明暗に対して自動反転させる */
 .label {
   position: relative;
   z-index: 2;

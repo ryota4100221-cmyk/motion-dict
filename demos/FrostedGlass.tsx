@@ -49,7 +49,7 @@ export default function FrostedGlass({ params }: { params: ParamValues }) {
         onTouchStart={() => setShown((s) => !s)}
       >
         <img
-          src="/motion-dict/demo/dummy-03.svg"
+          src="/motion-dict/demo/photo-03.jpg"
           alt=""
           draggable={false}
           className={styles.img}

@@ -92,7 +92,7 @@ export default function SharedElement({ params }: { params: ParamValues }) {
       >
         <div ref={figureRef} className={styles.figure}>
           <img
-            src="/motion-dict/demo/dummy-02.svg"
+            src="/motion-dict/demo/photo-02.jpg"
             alt=""
             draggable={false}
             className={styles.img}

@@ -50,7 +50,27 @@ function bayer(size: number): number[] {
 const MATRICES = [bayer(2), bayer(4), bayer(8)];
 const MATRIX_SIZES = [2, 4, 8];
 
-// 素材は外部画像ではなく自前で描く(本番のbasePath配下でも確実に出す＆canvasを汚さない)。
+// 素材は写真(public/demo/photo-06.jpg)。同一オリジンなので getImageData でcanvasを汚さない。
+// 明るい曇り空・中間調の草地・暗い崖が並ぶので、粒の密度で濃さを出しているのが読める。
+// 枠と縦横比が違う分は cover で中央を切る
+function drawPhoto(ctx: CanvasRenderingContext2D, photo: HTMLImageElement, w: number, h: number) {
+  const s = Math.max(w / photo.naturalWidth, h / photo.naturalHeight);
+  const dw = photo.naturalWidth * s;
+  const dh = photo.naturalHeight * s;
+  ctx.drawImage(photo, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  drawLabel(ctx, w, h);
+}
+
+// 文字は写真の上にも残す。べたの文字は「階調のない面」の対比として効く
+function drawLabel(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = "#f2f2ee";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.font = `700 ${Math.round(h * 0.13)}px ui-sans-serif, system-ui, sans-serif`;
+  ctx.fillText("DITHER", w * 0.06, h * 0.94);
+}
+
+// 写真が読めるまでの代わりの絵。
 // なだらかな空・光の玉・べたの稜線を混ぜると、粒の密度で濃さを出しているのが読める。
 function drawSource(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, h);
@@ -88,11 +108,7 @@ function drawSource(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = "#f2f2ee";
-  ctx.textAlign = "left";
-  ctx.textBaseline = "alphabetic";
-  ctx.font = `700 ${Math.round(h * 0.13)}px ui-sans-serif, system-ui, sans-serif`;
-  ctx.fillText("DITHER", w * 0.06, h * 0.94);
+  drawLabel(ctx, w, h);
 }
 
 export default function DitherDissolve({ params }: { params: ParamValues }) {
@@ -127,6 +143,22 @@ export default function DitherDissolve({ params }: { params: ParamValues }) {
     let data: Uint8ClampedArray | null = null;
     let stillDrawn = false;
 
+    const photo = new Image();
+    let photoReady = false;
+    // 素材を描き直して画素を読み直す。リサイズ時と写真の読み込み完了時の2か所から呼ぶ
+    const readSource = () => {
+      if (src.width === 0 || src.height === 0) return;
+      if (photoReady) drawPhoto(sctx, photo, src.width, src.height);
+      else drawSource(sctx, src.width, src.height);
+      data = sctx.getImageData(0, 0, src.width, src.height).data;
+      stillDrawn = false;
+    };
+    photo.onload = () => {
+      photoReady = true;
+      readSource();
+    };
+    photo.src = "/motion-dict/demo/photo-06.jpg";
+
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = canvas.clientWidth;
@@ -140,9 +172,7 @@ export default function DitherDissolve({ params }: { params: ParamValues }) {
       src.height = Math.round(height);
       dith.width = src.width;
       dith.height = src.height;
-      drawSource(sctx, src.width, src.height);
-      data = sctx.getImageData(0, 0, src.width, src.height).data;
-      stillDrawn = false;
+      readSource();
     };
 
     resize();

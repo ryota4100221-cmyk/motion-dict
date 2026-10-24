@@ -13,11 +13,11 @@
   overflow: hidden;
 }
 
-/* ダミー画像(/demo/dummy-02.svg)。ディテールがblurで消えるので、シャープ化の瞬間が分かる */
+/* 写真(/demo/photo-02.jpg)。ディテールがblurで消えるので、シャープ化の瞬間が分かる */
 .img {
   position: absolute;
   inset: 0;
-  background-image: url("/motion-dict/demo/dummy-02.svg");
+  background-image: url("/motion-dict/demo/photo-02.jpg");
   background-size: cover;
   background-position: center;
   transition-property: filter, transform;

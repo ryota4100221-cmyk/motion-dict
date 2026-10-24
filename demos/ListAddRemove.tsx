@@ -19,15 +19,16 @@ function useReducedMotion(): boolean {
   );
 }
 
-type Item = { id: number; name: string; price: string; hue: number; leaving: boolean; entering: boolean };
+type Item = { id: number; name: string; price: string; photo: number; leaving: boolean; entering: boolean };
 
+// 品名は写真(public/demo/photo-0N.jpg)の絵柄に合わせたプリント商品
 const POOL = [
-  { name: "Oat Milk", price: "¥480", hue: 72 },
-  { name: "Cold Brew", price: "¥620", hue: 28 },
-  { name: "Rye Loaf", price: "¥540", hue: 40 },
-  { name: "Matcha Tin", price: "¥1,280", hue: 100 },
-  { name: "Honey Jar", price: "¥860", hue: 48 },
-  { name: "Sea Salt", price: "¥360", hue: 200 },
+  { name: "Fjord Print", price: "¥480", photo: 1 },
+  { name: "Pour-over", price: "¥620", photo: 2 },
+  { name: "Green Falls", price: "¥540", photo: 3 },
+  { name: "Red Canoe", price: "¥1,280", photo: 4 },
+  { name: "Dusk Skyline", price: "¥860", photo: 5 },
+  { name: "Sea Cliffs", price: "¥360", photo: 6 },
 ];
 
 const MAX_ROWS = 4;
@@ -146,7 +147,11 @@ function Row({ item, params, reduce, onRemove, onDone }: RowProps) {
 
   return (
     <li className={styles.row} ref={rowRef} data-leaving={item.leaving || undefined}>
-      <span className={styles.thumb} style={{ background: `hsl(${item.hue} 42% 62%)` }} aria-hidden />
+      <span
+        className={styles.thumb}
+        style={{ backgroundImage: `url("/motion-dict/demo/photo-0${item.photo}.jpg")` }}
+        aria-hidden
+      />
       <span className={styles.name}>{item.name}</span>
       <span className={styles.qty}>×1</span>
       <span className={styles.price}>{item.price}</span>

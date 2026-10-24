@@ -104,13 +104,15 @@ export default function ShutterTransition({ params }: { params: ParamValues }) {
               ? `${styles.panels} ${styles.panelsH}`
               : styles.panels
           }
+          style={{ "--n": panels } as CSSProperties}
           aria-hidden
         >
           {Array.from({ length: panels }, (_, i) => (
             <span
               key={i}
               className={next === "B" ? `${styles.panel} ${styles.panelB}` : styles.panel}
-              style={panelStyle(i)}
+              // --i: 帯ごとに写真のどの区間を敷くか(CSS側で位置を計算)
+              style={{ ...panelStyle(i), "--i": i } as CSSProperties}
             />
           ))}
         </div>

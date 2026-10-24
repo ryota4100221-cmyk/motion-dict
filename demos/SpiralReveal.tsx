@@ -23,6 +23,9 @@ const COLS = 3;
 const ROWS = 3;
 const COUNT = COLS * ROWS;
 
+// タイルの写真。8枚を順に割り当て、9枚目は1枚目に戻る
+const photoOf = (i: number) => `url("/motion-dict/demo/photo-0${(i % 8) + 1}.jpg")`;
+
 // 軌道が非線形なのでCSSのkeyframes 2点では表現できない。
 // tを等間隔でサンプリングし、その座標列をWAAPIに渡す(rAFは回さない)
 const SAMPLES = 28;
@@ -124,7 +127,7 @@ export default function SpiralReveal({ params }: { params: ParamValues }) {
               itemsRef.current[i] = el;
             }}
           >
-            <span className={styles.thumb} />
+            <span className={styles.thumb} style={{ backgroundImage: photoOf(i) }} />
           </div>
         ))}
       </div>

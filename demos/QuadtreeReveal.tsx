@@ -30,8 +30,7 @@ const REST = 0.7;
 
 type Leaf = { x: number; y: number; w: number; h: number; fill: string };
 
-// 元画像に見立てた絵を手続きで描く(public/demo/dummy-01.svg と同じ構図)。
-// getImageDataを使う都合でcanvasを汚染させたくないため、素材は外部画像ではなく自前で描く。
+// 写真(public/demo/photo-01.jpg・同一オリジンなのでgetImageDataでcanvasを汚染しない)が読めるまでの代わりの絵。
 // なだらかな空 + くっきりした稜線、という組み合わせが分割の粗密の差を一番よく見せる。
 function drawSource(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, h);
@@ -189,7 +188,24 @@ export default function QuadtreeReveal({ params }: { params: ParamValues }) {
     const sctx = src.getContext("2d", { willReadFrequently: true });
     if (!sctx) return;
     drawSource(sctx, SRC_W, SRC_H);
-    const data = sctx.getImageData(0, 0, SRC_W, SRC_H).data;
+    let data = sctx.getImageData(0, 0, SRC_W, SRC_H).data;
+
+    // 写真を cover で敷く（枠と写真の縦横比の差は中央で切る）
+    const photo = new Image();
+    let photoReady = false;
+    const drawPhoto = (c: CanvasRenderingContext2D, w: number, h: number) => {
+      const s = Math.max(w / photo.naturalWidth, h / photo.naturalHeight);
+      const dw = photo.naturalWidth * s;
+      const dh = photo.naturalHeight * s;
+      c.drawImage(photo, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    };
+    photo.onload = () => {
+      photoReady = true;
+      drawPhoto(sctx, SRC_W, SRC_H);
+      data = sctx.getImageData(0, 0, SRC_W, SRC_H).data;
+      leafSig = "";
+    };
+    photo.src = "/motion-dict/demo/photo-01.jpg";
 
     let width = 0;
     let height = 0;
@@ -232,7 +248,7 @@ export default function QuadtreeReveal({ params }: { params: ParamValues }) {
       ctx.stroke();
     };
 
-    const paintPhoto = () => drawSource(ctx, width, height);
+    const paintPhoto = () => (photoReady ? drawPhoto(ctx, width, height) : drawSource(ctx, width, height));
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);

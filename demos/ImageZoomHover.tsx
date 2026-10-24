@@ -40,7 +40,7 @@ export default function ImageZoomHover({ params }: { params: ParamValues }) {
       >
         <div className={styles.frame}>
           <img
-            src="/motion-dict/demo/dummy-01.svg"
+            src="/motion-dict/demo/photo-01.jpg"
             alt=""
             draggable={false}
             className={styles.img}

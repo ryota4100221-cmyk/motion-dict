@@ -15,11 +15,15 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: var(--code-bg);
+  background-color: var(--code-bg);
+  background-image: url("/motion-dict/demo/photo-03.jpg");
+  background-size: cover;
+  background-position: center;
 }
 
+/* 写真(A=photo-03.jpg / B=photo-02.jpg) */
 .faceB {
-  background: var(--ai);
+  background-image: url("/motion-dict/demo/photo-02.jpg");
 }
 
 /* 遷移中に拡大する現在ページのレイヤー */
@@ -27,17 +31,17 @@
   will-change: transform, opacity;
 }
 
+/* 写真の上でも読めるよう、薄い暗幕を敷いたラベル。字間ぶん右の余白を詰めて中央に見せる */
 .label,
 .labelB {
+  padding: 6px 8px 6px 12px;
+  border-radius: 2px;
+  background: rgba(10, 10, 10, 0.42);
   font-family: var(--font-mono), monospace;
   font-size: 17px;
   letter-spacing: 0.24em;
-  color: var(--code-fg);
+  color: rgba(240, 238, 230, 0.92);
   user-select: none;
-}
-
-.labelB {
-  color: var(--paper);
 }
 
 .tiles {
@@ -51,13 +55,15 @@
   height: 36px;
   border: 1px solid rgba(216, 212, 200, 0.35);
   border-radius: 2px;
-  background:
-    radial-gradient(circle at 72% 30%, rgba(165, 224, 46, 0.5), transparent 55%),
-    linear-gradient(140deg, #2b2b27, #55554e);
+  background-color: #2b2b27;
+  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-02.jpg");
+  background-size: cover;
+  background-position: center;
   font-family: var(--font-mono), monospace;
   font-size: 10px;
   letter-spacing: 0.14em;
-  color: rgba(233, 233, 227, 0.85);
+  color: rgba(240, 238, 230, 0.92);
+  text-shadow: 0 1px 2px rgba(10, 10, 10, 0.5);
   cursor: pointer;
   transition: border-color 0.2s;
 }
@@ -70,13 +76,16 @@
   cursor: default;
 }
 
-.tileB {
-  border-color: rgba(10, 10, 10, 0.35);
-  background:
-    radial-gradient(circle at 72% 30%, rgba(244, 244, 241, 0.35), transparent 55%),
-    linear-gradient(140deg, #0f0f0d, #3a3a35);
+/* 2枚目のタイルは別の写真。01=次のページ(B)の写真で、抜けた先と絵が繋がる */
+.tile:nth-child(2) {
+  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-07.jpg");
 }
 
-.tileB:hover:not(:disabled) {
-  border-color: rgba(10, 10, 10, 0.7);
+/* Page B側のタイル。01=抜けて戻る先(A)の写真 */
+.tileB {
+  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-03.jpg");
+}
+
+.tileB:nth-child(2) {
+  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-06.jpg");
 }

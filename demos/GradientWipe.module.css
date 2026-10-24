@@ -14,21 +14,18 @@
   inset: 0;
 }
 
-/* 下の層(02)。斜めのストライプで、境目がどこまで進んだかを読ませる */
+/* 下の層(02=photo-03.jpg)。色味の違う写真にして、境目がどこまで進んだかを読ませる */
 .imgB {
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(244, 244, 241, 0.9) 0 6px,
-      rgba(244, 244, 241, 0.72) 6px 12px
-    );
+  background-image: url("/motion-dict/demo/photo-03.jpg");
+  background-size: cover;
+  background-position: center;
 }
 
-/* 掃かれる側(01)。マスクは JS が mask-image に流し込む */
+/* 掃かれる側(01=photo-04.jpg)。マスクは JS が mask-image に流し込む */
 .imgA {
-  background:
-    radial-gradient(circle at 32% 34%, var(--ai) 0 22%, transparent 23%),
-    linear-gradient(150deg, #2b3120 0%, #12140d 68%);
+  background-image: url("/motion-dict/demo/photo-04.jpg");
+  background-size: cover;
+  background-position: center;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
@@ -43,15 +40,15 @@
   font-family: var(--font-mono), monospace;
   font-size: 10px;
   letter-spacing: 0.16em;
+  color: rgba(240, 238, 230, 0.85);
+  text-shadow: 0 1px 2px rgba(10, 10, 10, 0.45);
   user-select: none;
 }
 
-.tagA {
-  color: rgba(240, 238, 230, 0.85);
-}
-
+/* 両層とも写真なので、番号の色は揃える(層の区別はクラスで残す) */
+.tagA,
 .tagB {
-  color: rgba(10, 10, 10, 0.6);
+  color: rgba(240, 238, 230, 0.85);
 }
 
 .playBtn {

@@ -7,12 +7,15 @@
   margin-bottom: 44px;
 }
 
-/* ダッシュボードのカードを模したタイル。点灯前はopacity 0で隠す */
+/* ダッシュボードのカードを模したタイル。点灯前はopacity 0で隠す。
+   写真はJSがinlineでbackground-imageに敷く(暗幕グラデーション+写真) */
 .card {
   aspect-ratio: 4 / 3;
   border: 1px solid rgba(216, 212, 200, 0.25);
   border-radius: 3px;
-  background: rgba(233, 233, 227, 0.05);
+  background-color: rgba(233, 233, 227, 0.05);
+  background-size: cover;
+  background-position: center;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -68,7 +71,7 @@
   height: 6px;
   width: 72%;
   border-radius: 2px;
-  background: rgba(233, 233, 227, 0.18);
+  background: rgba(233, 233, 227, 0.4);
 }
 
 .playBtn {

@@ -6,7 +6,7 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./ImageTrail.module.css";
 
 const MAX_CARDS = 10; // 同時表示の上限。超えたら古いものから消す
-const VARIANTS = 3; // ダミー画像(dummy-01〜03.svg)のバリエーション数
+const VARIANTS = 8; // 写真(photo-01〜08.jpg)のバリエーション数
 
 export default function ImageTrail({ params }: { params: ParamValues }) {
   const stageRef = useRef<HTMLDivElement>(null);

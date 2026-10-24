@@ -7,6 +7,10 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./HorizontalScroll.module.css";
 
 const PANELS = ["Work 01", "Work 02", "Work 03", "Work 04"];
+// 各Workパネルの写真（public/demo/photo-XX.jpg）。ラベルが読めるよう上下に暗幕を重ねる
+const PHOTOS = [1, 5, 4, 7];
+const photoBg = (n: number) =>
+  `linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.05) 40%, rgba(10,10,10,0.05) 60%, rgba(10,10,10,0.6) 100%), url("/motion-dict/demo/photo-0${n}.jpg")`;
 
 export default function HorizontalScroll({ params }: { params: ParamValues }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -70,8 +74,12 @@ export default function HorizontalScroll({ params }: { params: ParamValues }) {
           <div className={styles.pinSection} ref={sectionRef}>
             <div className={styles.viewport} ref={viewportRef}>
               <div className={styles.track} ref={trackRef}>
-                {PANELS.map((label) => (
-                  <div className={styles.panel} key={label}>
+                {PANELS.map((label, i) => (
+                  <div
+                    className={styles.panel}
+                    key={label}
+                    style={{ backgroundImage: photoBg(PHOTOS[i]) }}
+                  >
                     <span className={styles.panelLabel}>{label}</span>
                     <span className={styles.panelLine} />
                   </div>

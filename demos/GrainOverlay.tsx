@@ -74,7 +74,6 @@ export default function GrainOverlay({ params }: { params: ParamValues }) {
         onTouchStart={() => setOff((v) => !v)}
       >
         <div className={styles.frame}>
-          <div className={styles.moon} aria-hidden />
           <span className={styles.title}>Night drive</span>
           <div
             ref={grainRef}

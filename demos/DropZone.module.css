@@ -42,7 +42,7 @@
   cursor: grabbing;
 }
 
-/* ダミー画像は本番で404になるのでCSSだけで絵柄を作る */
+/* 写真は本番で404になるのでCSSだけで絵柄を作る */
 .face {
   display: block;
   flex: 1;

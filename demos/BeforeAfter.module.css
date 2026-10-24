@@ -14,16 +14,16 @@
   inset: 0;
 }
 
-/* ダミー画像(/demo/dummy-03.svg): afterはカラーそのまま */
+/* 写真(/demo/photo-03.jpg): afterはカラーそのまま */
 .after {
-  background-image: url("/motion-dict/demo/dummy-03.svg");
+  background-image: url("/motion-dict/demo/photo-03.jpg");
   background-size: cover;
   background-position: center;
 }
 
 /* beforeは同じ構図をグレースケール化。差分がひと目でわかる */
 .before {
-  background-image: url("/motion-dict/demo/dummy-03.svg");
+  background-image: url("/motion-dict/demo/photo-03.jpg");
   background-size: cover;
   background-position: center;
   filter: grayscale(1);

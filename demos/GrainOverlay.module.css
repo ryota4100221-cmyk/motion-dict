@@ -4,25 +4,18 @@
   user-select: none;
 }
 
-/* グレインを重ねる「写真」役のシーン。overflow: clipではみ出しを切り落とす */
+/* グレインを重ねる写真(/demo/photo-05.jpg・夕暮れの街)。overflow: clipではみ出しを切り落とす。
+   下端だけ暗く落として、タイトルを読める明るさにしておく */
 .frame {
   position: relative;
   width: min(300px, 74vw);
   aspect-ratio: 3 / 2;
   border-radius: 2px;
   overflow: clip;
-  background: linear-gradient(165deg, #3b3b33 0%, #191917 55%, #0d0d0c 100%);
-}
-
-.moon {
-  position: absolute;
-  top: 22%;
-  right: 18%;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--ai);
-  opacity: 0.9;
+  background:
+    linear-gradient(180deg, transparent 55%, rgba(13, 13, 12, 0.6) 100%),
+    url("/motion-dict/demo/photo-05.jpg") center / cover,
+    #191917;
 }
 
 .title {

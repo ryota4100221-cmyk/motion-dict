@@ -103,7 +103,7 @@ Slack通知には以下を含める:
 - 撮ったら `python3 scripts/rec-qa.py public/v2/videos/<slug>.mp4 /tmp/qa.png` で数値とコマ画像を確かめる
 
 ### 🔴 デモの書き方の禁止2つ（`npm run validate` が検出して落とす）
-1. **素材を `"/demo/..."` で参照しない** → GH Pages（basePath `/motion-dict`）で404。`"/motion-dict/demo/dummy-01.svg"` と書く。
+1. **素材を `"/demo/..."` で参照しない** → GH Pages（basePath `/motion-dict`）で404。`"/motion-dict/demo/photo-01.jpg"` と書く。
    2026-10-24 に20ファイル以上で画像が出ていなかった。
 2. **`@property` で登録するカスタムプロパティはデモ固有の接頭辞を付ける**（例 `--ai-orb-angle`）。
    `@property` は文書全体に効くので、`--angle` のような汎用名は他のデモの同名変数を壊す（barber-pole の縞・moire-drift の傾きが消えていた）。

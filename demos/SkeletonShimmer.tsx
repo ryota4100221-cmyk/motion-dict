@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
@@ -22,6 +22,8 @@ function useReducedMotion(): boolean {
 
 export default function SkeletonShimmer({ params }: { params: ParamValues }) {
   const reduce = useReducedMotion();
+  // 読み込み完了の見本。既定は骨組みのまま(自動ループ)で、カードを押すと実コンテンツに差し替わる
+  const [loaded, setLoaded] = useState(false);
 
   // 光の帯: background-size 200% の画像内で、ブロック幅の {width}% に
   // 見える幅のグラデーション(画像幅換算では width/2 %、半幅は width/4 %)
@@ -41,21 +43,66 @@ export default function SkeletonShimmer({ params }: { params: ParamValues }) {
     : `${styles.bone} ${styles.shimmer}`;
 
   return (
-    <DemoStage hint="PC/スマホ: 自動ループ再生(操作不要)">
-      <div className={styles.card}>
-        <div className={styles.row}>
-          <span className={`${boneClass} ${styles.avatar}`} style={bone} />
-          <span className={styles.lines}>
-            <span className={`${boneClass} ${styles.lineWide}`} style={bone} />
-            <span
-              className={`${boneClass} ${styles.lineNarrow}`}
-              style={bone}
+    <DemoStage hint="自動ループ再生 / カードをクリック・タップで読み込み完了の表示と切替">
+      <div
+        className={styles.card}
+        role="button"
+        tabIndex={0}
+        aria-pressed={loaded}
+        aria-label="読み込み完了の表示を切り替える"
+        onClick={() => setLoaded((v) => !v)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setLoaded((v) => !v);
+          }
+        }}
+      >
+        {/* 実コンテンツは骨組みと同じクラス(寸法)を使い、差し替えてもレイアウトが1pxも動かない */}
+        {loaded ? (
+          <>
+            <div className={styles.row}>
+              <img
+                src="/motion-dict/demo/photo-04.jpg"
+                alt=""
+                className={`${styles.photo} ${styles.avatar}`}
+              />
+              <span className={styles.lines}>
+                <span className={`${styles.text} ${styles.lineWide}`}>Aki Mori</span>
+                <span className={`${styles.text} ${styles.textMute} ${styles.lineNarrow}`}>
+                  2 min ago
+                </span>
+              </span>
+            </div>
+            <img
+              src="/motion-dict/demo/photo-01.jpg"
+              alt=""
+              className={`${styles.photo} ${styles.thumb}`}
             />
-          </span>
-        </div>
-        <span className={`${boneClass} ${styles.thumb}`} style={bone} />
-        <span className={`${boneClass} ${styles.lineFull}`} style={bone} />
-        <span className={`${boneClass} ${styles.lineHalf}`} style={bone} />
+            <span className={`${styles.text} ${styles.lineFull}`}>
+              Morning light over the fjord.
+            </span>
+            <span className={`${styles.text} ${styles.textMute} ${styles.lineHalf}`}>
+              Norway, 2026
+            </span>
+          </>
+        ) : (
+          <>
+            <div className={styles.row}>
+              <span className={`${boneClass} ${styles.avatar}`} style={bone} />
+              <span className={styles.lines}>
+                <span className={`${boneClass} ${styles.lineWide}`} style={bone} />
+                <span
+                  className={`${boneClass} ${styles.lineNarrow}`}
+                  style={bone}
+                />
+              </span>
+            </div>
+            <span className={`${boneClass} ${styles.thumb}`} style={bone} />
+            <span className={`${boneClass} ${styles.lineFull}`} style={bone} />
+            <span className={`${boneClass} ${styles.lineHalf}`} style={bone} />
+          </>
+        )}
       </div>
     </DemoStage>
   );

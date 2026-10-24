@@ -34,10 +34,25 @@ const CELL_RATIO = 1.8;
 // 元映像に見立てた素材の解像度。実務ならここが<video>の中身にあたる
 const SRC_W = 216;
 const SRC_H = 120;
-// reduced-motion時に固定する時刻。光球が重なりすぎない位置を選んである
+// reduced-motion時に固定する時刻。写真の漂いが中央寄り(代わりの絵なら光球が重なりすぎない位置)になる値
 const STILL_T = 1.6;
+// 写真を枠より何倍に広げて敷くか。この余りの中をゆっくり漂わせて「映像」にする
+const PAN_ZOOM = 1.18;
 
-// 「元映像」を手続きで描く。2つの光球がリサージュ軌道で交差するだけの絵だが、
+// 写真(public/demo/photo-05.jpg・同一オリジンなのでgetImageDataでcanvasを汚染しない)を
+// coverで敷き、余りの中を時刻tでゆっくり漂わせる。明るい空と暗い街並みの境目が
+// ASCII化したとき文字の密度差としていちばんはっきり出る
+function drawPhoto(ctx: CanvasRenderingContext2D, photo: HTMLImageElement, t: number) {
+  const s = Math.max(SRC_W / photo.naturalWidth, SRC_H / photo.naturalHeight) * PAN_ZOOM;
+  const dw = photo.naturalWidth * s;
+  const dh = photo.naturalHeight * s;
+  const x = (SRC_W - dw) / 2 + ((dw - SRC_W) / 2) * Math.sin(t * 0.35);
+  const y = (SRC_H - dh) / 2 + ((dh - SRC_H) / 2) * Math.sin(t * 0.22 + 0.8);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.drawImage(photo, x, y, dw, dh);
+}
+
+// 写真が読めるまでの代わりの「元映像」。2つの光球がリサージュ軌道で交差するだけの絵だが、
 // なだらかな階調があるとASCII化したとき文字が等高線のように並ぶ
 function drawSource(ctx: CanvasRenderingContext2D, t: number) {
   ctx.globalCompositeOperation = "source-over";
@@ -106,6 +121,14 @@ export default function AsciiEffect({ params }: { params: ParamValues }) {
     const gctx = grid.getContext("2d", { willReadFrequently: true });
     if (!sctx || !gctx) return;
 
+    const photo = new Image();
+    let photoReady = false;
+    photo.onload = () => {
+      photoReady = true;
+      stillSig = "";
+    };
+    photo.src = "/motion-dict/demo/photo-05.jpg";
+
     let width = 0;
     let height = 0;
     let last = 0;
@@ -114,7 +137,8 @@ export default function AsciiEffect({ params }: { params: ParamValues }) {
 
     const paint = (t: number) => {
       const p = paramsRef.current;
-      drawSource(sctx, t);
+      if (photoReady) drawPhoto(sctx, photo, t);
+      else drawSource(sctx, t);
 
       ctx.fillStyle = "#0a0a0a";
       ctx.fillRect(0, 0, width, height);

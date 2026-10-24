@@ -49,7 +49,6 @@ export default function FogDrift({ params }: { params: ParamValues }) {
         onClick={() => setSolo((v) => !v)}
       >
         <div className={styles.frame}>
-          <div className={styles.hills} aria-hidden />
           <div
             ref={bankRef}
             className={styles.bank}

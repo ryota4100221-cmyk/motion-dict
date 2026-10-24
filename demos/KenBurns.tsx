@@ -36,7 +36,7 @@ export default function KenBurns({ params }: { params: ParamValues }) {
       <figure className={styles.card}>
         <div className={styles.frame}>
           <img
-            src="/motion-dict/demo/dummy-01.svg"
+            src="/motion-dict/demo/photo-01.jpg"
             alt=""
             draggable={false}
             className={styles.img}

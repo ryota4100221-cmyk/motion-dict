@@ -13,7 +13,7 @@
   overflow: clip;
 }
 
-/* ダミー画像(/demo/dummy-01.svg)。パン用に7%のブリードを敷いておく */
+/* 写真(/demo/photo-01.jpg)。パン用に7%のブリードを敷いておく */
 .img {
   position: absolute;
   inset: -7%;

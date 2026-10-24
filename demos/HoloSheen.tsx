@@ -71,7 +71,7 @@ export default function HoloSheen({ params }: { params: ParamValues }) {
         onPointerLeave={onPointerLeave}
         onPointerCancel={onPointerLeave}
       >
-        {/* 絵柄はCSSだけで描く(ダミー画像は本番のbasePathで404になる) */}
+        {/* 絵柄はCSSだけで描く(写真は本番のbasePathで404になる) */}
         <div className={styles.art} aria-hidden>
           <span className={styles.rings} />
           <span className={styles.emblem} />

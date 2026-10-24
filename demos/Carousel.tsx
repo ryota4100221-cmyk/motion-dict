@@ -7,9 +7,11 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./Carousel.module.css";
 
 const SLIDES = [
-  "/motion-dict/demo/dummy-01.svg",
-  "/motion-dict/demo/dummy-02.svg",
-  "/motion-dict/demo/dummy-03.svg",
+  "/motion-dict/demo/photo-01.jpg",
+  "/motion-dict/demo/photo-02.jpg",
+  "/motion-dict/demo/photo-03.jpg",
+  "/motion-dict/demo/photo-04.jpg",
+  "/motion-dict/demo/photo-05.jpg",
 ];
 
 export default function Carousel({ params }: { params: ParamValues }) {

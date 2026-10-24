@@ -9,23 +9,28 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* 写真(A=photo-02.jpg / B=photo-06.jpg) */
+  background-color: var(--code-bg);
+  background-image: url("/motion-dict/demo/photo-02.jpg");
+  background-size: cover;
+  background-position: center;
 }
 
 .frameB {
-  background: rgba(143, 180, 222, 0.07);
+  background-image: url("/motion-dict/demo/photo-06.jpg");
 }
 
+/* 写真の上でも読めるよう、薄い暗幕を敷いたラベル。字間ぶん右の余白を詰めて中央に見せる */
 .labelA,
 .labelB {
+  padding: 6px 8px 6px 12px;
+  border-radius: 2px;
+  background: rgba(10, 10, 10, 0.42);
   font-family: var(--font-mono), monospace;
   font-size: 17px;
   letter-spacing: 0.24em;
-  color: var(--code-fg);
+  color: rgba(240, 238, 230, 0.92);
   user-select: none;
-}
-
-.labelB {
-  color: var(--ai);
 }
 
 .panels {

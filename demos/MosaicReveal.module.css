@@ -14,11 +14,11 @@
   overflow: clip;
 }
 
-/* ダミー画像(/demo/dummy-01.svg)。タイルの下に1枚絵として敷く */
+/* 写真(/demo/photo-01.jpg)。タイルの下に1枚絵として敷く */
 .img {
   position: absolute;
   inset: 0;
-  background-image: url("/motion-dict/demo/dummy-01.svg");
+  background-image: url("/motion-dict/demo/photo-01.jpg");
   background-size: cover;
   background-position: center;
 }

@@ -21,8 +21,8 @@ function useReducedMotion(): boolean {
 }
 
 // 手前と奥の2被写体。距離表示はピントを送っている感じを出すための飾り。
-// 被写体の絵柄はレンズのピント確認に使うシーメンススターをCSSで描く。
-// 中心へ向かうほど縞が細かくなるので、わずかなボケでも潰れ方が目で分かる
+// 被写体は写真。手前=卓上の物撮り(photo-02)、奥=遠景の山(photo-08)にして、
+// 「手前の物から奥の景色へピントを送る」という撮影の実際の画で見せる
 const SUBJECTS = [
   { key: "near", tag: "NEAR — 1.2m" },
   { key: "far", tag: "FAR — 12m" },
@@ -57,7 +57,7 @@ export default function RackFocus({ params }: { params: ParamValues }) {
             onTouchStart={() => setFocus(i)}
           >
             <div className={styles.plate}>
-              <span className={styles.star} aria-hidden />
+              <span className={styles.photo} aria-hidden />
             </div>
             <span className={styles.tag}>{s.tag}</span>
           </div>

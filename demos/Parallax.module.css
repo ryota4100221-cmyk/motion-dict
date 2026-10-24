@@ -52,7 +52,10 @@
   height: 96px;
   border: 1px solid rgba(216, 212, 200, 0.22);
   border-radius: 4px;
-  background: rgba(38, 37, 32, 0.92);
+  /* 写真はJSがinlineでbackground-imageに敷く(暗幕グラデーション+写真) */
+  background-color: rgba(38, 37, 32, 0.92);
+  background-size: cover;
+  background-position: center;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
@@ -71,5 +74,5 @@
   height: 6px;
   width: 52%;
   border-radius: 3px;
-  background: rgba(216, 212, 200, 0.14);
+  background: rgba(233, 233, 227, 0.32);
 }

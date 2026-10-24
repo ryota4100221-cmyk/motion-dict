@@ -11,17 +11,20 @@ import { addTick } from "@/lib/raf";
 import type { ParamValues } from "@/lib/types";
 import styles from "./CoverFlow.module.css";
 
-// ジャケットはダミー画像を使わずグラデーションだけで描く
+// ジャケット＝写真（public/demo/photo-XX.jpg）。文字が読めるように下へ濃くなる暗幕を重ねる
+const photo = (n: number) =>
+  `linear-gradient(180deg, rgba(10,10,10,0.05) 40%, rgba(10,10,10,0.6) 100%), url("/motion-dict/demo/photo-0${n}.jpg") center / cover`;
+
 const COVERS = [
-  { title: "NOCTURNE", bg: "linear-gradient(135deg, #1f3b4d 0%, #0e1a24 100%)" },
-  { title: "SIGNAL", bg: "linear-gradient(160deg, #5a2f1c 0%, #1d0f0a 100%)" },
-  { title: "FIELDS", bg: "linear-gradient(120deg, #3e4a1a 0%, #141806 100%)" },
-  { title: "PRISM", bg: "linear-gradient(145deg, #3b2a55 0%, #120c1c 100%)" },
-  { title: "LUMEN", bg: "linear-gradient(135deg, #a5e02e 0%, #3f5a0c 100%)" },
-  { title: "TIDES", bg: "linear-gradient(150deg, #134a4a 0%, #061818 100%)" },
-  { title: "EMBER", bg: "linear-gradient(130deg, #6b1f2a 0%, #1f080c 100%)" },
-  { title: "STATIC", bg: "linear-gradient(140deg, #4a4a44 0%, #151513 100%)" },
-  { title: "ORBIT", bg: "linear-gradient(125deg, #1d2d63 0%, #080c1e 100%)" },
+  { title: "NOCTURNE", bg: photo(1) },
+  { title: "SIGNAL", bg: photo(2) },
+  { title: "FIELDS", bg: photo(3) },
+  { title: "PRISM", bg: photo(4) },
+  { title: "LUMEN", bg: photo(5) },
+  { title: "TIDES", bg: photo(6) },
+  { title: "EMBER", bg: photo(7) },
+  { title: "STATIC", bg: photo(8) },
+  { title: "ORBIT", bg: photo(1) },
 ];
 
 // 中央の隣(|o|=1)のカードまでの横距離。ここから先は spacing で重ねる

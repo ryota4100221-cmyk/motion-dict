@@ -42,16 +42,15 @@
   }
 }
 
-/* サムネイルに見立てた中身。渦の«向き»が読めるよう非対称にしておく */
+/* サムネイル＝写真(JSがinlineで敷く)。枠いっぱいにcoverで切り抜く。
+   写真の絵柄は非対称なので、渦の«向き»もそのまま読める */
 .thumb {
-  width: 62%;
-  height: 46%;
+  align-self: stretch;
+  flex: 1 1 auto;
   border-radius: 2px;
-  background: linear-gradient(
-    120deg,
-    var(--ai) 0%,
-    rgba(233, 233, 227, 0.22) 60%
-  );
+  background-color: rgba(233, 233, 227, 0.05);
+  background-size: cover;
+  background-position: center;
 }
 
 .playBtn {

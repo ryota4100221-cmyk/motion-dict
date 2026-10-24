@@ -9,7 +9,7 @@
   user-select: none;
 }
 
-/* ダミー画像(/demo/dummy-03.svg)。素材感のある背景としてガラスパネルの下に敷く */
+/* 写真(/demo/photo-03.jpg)。素材感のある背景としてガラスパネルの下に敷く */
 .img {
   position: absolute;
   inset: 0;

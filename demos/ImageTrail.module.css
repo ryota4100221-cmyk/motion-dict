@@ -24,15 +24,35 @@
   pointer-events: none;
 }
 
-/* ダミー画像3種(ローテーションで使用) */
+/* 写真3種(ローテーションで使用) */
 .v1 {
-  background-image: url("/motion-dict/demo/dummy-01.svg");
+  background-image: url("/motion-dict/demo/photo-01.jpg");
 }
 
 .v2 {
-  background-image: url("/motion-dict/demo/dummy-02.svg");
+  background-image: url("/motion-dict/demo/photo-02.jpg");
 }
 
 .v3 {
-  background-image: url("/motion-dict/demo/dummy-03.svg");
+  background-image: url("/motion-dict/demo/photo-03.jpg");
+}
+
+.v4 {
+  background-image: url("/motion-dict/demo/photo-04.jpg");
+}
+
+.v5 {
+  background-image: url("/motion-dict/demo/photo-05.jpg");
+}
+
+.v6 {
+  background-image: url("/motion-dict/demo/photo-06.jpg");
+}
+
+.v7 {
+  background-image: url("/motion-dict/demo/photo-07.jpg");
+}
+
+.v8 {
+  background-image: url("/motion-dict/demo/photo-08.jpg");
 }

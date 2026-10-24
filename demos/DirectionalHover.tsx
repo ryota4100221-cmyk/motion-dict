@@ -20,7 +20,13 @@ function useReducedMotion(): boolean {
   );
 }
 
-const CARDS = ["SPEEDSTER", "ROADSTER", "TECHNOLOGY", "OWNERSHIP"];
+// 塗りの中身は写真。カードごとに別の1枚を敷き、入った辺から写真がスライドして入る
+const CARDS = [
+  { label: "SPEEDSTER", photo: "/motion-dict/demo/photo-05.jpg" },
+  { label: "ROADSTER", photo: "/motion-dict/demo/photo-06.jpg" },
+  { label: "TECHNOLOGY", photo: "/motion-dict/demo/photo-07.jpg" },
+  { label: "OWNERSHIP", photo: "/motion-dict/demo/photo-04.jpg" },
+];
 
 type Edge = { x: number; y: number };
 
@@ -95,7 +101,7 @@ export default function DirectionalHover({ params }: { params: ParamValues }) {
   return (
     <DemoStage hint="PC: カードの各辺からホバー / スマホ: タップで表示">
       <div className={styles.grid}>
-        {CARDS.map((label) => (
+        {CARDS.map(({ label, photo }) => (
           <button
             key={label}
             type="button"
@@ -107,7 +113,10 @@ export default function DirectionalHover({ params }: { params: ParamValues }) {
             {/* reduce時は薄い定常オーバーレイを常時表示（スライドなし） */}
             <span
               className={styles.fill}
-              style={reduce ? { transform: "translate(0%,0%)", opacity: 0.22 } : undefined}
+              style={{
+                backgroundImage: `url("${photo}")`,
+                ...(reduce ? { transform: "translate(0%,0%)", opacity: 0.22 } : null),
+              }}
               aria-hidden
             />
             <span className={styles.label}>{label}</span>

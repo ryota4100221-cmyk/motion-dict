@@ -15,15 +15,15 @@
   will-change: opacity, transform;
 }
 
-/* ダミー画像(01=dummy-02.svg / 02=dummy-03.svg) */
+/* 写真(01=photo-02.jpg / 02=photo-03.jpg) */
 .imgA {
-  background-image: url("/motion-dict/demo/dummy-02.svg");
+  background-image: url("/motion-dict/demo/photo-02.jpg");
   background-size: cover;
   background-position: center;
 }
 
 .imgB {
-  background-image: url("/motion-dict/demo/dummy-03.svg");
+  background-image: url("/motion-dict/demo/photo-03.jpg");
   background-size: cover;
   background-position: center;
 }

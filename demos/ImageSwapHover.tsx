@@ -55,13 +55,13 @@ export default function ImageSwapHover({ params }: { params: ParamValues }) {
         <div className={styles.frame}>
           {/* 2枚とも最初からDOMに置き事前読込(src差し替えはチラつく) */}
           <img
-            src="/motion-dict/demo/dummy-02.svg"
+            src="/motion-dict/demo/photo-02.jpg"
             alt=""
             draggable={false}
             className={styles.img}
           />
           <img
-            src="/motion-dict/demo/dummy-03.svg"
+            src="/motion-dict/demo/photo-03.jpg"
             alt=""
             draggable={false}
             className={`${styles.img} ${styles.imgTop}`}

@@ -12,6 +12,10 @@ const DIRECTIONS = ["diagonal", "row", "column"] as const;
 const COLS = 4;
 const ROWS = 3;
 
+// カードの写真。8枚を順に割り当てる。ドットとバーが読めるよう下へ濃くなる暗幕を重ねる
+const photoBg = (i: number) =>
+  `linear-gradient(180deg, rgba(10,10,10,0) 35%, rgba(10,10,10,0.6) 100%), url("/motion-dict/demo/photo-0${(i % 8) + 1}.jpg")`;
+
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 
 function useReducedMotion(): boolean {
@@ -70,12 +74,13 @@ export default function StaggerGrid({ params }: { params: ParamValues }) {
     const col = i % COLS;
 
     let cls = styles.card;
-    let style: CSSProperties | undefined;
+    let style: CSSProperties = { backgroundImage: photoBg(i) };
     if (on && reduce) {
       cls = `${styles.card} ${styles.shown}`;
     } else if (on) {
       cls = `${styles.card} ${styles.lit}`;
       style = {
+        ...style,
         animationDelay: `${delayOf(row, col, dir, params.stagger)}s`,
         animationDuration: `${params.duration}s`,
       };

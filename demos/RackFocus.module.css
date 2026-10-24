@@ -36,8 +36,6 @@
 /* 被写体の枠。overflow: hiddenでボケてにじんだ縁を枠の外へ出さない */
 .plate {
   position: relative;
-  display: grid;
-  place-items: center;
   background: #0f110d;
   border: 1px solid rgba(216, 212, 200, 0.18);
   overflow: hidden;
@@ -51,29 +49,23 @@
   aspect-ratio: 1 / 1;
 }
 
-/* シーメンススター(レンズのピント確認用チャート)。中心へ寄るほど縞が密になり、
-   高周波の成分から先に潰れる=ボケ量の差がそのまま見た目に出る */
-.star {
-  width: 76%;
-  aspect-ratio: 1;
-  border-radius: 50%;
+/* 被写体の写真。枠いっぱいに cover で敷く。
+   細部(手前は湯気とガラスの縁、奥は稜線と雪の肌理)の多い写真ほど、ボケ量の差がそのまま見た目に出る */
+.photo {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
 }
 
-.near .star {
-  background: repeating-conic-gradient(
-    from 0deg,
-    rgba(216, 212, 200, 0.92) 0deg 6deg,
-    #0f110d 6deg 12deg
-  );
+.near .photo {
+  background-image: url("/motion-dict/demo/photo-02.jpg");
 }
 
-/* 奥は縞をさらに細かく、色味も落として距離感を出す */
-.far .star {
-  background: repeating-conic-gradient(
-    from 0deg,
-    rgba(165, 224, 46, 0.82) 0deg 4deg,
-    #0f110d 4deg 8deg
-  );
+/* 奥は遠景。わずかに彩度とコントラストを落として空気遠近を足す */
+.far .photo {
+  background-image: url("/motion-dict/demo/photo-08.jpg");
+  filter: saturate(0.85) contrast(0.92);
 }
 
 .tag {

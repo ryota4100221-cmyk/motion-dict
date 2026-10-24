@@ -14,24 +14,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--code-bg);
+  background-color: var(--code-bg);
+  background-image: url("/motion-dict/demo/photo-08.jpg");
+  background-size: cover;
+  background-position: center;
 }
 
+/* 写真(A=photo-08.jpg / B=photo-01.jpg) */
 .faceB {
-  background: var(--ai);
+  background-image: url("/motion-dict/demo/photo-01.jpg");
 }
 
+/* 写真の上でも読めるよう、薄い暗幕を敷いたラベル。字間ぶん右の余白を詰めて中央に見せる */
 .label,
 .labelB {
+  padding: 6px 8px 6px 12px;
+  border-radius: 2px;
+  background: rgba(10, 10, 10, 0.42);
   font-family: var(--font-mono), monospace;
   font-size: 17px;
   letter-spacing: 0.24em;
-  color: var(--code-fg);
+  color: rgba(240, 238, 230, 0.92);
   user-select: none;
-}
-
-.labelB {
-  color: var(--paper);
 }
 
 /* 割れて逃げる2枚のパネル。位置・寸法はaxisに応じてinlineで指定 */
@@ -48,9 +52,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--code-bg);
+  background-color: var(--code-bg);
+  background-image: url("/motion-dict/demo/photo-08.jpg");
+  background-size: cover;
+  background-position: center;
 }
 
 .innerB {
-  background: var(--ai);
+  background-image: url("/motion-dict/demo/photo-01.jpg");
 }

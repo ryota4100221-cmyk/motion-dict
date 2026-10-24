@@ -8,7 +8,7 @@
   border-radius: 2px;
 }
 
-/* ダミー画像(/demo/dummy-02.svg)。マスク(clip-path)だけが動く */
+/* 写真(/demo/photo-02.jpg)。マスク(clip-path)だけが動く */
 .img {
   position: absolute;
   inset: 0;

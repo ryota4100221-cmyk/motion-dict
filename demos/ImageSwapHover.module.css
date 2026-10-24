@@ -13,7 +13,7 @@
   overflow: hidden;
 }
 
-/* ダミー画像2枚(dummy-02 / dummy-03)。coverでサイズ差を吸収する */
+/* 写真2枚(photo-02 / photo-03)。coverでサイズ差を吸収する */
 .img {
   position: absolute;
   inset: 0;
