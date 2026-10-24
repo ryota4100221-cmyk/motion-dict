@@ -37,10 +37,11 @@ export const splitTextReveal: MotionEntry = {
   ],
   promptTemplate: `見出しに split text reveal を実装してください。
 
+- きっかけ: 見出し全体に mouseenter するたび最初から再生する(再生中でも頭から)。タッチは見出しのタップで同じ動作
 - テキストを1文字ずつspanに分割し、各文字を overflow: hidden の行内マスクで包む
 - 各文字は translateY({{yOffset}}px)・opacity 0 の状態から {{duration}}s かけて元の位置へせり上がる
 - 文字ごとに {{stagger}}ms ずつ transition-delay(またはGSAPのstagger)をずらす
-- イージングは cubic-bezier(0.22, 1, 0.36, 1) のような強めのease-out
+- イージングは transform が cubic-bezier(0.22, 1, 0.36, 1)(強めのease-out)、opacity は ease。delay は両方に同じ値を付ける
 - 再実行時は transition を切って初期位置へ戻してから再生する(リセット処理を忘れない)
 - prefers-reduced-motion 時は分割アニメーションを行わず全文を即表示する`,
   ngExample: {

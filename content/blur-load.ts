@@ -28,6 +28,7 @@ export const blurLoad: MotionEntry = {
   ],
   promptTemplate: `画像の読み込みに blur-up(LQIP)を実装してください。
 
+- きっかけ: 操作不要。本画像の読み込み完了(onload)で1回だけ自動でシャープになる。固定タイマーで待たない。読み込み済み(キャッシュ)の画像は img.complete を見て即時に完了扱いにする
 - 枠に aspect-ratio を固定で指定し、読み込みの前後でレイアウトが動かない(CLS 0)ようにする
 - 先に低解像度のプレースホルダ(縮小画像・blurDataURL等)を filter: blur({{blur}}px) + scale(1.06) で表示する
 - 本画像の onload を検知したら、{{duration}}s の ease-out で blur(0)・scale(1) に切り替える

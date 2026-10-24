@@ -37,9 +37,10 @@ export const hintNudge: MotionEntry = {
   ],
   promptTemplate: `スクロールできる横並びリストに hint nudge(操作を促すヒントアニメーション)を実装してください。
 
+- きっかけ: 操作不要。ページ表示から {{rest}}s 待って最初の周を鳴らし、以後も周ごとに自動で繰り返す。リストを scroll するか pointerdown した時点で止め、以後は出さない（タッチはスワイプで同じ）
 - リスト右端に矢印のヒント要素を置き、translateX で {{distance}}px だけ往復させる
-- 1周は「0 → distance → 0 → distance → 0」の2回ゆらしで、{{duration}}s の ease-in-out
-- 1周が終わったら {{rest}}s 休んでから次の周に入る(無限ループで鳴らし続けない)
+- 1周は「0 → distance → 0 → distance → 0」の2回ゆらしで、{{duration}}s。ease-in-out は @keyframes の各区間（4区間）ごとにかかる＝0%・50%・100% が translateX(0)、25%・75% が distance
+- 休止は各周の前に {{rest}}s（animation-delay）を置いて作り、1周が終わるたびに要素を作り直して次の周に入る(無限ループで鳴らし続けない)
 - ユーザーがスクロールまたはスワイプしたらヒントは役目を終えるので停止する
 - left や margin ではなく transform で動かす(リフローさせない)
 - prefers-reduced-motion 時は揺らさず、矢印を静止したまま表示して意味だけ残す`,

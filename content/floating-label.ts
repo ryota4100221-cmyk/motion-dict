@@ -37,8 +37,9 @@ export const floatingLabel: MotionEntry = {
   ],
   promptTemplate: `フォーム入力に floating label を実装してください。
 
+- きっかけ: 入力欄の focus で浮かせ、blur で値が空なら元の位置へ戻す(値があれば浮かせたまま)。ラベルは pointer-events: none にしてクリックを入力欄へ通す
 - ラベルは<label>要素で実装し、初期状態ではプレースホルダー位置(入力テキストと同じ位置)に重ねる
-- フォーカス時に transform: translateY(-{{rise}}px) scale({{scale}}) で浮き上がらせ、{{duration}}s の ease-out で動かす
+- フォーカス時に transform: translateY(-{{rise}}px) scale({{scale}}) で浮き上がらせ、{{duration}}s の cubic-bezier(0.22, 1, 0.36, 1)(減速の強いease-out)で動かす。浮いている間はラベル色をアクセント色に変え、同じ時間で切り替える
 - transform-origin: left を指定し、左端を固定したまま縮める(中央縮みは横ズレして見える)
 - :focus-within(またはfocus/blurイベント)で発火させ、値が入っている間は :placeholder-shown の否定かJSの記入済み判定で、フォーカスが外れても浮かせたままにする
 - font-sizeではなくscaleで縮める(リフロー禁止)
@@ -49,7 +50,7 @@ export const floatingLabel: MotionEntry = {
     why: "フォーカスで浮くだけの実装が高確率で返ってきて、文字を入れたままフォーカスを外すとラベルが入力値に重なって戻る「記入済み判定漏れ」が起きる。font-sizeを直接アニメーションさせるガタつく実装も多い。",
   },
   okExample: {
-    say: "「floating labelを:focus-withinで。translateY(-22px) scale(0.75)、0.2s ease-out、transform-origin: left。値が入っていれば浮かせたまま」",
+    say: "「floating labelを:focus-withinで。translateY(-22px) scale(0.75)、0.2s cubic-bezier(0.22,1,0.36,1)、transform-origin: left。値が入っていれば浮かせたまま」",
     why: "移動量・縮小率・origin・記入済み判定まで指定。「値が入っていれば浮かせたまま」の一言が実用品質を分ける。",
   },
   vocab: [

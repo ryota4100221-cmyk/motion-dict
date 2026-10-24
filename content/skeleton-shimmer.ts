@@ -28,11 +28,12 @@ export const skeletonShimmer: MotionEntry = {
   ],
   promptTemplate: `読み込み中のプレースホルダに skeleton shimmer を実装してください。
 
+- きっかけ: スケルトンを表示した瞬間から自動で無限ループ、操作不要。読み込み完了で実コンテンツに差し替わって終わる
 - 実コンテンツと同じレイアウト・同じ寸法の骨組み(角丸矩形と円)を薄いグレーで置く
-- 各ブロックに 105deg の linear-gradient(透明→ハイライト→透明)を background-size: 200% 100% で敷き、光の帯の幅はブロック幅の {{width}}% にする
-- background-position をCSSキーフレームで動かし、{{speed}}s 周期・linear・無限ループで左から右へ光を通す(JS不要)
+- 各ブロックに 105deg の linear-gradient(透明→ハイライト→透明)を background-size: 200% 100%(no-repeat)で敷き、光の帯の幅はブロック幅の {{width}}% にする(画像は2倍幅なので、ハイライトのピークを50%に置き、透明の終わり/始まりを 50% ∓ 幅÷4 % に置く)
+- background-position をCSSキーフレームで動かし、background-position: 150% 0 → -50% 0 を {{speed}}s 周期・linear・無限ループで回し、光をブロックの外から外へ通り抜けさせる(JS不要)
 - 骨組みの寸法は実コンテンツと一致させ、差し替え時のレイアウトシフトをゼロにする
-- 読み込みが終わったら周期の完了を待たず即座に実コンテンツへ差し替える
+- 読み込みが終わったら周期の完了を待たず即座に実コンテンツへ差し替え、実コンテンツは opacity 0→1 を 0.3s ease-out で出す
 - prefers-reduced-motion 時はシマーを止め、静止したスケルトンのみ表示する`,
   ngExample: {
     say: "「ローディング中はそれっぽいプレースホルダを出しといて」",

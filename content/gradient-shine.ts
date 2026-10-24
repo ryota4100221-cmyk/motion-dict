@@ -28,6 +28,7 @@ export const gradientShine: MotionEntry = {
   ],
   promptTemplate: `テキストに gradient shine(text shine)を実装してください。
 
+- きっかけ: ページ読み込み直後から自動で無限ループ、操作不要。ホバーで止めたり始めたりしない
 - 文字に linear-gradient(110deg) の背景を敷き、background-clip: text(-webkit-付きも併記)+ color: transparent で文字をグラデーションの窓にする
 - グラデーションはベース色の中央に幅 {{band}}% の明るいハイライト帯を置く(ベース {{band}}/2%手前 → ハイライト 50% → ベース {{band}}/2%先)
 - background-size: 250% 100% にして、background-position を 100%→0% へ {{period}}s の linear で無限ループさせる(帯が左から右へ走り抜ける)

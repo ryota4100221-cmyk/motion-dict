@@ -46,11 +46,13 @@ export const slicedText: MotionEntry = {
   ],
   promptTemplate: `見出しに sliced text(斜め断ち)を実装してください。
 
+- きっかけ: 見出し全体に mouseenter するたび最初から再生する(再生中でも頭から)。タッチは見出しのタップで同じ動作
 - 同じテキストを {{slices}} 枚重ね、それぞれ clip-path: polygon() で横帯に切り分ける
 - 帯の境界は水平ではなく傾ける。左右の高低差は文字高の {{tilt}}% とする
 - 再生時、隣り合う断片を互いに逆向きへ {{offset}}px ずらす。向きは切り口と直角(上下)を主とし、
   切り口に沿った横滑りを 0.8 倍だけ混ぜる
 - ずれは {{duration}}s のうち前半30%で最大に達し、残りで 0 に戻す。イージングは cubic-bezier(0.22, 1, 0.36, 1)
+- 同時に、切り口と同じ角度に回転させた細い線(transform-origin: left)を中央に1本走らせる。scaleX 0→0.35(15%時点・opacity 0→1)→1(55%時点)→最後に opacity 0 へ。断片と同じ所要時間・同じイージング
 - 動かすのは transform のみ。top/left や margin は使わない(リフローさせない)
 - 断片は aria-hidden にし、読み上げ用のテキストを1つだけ別に持たせる
 - prefers-reduced-motion 時はずらしも走査線も出さず、断片を合わせた静止状態で表示する`,

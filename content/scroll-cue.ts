@@ -46,10 +46,11 @@ export const scrollCue: MotionEntry = {
   ],
   promptTemplate: `ファーストビューの下端中央に scroll cue(マウス型のスクロール誘導)を実装してください。
 
+- きっかけ: ページ読み込み直後から自動で無限ループ、操作不要
 - 角丸の縦長の枠(マウスの輪郭)の中に、ホイールに見立てた小さな粒(幅2px・高さ6px程度)を上寄りに置く
-- 1周 {{duration}}s。最初の {{share}}% で粒を translateY(0)→translateY({{travel}}px) へ ease-out で下げながら、opacity 1→0・scaleY 1→0.5 で縮めて消す
+- 1周 {{duration}}s。最初の {{share}}% で粒を translateY(0)→translateY({{travel}}px) へ cubic-bezier(0.25, 0.6, 0.4, 1) で下げながら、opacity 1→0・scaleY 1→0.5 で縮めて消す
 - 消えた直後(+1%)に粒を translateY(0) へ瞬間的に戻し、そこから約20%かけて opacity 0→1 で現れさせ、残りは静止させる(往復させない。戻る動きを見せると「下へ回す」に見えない)
-- 同じ周期で枠ごと translateY({{nudge}}px) だけ沈めて戻す(粒が消えるのと同じタイミングで最深に。0なら枠は動かさない)
+- 同じ周期で枠ごと translateY({{nudge}}px) だけ沈めて戻す(往き・戻りとも ease-in-out。粒が消える {{share}}% の時点で最深、粒が現れ終わる時点で元の位置。0なら枠は動かさない)
 - 区間の割合を数値で変えられるよう、keyframes は Web Animations API(element.animate の offset 指定)で組んでもよい
 - top や margin ではなく transform と opacity で動かす(リフローさせない)
 - ページが少しでもスクロールされたらキューはフェードアウトさせて役目を終える。クリックで次のセクションへスクロールさせるなら <button> にして aria-label を付ける

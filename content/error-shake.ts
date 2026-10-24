@@ -37,7 +37,8 @@ export const errorShake: MotionEntry = {
   ],
   promptTemplate: `フォームの入力欄に error shake(エラー時のシェイク)を実装してください。
 
-- 送信エラー時に入力欄を translateX で左右に振る。キーフレームは ±{{amplitude}}px から始めて 0 へ向かって直線的に減衰させ、{{shakes}}往復で止める
+- きっかけ: 送信ボタンのクリックでバリデーションに落ちたとき、そのたびに最初から1回再生する。入力を修正し始めたら(input/change)エラー表示を解除する
+- 送信エラー時に入力欄を translateX で左右に振る。キーフレームは ±{{amplitude}}px から始めて 0 へ向かって直線的に減衰させ、{{shakes}}往復で止める。キーフレームは 0 → 左右の折り返し {{shakes}}×2 個 → 0 を等間隔に並べ、i番目の折り返しは (左から始めて交互の符号) × {{amplitude}} × (1 - i / ({{shakes}}×2))
 - 全体の長さは {{duration}}s、イージングは ease-out。動かすのは transform のみ(marginやleftでリフローさせない)
 - シェイクと同時に入力欄のボーダーをエラー色に変え、下にエラーメッセージを表示する(震えだけでは何が悪いか伝わらないため色とテキストを必ず併用する)
 - 再送信のたびにアニメーションを最初から再生し直せるようにする(Web Animations API の element.animate() か、クラスの付け直し)

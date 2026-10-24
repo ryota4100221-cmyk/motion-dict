@@ -46,17 +46,18 @@ export const dockMagnify: MotionEntry = {
   ],
   promptTemplate: `アイコンを横一列に並べたドックに dock magnification を実装してください。
 
+- きっかけ: ドックとその上の余白(せり出し分の56px程度)を含む帯の上で mousemove するたびに計算し直す。帯から mouseleave で等倍へ戻る。タッチは touchmove で同じ計算、touchend で等倍へ戻す
 - mousemove でポインタのX座標を取り、各アイテムの中心とのX距離 d を求める
 - 倍率は距離の二次関数で落とす: scale = 1 + ({{maxScale}} - 1) * max(0, 1 - (d / {{range}})^2)
-  {{range}}px より遠いアイテムは等倍のまま(隣が連れて膨らむ「山」がドックらしさの正体)
+  {{range}}px より遠いアイテムは等倍のまま(隣が連れて膨らむ「山」がドックらしさの正体。アイコン32px・間隔8pxの列が前提)
 - 中心の測定は transform 適用後の矩形ではなく、レイアウト上の位置(offsetLeft)から出す
   拡大後の矩形で測ると中心が自分の拡大に引きずられて震える
-- 適用するのは transform: translateY(せり出し) scale() だけ。せり出し量は倍率に比例させ、最大 {{lift}}px
+- 適用するのは transform: translateY(せり出し) scale() だけ。せり出し量は同じ減衰値 t を使って translateY(-{{lift}} * t px)
 - width / height / margin は絶対に動かさない(列の全アイテムにリフローが波及してカクつく)
 - transform-origin: bottom center。底辺を揃えたまま上へ伸ばす
 - transition: transform {{duration}}s ease-out。mousemove ごとの値の飛びをここで吸収する
 - ドックから mouseleave したら全アイテムを scale(1) に戻す
-- タッチ環境には hover が無いので、指のX座標(touchmove)で同じ計算を行うか、拡大を無効にして等倍で並べる。ホバー前提のまま放置しない
+- タッチ環境には hover が無いので、指のX座標(touchmove、preventDefault でスクロールを止める)で同じ計算を行う。ホバー前提のまま放置しない
 - prefers-reduced-motion: reduce では拡大を行わず、いま指しているアイテムを背景色の変化だけで示す`,
   ngExample: {
     say: "「macOSのDockみたいに、ホバーしたらアイコンが大きくなるナビにして」",

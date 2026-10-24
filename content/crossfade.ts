@@ -28,6 +28,7 @@ export const crossfade: MotionEntry = {
   ],
   promptTemplate: `画像の切り替えに crossfade を実装してください。
 
+- きっかけ: 切り替えボタンをクリックするたびに表示中の1枚ともう1枚を入れ替える。押すたびに交互に往復する
 - 2枚を同じ枠内に position: absolute で重ね、opacityの0/1を入れ替える
 - 切り替え時間は {{duration}}s。opacityはease、transformはcubic-bezier(0.16, 1, 0.3, 1)
 - 入ってくる側は scale({{zoomIn}}) から 1.0 へ戻しながらフェードインする

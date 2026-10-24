@@ -46,6 +46,7 @@ export const stampIn: MotionEntry = {
   ],
   promptTemplate: `承認バッジに stamp in(判子を押す動き)を実装してください。
 
+- きっかけ: 承認が確定した瞬間（デモでは書類の台紙のどこをクリック/タップしても）に判子を1回押す。押し直すときは再生中のアニメーションを cancel し、初期姿勢から最初から再生する
 - 初期状態は opacity: 0 / transform: scale({{scale}}) rotate(-{{angle}}deg)
 - 発火で opacity: 1 / transform: scale(1) rotate({{rest}}deg) へ {{duration}}s で遷移させる
 - easing は cubic-bezier(0.34, 1.3, 0.5, 1) のように終端でわずかに行き過ぎるものを使う(押し込んで戻る反力)

@@ -37,10 +37,11 @@ export const scrollFadeIn: MotionEntry = {
   ],
   promptTemplate: `セクション内の要素に scroll fade-in を実装してください。
 
+- きっかけ: 各要素がビューポートに15%入った時点で、その要素だけ1回再生する(スクロールの向きは問わない。戻しても再生しない)
 - IntersectionObserver でビューポート進入を検知する(threshold 0.15 程度)
 - 進入前は opacity 0 + translateY({{distance}}px)、進入後に opacity 1 + translateY(0) へ遷移
 - transition は {{duration}}s、イージングは cubic-bezier(0.22, 1, 0.36, 1) などの ease-out 系
-- 同時に進入した要素には {{stagger}}ms ずつ transition-delay をずらして順番に出す
+- 同じ IntersectionObserver のコールバックで同時に進入した要素には、その中の並び順に {{stagger}}ms ずつ transition-delay をずらして順番に出す
 - 一度表示したら unobserve し、逆スクロールしても消さない
 - prefers-reduced-motion 時はアニメーションなしで最初から表示する`,
   ngExample: {

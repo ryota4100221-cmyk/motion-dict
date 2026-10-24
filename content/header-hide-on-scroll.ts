@@ -37,13 +37,14 @@ export const headerHideOnScroll: MotionEntry = {
   ],
   promptTemplate: `固定ヘッダーに hide-on-scroll header(auto-hiding header)を実装してください。
 
+- きっかけ: ページ（ヘッダーを含むスクロール領域）の scroll イベントのたびに判定する。下へスクロールで格納、上へスクロールで復帰。操作が無ければ何も起きない
 - ヘッダーは position: fixed(またはsticky)のまま、transform: translateY(-100%) で画面外へ退避させる
-- スクロール方向を検知し、下方向なら格納・上方向なら復帰させる
+- スクロール方向は前回の scrollTop との差で検知し（差が0のときは前回の向きを引き継ぐ）、下方向なら格納・上方向なら復帰させる
 - スクロール量が {{offset}}px 以下の間は必ず表示したままにする(最上部でのチラつき防止)
 - 方向が変わった位置を基準に取り直し、そこから {{tolerance}}px 動いてから状態を切り替える(小さな揺れで点滅させない)
 - 出入りは transform の {{duration}}s ease で行い、top や height はアニメーションさせない(リフロー禁止)
 - scroll イベントは passive: true で購読し、状態が変わったときだけclassを付け替える
-- prefers-reduced-motion 時は遷移時間を0にし、ヘッダーを常時表示のままにする`,
+- prefers-reduced-motion 時は遷移時間を0にし、格納／復帰の状態だけを瞬時に切り替える`,
   ngExample: {
     say: "「スクロールしたらヘッダーを隠して」",
     why: "隠す条件も戻す条件も決まらない。スクロールのたびに再計算して点滅する実装や、最上部でも消えてロゴが見えなくなる実装が返ってくる。topをアニメーションさせてカクつくこともある。",

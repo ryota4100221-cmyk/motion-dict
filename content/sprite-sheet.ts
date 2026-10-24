@@ -48,9 +48,11 @@ export const spriteSheet: MotionEntry = {
   ],
   promptTemplate: `キャラクターアニメーションを sprite sheet animation で実装してください。
 
+- きっかけ: 窓に mouseenter で先頭コマから再生し、mouseleave で停止して先頭コマへ戻す。タッチは窓のタップで再生／停止をトグル
 - 絵を横一列に並べた帯(コマ数 {{frames}})を、1コマぶんの大きさの窓に overflow: hidden で入れる
 - 帯を transform: translateX で動かし、animation-timing-function は {{timing}} を使う
-- 1周 {{duration}}s、再生は {{loop}}
+- 1周 {{duration}}s、再生は {{loop}}(animation-fill-mode: both)
+- コマ送りの段数と移動量を再生方法で変える: ループ＝steps(コマ数) で帯を −100% まで送る／1回だけ・往復＝steps(コマ数−1) で −(コマ数−1)÷コマ数×100% まで送る(最終コマで止めるため。steps(コマ数) のままだと最終コマが一瞬しか出ない)
 - background-position ではなく transform で動かす(合成のみでリフローさせない)
 - コマの境界で絵が2枚見えないよう、窓の幅と1コマの幅を完全に一致させる
 - prefers-reduced-motion 時は自動再生せず、最初のコマを静止表示する(必要ならクリックで手動送り)`,

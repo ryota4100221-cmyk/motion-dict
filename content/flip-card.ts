@@ -38,9 +38,10 @@ export const flipCard: MotionEntry = {
   ],
   promptTemplate: `カードに flip card(rotateYの裏返し)を実装してください。
 
+- きっかけ: カードへの mouseenter で裏返し、mouseleave で同じ時間をかけて rotateY(0) へ戻す。タッチはタップごとに表裏をトグル
 - 外側ラッパーに perspective: {{perspective}}px、回転する内側要素に transform-style: preserve-3d を指定する
 - 表裏それぞれの面に backface-visibility: hidden を指定し、裏面はあらかじめ rotateY(180deg) で裏向きに重ねておく
-- ホバー(またはクリック)で内側要素を {{direction}} 方向に {{duration}}s の ease で回転させる
+- ホバーで内側要素を rotateY で {{direction}}させる。時間は {{duration}}s、イージングは cubic-bezier(0.4, 0, 0.2, 1)
 - 表裏は position: absolute で完全に重ね、サイズを一致させる
 - width / height をアニメーションさせない(transformのみ)
 - ホバーが使えないタッチデバイスではタップでトグルできるようにする
@@ -50,7 +51,7 @@ export const flipCard: MotionEntry = {
     why: "perspectiveなしの平板な回転や、backface-visibility未指定で裏面が鏡文字のまま透けて見える実装が返ってきがち。3点セットは明示しないと揃わない。",
   },
   okExample: {
-    say: "「flip cardをperspective: 800px + preserve-3d + backface-visibility: hiddenの3点セットで。ホバーでrotateY(180deg)、0.6s ease、タップでもトグル」",
+    say: "「flip cardをperspective: 800px + preserve-3d + backface-visibility: hiddenの3点セットで。ホバーでrotateY(180deg)、0.6s cubic-bezier(0.4,0,0.2,1)、タップでもトグル」",
     why: "3点セットと角度・時間・タッチ対応まで指定。特にbackface-visibilityを言わないと裏面の鏡文字事故が起きる。",
   },
   vocab: [

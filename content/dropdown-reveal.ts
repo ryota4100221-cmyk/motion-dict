@@ -37,8 +37,9 @@ export const dropdownReveal: MotionEntry = {
   ],
   promptTemplate: `ナビゲーションに dropdown reveal(ドロップダウンメニューの開閉アニメーション)を実装してください。
 
-- メニューはトリガーの直下に absolute 配置し、閉状態は opacity 0 / translateY(-{{offset}}px) / scale(0.98) / visibility: hidden にしておく
-- ホバー(タッチデバイスはタップ)で opacity 1 / translateY(0) / scale(1) に、{{duration}}s の ease-out で開く。transform-origin は top にする
+- きっかけ: トリガーとメニューを包む親への mouseenter で開き、親からの mouseleave で猶予後に閉じる。タッチはトリガーの touchstart で開閉をトグルし、直後700msはエミュレートされた mouseenter/leave を無視する
+- メニューはトリガーの直下(top: calc(100% + 8px))に absolute 配置し、閉状態は opacity 0 / translateY(-{{offset}}px) / scale(0.98) / visibility: hidden にしておく
+- ホバー(タッチデバイスはタップ)で opacity 1 / translateY(0) / scale(1) に、{{duration}}s の cubic-bezier(0.22, 1, 0.36, 1)(減速の強いease-out)で開く。transform-origin は top にする
 - 閉じるときはアニメーションさせず瞬時に消す(出は速く・戻りは即時の非対称)
 - ホバーがトリガーとメニューの両方から外れてから {{closeDelay}}s 待って閉じる(猶予中に戻ればタイマーをキャンセル)。トリガーとメニューは同じ親要素で包み、離脱判定は親で行う
 - 閉状態は visibility: hidden も切り替え、見えないメニューがクリックを奪わないようにする

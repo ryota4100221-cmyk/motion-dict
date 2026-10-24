@@ -37,9 +37,10 @@ export const pulseRing: MotionEntry = {
   ],
   promptTemplate: `インジケータ(LIVEバッジ・地図ピン等)に pulse ring(radar ping)を実装してください。
 
+- きっかけ: ページ読み込み直後から自動で無限ループする。操作は不要
 - 中心のコア(点)は動かさず、その背後に同じ位置・同じ大きさのリングを {{count}} 本重ねる
-- 各リングは transform: scale(1) から scale({{spread}}) へ広がりながら opacity 1 から 0 でフェードする。これを無限ループさせる
-- 1周期({{duration}}s)を本数で割った間隔で animation-delay をずらし、輪が等間隔で放たれ続けるようにする
+- 各リングは transform: scale(1) から scale({{spread}}) へ広がりながら opacity 0.85 から 0 でフェードする。これを無限ループさせる
+- 1周期({{duration}}s)を本数で割った間隔で animation-delay をずらし(i 本目は i × {{duration}}s / {{count}})、輪が等間隔で放たれ続けるようにする
 - イージングは ease-out 系(cubic-bezier(0, 0, 0.2, 1))。広がり始めが速く、外側で減速して消える
 - 拡大は width/height や box-shadow ではなく transform: scale で行う(リフローさせない)。リングは aria-hidden の装飾にし pointer-events: none
 - prefers-reduced-motion 時はリングの拡大を止め、コアの点(必要なら静止した細いリング1本)だけを表示する`,
@@ -48,7 +49,7 @@ export const pulseRing: MotionEntry = {
     why: "「波紋みたいな」では本数・広がる倍率・周期が決まらない。1本だけ点滅する実装や、box-shadowを膨らませてリフローさせる重い実装が返ってきやすい。放つ間隔(delay)の指定が抜けると輪が固まって同時に出る。",
   },
   okExample: {
-    say: "「pulse ring(radar ping)を実装。コアの背後に同径リングを3本重ね、scale(1)→scale(4)+opacity 1→0を2.4sでループ。周期÷本数でdelayをずらす。ease-out、transformのみ、reduced-motionはコアだけ表示」",
+    say: "「pulse ring(radar ping)を実装。コアの背後に同径リングを3本重ね、scale(1)→scale(4)+opacity 0.85→0を2.4sでループ。周期÷本数でdelayをずらす。ease-out、transformのみ、reduced-motionはコアだけ表示」",
     why: "本数・広がる倍率・周期・放つ間隔・イージング・パフォーマンス制約まで指定している。「transformで広げる」「delayを周期÷本数でずらす」の2点で、重い実装や輪が一斉に出る実装を防げる。",
   },
   vocab: [

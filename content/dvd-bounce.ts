@@ -46,6 +46,7 @@ export const dvdBounce: MotionEntry = {
   ],
   promptTemplate: `無操作時の画面に DVD screensaver bounce(ロゴが跳ね回るスクリーンセーバー)を実装してください。
 
+- きっかけ: 起動した瞬間から操作なしで等速移動と反射をループし続ける(止まらない)。どの条件で起動するか(無操作タイムアウト等)は呼び出し側で決める
 - コンテナを position: relative、ロゴを position: absolute; top:0; left:0 に置き、幅は {{size}}px
 - 位置は x/y をJSで持ち、毎フレーム transform: translate(Xpx, Ypx) だけで反映する(left/topは触らない)
 - 速度は {{speed}}px/s の等速。初期角度はランダムに取り、vx = cos(a)*speed / vy = sin(a)*speed に分解する
@@ -55,7 +56,7 @@ export const dvdBounce: MotionEntry = {
   x <= 0 なら x = 0, vx = Math.abs(vx) / x >= maxX なら x = maxX, vx = -Math.abs(vx)(yも同様)
   maxX = コンテナ幅 - ロゴ幅。単純な vx = -vx にすると端に食い込んだとき振動して抜けなくなる
 - 反射のたびに色相を {{hue}}deg 進める(filter: hue-rotate() でよい)
-- **コーナーヒット**: xとyの反射がほぼ同時(140ms以内)に起きたときだけ、ロゴを {{pop}} 倍に0.45sで膨らませて戻す
+- **コーナーヒット**: xとyの反射がほぼ同時(140ms以内)に起きたときだけ、ロゴの中身を keyframes 0%: scale(1) → 35%: scale({{pop}}) → 100%: scale(1) の 0.45s ease で1回だけ膨らませて戻す(transform は translate を持つ外側と分けた内側要素に掛ける)
   クラス付与で発火させる場合は、付け直す前に一度外して reflow を挟まないと2回目が再生されない
 - コンテナのリサイズ時は maxX/maxY を取り直し、位置を範囲内へクランプする
 - prefers-reduced-motion 時はループを一切回さず、ロゴを中央に静止表示する(色相も固定)`,

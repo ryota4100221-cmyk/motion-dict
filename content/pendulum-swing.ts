@@ -46,10 +46,11 @@ export const pendulumSwing: MotionEntry = {
   ],
   promptTemplate: `吊り下げタグに pendulum swing(振り子の揺れ)を実装してください。
 
+- きっかけ: タグ(button)をクリックするたびにそのタグが振れ出す。タッチはタップで同じ動作。ホバーでは揺らさない。連打すると今の揺れに足される
 - 回転の中心は要素の中心ではなく上の吊り点に置く。transform-origin: 50% -{{pivot}}px(要素の上辺から {{pivot}}px 上)
 - 紐と吊り穴は揺れる要素の内側に持たせ、要素と一緒に回す。吊り具(フック・レール)側は動かさない
-- クリック・タップ・ホバーで押されたら、角度 θ(t) = {{angle}}deg × r^(t / 半周期) × sin(2πt / {{period}}s) で振らせる。r = {{damping}}%(半往復ごとに残る振れ幅)
-- 押された側と反対へ振り出す(左から触れたら右へ)。揺れている最中に押されたら今の揺れに足し合わせ、角度を0に戻さない
+- 押されたら、角度 θ(t) = {{angle}}deg × r^(t / 半周期) × sin(2πt / {{period}}s) で振らせる。r = {{damping}}%(半往復ごとに残る振れ幅)
+- 押された側と反対へ振り出す(左から触れたら右へ)。揺れている最中に押されたら今の揺れに足し合わせ、角度を0に戻さない(足し合わせは最大4本まで。合計が {{angle}}deg を超えた分は tanh で柔らかく抑え、{{angle}}deg×1.8 で頭打ちにする)
 - r が100%のときは減衰させず、±{{angle}}deg を animation-direction: alternate + ease-in-out で揺れ続けさせる。複数並べる場合は負の animation-delay で位相をずらす
 - 振れ幅が0.05deg を切ったら rotate(0) に置いて止める
 - transform: rotate だけで動かす(left/top やレイアウトプロパティは触らない)。requestAnimationFrame は1本にまとめる

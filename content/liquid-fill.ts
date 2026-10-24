@@ -46,20 +46,21 @@ export const liquidFill: MotionEntry = {
   ],
   promptTemplate: `容器の中を液体が満ちていく liquid fill loader をSVGで実装してください。
 
+- きっかけ: 表示から0.4s後に自動で1回、0%から満ちる。Replay ボタンを押すたびに水位を transition なしで瞬時に0%へ戻し、約50ms後に再び満たす
 - 容器(円)の形の clipPath を定義し、液体はすべてその中に閉じ込める
 - 液体は上辺をなだらかなサインカーブ状にした波形パスで作る。パスの横幅は容器の2倍以上とり、CSSキーフレームの translateX で波長の整数倍ぶん左へ動かして {{speed}}s・linear・無限ループさせる(パスの周期と移動量を一致させ、ループの繋ぎ目を消す)
-- 波の振幅は {{amplitude}}px。波を2枚重ね、背面は透明度低め・周期長めにすると奥行きが出る
-- 水位(water level)は波パスを包む親グループの translateY で表現し、進捗率から線形に変換する(容器の底=0%、上端=100%)
-- 水位は 0% から {{progress}}% まで {{duration}}s の ease-out で transition させる
+- 波の振幅は {{amplitude}}px。波を2枚重ね、背面は山谷を反転させて透明度低め・周期を {{speed}}s の1.6倍にすると奥行きが出る
+- 水位(water level)は波パスを包む親グループの translateY で表現し、進捗率から線形に変換する(容器の底=0%、100%は容器の直径＋振幅×2 だけ持ち上げて満タン時に波の谷が上端を越えるようにする)
+- 水位は 0% から {{progress}}% まで {{duration}}s の cubic-bezier(0.16, 1, 0.3, 1)(easeOutExpo)で transition させる
 - 波のループ(translateX)と水位(translateY)は別のグループに分け、transformを衝突させない
-- 中央に進捗率の数値を重ねる
+- 中央に進捗率の数値を重ね、水位と同じ {{duration}}s・ease-out で opacity 0→1 にする
 - prefers-reduced-motion 時は波のループを止め、水位はアニメーションなしで最終値を即時表示する`,
   ngExample: {
     say: "「ロゴに水が溜まっていくようなローディングにして」",
     why: "波の作り方が未指定だと、角丸のborder-radiusを回転させる古いハック(角が目立って水に見えない)や、波のない只の矩形がせり上がるだけの実装が返ってくる。ループの繋ぎ目で波がワープするのも定番の失敗。",
   },
   okExample: {
-    say: "「liquid fill loaderをSVGで。円のclipPathに横幅2倍の波形パスを入れ、translateXを2.5s linearで無限ループ(周期と移動量を一致させ繋ぎ目なし)。振幅6px、水位は親グループのtranslateYで0→65%を1.5s ease-out。中央に%表示、reduced-motionでは波停止+即時表示」",
+    say: "「liquid fill loaderをSVGで。円のclipPathに横幅2倍の波形パスを入れ、translateXを2.5s linearで無限ループ(周期と移動量を一致させ繋ぎ目なし)。振幅6px、水位は親グループのtranslateYで0→65%を1.5s cubic-bezier(0.16,1,0.3,1)。中央に%表示、reduced-motionでは波停止+即時表示」",
     why: "clipPath方式・波のループの繋ぎ方・振幅・水位の動かし方まで指定している。「周期と移動量を一致させる」の一言で繋ぎ目のワープが消え、translateXとtranslateYの分離で水位と波が独立に動く。",
   },
   vocab: [

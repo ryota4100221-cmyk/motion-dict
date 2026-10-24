@@ -28,6 +28,7 @@ export const imageZoomHover: MotionEntry = {
   ],
   promptTemplate: `サムネイル画像に image zoom on hover を実装してください。
 
+- きっかけ: カード全体（画像枠とキャプション）に mouseenter で拡大、mouseleave で戻す。タッチはタップするたびに拡大／戻しをトグル
 - 枠に overflow: hidden を指定し、枠自体のサイズは絶対に動かさない
 - ホバーで中の img だけを transform: scale({{scale}}) に {{duration}}s のease-outで拡大する
 - マウスが離れたら同じ時間をかけて scale(1) に戻す

@@ -29,10 +29,11 @@ export const tabIndicator: MotionEntry = {
   ],
   promptTemplate: `タブUIに tab indicator(スライドする下線)を実装してください。
 
+- きっかけ: タブのクリック（タッチはタップ）で選択が切り替わり、そのたびにインジケーターが現在位置から新しいタブへ滑る。自動再生はしない
 - 下線は各タブに個別に付けず、タブ列に対して1本のインジケーター要素として絶対配置する
-- 選択タブが変わったら transform: translateX で新しいタブの位置へ {{duration}}s のease-out系で滑らせる
+- 選択タブが変わったら transform: translateX で新しいタブの位置へ {{duration}}s の cubic-bezier(0.22, 1, 0.36, 1)(序盤で一気に進むease-out)で滑らせる
 - 位置と幅は left / width のtransitionではなく translateX と scaleX で動かす(リフローさせない)
-- 移動中の伸縮エフェクトは「{{stretch}}」(「あり」の場合は移動中に scaleX で1.3〜1.4倍まで伸ばし、着地で1に戻す。transform-originは中央)
+- 移動中の伸縮エフェクトは「{{stretch}}」(「あり」の場合は translateX する要素の内側に別要素を置き、切り替えのたびに scaleX 1 → 1.4(45%地点) → 1 のkeyframesを移動と同じ時間・ease-out で再生する。transform-originは中央)
 - タブ幅が可変の場合は選択タブの offsetLeft / offsetWidth を測って位置とスケールに反映する
 - タブ本体の文字色も選択状態に合わせて0.2s程度でtransitionする
 - prefers-reduced-motion 時はスライドと伸縮をやめ、新しい位置に即時表示する`,

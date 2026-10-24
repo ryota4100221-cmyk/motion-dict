@@ -29,6 +29,7 @@ export const rotatingBadge: MotionEntry = {
   ],
   promptTemplate: `CTAまわりに rotating badge を実装してください。
 
+- きっかけ: ページ読み込み直後から自動で無限ループ、操作不要(ホバーやスクロールで速度・向きは変えない)
 - SVG(viewBox 0 0 100 100)に半径36の円形パスをdefsに定義し、textPath で「Scroll down · 」の繰り返しを円周に沿って組む
 - textLength を円周(2πr ≒ 226)に合わせ、lengthAdjust="spacing" で文字を等間隔に分配する(繰り返し文の切れ目を作らない)
 - テキストを包む g を CSS keyframes の rotate(0→360deg)、{{duration}}s の linear 無限ループで回す。回転方向は {{direction}}

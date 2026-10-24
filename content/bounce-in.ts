@@ -46,14 +46,15 @@ export const bounceIn: MotionEntry = {
   ],
   promptTemplate: `要素の登場に bounce in(減衰バウンド)を実装してください。
 
+- きっかけ: 操作不要。要素が表示された瞬間(マウント時)に1回自動で落ちてくる。要素自体のクリック(キーボードは Enter / Space)で何度でも最初から撃ち直せるようにする(タッチはタップで同じ動作)
 - 上 {{height}}px から落下し、接地後 {{bounces}} 回跳ね返って静止する
 - 跳ねの高さは毎回 {{damping}} 倍に減衰させる(等間隔で跳ねさせない)
-- **上りは ease-out・下りは ease-in** とイージングを区間ごとに反転する(全体に1つのeasingを掛けない)
+- **上りは ease-out・下りは ease-in** とイージングを区間ごとに反転する(全体に1つのeasingを掛けない)。最初の落下も ease-in。WAAPI では各区間のイージングをその区間の始点のキーフレームに書く
 - 各区間の長さは跳ねの高さの平方根に比例させる(自由落下の時間。跳ねが小さいほど区間も短くなる)
 - 合計 {{duration}}s で静止させる
 - translateY のみで動かし、top/margin は使わない(リフローさせない)
 - 実装は Web Animations API の element.animate() でキーフレームを生成する(何度でも撃ち直せるため)
-- prefers-reduced-motion 時は跳ねを完全に止め、opacityのフェードインだけで登場させる`,
+- prefers-reduced-motion 時は跳ねを完全に止め、opacityのフェードイン(0→1を0.2s)だけで登場させる`,
   ngExample: {
     say: "「ロゴをバウンドさせながら出して」",
     why: "跳ねる回数も減衰も決まらないため、CSSの `ease-in-out` を1つ掛けただけの「上下に往復するだけ」の動きが返ってくる。重力に見えない最大の原因は、上りと下りに同じイージングが当たっていること。",

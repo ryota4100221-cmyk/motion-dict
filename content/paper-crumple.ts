@@ -46,14 +46,15 @@ export const paperCrumple: MotionEntry = {
   ],
   promptTemplate: `破棄する紙カード(レシートや下書き)に paper crumple(丸めて捨てる)を実装してください。
 
-- 全体 {{duration}}s。前の約70%で丸め、残りで投げる
+- きっかけ: 紙カード本体のクリック(Enter/Spaceも可)か「破棄」ボタンで1回再生する。タッチはタップで同じ動作。再生中の追加クリックは無視する
+- 全体 {{duration}}s。0〜68%で丸め、80%地点で一瞬下へ6px沈ませて溜め(scale を1.08倍・縦0.96倍)、80〜100%で投げる
 - 丸めは clip-path: polygon() の12頂点(各辺に4点)を、角から中心へ段階的に寄せて作る。各頂点は中心からの距離を±{{wrinkle}}%ずつ互い違いにずらし、輪郭をギザギザにする
-- 同時に transform で scale を縮め、rotate を -2deg → 4deg → -7deg → 9deg のように左右交互に振ってねじれを出す。丸め終わりの見た目の幅は元の紙の {{ball}} 倍にする
-- しわは ::after に半透明の linear-gradient を数本重ねた影で描き、丸め始めの15%で opacity 0→0.7 まで一気に上げる
-- 投げは translate で水平に {{toss}}px、少し下へ落としつつ rotate を260degほど回し、opacity を0にする
+- 同時に transform で scale を縮め、rotate を 13%:-2deg → 28%:4deg → 43%:-7deg → 57%:9deg → 68%:-5deg と左右交互に振ってねじれを出す。丸め終わりの見た目の幅は元の紙の {{ball}} 倍にする
+- しわは ::after に半透明の linear-gradient を数本重ねた影で描き、丸め始めの14%で opacity 0→0.7 まで一気に上げ、30%で1にしてそのまま保つ
+- 投げは translate で水平に {{toss}}px、下へ ({{toss}}×0.4+24)px 落としつつ rotate を260degほど回し、opacity を0にする
 - clip-path と transform と opacity だけで動かし、width/height は変えない(リフロー禁止)。clip-pathの頂点数は全キーフレームで揃える(数が違うと補間されない)
 - 各キーフレームに easing を個別に指定する(丸めは cubic-bezier(0.7,0,0.3,1)、投げは cubic-bezier(0.5,0,0.9,0.5))
-- 捨てた後に次の紙を出す場合は、丸めが終わってから出す(同時に出すと捨てた物が見えない)
+- 捨てた後に次の紙を出す場合は、投げ終わって0.22s後に出す(同時に出すと捨てた物が見えない)
 - prefers-reduced-motion 時は丸めも投げもせず、0.2sのフェードアウトで消す`,
   ngExample: {
     say: "「削除するとき紙をクシャッとして捨てる感じにして」",

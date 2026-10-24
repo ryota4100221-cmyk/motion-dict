@@ -46,11 +46,12 @@ export const flameFlicker: MotionEntry = {
   ],
   promptTemplate: `アイコンに flame flicker(炎のゆらめき)を実装してください。
 
-- 炎は1つのSVGアイコンにし、transform-origin を炎の底辺の中央(bottom center)に置く。SVG内の path に掛ける場合は transform-box: fill-box も指定する
-- ホバー(タッチ端末ではタップ)で1回だけ再生する。長さは {{duration}}s、全体を ease-in-out で
-- キーフレームは不規則な刻み(7% / 17% / 28% / 40% / 53% / 67% / 80% / 90%)で置き、skewX を 0 → {{lean}}deg を山にして右へ傾ぎ、振れ幅を少しずつ減らして90%で transform: none に戻す。rotate は skewX の約0.4倍を同じ向きに足す
-- 同じ刻みで scaleY を最大 +{{stretch}}% 伸ばし、その半分だけつぶす。scaleX は scaleY と逆向きに3割ほど動かして体積を保つ
-- 炎の先から {{sparks}} 個の火の粉(直径3pxの円の疑似要素)を時間差で出す。各粒は上へ約7px・右へ約2px昇りながら scale 0.9→0.45 に縮み、opacity 0→0.9→0 で消える
+- きっかけ: ボタン(行全体)への pointerenter・focus・click のたびに1回だけ再生する。再生中に入り直しても無視し、終わったら次の入りで再び燃える
+- 炎は1つのSVGアイコンにし、transform-origin を炎の底辺の中央(24pxのアイコンなら 50% 87.5%＝炎の底 y=21)に置く。SVG内の path に掛ける場合は transform-box: fill-box も指定する
+- ホバー(タッチ端末ではタップ)で1回だけ再生する。長さは {{duration}}s。easing は各キーフレーム区間ごとに ease-in-out(全体に1本掛けない)。負の delay(−{{duration}}s × 0.07)で頭の0〜7%を飛ばし、形の揺れから見せる
+- キーフレームは不規則な刻み(7% / 17% / 28% / 40% / 53% / 67% / 80% / 90%)で置き、skewX は {{lean}}deg を最大とした比 0 / 0 / 0.67 / 1 / 0.42 / 0.75 / 0.29 / 0.1 / 0(0%〜90%)で右へ傾いでは戻り、90%で transform: none に戻す。rotate は skewX の約0.4倍を同じ向きに足す
+- 同じ刻みで scaleY を最大 +{{stretch}}% 伸ばし、その半分だけつぶす(既定5%で 0.99 / 1.05 / 0.975 / 1.04 / 0.982 / 1.02 / 1.008 / 1)。scaleX は scaleY と逆向きに3割ほど動かして体積を保つ
+- 炎の先から {{sparks}} 個の火の粉(直径4pxの円)を時間差で出す。1粒目は全体の14%から、以降は24%おき(数が多いときは 0.42 /(数−1) に詰める)。各粒は出てから9%で opacity 0.9・上へ5px・scale 0.9、30%で上へ15px・横へ粒ごとに −4〜+6px 流れて scale 0.45・opacity 0 で消える(区間は ease-out)
 - ホバー中に再度入っても途中から頭出しにならないよう、再生中は重ねて開始しない。animation: infinite で燃やし続けない
 - transform と opacity だけで動かす(width や path の d は動かさない)
 - prefers-reduced-motion 時はゆらめきと火の粉を出さず、色の変化だけでホバーを示す`,

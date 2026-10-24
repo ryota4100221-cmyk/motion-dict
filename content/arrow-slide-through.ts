@@ -47,11 +47,12 @@ export const arrowSlideThrough: MotionEntry = {
   ],
   promptTemplate: `ボタンの矢印アイコンに arrow slide-through(ホバーで矢印が指す方向へ抜け、反対側から戻ってくる演出)を実装してください。
 
+- きっかけ: 矢印だけでなくボタン全体への pointerenter と focus で、そのボタンの矢印を1回再生する(タッチはタップ時の pointerenter で同じ動作)。再生中にもう一度入ったら実行中のアニメーションを cancel して最初から再生し直す。離れたときの逆再生はしない
 - 矢印は inline SVG にし、ボタン内の overflow: clip の小さな枠に入れる(抜けた矢印を枠で切る)
 - ホバー開始で1回だけ再生する(ホバー中にループさせない)。全体は {{duration}}s
 - 前半 {{exit}}% で、矢印が指す向き(→なら右、↗なら右上)へ矢印自身の大きさの {{travel}}% だけ translate しながら opacity 0 へ。ease-in(cubic-bezier(0.55, 0, 0.75, 0.2))で加速して抜ける
 - 抜け切った瞬間に反対側の同じ距離(-{{travel}}%)へ瞬間移動し、残りの時間で元の位置へ戻す。戻りはわずかにオーバーシュートする ease-out(cubic-bezier(0.34, 1.56, 0.64, 1))
-- 抜け方は {{mode}}。draw の場合は、抜けながら stroke-dashoffset で線を消し、戻りは pathLength="1" の軸→矢じりの順に時間差で描き直す
+- 抜け方は {{mode}} にする(slide=上記の抜けて戻る / draw=線を消して描き直す)。draw の場合は、前半 {{exit}}% で移動を {{travel}}% の4割に抑えながら stroke-dashoffset 0→1 で線を消し、反対側へは飛ばずに元の位置で pathLength="1" の軸→矢じりの順に描き直す。軸は全体の {{exit}}%×0.85 の時点から、矢じりは残り時間の45%遅れて始め、どちらも cubic-bezier(0.22, 1, 0.36, 1) で全体の終わりに描き終える
 - 動かすのは transform / opacity / stroke-dashoffset だけにする(left や margin は使わない)
 - :focus-visible でも同じ再生をする。タッチ端末ではタップ時に1回再生する
 - prefers-reduced-motion 時は矢印を動かさず、色の変化だけにする`,

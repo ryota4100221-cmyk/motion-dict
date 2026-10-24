@@ -37,10 +37,11 @@ export const velocitySkew: MotionEntry = {
   ],
   promptTemplate: `スクロール中のテキストに velocity skew を実装してください。
 
-- 毎フレーム scrollY の差分からスクロール速度を計算する(requestAnimationFrame使用)
-- 速度 × {{factor}} を skewY の目標値にし、±{{maxSkew}}deg でクランプする
-- 現在値は lerp(係数 {{lerp}})で目標に追従させ、スクロールが止まったら 0deg に戻す
-- transform は skewY のみで位置は動かさず、対象に will-change: transform を指定する
+- きっかけ: ページ（テキスト列を含むスクロール領域）をスクロールするだけ。速く動かすほど傾き、手を止めると0degへ戻る。下へスクロールで正、上へで負の向き。クリック等の操作や自動再生は無い
+- 毎フレーム scrollY の差分(px/フレーム。60fps前提、dt は掛けない)をスクロール速度とする(requestAnimationFrame使用)
+- 速度(px/フレーム) × {{factor}} をそのまま skewY の目標値(deg)にし、±{{maxSkew}}deg でクランプする
+- 現在値は毎フレーム current += (target − current) × {{lerp}} で目標に追従させ、スクロールが止まったら 0deg に戻す
+- skewY はテキスト列を包む1つの要素にまとめて掛ける。transform は skewY のみで位置は動かさず、対象に will-change: transform を指定する
 - prefers-reduced-motion 時はスキューを無効化する`,
   ngExample: {
     say: "「スクロールで文字がグニャってなるやつやって」",

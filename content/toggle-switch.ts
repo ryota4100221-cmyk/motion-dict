@@ -29,8 +29,9 @@ export const toggleSwitch: MotionEntry = {
   ],
   promptTemplate: `アニメーション付きの toggle switch を実装してください。
 
+- きっかけ: スイッチ全体（トラック＋On/Offラベルを含むボタン）のクリック/タップ1回ごとに ON⇄OFF を切り替える。自動では動かさない
 - ノブ(thumb)は transform: translateX() で移動させる。leftやmarginをアニメーションさせない(リフロー禁止)
-- 切り替え時間は {{duration}}s。イージングは {{overshoot}} とする。「あり(back ease)」なら cubic-bezier(0.34, 1.56, 0.64, 1) のように1.0を超えて戻る曲線、「なし(ease-out)」なら cubic-bezier(0.22, 1, 0.36, 1)
+- 切り替え時間は {{duration}}s。行き過ぎの指定は「{{overshoot}}」。「あり(back ease)」なら cubic-bezier(0.34, 1.56, 0.64, 1) のように1.0を超えて戻る曲線、「なし(ease-out)」なら cubic-bezier(0.22, 1, 0.36, 1)
 - トラックの背景色もノブと同じ {{duration}}s で遷移させ、移動と色を1つの動きとして同期させる(色はease-outでよい)
 - role="switch" と aria-checked を付け、クリック領域はスイッチ全体に広げてタップでも操作できるようにする
 - prefers-reduced-motion 時はアニメーションなしで即時切り替えにする`,

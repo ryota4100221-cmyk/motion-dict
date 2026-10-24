@@ -37,10 +37,11 @@ export const headerShrink: MotionEntry = {
   ],
   promptTemplate: `固定ヘッダーに shrinking header を実装してください。
 
+- きっかけ: ページの scroll イベントのたびに scrollY を見て、閾値を下へ越えたら縮小・上へ戻ったら元の高さに戻す
 - ヘッダーは position: sticky(または fixed)で最上部に固定する
-- scrollY が {{threshold}}px を超えたら縮小状態に切り替える。境界でのチラつきを防ぐため、戻す判定は発火より少し手前にする(ヒステリシス)
-- 縮小状態では高さを元の {{ratio}} 倍にし、ロゴは transform: scale で同程度に縮める(高さはpaddingで作り、ロゴのfont-sizeは変えない)
-- 遷移は {{duration}}s の ease で、高さとロゴのtransformを同時に動かす
+- scrollY が {{threshold}}px を超えたら縮小状態に切り替える。境界でのチラつきを防ぐため、戻す判定は {{threshold}} - 24px（0未満にしない）まで戻ったときにする(ヒステリシス)
+- 縮小状態では高さを元の {{ratio}} 倍にし、ロゴは transform: scale({{ratio}})・transform-origin: left center で同じ比率に縮める(ロゴのfont-sizeは変えない)
+- 遷移は {{duration}}s の ease で、ヘッダーの height とロゴの transform を同時に動かす
 - スクロール量に連続追従させず、閾値での2値のクラス切り替えにする
 - 変種として「下スクロールで隠れ、上スクロールで現れる」auto-hide型もある。その場合はスクロール方向で translateY(-100%) を切り替える
 - prefers-reduced-motion 時は遷移なしで状態だけ即座に切り替える`,
@@ -49,7 +50,7 @@ export const headerShrink: MotionEntry = {
     why: "閾値も縮小率も未指定。スクロール量に比例して高さを毎フレーム再計算するガタつく実装や、境界の上でスクロールが止まると縮む・戻るをチラチラ繰り返す実装が返ってくる。",
   },
   okExample: {
-    say: "「shrinking headerを実装。scrollY 80pxで発火・戻りは60px(ヒステリシス)、高さ0.6倍・ロゴはscaleで縮小、0.3s ease、閾値での2値クラス切り替え」",
+    say: "「shrinking headerを実装。scrollY 80pxで発火・戻りは56px(ヒステリシス24px)、高さ0.6倍・ロゴはscaleで縮小、0.3s ease、閾値での2値クラス切り替え」",
     why: "閾値・縮小率・時間に加えて「2値のクラス切り替え」まで指定している。連続追従かON/OFFかで実装が根本から変わり、安定するのは後者。",
   },
   vocab: [

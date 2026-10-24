@@ -37,10 +37,11 @@ export const scrollScrub: MotionEntry = {
   ],
   promptTemplate: `スクロールで映像を送る scroll scrub を実装してください。
 
+- きっかけ: wrapper の上端がビューポート上端に達した時点から、スクロール量がそのまま再生位置になる。スクロールを止めれば映像も止まり、戻せば逆再生する(タッチは上下スワイプで同じ)
 - 対象セクションを高さ {{length}} 画面分の wrapper で囲み、中の <video>(または連番画像を描く <canvas>)を position: sticky; top: 0 で固定する
 - video には muted / playsinline / preload="auto" を付ける。autoplay も controls も付けない(再生位置はスクロールだけが決める)
 - 進捗は progress = -wrapperRect.top / (wrapperHeight - viewportHeight) を 0〜1 にクランプして求める
-- 目標値 target = progress * video.duration を current += (target - current) * {{smoothing}} で補間する
+- 目標値 target = progress * video.duration を rAF の毎フレーム current += (target - current) * {{smoothing}} で補間する
 - currentTime への代入は rAF の中で1フレームに1回だけ行う。scroll イベントの中で直接代入しない(シークの連打でデコードが詰まる)
 - Math.abs(video.currentTime - current) が {{threshold}} フレーム分({{threshold}} / fps 秒)未満なら代入をスキップする
 - 動画はキーフレーム間隔を1〜2秒に詰めて再エンコードする。キーフレームが疎な動画は逆方向のシークで固まる

@@ -37,11 +37,12 @@ export const footerReveal: MotionEntry = {
   ],
   promptTemplate: `ページ最下部に footer reveal を実装してください。
 
+- きっかけ: ページのスクロール(scroll イベント、passive)だけで進む。最後の {{height}}px ぶんをスクロールする間に露出し、上へ戻せば同じ量だけ隠れ直す。時間で動くアニメーションは無い
 - フッターは position: fixed; bottom: 0 で固定し、高さを {{height}}px にする
 - 本文(フッター以外を包むラッパー)に margin-bottom: {{height}}px を確保し、背景色を必ず不透明にする(透けるとフッターが常に見えてしまう)
 - 重なり順は本文が上・フッターが下(本文: position: relative; z-index: 1 / フッター: z-index: 0)
-- スクロール終端に近づいたら露出率(0〜1)を「スクロール残量 ÷ フッター高さ」で計算する
-- 露出率に合わせてフッターを translateY({{lift}}px → 0) でせり上げる
+- スクロール終端に近づいたら露出率(0〜1)を「1 − スクロール残量 ÷ フッター高さ」で計算し 0〜1 にクランプする(残量 = scrollHeight − clientHeight − scrollTop)。補間は線形でイージングを掛けない
+- 露出率に合わせてフッターを translateY({{lift}}px → 0) でせり上げる(translateY = (1 − 露出率) × {{lift}}px)
 - フッターに rgba(0, 0, 0, {{dim}}) の暗幕を重ね、露出率に合わせて0までフェードさせる
 - prefers-reduced-motion 時は translateY と暗幕を無効化し、固定表示のみにする`,
   ngExample: {

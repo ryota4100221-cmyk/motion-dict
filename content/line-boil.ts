@@ -37,11 +37,12 @@ export const lineBoil: MotionEntry = {
   ],
   promptTemplate: `要素に line boil(コマ撮り風の震え)を実装してください。
 
+- きっかけ: ボタンは mouseenter / focus で震え始め、mouseleave / blur で止まる。タッチはタップするたびに震え／停止を切り替える。小さな装飾アイコンはページ表示中ずっと震わせ続ける（操作不要）
 - 姿勢を4枚用意した @keyframes を作り、0% / 25% / 50% / 75% にそれぞれ別の translate と rotate を置く(100% は 0% と同じ)
-- 各姿勢のずれは位置 最大{{amplitude}}px・角度 最大{{rotation}}deg。符号と大きさを姿勢ごとにばらし、往復運動に見えないようにする
+- 各姿勢のずれは位置 最大{{amplitude}}px・角度 最大{{rotation}}deg。符号と大きさを姿勢ごとにばらし、往復運動に見えないようにする（例: (x, y, 角度)を最大値に対し 0%=(-1, 0.5, -1) / 25%=(1, -0.6, 1.1) / 50%=(-0.6, -0.4, -0.4) / 75%=(0.8, 0.7, 0.7) 倍）
 - タイミング関数は steps(1) または step-end。ease や linear で補間すると「揺れ」になってしまい、コマ撮りの粗さが出ない
 - 1秒に {{fps}} 回姿勢を切り替える。4姿勢なので animation-duration は 4 / {{fps}} 秒、infinite で回す
-- 背景の板と文字のように層が重なる場合は、層ごとに duration か animation-direction(reverse)を変えて同期させない
+- 背景の板と文字のように層が重なる場合は、層ごとに周期と向きを変えて同期させない（板は 1.25倍の周期、文字は同じ周期で animation-direction: reverse）
 - ボタンでは :hover と :focus-visible のときだけ再生し、常時再生はアイコン等の小さな装飾に限る
 - 動かすのは transform のみ(レイアウトを動かさない)
 - prefers-reduced-motion 時は animation を止め、静止した1枚の姿勢で表示する`,

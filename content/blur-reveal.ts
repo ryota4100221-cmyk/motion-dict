@@ -37,9 +37,10 @@ export const blurReveal: MotionEntry = {
   ],
   promptTemplate: `テキストに blur reveal(ぼかしから現れる演出)を実装してください。
 
+- きっかけ: 操作不要。テキストが表示された直後(デモはマウントの0.4s後)に自動で1回再生する。再生し直す Play/Replay ボタンを付ける場合は、transition: none で全文字を初期状態へ戻し、reflow(offsetHeight の読み出し)を挟んでから再び遷移させる
 - テキストを1文字ずつ span に分割する(spanは display: inline-block)
 - 初期状態は filter: blur({{blur}}px) と opacity: 0
-- 表示時に filter: blur(0) / opacity: 1 へ {{duration}}s の ease-out で遷移させる
+- 表示時に filter: blur(0) / opacity: 1 へ {{duration}}s で遷移させる(filter は ease-out、opacity は ease)
 - 文字ごとに {{stagger}}ms ずつ transition-delay をずらして順に現れるようにする
 - filter はコンポジット負荷が高いので、適用は見出しなど短いテキストに限定し、本文全体には使わない
 - アニメーション中のみ will-change: filter, opacity を効かせ、完了後は外す

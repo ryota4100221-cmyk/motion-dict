@@ -46,13 +46,14 @@ export const stickerPeel: MotionEntry = {
   ],
   promptTemplate: `ステッカー(シール/テープ)に sticker peel(端がめくれて戻る動き)を実装してください。
 
+- きっかけ: ページ表示の0.6s後から操作不要で自動ループする。加えて各シールへの pointerenter / focus / クリック(タップ)でその1枚を1回再生する（再生中の1周が終わるまでは受け付けない）
 - 進み具合は 0〜1 の CSS 変数 --peel ひとつで表し、見た目はすべて CSS の calc で --peel から導く
 - シール全体の外枠(.peel)を rotate({{angle}}deg) で回し、中身はさらに逆向きに -({{angle}})deg 回して正立させる。こうすると折り目は外枠の水平線のまま、画面上では {{angle}}deg 傾いた線になる
 - 折り目の位置 cut は「上端より少し外(=何も折れていない)」から上端から {{depth}}% までを --peel で補間する
 - 表面(face)は clip-path: polygon で折り目より下だけを残す
 - めくれた部分(flap)は表面と同じ形の複製を top: calc(-100% + 2 * cut) に置いて transform: scaleY(-1) で裏返し、clip-path で折り目より上だけを残す。これで切り取った上側が折り目を軸に鏡写しで重なる
 - flap の中身は表の絵柄ではなく裏紙の単色にし(SVG filter の feFlood + feComposite in=SourceAlpha でも可)、filter: brightness(calc(1 + var(--peel) * 0.22)) で反るほど明るくする。flap の外側の要素に drop-shadow を付けて浮きを出す
-- 再生は --peel を 0→1 に {{duration}}s(ease-out)、{{hold}}s 止めて、1→0 に duration の1.6倍(ease-in-out)。複数枚あるときは1.3sずつずらし、3.4s 休んで繰り返す。ホバー(タッチではタップ)でもその1枚を1回再生する
+- 再生は --peel を 0→1 に {{duration}}s(power2.out = 1−(1−t)²)、{{hold}}s 止めて、1→0 に duration の1.6倍(power3.inOut)。--peel の値は rAF で毎フレーム計算して書き込む。複数枚あるときは1.3sずつずらし、1周後に3.4s 休んで繰り返す
 - 動かすのは clip-path と transform だけにし、width・height・top を毎フレーム書き換えない(cut は CSS 変数経由で一度に反映する)
 - prefers-reduced-motion 時はループもホバー再生もせず、--peel を 0.3 前後に固定した「少しはがれた」静止状態で見せる`,
   ngExample: {

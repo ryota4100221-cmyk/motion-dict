@@ -28,9 +28,10 @@ export const toastSlide: MotionEntry = {
   ],
   promptTemplate: `トースト通知(スナックバー)を実装してください。
 
+- きっかけ: 通知を出す操作（保存・コピーなどの完了。デモでは Notify ボタンのクリック/タップ）のたびに1枚発行する。連続で押すとその数だけ積まれる
 - トーストは画面右下に固定し、画面外(translateX(120%))から {{duration}}s でスライドインさせる。イージングは ease-out(例: cubic-bezier(0.22, 1, 0.36, 1))
-- 表示から {{hold}}s 経ったら自動で退場させる。出は入りと非対称に、ease-in で画面外へ滑らせながら opacity 0 へフェードする
-- 複数のトーストはスタックさせ、1つ消えたら残りを transform の transition で滑らかに詰め直す(topやmarginをアニメーションさせない)
+- 表示から {{hold}}s 経ったら自動で退場させる。出は入りと非対称に、入りと同じ時間を ease-in(cubic-bezier(0.55, 0, 1, 0.45))で translateX(120%) へ滑らせながら opacity を linear で 0 へフェードし、終わったらDOMから外す
+- 複数のトーストはスタックさせ(新しいものが一番下、古いものほど translateY で「高さ+間隔」ずつ上へ。最大4枚で、溢れたら最も古いものから退場)、1つ消えたら残りを transform の transition で滑らかに詰め直す(topやmarginをアニメーションさせない)
 - 動かすのは transform と opacity のみ。リフローを起こさない
 - prefers-reduced-motion 時はスライドさせず、opacityのフェードのみで出し入れする`,
   ngExample: {

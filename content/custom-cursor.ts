@@ -38,11 +38,12 @@ export const customCursor: MotionEntry = {
   ],
   promptTemplate: `カスタムカーソルを実装してください。
 
+- きっかけ: カーソルを隠した領域内の mousemove で円が追従する。最初に入った位置へはワープさせずそこから追従を始める。タッチは touchmove(ドラッグ)で同じ追従
 - ネイティブカーソルは cursor: none で非表示にする
-- 直径 {{size}}px の円が、毎フレーム lerp(係数 {{lerp}})でカーソル位置を追従する
+- 直径 {{size}}px の円が、毎フレーム pos += (target - pos) * {{lerp}} でカーソル位置を追従する(dtは掛けない・60fps前提)。中心をカーソルに合わせるため translate(-50%, -50%) を足す
 - 円には mix-blend-mode: {{blend}} を適用し、重なった要素と色が干渉するようにする
 - 円自体には pointer-events: none を指定してクリックを奪わない
-- ウィンドウからカーソルが出たら円をフェードアウトする
+- ウィンドウからカーソルが出たら(タッチは指を離したら)円を opacity 0.25s でフェードアウトする
 - prefers-reduced-motion 時は遅延追従をやめ、カーソル位置に即時追従させる`,
   ngExample: {
     say: "「マウスに丸がついてくるやつやって」",

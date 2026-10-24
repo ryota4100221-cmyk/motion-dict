@@ -28,11 +28,12 @@ export const spotlightHover: MotionEntry = {
   ],
   promptTemplate: `セクションに spotlight hover を実装してください。
 
+- きっかけ: セクション内で mousemove するとカーソルに追従して光り、mouseleave で消える。タッチは touchmove(ドラッグ)で追従、指を離すと消える
 - カーソル位置を CSS変数(--x, --y)に反映し、radial-gradient の中心にする
-- 光の半径は {{radius}}px、縁のぼかしは係数 {{softness}}(0でくっきり、1で溶けるように)
+- 光の半径は {{radius}}px、縁のぼかしは係数 {{softness}}(0でくっきり、1で溶けるように)。radial-gradient(circle 半径px at --x --y, 光の色 0%, 光の色 (1 − ぼかし係数)×100%, transparent 100%) とし、ぼかし係数で「色が一定の芯」の割合を決める
 - 光の色は rgba(233,230,223,0.14) 程度のごく淡いものにする(照らしすぎない)
 - mousemove は requestAnimationFrame でスロットリングし、毎イベントで再描画しない
-- mouseleave 時は光を opacity で 0.3s かけてフェードアウトする
+- mouseleave 時は光を opacity で 0.3s(ease)かけてフェードアウトする。再び入ったときも同じ 0.3s でフェードインする
 - prefers-reduced-motion 時は追従させず、光を無効化または中央に固定表示する`,
   ngExample: {
     say: "「マウスのところが光るようにして」",

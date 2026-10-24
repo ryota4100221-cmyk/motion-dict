@@ -29,13 +29,14 @@ export const drawerSlide: MotionEntry = {
   ],
   promptTemplate: `サイドナビに drawer slide を実装してください。
 
+- きっかけ: メニューボタンのクリック/タップで開き、同じボタン(開いている間は「Close」表記)かオーバーレイのクリックで閉じる
 - パネルは画面の {{direction}} 側に position: fixed で配置し、transform: translateX で画面外(105%ぶん外側)から0へ {{duration}}s で滑り込ませる
-- easingは cubic-bezier(0.22, 1, 0.36, 1) のような減速の効いたease-outを使う
-- 背景のオーバーレイは同じ {{duration}}s で opacity 0→1 にフェードさせ、クリックで閉じられるようにする
+- パネルの easing は開閉とも cubic-bezier(0.22, 1, 0.36, 1)(減速の効いたease-out)
+- 背景のオーバーレイは同じ {{duration}}s で opacity 0→1 に ease でフェードさせ、クリックで閉じられるようにする
 - 閉じるときはパネルを画面外へ戻しつつ、オーバーレイを同時にフェードアウトする
 - 動かすのは transform と opacity のみ。left / right プロパティをアニメーションしない(リフローさせない)
 - 表示中は背面のスクロールを固定し、Escキーでも閉じられるようにする
-- prefers-reduced-motion 時はスライドをやめ、フェードのみ(または即時)で開閉する`,
+- prefers-reduced-motion 時はスライドをやめ、パネル・オーバーレイとも opacity 0.15s linear のフェードだけで開閉する`,
   ngExample: {
     say: "「横からスライドするメニューを作って」",
     why: "leftプロパティのtransitionで毎フレームレイアウト計算が走る実装や、オーバーレイなしでパネルだけが出てくる実装が返ってきやすい。開いている間に背景がスクロールできてしまう抜けも定番。",

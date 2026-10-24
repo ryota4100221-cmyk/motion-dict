@@ -28,8 +28,9 @@ export const beforeAfter: MotionEntry = {
   ],
   promptTemplate: `2枚の画像を比較する before/after スライダーを実装してください。
 
+- きっかけ: ハンドルだけでなく画像の枠のどこでも pointerdown した位置へ境界が飛び、そのままドラッグで追従する(タッチはスワイプで同じ動作)。指を離した位置で止まる。境界は枠の3〜97%の範囲に制限する
 - after画像を下、before画像を上に同サイズで重ね、上の画像を clip-path: inset(0 右側% 0 0) で左側だけ見せる
-- ハンドル(縦線+ツマミ)は left ではなく transform: translateX で動かす(リフロー禁止)
+- ハンドル(縦線+ツマミ)は left ではなく transform: translateX で動かす(リフロー禁止)。ハンドルは枠と同じ全幅のラッパーに入れて中央に線を置き、translateX(位置% − 50%) で動かす
 - Pointer Events(pointerdown/move/up)で実装し、setPointerCaptureで枠外に出てもドラッグを継続する
 - コンテナに touch-action: none を指定し、スマホのスクロールと競合させない
 - 初期位置は {{initial}}%

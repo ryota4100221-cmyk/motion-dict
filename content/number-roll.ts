@@ -28,6 +28,7 @@ export const numberRoll: MotionEntry = {
   ],
   promptTemplate: `数値表示に number roll(slot machine counter)を実装してください。
 
+- きっかけ: 数字の行に mouseenter するたびに全桁を0の位置へ transition なしで戻し(リフローを1回挟む)、最初から回し直す。タッチはタップで同じ動作。初回は表示の0.4s後に1回だけ自動で回す
 - 各桁を overflow: hidden のマスク(高さ1em)にし、中に 0〜9 を縦に2周並べたリストを入れる
 - 各桁のリストを translateY で目標の数字の位置まで回す。2周目の数字を目標にすると、小さい数字でも全桁が必ず1回転して見える
 - {{duration}}s の cubic-bezier(0.22, 1, 0.36, 1) で回し、桁ごとに {{stagger}}ms ずつ遅らせて左の桁から順に確定させる

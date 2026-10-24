@@ -28,9 +28,10 @@ export const lightbox: MotionEntry = {
   ],
   promptTemplate: `画像ギャラリーに lightbox を実装してください。
 
+- きっかけ: サムネイル（ボタン全体）のクリック／タップで開き、背景クリック・Esc・閉じるボタンで閉じる。開閉の再生中は次の操作を受け付けない
 - サムネイルをクリックしたら、その画像を画面中央に大きく表示する
-- 拡大はFLIPで行う: サムネイルの位置を計測し、中央の拡大レイアウトへ差分transformをかけてから {{duration}}s のease-outで transform: none に再生する(サムネイルから連続的に拡大して見えること)
-- 背景には黒のオーバーレイ(opacity {{dim}} 程度)を敷き、同じ {{duration}}s でフェードインする
+- 拡大はFLIPで行う: サムネイルの位置を計測し、中央の拡大レイアウトへ差分transformをかけてから {{duration}}s の cubic-bezier(0.33, 1, 0.68, 1)(easeOutCubic)で transform: none に再生する。拡大要素は transform-origin: top left にし、translate と scale(幅比, 高さ比) を組む(サムネイルから連続的に拡大して見えること)
+- 背景には黒のオーバーレイ(opacity {{dim}} 程度)を敷き、同じ {{duration}}s・ease-out で 0→{{dim}} にフェードインする
 - 閉じる操作は3系統用意する: 背景クリック / Escキー / 閉じるボタン。閉じるときは同じ経路を逆再生してサムネイルへ戻す
 - 表示中は背面ページのスクロールをロックする
 - transformとopacityのみで動かす(リフロー禁止)

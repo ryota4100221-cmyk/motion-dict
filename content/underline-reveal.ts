@@ -29,6 +29,7 @@ export const underlineReveal: MotionEntry = {
   ],
   promptTemplate: `リンクに underline reveal を実装してください。
 
+- きっかけ: リンク文字への mouseenter で伸ばし、mouseleave で縮めて戻す(戻りも同じ origin 側へ縮む)。タッチはタップするたびに表示/非表示をトグルする
 - 下線は height 1px の擬似要素(::after)で作り、transform: scaleX(0) で隠しておく
 - ホバーで scaleX(1) に、{{duration}}s の ease-out で伸ばす
 - transform-origin は {{origin}} に設定する

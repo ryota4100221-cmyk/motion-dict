@@ -38,10 +38,11 @@ export const expandingSearch: MotionEntry = {
   ],
   promptTemplate: `ヘッダーの検索ボタンに expanding search bar を実装してください。
 
+- きっかけ: 虫眼鏡ボタンのクリック/タップで開き、Esc・閉じるボタン・空のままの blur で閉じる。開閉のたびに1回ずつ伸縮を再生する
 - 閉じた状態は虫眼鏡アイコンのボタンだけを置く。押したら、検索欄（form）を同じ行の上に position: absolute で重ねてマウントする（隣のナビは押しのけず、上に被せる）
 - 検索欄は {{anchor}} 側の端を固定し、幅 {{startWidth}}px から行いっぱいまで {{duration}}s の ease-out で伸ばす。伸びている間は overflow: hidden で中身を切り取る
 - 開いたら input に自動でフォーカスし、すぐ打てる状態にする。Esc キー・閉じるボタン・入力が空のままフォーカスが外れたときに閉じる
-- 閉じるときは同じ {{duration}}s で {{startWidth}}px まで縮め、animationend を待ってからアンマウントする（縮む前に消さない）。閉じたらフォーカスを検索ボタンに戻す
+- 閉じるときは同じ {{duration}}s で {{startWidth}}px まで縮め、animationend を待ってからアンマウントする（縮む前に消さない）。Esc・閉じるボタンで閉じたときはフォーカスを検索ボタンに戻す（blur で閉じたときは戻さない）
 - 検索欄は absolute で重ねているので幅を動かしても周囲はリフローしない。周囲を押しのける実装（flex の中で width を伸ばす）にはしない
 - 検索ボタンに aria-expanded と aria-controls を付け、input には label（見えなくてよい）を付ける
 - prefers-reduced-motion 時は伸縮アニメーションなしで、検索欄を最終の幅のまま即時に出し入れする（フォーカス移動などの挙動はそのまま）`,

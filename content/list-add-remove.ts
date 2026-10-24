@@ -46,13 +46,14 @@ export const listAddRemove: MotionEntry = {
   ],
   promptTemplate: `リスト(カートの行・TODOなど)の項目の追加と削除をアニメーションさせてください。
 
+- きっかけ: 各行のゴミ箱ボタンをクリック／タップするとその行を削除、リスト見出しの＋ボタンで新しい行を追加する（タッチも同じ）。複数行を続けて押してもそれぞれ独立に畳む
 - 削除: 押した直後に行を DOM から抜かない。まず行の現在の高さ(clientHeight)を px で測り、CSS変数 --row-height に入れる
-- {{delay}}s 待ってから(この間にゴミ箱アイコンの蓋を数px跳ねさせて押下を返す)、{{duration}}s の ease-in-out で height を --row-height → 0 に畳む
-- 同時に padding-block・margin-bottom・border-color も 0 / transparent へ。行には overflow: hidden を付ける(中身がはみ出して見えないように)
+- {{delay}}s 待ってから(この間にゴミ箱アイコンの蓋を transform-origin: 100% 100% を軸に translateY(-3px) rotate(-8deg) まで跳ねて戻す。蓋の尺は {{delay}}s(最短0.12s)、ease-in-out)、{{duration}}s の ease-in-out で height を --row-height → 0 に畳む
+- 同時に padding-top / padding-bottom を 0 へ、border-bottom-color を transparent へ。行には overflow: hidden を付ける(中身がはみ出して見えないように)
 - opacity は 1→0 を、畳む時間の最初の {{fade}}% で終わらせる(100なら高さと同時)
 - 消える行を translateX(-{{slide}}px) へずらす(0なら横には動かさない)
 - animationend(または Web Animations API の finished)で初めて DOM から取り除く。これで下の行が畳まれた分だけ滑らかに詰まる
-- 追加: 新しい行は height 0・opacity 0 から開始し、同じ {{duration}}s で実際の高さまで開く。height: auto へのアニメーションは interpolate-size: allow-keywords が使えるブラウザならそれで、使えなければ測った px で行う
+- 追加: 削除の逆再生（待ちは無し）。新しい行は height 0・padding 0・opacity 0・translateX(-{{slide}}px) から開始し、同じ {{duration}}s の ease-in-out で実際の高さまで開く。opacity は最後の {{fade}}% で 0→1 にする。height: auto へのアニメーションは interpolate-size: allow-keywords が使えるブラウザならそれで、使えなければ測った px で行う
 - 畳んでいる最中の行は pointer-events: none にして二重に押せないようにする
 - prefers-reduced-motion 時はアニメーションせず、即座に抜く・即座に挿す`,
   ngExample: {
@@ -60,7 +61,7 @@ export const listAddRemove: MotionEntry = {
     why: "行をその場でフェードアウトさせて終わりの実装が返りやすい。透明になったあとで行が DOM から抜かれるので、下の行が一瞬でガクッと上へ飛ぶ。何が消えたかは結局見えない。",
   },
   okExample: {
-    say: "「削除は行の高さを測って--row-heightに入れ、0.125s待ってから0.25s ease-in-outでheight・padding・marginを0へ畳む。opacityは同時に0。animationendでDOMから外す。追加は0から同じ時間で開く。reduced-motionでは即時」",
+    say: "「削除は行の高さを測って--row-heightに入れ、0.125s待ってから0.25s ease-in-outでheight・paddingを0へ畳み罫線を透明に。opacityは同時に0。animationendでDOMから外す。追加は0から同じ時間で開く。reduced-motionでは即時」",
     why: "「高さを測って0まで畳む」「終わってから外す」の2点が、下の行が滑らかに詰まるかどうかを決める。待ち時間と時間の数値もあるので、押した手応えと速さが指定どおりに出る。",
   },
   vocab: [

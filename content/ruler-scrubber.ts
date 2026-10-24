@@ -46,13 +46,14 @@ export const rulerScrubber: MotionEntry = {
   ],
   promptTemplate: `値表示器として ruler scrubber を実装してください。
 
+- きっかけ: 窓(目盛の帯)のどこでも押して左右にドラッグ(タッチはスワイプで同じ動作)。帯は指に貼り付いて動く＝指を右へ動かすと帯も右へ動き、値は減る
 - 固定幅の窓（overflow: hidden）の中に、目盛を {{pitch}}px 間隔で並べた帯（track）を絶対配置で置く
 - 針は窓の中央に固定し、動かすのは帯だけ。帯は transform: translateX(中央座標 - 進捗 × 帯の全長) で動かす（leftやscrollLeftではなくtransform。リフローさせない）
 - 目盛は {{majorEvery}} 本ごとを長い目盛（18px）＋数値ラベル、それ以外を短い目盛（9px）にする
 - 針から片側 {{focusTicks}} 本ぶんの範囲にある短い目盛だけ、長い目盛の高さまで伸ばす。
   伸び量は距離の smoothstep（o*o*(3-2*o)）で補間し、height ではなく transform: scaleY() と transform-origin: center top で描く
 - 窓には mask-image: linear-gradient(90deg, transparent 0, #000 {{edgeFade}}%, #000 calc(100% - {{edgeFade}}%), transparent 100%) をかけて左右端を溶かす
-- ドラッグ（pointerdown/move）で進捗を指に1:1で追従させ、0〜1にクランプする。タッチでも同じ操作ができるよう touch-action: none を指定する
+- ドラッグ（pointerdown/move）で進捗を指に1:1で追従させ（進捗 −= 移動px ÷ 帯の全長）、0〜1にクランプする。setPointerCapture で窓の外へ出ても追従を続ける。タッチでも同じ操作ができるよう touch-action: none を指定する
 - 針の直下の値は毎フレーム再レンダーせず、DOMの textContent を直接書き換える（目盛のscaleYも同様に、値が変わった目盛だけ書く）
 - prefers-reduced-motion 時は自走スイープを止めて静止状態で表示し、ドラッグ時も補間なしで即座に位置を反映する`,
   ngExample: {

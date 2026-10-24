@@ -29,10 +29,11 @@ export const splitScreen: MotionEntry = {
   ],
   promptTemplate: `ページ遷移に split screen transition を実装してください。
 
+- きっかけ: 遷移を起こす操作1回につき1回再生する(デモはページ面のどこをクリック/タップしても遷移。ボタンだけにしない)。再生中の操作は無視する
 - 次のページを下の層に敷き、現在のページを2枚のパネルに分けて上に重ねる
 - 割れる方向は {{axis}}(verticalなら上下のパネルをtranslateYで、horizontalなら左右のパネルをtranslateXで逃がす)
 - 各パネルは overflow: hidden にし、中に元ページ全体をずらして入れる(継ぎ目で絵が繋がって見えるように)
-- パネルは {{duration}}s の cubic-bezier(0.77, 0, 0.175, 1) で ±101% まで動かし、画面外へ完全に出す
+- パネルは {{duration}}s の cubic-bezier(0.77, 0, 0.175, 1) で ±101% まで動かし、画面外へ完全に出す(上/左のパネルは −101%、下/右は +101%)。覆った状態を1フレーム描いてから transition を付けて動かす
 - 開き切ったらパネルをDOMから外すか visibility: hidden にする
 - top/leftではなくtransformだけで動かす(リフロー禁止)
 - prefers-reduced-motion 時はパネルを動かさず、即時切り替えか短いフェードにする`,

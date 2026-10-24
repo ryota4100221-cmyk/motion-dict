@@ -28,10 +28,11 @@ export const scrollSpy: MotionEntry = {
   ],
   promptTemplate: `目次ナビの現在地がスクロールに追従してハイライトされる scroll spy を実装してください。
 
+- きっかけ: ページのスクロールに常時連動(上下どちら向きでも、判定帯にセクションが触れた時点で切り替わる)。操作はスクロールだけ
 - scrollイベントで全セクションのgetBoundingClientRectを毎回読むのではなく、IntersectionObserver で検知する
 - 「画面に見えているか」で判定しない。rootMargin の上を -{{line}}%、下を -(99 − {{line}})% 削り、画面上端から {{line}}% の位置に細い判定帯を作って「帯に触れたセクション」だけをアクティブにする(境界で2つ同時に光る事故を防ぐ)
 - 同フレームで複数セクションが交差した場合は最後に入ったものを採用し、アクティブは常に1つに保つ
-- ハイライトは色替えだけでなく、インジケーター(バー・ドット)を transform: translateY で {{duration}}s かけてスライドさせる(top/leftではなくtransformで動かす)
+- ハイライトは色替えだけでなく、インジケーター(バー・ドット)を transform: translateY で {{duration}}s の cubic-bezier(0.22, 1, 0.36, 1) でスライドさせる(top/leftではなくtransformで動かす)。移動量は「アクティブの番号 × ナビ1項目の高さ」
 - ナビクリックのジャンプ時も判定はIOに任せ、フラグでの手動制御はしない。着地位置は scroll-margin-top で固定ヘッダー分を確保する
 - prefers-reduced-motion 時はインジケーターのスライドを止め、切り替えを即時反映にする`,
   ngExample: {

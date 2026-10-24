@@ -35,6 +35,9 @@ for (const e of entryList) {
   if (e.vocab.length < 3) errors.push(`${e.slug}: vocab が ${e.vocab.length} 項目`);
   if (!e.ngExample.say || !e.ngExample.why || !e.okExample.say || !e.okExample.why)
     errors.push(`${e.slug}: NG/OK例が不完全`);
+  // 盲検（2026-10-25）：きっかけ（何の操作で再生するか）が無いと、別のAIはクリック再生やボタンだけの遷移で作り、動きが出なかった
+  if (!/^- きっかけ: /m.test(e.promptTemplate))
+    errors.push(`${e.slug}: template の先頭に「- きっかけ: 」の行がない`);
   if (!e.promptTemplate.includes("reduced-motion"))
     errors.push(`${e.slug}: template に reduced-motion 言及なし`);
 }

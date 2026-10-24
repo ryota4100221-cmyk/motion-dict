@@ -39,8 +39,9 @@ export const mosaicReveal: MotionEntry = {
   ],
   promptTemplate: `画像の出現に mosaic reveal(タイル状リビール)を実装してください。
 
-- 画像の上に CSS grid で {{tiles}} のカバータイル(背景と同色)を敷き詰める
-- 各タイルを {{order}} の順に {{stagger}}ms ずつ遅らせ、opacity 1→0 (各0.4s)で消していく
+- きっかけ: 図版(画像とキャプションを含む figure)のどこを click しても再生する。タイルを transition なしで一瞬で全部覆い直し、約60ms後から消していく。再生中のクリックは無視。タッチはタップで同じ動作
+- 画像の上に CSS grid で {{tiles}}(列×行)のカバータイル(背景と同色)を敷き詰める
+- 出現順: {{order}}(random=全タイルをシャッフルした順／sequential=左上から行ごとの順／diagonal=列番号+行番号が同じタイルを同時に、左上から斜めに)。順位1つにつき {{stagger}}ms ずつ遅らせ、opacity 1→0(各0.4s・ease)で消していく
 - 出現順はJSでdelay配列を作り、各タイルの transition-delay に流し込む(randomはFisher–Yatesでシャッフル)
 - 動かすのはopacityのみ。タイルを動かしたり画像自体を切り抜いたりしない(リフロー禁止)
 - 全タイル消滅後はオーバーレイごと display: none にして操作を妨げない

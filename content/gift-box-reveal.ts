@@ -46,10 +46,11 @@ export const giftBoxReveal: MotionEntry = {
   ],
   promptTemplate: `特典ポップアップのギフト箱に gift box animation(mystery box tease)を実装してください。
 
+- きっかけ: ポップアップカードが表示されたら0.3s後に自動で1回再生。箱（ボタン全体）をクリック／タップするたびに頭から再生し直す
 - 箱はSVGで「本体」と「フタ（リボンと結び目を含む）」を別の <g> に分け、動かすのはフタの <g> だけにする
 - フタは transform-box: fill-box; transform-origin: 18% 100%（奥の左下の角）を蝶番にする
 - フタを {{peeks}} 回浮かせて戻す。1回目は translateY(-{{lift}}px) rotate(-{{tilt}}deg)、2回目以降は前回の0.45倍の量に減衰させ、rotate の符号を毎回反転させる（-9°→+4°のように）。各回の頂点は区間の前寄り（1回目は区間の50%、2回目以降は36%）に置き、区間の終わりで必ず transform: none に戻す
-- 全体の尺は {{duration}}s、ease-out をキーフレームの区間ごとにかけ、カードの登場から0.3s遅らせて1回だけ再生する
+- 全体の尺は {{duration}}s、ease-out をキーフレームの区間ごとにかけ（きらめきも同じ）、カードの登場から0.3s遅らせて1回だけ再生する
 - 箱の周りに「+」形のきらめきを3つ置き、フタと同じ尺・遅延で 0〜20% は opacity 0 / scale(0.6) のまま待機、45% で opacity 1 / scale(1.1) まで膨らませ、100% で scale(1) に落ち着かせて残す
 - 動かすのは transform と opacity だけ（y や width を動かさない＝リフロー禁止）。fill-mode: both で開始前と終了後の姿を固定する
 - 箱を押したら頭から再生し直す（animation を cancel してから再生）。箱はヒット領域44px以上のボタンにして aria-label を付ける

@@ -28,9 +28,10 @@ export const smoothScroll: MotionEntry = {
   ],
   promptTemplate: `ページ全体に慣性を持たせる smooth scroll (lerp scroll) を実装してください。
 
+- きっかけ: ページのスクロール(ホイール・タッチ・キーボード・スクロールバーのどれでも)に常時追従する。自動では動かない
 - ネイティブスクロールは殺さない。実スクロールはbodyの高さ(スペーサー)で発生させたまま、コンテンツを包んだラッパーを transform: translate3d(0, -y, 0) で追従させる方式にする(Lenisと同じ原理)
-- y は毎フレーム y += (scrollY × {{multiplier}} − y) × {{lerp}} で目標に近づける(lerp)。requestAnimationFrameで回し、差が0.1px未満になったらスナップして止める
-- lerpはフレームレート依存になるため、デルタタイムで 1 − (1 − {{lerp}})^(dt × 60) のように補正する(120Hz端末で倍速になる事故を防ぐ)
+- y は毎フレーム y += (scrollY × {{multiplier}} − y) × {{lerp}} で目標に近づける(lerp)。requestAnimationFrameで回し、目標は最大スクロール量でクランプし、差が0.05px未満になったら目標へスナップする
+- lerpはフレームレート依存になるため、デルタタイムで 1 − (1 − {{lerp}})^(dt × 60) のように補正する(dt は秒、上限0.1。120Hz端末で倍速になる事故を防ぐ)
 - transformされたラッパーの中では position: sticky / fixed が効かなくなる。固定ヘッダー等はラッパーの外に置く
 - wheelイベントのpreventDefaultで自前制御(scroll hijacking)はしない。スクロールバー・キーボード・アンカーリンクが生きていることを確認する
 - prefers-reduced-motion 時は慣性を完全に無効化して素のスクロールに戻す(酔い・前庭障害への配慮で必須)`,

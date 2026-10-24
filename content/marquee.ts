@@ -38,8 +38,9 @@ export const marquee: MotionEntry = {
   ],
   promptTemplate: `テキストに infinite marquee を実装してください。
 
+- きっかけ: ページ読み込み直後から自動で流れ続ける(操作不要・ホバーでも止めない)
 - テキスト+余白 {{gap}}px を1セットとし、コンテナ幅+1セット分を覆える回数だけ複製する(white-space: nowrap)
-- requestAnimationFrame の毎フレーム、経過時間×速度でtranslateXを進める(毎秒 {{speed}}px、向きは{{direction}})
+- requestAnimationFrame の毎フレーム、位置を {{speed}}px/s × dt(前フレームからの経過秒)ずつ進めて translateX に入れる。流れる向き: {{direction}}(left=左へ／right=右へ)
 - 移動量はセット幅で剰余(モジュロ)を取って巻き戻し、継ぎ目が見えないようにする
 - 動かすのはtransformのみ。leftやmargin、CSSのanimation-delayによる位置合わせは使わない
 - 複製したテキストにはaria-hiddenを付け、スクリーンリーダーには1回だけ読ませる

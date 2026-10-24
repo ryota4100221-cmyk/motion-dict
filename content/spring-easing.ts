@@ -37,8 +37,9 @@ export const springEasing: MotionEntry = {
   ],
   promptTemplate: `要素の移動に spring easing(ばねイージング)を実装してください。
 
+- きっかけ: 要素(デモはステージのどこでも)をクリック/タップするたびに目標位置へ移動し、もう一度で元の位置へ戻る(Enter / Space でも同じ)。移動中に押したら、その場から新しい目標へ向かい直す
 - 質量1・stiffness {{stiffness}}・damping {{damping}} の減衰振動を時間で解き、
-  0→1に正規化した変位を {{duration}}s ぶん等間隔にサンプリングする
+  0→1に正規化した変位を {{duration}}s ぶん等間隔に40点(41値)サンプリングする。最後の値は必ず1に丸める(尺が切れる前に落ち着かないと終端でカクッと跳ぶため)
 - サンプル列を CSS の linear() イージング(例: linear(0, 0.57, 1.14, 0.98, 1))として書き出し、
   transition-timing-function に渡す。cubic-bezier は1を超えられないので使わない
 - 動かすのは transform / translate だけ。top・left・width はアニメーションさせない

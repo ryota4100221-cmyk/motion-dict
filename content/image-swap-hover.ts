@@ -29,11 +29,12 @@ export const imageSwapHover: MotionEntry = {
   ],
   promptTemplate: `ワークス一覧のカードに image swap on hover を実装してください。
 
+- きっかけ: カード全体（画像枠とキャプションを含む）に mouseenter で上の画像へ切り替え、mouseleave で戻す。タッチはタップするたびに切替／戻しをトグル
 - カード内に画像を2枚重ねる。下が通常時、上がホバー時の画像
 - 切替方式は {{mode}}
   - crossfade の場合: 上の画像を opacity 0→1 で {{duration}}s かけてフェードインする
   - clip-wipe の場合: 上の画像を clip-path: inset(0 100% 0 0) から inset(0) へ {{duration}}s で開く
-- マウスが離れたら同じ duration で元に戻す
+- timing-function は ease-out。マウスが離れたら同じ duration で元に戻す
 - 2枚とも同じ枠に object-fit: cover で敷き、切替中にレイアウトが動かないようにする
 - 上の画像は最初から読み込んでおく(ホバー時に src を差し替えるとチラつく)
 - prefers-reduced-motion 時はアニメーションなしで即時切り替える`,

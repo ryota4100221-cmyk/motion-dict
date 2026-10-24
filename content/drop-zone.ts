@@ -46,12 +46,14 @@ export const dropZone: MotionEntry = {
   ],
   promptTemplate: `ファイルやカードを受け取る枠に drop zone(ドロップゾーン)の反応を実装してください。
 
+- きっかけ: 運ぶ側のカードを pointerdown で掴んでドラッグし、ポインタ(指)の位置が受け皿の矩形に入っている間だけ受け皿が受け入れ状態になる。受け皿の上で離すと着地、外で離すと手元へ戻す
 - 待機中の受け皿は box-shadow: 0 {{settle}}px calc({{settle}}px * 2.3) の影で少し浮かせ、枠線は淡い色にしておく
 - 運んでいるものが受け皿に重なったら「受け入れ状態」にする。枠線をアクセント色へ変え、
   box-shadow の spread を 0 → {{ring}}px に広げてリングを出し、同時に浮きの影を0へ落とす
 - リングは擬似要素のscaleではなく box-shadow の spread で出す(レイアウトを動かさない)
 - 受け入れ状態への遷移は {{respond}}s の ease-out。離れたら同じ時間で戻す
-- 運ばれる側は受け皿へ近づくほど scale を 1 → {{shrink}} に縮め、着地したらフェードで消して受け皿の中身に置き換える
+- 運ばれる側は受け皿へ近づくほど scale を 1 → {{shrink}} に縮める。縮み率は o = smoothstep(1 - 受け皿中心までの距離 / 手元から受け皿までの距離) で、重なった時点で縮みきる
+- 着地したら運んだカードを消し、受け皿の中身を {{respond}}s でフェードインして置き換える。リングは着地後0.42sほど残してから畳む
 - 判定は pointerenter ではなく「運搬中かつ重なっている」ときだけ。空ホバーで光らせない
 - Pointer Events(pointerdown/move/up)と setPointerCapture で実装し、touch-action: none を付けてタッチでも同じ操作にする
 - prefers-reduced-motion 時はトランジションを0にし、受け入れ状態を即座に切り替えるだけにする(色と枠の変化は残す)`,

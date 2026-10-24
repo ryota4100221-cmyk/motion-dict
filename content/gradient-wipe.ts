@@ -41,17 +41,18 @@ export const gradientWipe: MotionEntry = {
       max: 2,
       step: 1,
       default: 2,
-      options: ["linear", "ease-out", "ease-in-out"],
+      options: ["linear", "cubic-bezier(0.33, 1, 0.68, 1)", "cubic-bezier(0.65, 0, 0.35, 1)"],
       desc: "linearは機械的なスキャン、ease-in-outはカメラのワイプに近い。境目が太いほどイージングの差が出る。",
     },
   ],
   promptTemplate: `画像の切り替えに gradient wipe(ソフトエッジのマスクスイープ)を実装してください。
 
+- きっかけ: 切り替えボタンをクリック／タップするたびに1回掃く。押すたびに向きを反転し(現れる→溶ける→現れる)、毎回進捗0から掃き直す
 - mask-image に linear-gradient({{angle}}deg, ...) を敷き、不透明→透明の境目を1本だけ持たせる
 - 境目のぼかし幅は {{softness}}% (グラデーションの線上の距離)。0%なら硬いワイプになる
 - 進捗pに応じてグラデーションの停止位置を p*(100+softness)-softness から +softness% へずらし、
   マスクの境目が要素を端から端まで走り抜けるようにする
-- 所要時間 {{duration}}s、イージングは {{easing}}
+- 所要時間 {{duration}}s、進捗pにかけるイージングは {{easing}}(rAFで回すなら同じ形の3次関数を自前で掛ける)
 - 停止位置は CSS変数(@property で <percentage> 登録)か requestAnimationFrame で更新する。
   mask-image 文字列そのものは transition できない
 - opacity や background-position で誤魔化さず、必ず mask(-webkit-mask も併記)で切り抜くこと

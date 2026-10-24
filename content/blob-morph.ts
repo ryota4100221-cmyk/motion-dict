@@ -37,8 +37,9 @@ export const blobMorph: MotionEntry = {
   ],
   promptTemplate: `背景装飾として有機的な塊がゆっくり形を変え続ける blob morph を実装してください。
 
+- きっかけ: 操作不要。表示した時点から変形と回転が自動で無限に続く(ホバーやスクロールに反応させない)
 - SVGフィルタやパスモーフは使わず、div の border-radius 8値ショートハンド(横4値 / 縦4値)を @keyframes で変化させる軽量実装にする
-- 8値は「50% ± {{amp}}%」の範囲で崩す。keyframes を3〜4段作り、各段で8値の組み合わせを変える
+- 8値は「50% ± {{amp}}%」の範囲で崩す。keyframes を 0% / 33% / 66% / 100% の4段作り、各段で8値の組み合わせ(50% に ±{{amp}}% の0.2〜1倍を足し引き)を変える
 - 変形は {{duration}}s の ease-in-out、alternate + infinite で往復させ、ループの継ぎ目に形のジャンプを作らない
 - 併せて transform: rotate を {{spin}}s の linear infinite で1回転させる(回転は親要素に分け、transform同士を衝突させない)
 - あくまで背景装飾なので本文より低い重なりに置き、pointer-events: none を指定する
@@ -49,7 +50,7 @@ export const blobMorph: MotionEntry = {
     why: "feTurbulence+displacementのSVGフィルタやcanvasを使った重い実装が返ってくることがある。周期と振れ幅の指定がないと3s周期で激しくうごめく塊になり、背景のはずが本文から視線を奪って閲覧者を酔わせる。",
   },
   okExample: {
-    say: "「blob morphをborder-radius 8値の@keyframesで実装。50%±12%で3段、9s ease-in-out alternate infinite、親要素を32s linearで回転。pointer-events: none、reduced-motionは静止」",
+    say: "「blob morphをborder-radius 8値の@keyframesで実装。50%±12%で4段(0/33/66/100%)、9s ease-in-out alternate infinite、親要素を32s linearで回転。pointer-events: none、reduced-motionは静止」",
     why: "実装方式(8値のkeyframes)・振れ幅・周期・回転の分離まで数値で指定している。「±12%」「9s」の2つの数値が、装飾と酔いの境界線を守る。",
   },
   vocab: [

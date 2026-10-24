@@ -37,9 +37,9 @@ export const markerLine: MotionEntry = {
   ],
   promptTemplate: `文中の強調語に marker line を実装してください。
 
+- きっかけ: 強調語が IntersectionObserver で画面に入ったとき、{{delay}}s 待ってから1回だけ引く。引いたあとは戻さない(スクロールで出入りしても再生し直さない)
 - 強調語を span で包み、background-image: linear-gradient(半透明のアクセント色) を敷く
 - background-repeat: no-repeat、background-position: 0 100% で下寄せにし、background-size を 0% {{thickness}}% → 100% {{thickness}}% に {{duration}}s の ease-out で transition して左から引く
-- 発火はIntersectionObserverで画面に入ったとき1回だけ。入ってから {{delay}}s 待ってから引き始める
 - マーカー色は不透明度0.4前後の半透明にし、文字の可読性を保つ(文字はマーカーより手前に描画される)
 - width や擬似要素のアニメーションでリフローさせない。background-size のみ動かす
 - prefers-reduced-motion 時はアニメーションなしでマーカーを引き終わった状態で表示する`,

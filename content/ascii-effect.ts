@@ -47,11 +47,13 @@ export const asciiEffect: MotionEntry = {
   ],
   promptTemplate: `映像に ASCII effect(明るさを文字に置き換えて描画するフィルタ)を実装してください。
 
+- きっかけ: 操作不要。表示した時点から rAF で回し、元映像が動いている間ずっと自動で描き換え続ける
 - 元の映像(<video>や<canvas>)は display:none で持ち、表示するのは出力用の<canvas>だけにする
 - 出力canvasの上に cell={{cell}}px 幅のグリッドを敷く。セル高さは等幅フォントの縦横比に合わせて cell×1.8 とする
 - 元映像を cols×rows(=グリッドと同じ極小サイズ)のオフスクリーンcanvasへ drawImage で縮小し、getImageData は必ずこの極小canvasに対してだけ呼ぶ(実寸で読むと毎フレームのピクセル読み出しで落ちる)
 - 取得したRGBから輝度 L = (0.299R + 0.587G + 0.114B) / 255 を求め、L = clamp((L - 0.5) × {{contrast}} + 0.5, 0, 1) で補正する
-- L を暗い順に並べた文字ランプ({{ramp}})の添字に写像し、ctx.fillText でセル中央に1文字ずつ描く
+- L を暗い順に並べた文字ランプ({{ramp}})の添字 floor(L × 文字数)(最大 文字数−1)に写像し、ctx.fillText でセル中央に1文字ずつ描く。空白の文字は描かずに飛ばす。フォントサイズはセル高さ×0.92
+- ランプの中身は standard=" .:-=+*#%@" / dense=" .'^,;Il!i><~+_-?][}{1)(|tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$" / blocks=" ░▒▓█"(いずれも先頭は空白)
 - 描き換えは {{fps}}fps に間引く(前回描画からの経過時間で判定し、満たない frame は早期 return する)
 - getImageData を使うコンテキストは getContext("2d", { willReadFrequently: true }) で取る
 - フォントは等幅を必ず指定する(プロポーショナルだと桁が揃わず絵が崩れる)

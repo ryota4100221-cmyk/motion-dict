@@ -38,9 +38,10 @@ export const shutterTransition: MotionEntry = {
   ],
   promptTemplate: `ページ遷移に shutter transition(ブラインド式のワイプ)を実装してください。
 
+- きっかけ: 遷移を起こす操作(リンク/ボタンのクリック)1回につき1回再生する。再生中の操作は無視する
 - 次のページを現在のページの下に重ね、上に {{panels}} 本の帯(スリット)をCSSのflexで敷き詰める
 - 帯の向きは {{orientation}}(verticalなら縦帯をscaleXで、horizontalなら横帯をscaleYで開閉する)
-- 各帯は transform-origin: center のまま scale 0→1 で次ページ側へ「開く」。1本あたり0.5s、ease-in-out系
+- 各帯は transform-origin: center のまま scale 0→1 で次ページ側へ「開く」。1本あたり0.5s、cubic-bezier(0.77, 0, 0.175, 1)(両端を強く溜める ease-in-out)。帯には次ページの絵を帯ごとに区切って敷く
 - 帯は {{stagger}}ms ずつずらして動かす(stagger)。全体時間 = 0.5s + (本数 - 1) × stagger で逆算する
 - 全帯が開き切った瞬間に下のDOMを差し替え、帯はtransitionなしで畳み直す
 - widthやclip-pathではなくtransformだけで動かす(リフロー禁止)

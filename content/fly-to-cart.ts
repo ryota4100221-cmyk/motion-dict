@@ -46,11 +46,13 @@ export const flyToCart: MotionEntry = {
   ],
   promptTemplate: `商品カードに fly to cart(カートへ飛ぶ)アニメーションを実装してください。
 
+- きっかけ: 「カートに入れる」ボタンのクリック/タップ1回ごとに分身を1つ飛ばす。連打した分だけ重ねて飛ばす
 - 「カートに入れる」押下時、商品サムネイルを複製した分身(クローン)を position: fixed で最前面に置く
 - 出発点=サムネイルの矩形、到達点=カートアイコンの中心。両方 getBoundingClientRect() で実測し、中心どうしの差分を --dx / --dy として渡す
 - 飛行は {{duration}}s。外側の要素で位置(translate)、内側の要素で拡縮(scale)を動かす(1つの要素にtransformを重ねると後勝ちで壊れる)
-- 直線ではなく弧を描く。中間フレームで {{arc}}px ぶん上に持ち上げてから落とす
-- 着地時のスケールは {{endScale}}%。到達と同時に分身を削除し、カートアイコンを {{bump}}% 膨らませてから戻す。バッジの数字はこのタイミングで増やす
+- 直線ではなく弧を描く。外側は 0% → 50%: translate(dx×0.5, dy×0.5 − {{arc}}px) → 100%: translate(dx, dy) を cubic-bezier(0.45, 0, 0.55, 1) で
+- 内側は scale(1) → scale({{endScale}}%) を cubic-bezier(0.5, 0, 0.75, 1) で縮め、opacity は75%まで1を保って最後に0.35まで落とす
+- 着地時のスケールは {{endScale}}%。到達と同時に分身を削除し、カートアイコンを 0.34s の cubic-bezier(0.2, 0.8, 0.3, 1) で {{bump}}% 膨らませて(40%地点が頂点)戻す。バッジの数字はこのタイミングで増やす
 - 連打に耐えること。分身は1発ごとに独立させ、前の分身を消さずに重ねる
 - 動かすのは transform と opacity のみ。left/top のアニメーションはリフローを起こすので禁止
 - prefers-reduced-motion: reduce のときは飛ばさない。分身を出さず、バッジの数字を即座に増やし、カートを短くハイライトするだけにする`,
@@ -59,7 +61,7 @@ export const flyToCart: MotionEntry = {
     why: "「飛んでいく」だけでは弧も速度も着地サイズも決まらない。left/topを直線でアニメーションさせる重い実装や、飛んだのにバッジが増えない(=一番伝えたい結果が抜けた)実装が返ってくる。",
   },
   okExample: {
-    say: "「fly to cart を実装。サムネイルのクローンをfixedで飛ばす。出発点と到達点はgetBoundingClientRectで実測、外側でtranslate・内側でscaleを分けて0.7s、中間で80px持ち上げて弧にする。着地で15%まで縮めて削除し、カートを20%バンプさせてバッジを+1。transformとopacityのみ、連打で重なる」",
+    say: "「fly to cart を実装。サムネイルのクローンをfixedで飛ばす。出発点と到達点はgetBoundingClientRectで実測、外側でtranslate・内側でscaleを分けて0.7s、中間で70px持ち上げて弧にする。着地で15%まで縮めて削除し、カートを20%バンプさせてバッジを+1。transformとopacityのみ、連打で重なる」",
     why: "実測方式・要素の入れ子・弧の作り方・着地後の結果(バッジ更新)まで指定している。「transformとopacityのみ」「連打で重なる」の2行が実装品質と破綻しにくさを決める。",
   },
   vocab: [

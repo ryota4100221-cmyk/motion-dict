@@ -28,8 +28,9 @@ export const preloaderCounter: MotionEntry = {
   ],
   promptTemplate: `サイト初回表示に preloader counter を実装してください。
 
+- きっかけ: ページ読み込み直後から自動で1回だけ再生する。操作は不要
 - 画面全体を覆うオーバーレイの右下に 0〜100 の数値と%を表示する
-- {{duration}}s かけて expo-out でカウントアップする(rAFの経過時間から進捗を計算。setIntervalの+1は不可)
+- {{duration}}s かけて expo-out(表示値 = round(100 × (1 − 2^(−10t)))、t = 経過時間 / {{duration}}s)でカウントアップする(rAFの経過時間から進捗を計算。setIntervalの+1は不可)
 - 100 に到達したらオーバーレイを transform: translateY(-100%) で {{curtain}}s、cubic-bezier(0.76, 0, 0.24, 1) で引き上げて本編を見せる
 - カウント+幕開けの合計は3秒以内に収める。実際の読み込みが遅い場合のみ100%で待機する
 - 数値に font-variant-numeric: tabular-nums を指定し、桁のガタつきを防ぐ

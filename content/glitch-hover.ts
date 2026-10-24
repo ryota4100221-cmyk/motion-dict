@@ -28,9 +28,10 @@ export const glitchHover: MotionEntry = {
   ],
   promptTemplate: `テキストに glitch hover(ホバーでRGBずれ＋ノイズ状に乱れる演出)を実装してください。
 
+- きっかけ: テキストに mouseenter している間だけ乱れ続け、mouseleave で即座に元の文字に戻る。タッチはタップごとに再生／停止を切り替える
 - テキストの複製を2層、擬似要素(::before / ::after、content: attr(data-text))で重ねる
-- 各層を transform: translate で最大 {{strength}}px ずらし、text-shadow の2色ずらしで色収差を足す
-- clip-path: inset() で層を横スライスし、keyframes + steps() でコマ送りに切り替えてノイズ感を出す({{period}}s で1周、infinite)
+- 各層を transform: translate で最大 {{strength}}px ずらし、本体の文字にも text-shadow を左右に {{strength}}px の0.5倍ずつ2色で足して色収差にする
+- clip-path: inset() で層を横スライスし、keyframes + steps(1, end) でコマ送りに切り替えてノイズ感を出す({{period}}s で1周、infinite)。2層は別のキーフレーム（片方5コマ・もう片方4コマ）にして切り替わる瞬間をずらす
 - アニメーションはホバー中のみ再生する。常時再生はしない
 - 動かすのは transform / clip-path / opacity のみ(リフロー禁止)
 - 適用は1画面1要素まで。多用すると安っぽくなる

@@ -46,11 +46,12 @@ export const barberPole: MotionEntry = {
   ],
   promptTemplate: `帯に barber pole(流れる斜めストライプ)を実装してください。
 
+- きっかけ: 操作不要。表示した時点から自動で流れ続ける無限ループ(ホバーやスクロールに依存させない)
 - 縞は要素を並べず repeating-linear-gradient 1枚で敷く
 - 縞の傾きは垂直から {{lean}}deg。gradientの角度は calc(90deg + {{lean}}deg) で渡す
 - 縞の繰り返し幅は {{pitch}}px、そのうち {{ratio}} の割合を塗り、残りを地の色にする
 - 送りは background-position ではなく内側トラックの transform: translate3d で行う(合成のみで再描画させない)
-- 送る距離は「横方向の1周期」= pitch / cos(lean) ちょうど。半端に送ると1周ごとに縞が飛ぶ
+- 送る距離は「横方向の1周期」= pitch / cos(lean) ちょうど。半端に送ると1周ごとに縞が飛ぶ。トラックは左端を1周期ぶん外へ伸ばして(left: -1周期)置き、translate3d(0)→translate3d(+1周期, 0, 0) で右へ送る
 - {{cycle}}s の linear で infinite。ease系を使うと周回の継ぎ目で速度が変わって見える
 - 親を overflow: clip にしてトラックのはみ出しを隠す
 - prefers-reduced-motion 時は animation を止め、静止した縞模様としてだけ残す(帯の意味は色と柄で伝わる)`,

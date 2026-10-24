@@ -47,12 +47,13 @@ export const logoMarquee: MotionEntry = {
   ],
   promptTemplate: `クライアントロゴが横に流れ続ける logo marquee(ロゴウォール)を実装してください。
 
+- きっかけ: ページ読み込み直後から自動で左へ流れ続ける(操作不要)。止めるのはホバー時の挙動の指定による
 - ロゴ+余白 {{gap}}px を1セットとし、コンテナ幅+1セット分を覆える回数だけ複製する
-- requestAnimationFrame で transform: translateX を毎秒 {{speed}}px 進め、セット幅の剰余で巻き戻して継ぎ目を消す
+- requestAnimationFrame で位置を {{speed}}px/s × dt(前フレームからの経過秒)ずつ左へ進め、transform: translateX に入れる。1セット幅(ロゴ列の幅+gap)の剰余で巻き戻して継ぎ目を消す
 - ロゴは filter: grayscale(1) で無彩色に統一し、opacity を0.7前後に揃える(各社の原色を画面に持ち込まない)
 - 各ロゴは高さを揃えるのではなく「見た目の面積」が揃うよう個別に縮尺を調整する(横長ロゴは高さを下げる)
 - 帯の左右 {{fade}}px を mask-image の linear-gradient で透明にフェードさせ、端の見切れを隠す
-- ホバー時の挙動は {{hoverPause}}(pause の場合はタッチでも停止・再開できるようにする)
+- ホバー時の挙動: {{hoverPause}}(off=止めない／pause=帯に mouseenter で停止・mouseleave で再開。タッチは帯をタップするたび停止・再開を切り替え)
 - 複製したセットには aria-hidden を付け、スクリーンリーダーには1セット分だけ読ませる
 - prefers-reduced-motion 時はアニメーションを停止し、静的なロゴ一覧として表示する`,
   ngExample: {

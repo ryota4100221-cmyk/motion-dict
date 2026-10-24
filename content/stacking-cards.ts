@@ -37,10 +37,11 @@ export const stackingCards: MotionEntry = {
   ],
   promptTemplate: `スクロールでカードが1枚ずつ重なって積み上がる stacking cards を実装してください。
 
+- きっかけ: カードリストを含むページ（スクロール領域）を縦スクロールするだけで進む。クリック等の操作は不要で、縮小はスクロール位置に完全連動し、スクロールを戻せば逆再生で元の大きさに戻る
 - カードは全て同じ親リストの直下に置き、各カードを position: sticky にする。sticky が効く範囲は親の中なので、1枚ずつ包むとすぐ剥がれて積み上がらない
 - top は calc({{top}}px + 順番 × {{peek}}px) とし、後のカードほど {{peek}}px ずつ下げる。積まれたカードの頭が覗いて枚数が伝わる
 - カード間には十分な余白(カード高の0.5〜1倍)を取り、1枚あたりのスクロール量=体験のテンポを確保する
-- 奥に沈んだカードは後続カードの進入に合わせて transform: scale を 1 → 1 − 覆われた枚数 × {{scale}} へ縮める。進捗はスクロール量を0〜1にclampして求め、書き込みはrequestAnimationFrameでtransformのみ(リフロー禁止)
+- 奥に沈んだカードは後続カードの進入に合わせて transform: scale を 1 → 1 − 覆われた枚数 × {{scale}} へ縮める。覆われた枚数は「そのカードが固定されてからのスクロール量 ÷ (カード高+カード間余白)」を0〜後続枚数でclampした連続値(1枚ごとの段階ではなく比例で縮む)。書き込みはrequestAnimationFrameでtransformのみ(リフロー禁止)
 - transform-origin は center top(上端で積まれるので上基準が自然)
 - 祖先に overflow: hidden があると sticky が無効になる。必要なら overflow: clip を使う
 - prefers-reduced-motion 時はscaleの縮小を止める(stickyの積層はアニメーションではないので残してよい)`,

@@ -30,6 +30,7 @@ export const scrollSnap: MotionEntry = {
   ],
   promptTemplate: `セクション単位でピタッと止まる scroll snap を実装してください。
 
+- きっかけ: ユーザーがスクロールコンテナをホイール/スワイプでスクロールし、操作が止まった(指を離した)時点でブラウザがスナップ位置へ吸着させる。自動では動かさない
 - JSは使わず、CSSのみで実装する。スクロールコンテナに scroll-snap-type: y {{strictness}} を指定する
 - 各セクションに scroll-snap-align: {{align}} を指定する(親子セットで書かないと何も起きない)
 - wheelイベントを乗っ取ってスクロール位置をJSで動かす「スクロールハイジャック」は実装しない(操作の主導権はユーザーに残す)

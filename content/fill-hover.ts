@@ -29,9 +29,10 @@ export const fillHover: MotionEntry = {
   ],
   promptTemplate: `ボタンに fill hover(背景フィル)を実装してください。
 
+- きっかけ: ボタンへの mouseenter で満ち、mouseleave で同じ起点へ引いて戻る。タッチはタップごとに満ちる/戻るをトグル
 - 塗りは ::before 擬似要素で作り、ボタンの塗り色で満たして transform: scaleX(0) で隠しておく
 - ホバーで scaleX(1) に、{{duration}}s の ease-out で満たす
-- 満ちる起点は {{direction}}(transform-origin で制御。bottom の場合は scaleY で縦に伸ばす)
+- 満ちる起点は {{direction}}(transform-origin で制御。left は left center、center は center center で中央から左右へ、bottom は center bottom にして scaleY で縦に伸ばす)
 - テキストは擬似要素より上のレイヤーに置き、文字色を同じ duration で反転させる
 - background-position や width ではなく transform で動かす(リフローさせない)
 - マウスが離れたら同じ duration で元に戻す

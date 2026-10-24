@@ -28,10 +28,11 @@ export const waveText: MotionEntry = {
   ],
   promptTemplate: `テキストに wavy text(sin波で揺れ続けるキネティックタイポ)を実装してください。
 
+- きっかけ: ページ読み込み直後から操作不要で揺れ続ける(無限ループ)。ホバーやスクロールには反応しない
 - テキストを1文字ずつ span に分割する(spanは display: inline-block)
 - CSSキーフレームで translateY を -{{amplitude}}px 〜 {{amplitude}}px の間で往復させる(ease-in-outでsin波を近似)
 - animation-duration は {{speed}}s、animation-iteration-count: infinite
-- 文字ごとに animation-delay を負の値でずらす(-i × {{speed}}s ÷ 文字数)。波が最初から完成した形で左から右へ流れて見える
+- 文字ごとに animation-delay を負の値でずらす(-(文字数 − i) × {{speed}}s ÷ 文字数。i は左から0始まり)。右の文字ほど位相が遅れるので、波が最初から完成した形で左から右へ流れて見える(-i × 周期 ÷ 文字数 にすると右の文字が先行し、波が右から左へ流れる)
 - top や margin ではなく transform で動かす(リフローさせない)
 - 適用はロゴ・装飾テキストに限定し、本文には使わない
 - prefers-reduced-motion 時はアニメーションを止めて静止テキストを表示する`,
@@ -40,7 +41,7 @@ export const waveText: MotionEntry = {
     why: "振幅も周期も決まらないうえ、位相のずらし方を指定しないと全文字が同時に上下するだけで波に見えない。marginやtopをアニメーションさせてガタつく実装が返ってくることもある。",
   },
   okExample: {
-    say: "「wavy textをCSSキーフレームで。1文字ずつspan分割、translateYで振幅6px・周期1.6s・infinite、animation-delayを-i×(1.6÷文字数)sずらして波を流す。transformのみでリフロー禁止」",
+    say: "「wavy textをCSSキーフレームで。1文字ずつspan分割、translateYで振幅6px・周期1.6s・infinite、animation-delayを-(文字数−i)×(1.6÷文字数)sずらして波を左→右へ流す。transformのみでリフロー禁止」",
     why: "分割単位・振幅・周期・位相のずらし方まで数値で指定。「負のdelay」の指定で、再生開始の瞬間から波形が揃った状態になる。",
   },
   vocab: [

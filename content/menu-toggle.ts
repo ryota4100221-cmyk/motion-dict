@@ -37,10 +37,11 @@ export const menuToggle: MotionEntry = {
   ],
   promptTemplate: `ハンバーガーメニューのアイコンに menu toggle(×への変形)を実装してください。
 
+- きっかけ: ボタンを click(タッチはタップ)するたび ハンバーガー ⇄ × をトグルする。もう一度押すと同じ transition で逆再生して戻る
 - ボタンの中に3本の線(span)を絶対配置し、上下は translateY で ±約7px、中央は 0 に置く。線の太さは {{thickness}}px、transform-origin は center
 - 開いたとき(×): 上の線は translateY(0) rotate(45deg)、下の線は translateY(0) rotate(-45deg) にして中央で交差させ、真ん中の線は opacity 0(または scaleX 0)で消す
 - 各線の translateY と rotate は1本の transform にまとめて同時に動かす(別々のtransitionにしない)
-- アイコンを包むラッパーを開閉に合わせて rotate({{spin}}deg) し、変形にひねりの手応えを足す
+- アイコンを包むラッパーを開閉に合わせて rotate({{spin}}deg)(閉じると0degへ戻す)し、同じ時間・イージングで変形にひねりの手応えを足す
 - transition は transform と opacity を {{duration}}s、イージングは cubic-bezier(0.65, 0, 0.35, 1) のような ease-in-out 系
 - ボタンには aria-label と aria-expanded を持たせ、状態をスクリーンリーダーに伝える。width/height ではなく transform で動かしリフローさせない
 - prefers-reduced-motion 時は transition を切り、ハンバーガーと×を即座に切り替える`,

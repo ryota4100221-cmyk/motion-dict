@@ -46,11 +46,12 @@ export const orbit: MotionEntry = {
   ],
   promptTemplate: `アイコン・ボタンの装飾に orbit animation(楕円軌道を周回する点)を実装してください。
 
-- 中心に揃えた5個前後の点を置き、点ごとに軌道半径(最大 {{radius}}px の0.3〜1倍)・軌道面の傾き(--start: 0〜360deg)・初期位相(--phase)を変える
+- きっかけ: ボタンへの hover(@media (hover: hover) の端末のみ)と :focus-visible で周回に入り、離れると静止配置へ戻る。クリック/タップでは周回のオン/オフを切り替えて保持する(aria-pressed)
+- 中心に揃えた5個前後の点を置き、点ごとに軌道半径(最大 {{radius}}px の0.25〜1倍)・軌道面の傾き(--start: 0〜360deg)・初期位相(--phase)を変える
 - 角度は @property --orbit(syntax: "<angle>")で登録し、@keyframes で 0deg → 360deg を linear infinite で回す。基準の周期は {{period}}s。点ごとに 0.8〜1.7 倍へばらし、半分は animation-direction: reverse にする
-- 位置は translate で出す: x = r·cos(θ)、y = r·{{tilt}}·sin(θ)(θ = --orbit + --phase)。この楕円を --start だけ回転させて軌道面ごとに傾ける。top/left は動かさない
+- 位置は translate で出す: x = r·cos(θ)、y = r·{{tilt}}·sin(θ)(θ = --orbit + --phase。縦の潰れは点ごとに {{tilt}} の0.7〜1.2倍へばらし、1を上限にする)。この楕円を --start だけ回転させて軌道面ごとに傾ける。top/left は動かさない
 - 奥行きは sin(θ) から作る: 手前(y が正)ほど scale を最大 1+{{depth}} まで大きく・opacity 1 に、奥ほど 1−{{depth}} まで小さく・opacity 0.45 程度まで薄くする
-- 静止時は各点を --phase の位置(星座のような配置)に置いておき、ホバー/フォーカスで @property --mix(<number>)を 0 → 1 に 0.5s で補間して周回に入る。離れたら 1.1s かけて元の配置へ戻す(戻りを遅くすると余韻が出る)
+- 静止時は各点を --phase の位置(星座のような配置)に置いておき、ホバー/フォーカスで @property --mix(<number>)を 0 → 1 に 0.5s cubic-bezier(0.65, 0, 0.35, 1) で補間して周回に入る(位置は 静止配置×(1−mix) + 周回×mix)。離れたら同じイージングで 1.1s かけて元の配置へ戻す(戻りを遅くすると余韻が出る)
 - タッチ端末ではタップで周回のオン/オフを切り替える
 - prefers-reduced-motion 時は周回アニメーションを止め、--phase の静止配置のまま表示する(ホバーでも回さない)`,
   ngExample: {

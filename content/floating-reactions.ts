@@ -46,10 +46,11 @@ export const floatingReactions: MotionEntry = {
   ],
   promptTemplate: `ボタン上に floating reactions(湧き上がるリアクションアイコン)を実装してください。
 
-- {{interval}}s ごとに1粒、ボタンのクリックでは即座に数粒を、発生点(ボタン上端中央)から生成する
-- 1粒は2層構造にする。外側の要素は {{duration}}s の ease-out で translateY(0)→translateY(-{{rise}}px) と昇り、出だし12%で scale(0.4→1)・opacity(0→1)、終盤で opacity 0 に溶かす
+- きっかけ: 表示中は操作なしでも {{interval}}s ごとに1粒ずつ自動で湧き続け、ボタンをクリック/タップするたびに即座に4粒を追加しカウンターを+1する
+- {{interval}}s ごとに1粒、ボタンのクリックでは即座に4粒を、発生点(ボタン上端中央)から生成する
+- 1粒は2層構造にする。外側の要素は {{duration}}s の ease-out で translateY(0)→translateY(-{{rise}}px) と昇り、keyframes は 0%: scale(0.4)・opacity 0 → 12%: 上昇10%地点で scale(1)・opacity 1 → 65%: opacity 0.85 → 100%: 上昇しきって scale(1.1)・opacity 0
 - 内側の要素は translateX(±{{sway}}px) と rotate(±8deg) を ease-in-out の alternate で往復させ、昇りながら左右に揺らす
-- 揺れの周期・負のanimation-delay・発生位置の横ずれ・サイズ・色を粒ごとにランダムにし、群れが揃って見えないようにする
+- 揺れの周期({{duration}}s × 0.3〜0.5)・負のanimation-delay(0〜−{{duration}}s)・揺れ始めの向き(±1)・発生位置の横ずれ(±18px)・サイズ(18〜30px)・色を粒ごとにランダムにし、群れが揃って見えないようにする
 - 位置は必ず transform で動かす(top/left を動かさない=リフロー禁止)
 - 昇りきった粒は animationend で DOM から削除し、同時に存在する粒は40個程度で打ち切る
 - アイコンは装飾なので aria-hidden にし、pointer-events: none でボタン操作を妨げない

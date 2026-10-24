@@ -47,13 +47,14 @@ export const progressiveBlur: MotionEntry = {
   ],
   promptTemplate: `スクロール領域に progressive blur（端のぼかしフェード）を実装してください。
 
+- きっかけ: スクロール領域をスクロールするたび(scroll イベント)に、ぼかす側の残りスクロール量を見て帯を出し入れする。残りが4px以下になったら消え、戻ればまた出る。帯そのものは常時表示の静的な表現
 - スクロール領域の {{edge}} 側に、高さ {{height}}% の帯を position: absolute で重ねる（pointer-events: none）
 - 帯の中に {{layers}} 枚の層を並べ、各層に backdrop-filter: blur() を掛ける
-- ぼかし量は内側の層から端の層へ向かって増やし、最も端の層を {{maxBlur}}px にする
+- ぼかし量は内側の層から端の層へ向かって二次カーブで増やす。i 番目(0始まり・端に近いほど大きい)の層は {{maxBlur}}px × ((i+1)/{{layers}})² で、最も端の層が {{maxBlur}}px
 - 各層に mask-image: linear-gradient() を掛け、内側を transparent・端側を不透明にする。開始位置は層ごとに 1/層数 ずつ端へ寄せる（層が重なることでぼかしが端に向かって累積する）
 - 単色のグラデーションで覆うだけにしない（ぼかしが無いと奥行きが出ない）。可読性のために背景色へのグラデーション（scrim）を併用してよい
 - backdrop-filter は -webkit- 付きも併記し、@supports not (backdrop-filter: blur(1px)) では背景色グラデーションのみにフォールバックする
-- 帯は「その方向にまだスクロールできるとき」だけ表示し、端まで来たら opacity で消す。切り替えは transform / opacity のみで行い、レイアウトを触らない
+- 帯は「その方向にまだスクロールできるとき」だけ表示し、端まで来たら opacity を 0.35s・ease-out で消す。切り替えは transform / opacity のみで行い、レイアウトを触らない
 - prefers-reduced-motion: reduce のときは帯の出し入れのトランジションを 0s にして即時切り替えにする（段階ぼかし自体は静的な表現なので残す）`,
   ngExample: {
     say: "「リストの下を自然にフェードアウトさせて」",

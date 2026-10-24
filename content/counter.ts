@@ -29,8 +29,9 @@ export const counter: MotionEntry = {
   ],
   promptTemplate: `数値表示に count up を実装してください。
 
+- きっかけ: 数字に mouseenter するたび 0 から最初に戻してカウントし直す(タッチはタップで同じ動作)。離れても止めずに最後まで数える
 - 0 から 12,480 まで {{duration}}s かけてカウントアップする
-- イージングは{{ease}}(進捗t 0→1に適用してから目標値に掛ける)
+- イージングは {{ease}} とする(進捗t 0→1に適用してから目標値に掛ける。linear=t / ease-out=1-(1-t)^3 / expo-out=1-2^(-10t)、t=1 のとき1)
 - requestAnimationFrame の毎フレーム、経過時間から進捗を計算して Math.round + toLocaleString でカンマ区切り表示
 - 終了時は必ず最終値ちょうどで止める(丸め誤差で12,479のまま終わらせない)
 - 桁のガタつきを防ぐため font-variant-numeric: tabular-nums を指定する

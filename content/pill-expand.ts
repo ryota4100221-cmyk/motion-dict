@@ -47,13 +47,14 @@ export const pillExpand: MotionEntry = {
   ],
   promptTemplate: `ホバーで開く pill expand ボタンを実装してください。
 
+- きっかけ: ピルを載せたカード(タイル)全体に mouseenter で開き、mouseleave で逆順に閉じる(ピル自体は待機中見えないので、親のカードで拾う)。タッチはカードをタップするたびに開閉を切り替える
 - 待機時はピルを非表示にする(opacity: 0 / transform: scale(0) / 幅は高さと同じ40pxの円)
-- ホバーで scale(1) にポップさせ、続けて幅を {{width}}px へ {{duration}}s で伸ばす
-- transform-origin は {{origin}} 側に置き、そこを起点に出現・伸長させる
+- ホバーで scale(1) に {{duration}}s×0.66 の cubic-bezier(0.34, 1.2, 0.64, 1)(少し行き過ぎる)でポップさせ、{{duration}}s×0.4 遅れて幅を {{width}}px へ {{duration}}s・cubic-bezier(0.22, 1, 0.36, 1) で伸ばす
+- transform-origin は下辺の {{origin}} 側(left=0% 100% / center=50% 100% / right=100% 100%)に置き、ピルの位置もその側で固定して、そこを起点に出現・伸長させる
 - 幅は scaleX ではなく width をアニメーションさせる(scaleXだとラベルと角丸が歪む)
 - ピル自体は position: absolute にして、幅の変化がページ側のレイアウトへ波及しないようにする
 - ラベルは {{labelDelay}}s 遅らせて opacity で出す(容器が伸びきってから文字が現れる)
-- 閉じるときは逆順にする。ラベルを先に消し、幅を縮め、最後に scale(0) へ畳む
+- 閉じるときは逆順にする。ラベルを0秒で先に消し({{duration}}s×0.4)、{{duration}}s×0.25 後から幅を {{duration}}s×0.75 で縮め、{{duration}}s×0.8 後に scale(0) へ畳む
 - ホバーできない端末のために :focus-visible と tap でも同じ状態にする
 - prefers-reduced-motion 時はアニメーションを止め、最初からラベル付きの展開状態で表示する`,
   ngExample: {

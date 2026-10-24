@@ -48,12 +48,12 @@ export const barChartGrow: MotionEntry = {
   ],
   promptTemplate: `KPIカードの棒グラフに bar chart grow-in(棒が基線から伸びる登場演出)を実装してください。
 
+- きっかけ: 操作不要。グラフが画面に入った瞬間(IntersectionObserver)に全バーが1回だけ自動で伸びる。スクロールで戻るたびに再生し直さない。再生し直す操作を付ける場合は、バーの要素を作り直して(key を変えて)最初から再生する
 - 各バーは最終の高さ(値に比例した%)で先にレイアウトしておき、アニメーションでは高さを変えない(height のアニメーションはリフローを起こすので禁止)
 - 伸ばし方は {{method}} を使う。scaleY の場合は scaleY(0)→scaleY(1)、transform-origin: bottom で基線を固定する。clip-path の場合は inset(100% 0 0 0 round <角丸>)→inset(0 round <角丸>) で下から切り抜く
 - 1本あたり {{duration}}s、イージングは {{easing}}(ease-out-quint なら cubic-bezier(0.22, 1, 0.36, 1)、back-out なら cubic-bezier(0.34, 1.56, 0.64, 1))
 - 左のバーから順に {{stagger}}ms ずつ animation-delay をずらす。遅延は CSS 変数 --i にインデックスを入れて calc(var(--i) * {{stagger}}ms) で計算する
 - animation-fill-mode: both にして、遅延中のバーは高さ0のまま待たせる(遅延中に全高が一瞬見えるのを防ぐ)
-- 発火はグラフが画面に入った瞬間の1回だけ(IntersectionObserver)。スクロールで戻るたびに再生し直さない
 - バーには値を aria-label か視覚的に隠したテキストで持たせ、アニメーションが無くても値が読めるようにする
 - prefers-reduced-motion 時はアニメーションを無効にし、最初から最終の高さで表示する`,
   ngExample: {

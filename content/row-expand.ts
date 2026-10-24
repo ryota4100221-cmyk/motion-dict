@@ -38,10 +38,11 @@ export const rowExpand: MotionEntry = {
   ],
   promptTemplate: `ワークス一覧に row expand(ホバーで行が展開する一覧)を実装してください。
 
+- きっかけ: 行(帯＋キャプション全体)に mouseenter で開き、mouseleave で閉じる。タッチはその行のタップで開閉をトグル
 - 各行は「サムネイルを横に並べた帯」＋「その下のキャプション(タイトル/分類)」の2段構成にする
 - 行にホバーしたら、その行の帯の高さを {{grow}} 倍にする。サムネイルは height: 100% + aspect-ratio で幅を自動追従させ、動かす値を高さ1つに絞る
-- キャプションは max-height と margin-top を 0 に畳む。畳んで空いた高さは {{swallow}} の指定に従って帯の高さへ足す
-- 遷移は height / max-height / margin-top を {{duration}}s の ease-out で。transform: scale() は使わない(隣の行に重なり、文字がぼける)
+- キャプションの扱いは「{{swallow}}」にする。飲み込む＝max-height・margin-top・opacity を 0 に畳み、空いた高さ(キャプション行＋上マージン)をそのまま帯の高さへ足す／残す＝キャプションは畳まず表示したままにする
+- 遷移は height / max-height / margin-top / opacity を {{duration}}s の cubic-bezier(0.22, 1, 0.36, 1) で(0.4sなら最初の0.1秒で7割開く強い減速。ただの ease-out では印象が鈍る)。transform: scale() は使わない(隣の行に重なり、文字がぼける)
 - 行の高さが変わるのは意図したリフローなので、リスト要素を contain: layout で囲い、再計算をリストの中だけに閉じる
 - ホバー状態は「いま開いている行」1つだけを保持する。行ごとにフラグを持つと、素早く移動したとき前の行が開いたまま取り残される
 - タッチ端末では hover が張り付くので @media (hover: hover) で囲い、タップでのトグルを別に用意する
@@ -51,7 +52,7 @@ export const rowExpand: MotionEntry = {
     why: "「大きく」だけだと transform: scale() で拡大され、隣の行に重なって文字までぼける実装が返ってくる。キャプションの扱いも決まらないので、ホバーのたびに下の行が大きく飛ぶ一覧になる。",
   },
   okExample: {
-    say: "「一覧の行をホバーで展開。帯の高さを1.2倍にし、下のキャプションはmax-height:0へ畳んでその高さを帯に加算。height/max-heightを0.4s ease-outで、scaleは使わない。開いている行は1つだけ保持。reduced-motionでは即時切り替え」",
+    say: "「一覧の行をホバーで展開。帯の高さを1.2倍にし、下のキャプションはmax-height:0へ畳んでその高さを帯に加算。height/max-heightを0.4s cubic-bezier(0.22,1,0.36,1)で、scaleは使わない。開いている行は1つだけ保持。reduced-motionでは即時切り替え」",
     why: "拡大の手段(scaleではなくheight)・畳んだ空きの行き先・状態の持ち方まで決まっている。「scaleを使わない」の一言が、重なりと文字のぼけを最初から潰す。",
   },
   vocab: [

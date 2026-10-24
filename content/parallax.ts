@@ -28,8 +28,9 @@ export const parallax: MotionEntry = {
   ],
   promptTemplate: `背景レイヤーに parallax scrolling を実装してください。
 
+- きっかけ: 前景を載せたスクロール領域を縦スクロールすると、その量に連動して背景が動く(クリック等は不要)。タッチもスワイプのスクロールで同じ
 - スクロール量(scrollY)を毎フレーム読み、背景を translateY(-scrollY × {{strength}}) で前景よりゆっくり動かす
-- transform の反映は requestAnimationFrame + lerp(係数 {{lerp}})で補間し、scrollイベント直付けのカクつきを消す
+- transform の反映は requestAnimationFrame で毎フレーム current += (target - current) × {{lerp}} と補間し(60fps前提・dt は掛けない)、scrollイベント直付けのカクつきを消す
 - scroll イベント内では値の更新のみ行い、style の書き込みは rAF 側に寄せる
 - 背景レイヤーは移動域のぶん大きめに作り、端の見切れを防ぐ
 - prefers-reduced-motion 時は視差を無効化してレイヤーを固定する`,

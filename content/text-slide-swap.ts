@@ -29,10 +29,11 @@ export const textSlideSwap: MotionEntry = {
   ],
   promptTemplate: `ボタンに text slide swap(文字が抜け、同じ文字が反対側から入る入れ替え演出)を実装してください。
 
+- きっかけ: ボタンへの mouseenter で入れ替え、mouseleave で元に戻す。タッチはタップするたびに入れ替え/戻しをトグルする
 - ボタン内に overflow: clip の枠(高さ1行ぶん)を作り、その中に同じテキストを縦に2段重ねた列を入れる2段構造にする
-- ホバーで列全体を transform: translateY で1行ぶん {{direction}} 方向へ動かす(1枚目が抜け、2枚目が入る)
+- ホバーで列全体を transform: translateY で1行ぶん動かし、文字を {{direction}} の向きへ抜けさせる(up は列を 0 → -50%、down は初期位置を -50% に置いて -50% → 0。抜けた文字と同じ文字が反対側から入る)
 - {{duration}}s、cubic-bezier(0.22, 1, 0.36, 1) のようなease-out系で動かす
-- 枠の高さはline-heightで固定し、移動量は px ではなく translateY(±100%) で指定する
+- 枠の高さはline-heightで固定し、移動量は px ではなく %で指定する。動かすのは2段の列なので -50%(列の高さの半分)がちょうど1行ぶん
 - overflow: hidden ではなく clip を使う(スクロールコンテナ化させない)
 - マウスが離れたら同じdurationで元に戻す
 - prefers-reduced-motion 時はスライドさせず、色の変化のみにする`,
@@ -41,7 +42,7 @@ export const textSlideSwap: MotionEntry = {
     why: "opacityのクロスフェードや、文字がその場で差し替わるだけの実装が返ってくる。「同じ文字が2枚あって列ごと平行移動する」構造は言わないと伝わらない。",
   },
   okExample: {
-    say: "「text slide swapを実装。overflow: clipの枠＋同一テキスト2段の列をtranslateY(-100%)、0.35s cubic-bezier(0.22,1,0.36,1)、leaveで戻す。移動量は%指定」",
+    say: "「text slide swapを実装。overflow: clipの枠＋同一テキスト2段の列をtranslateY(0→-50%)、0.35s cubic-bezier(0.22,1,0.36,1)、leaveで戻す。移動量は%指定」",
     why: "構造(clip枠＋2段の列)・移動量の単位・数値・イージングまで指定。「%指定」の一言でフォントサイズを変えても崩れない実装になる。",
   },
   vocab: [
@@ -54,8 +55,8 @@ export const textSlideSwap: MotionEntry = {
       desc: "同じテキストを縦に2枚並べ、列ごと1行ぶん動かす構造。入れ替わって見えるが実体はただの平行移動。",
     },
     {
-      term: "translateY(-100%)",
-      desc: "要素自身の高さを基準に1行ぶん動かす指定。pxで書くとフォントサイズ変更で入れ替わりがズレる。",
+      term: "translateY(-50%)",
+      desc: "2段の列自身の高さを基準に半分=1行ぶん動かす指定。pxで書くとフォントサイズ変更で入れ替わりがズレる。",
     },
     {
       term: "line-height固定",

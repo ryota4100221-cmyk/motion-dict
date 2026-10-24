@@ -38,11 +38,12 @@ export const curtainWipe: MotionEntry = {
   ],
   promptTemplate: `ページ遷移に curtain wipe を実装してください。
 
+- きっかけ: 遷移を起こす操作(リンク/ボタンのクリック)で1往復(覆う→差し替え→引く)を再生する。再生中は次の操作を受け付けない
 - 画面全体を覆う固定レイヤー(position: fixed、最上位のz-index)をカーテンにする
-- カーテンは {{panels}} 枚の縦短冊に分割し、各短冊を60msずつずらして動かす
-- 覆う動きは transform の scaleX/scaleY を 0→1 に {{duration}}s、進行方向は {{direction}}
-- easingは cubic-bezier(0.77, 0, 0.175, 1) のようなease-in-out系を使う
-- 完全に覆った瞬間にページ内容を差し替え、transform-originを反対側の辺に反転して同じ {{duration}}s で引く
+- カーテンは {{panels}} 枚の縦短冊に分割し、左の短冊から順に60msずつ transition-delay をずらして動かす(覆う・引くの両方)
+- 覆う動きは transform の scaleX/scaleY を 0→1 に {{duration}}s、進行方向は {{direction}}(left/right は scaleX、up は scaleY)
+- easingは覆う・引くとも cubic-bezier(0.77, 0, 0.175, 1)
+- 完全に覆った瞬間(片道 {{duration}}s + 短冊の時間差の合計 + 60ms 後)にページ内容を差し替え、transform-originを反対側の辺に反転して同じ {{duration}}s で引く。leftなら覆うとき origin: right → 引くとき left、right はその逆、up は bottom → top
 - widthやclip-pathではなくtransformで動かし、遷移完了後はカーテンをdisplay: noneにする
 - prefers-reduced-motion 時はカーテンを出さず、即時切り替えまたは短いフェードにする`,
   ngExample: {

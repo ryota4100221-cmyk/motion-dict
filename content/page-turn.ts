@@ -37,10 +37,11 @@ export const pageTurn: MotionEntry = {
   ],
   promptTemplate: `本・カタログ・オンボーディングの手順表示に page turn(ページめくり)を実装してください。
 
+- きっかけ: 「次へ」「前へ」ボタンのクリック(タッチはタップ)と、本の要素にフォーカスがある状態での ← → キーで1枚ずつ進退する。最初/最後のページでは該当方向のボタンを disabled にする
 - 1枚のページ(leaf)は表(front)と裏(back)の2面を重ねた要素にし、親に transform-style: preserve-3d、各面に backface-visibility: hidden を指定する。裏面は最初から rotateY(180deg) で裏返して置く
 - 回転軸は綴じ目側。transform-origin: left center(右ページを左へめくる場合)にし、transform: perspective({{perspective}}px) rotateY(0deg) → rotateY(-180deg) で倒す。中心軸の rotateY(カードの裏返し)にしない
 - 1枚のめくりは {{duration}}s。イージングは cubic-bezier(0.45, 0, 0.25, 1)(持ち上げはゆっくり、倒れ込みは少し速く)
-- めくり途中は、表面に黒のグラデーション(綴じ目側が濃い)を重ね、その opacity を 0 → {{shade}}% → 0(垂直に立つ中間で最大)で動かして陰りを出す。box-shadow は動かさない
+- めくり途中は、表面に黒のグラデーション(綴じ目側が濃い)を重ね、その opacity を 0 → {{shade}}% → 0(垂直に立つ中間＝50%地点で最大)で、めくりと同じ {{duration}}s・同じイージングで動かして陰りを出す。box-shadow は動かさない
 - 重なり順: まだめくっていないページは先頭ほど上、めくったページは後からめくったほど上、今めくっている1枚は常に最上位にする(z-index を状態で付け替える)
 - 次へ/前へのボタンとキー操作(←→)で1枚ずつ進退できるようにし、連打されたら前のめくりの完了を待たず次の1枚を始める
 - prefers-reduced-motion 時は回転させず、ページの中身をクロスフェード(0.2s程度)で切り替えるだけにする`,

@@ -37,6 +37,7 @@ export const rubberBand: MotionEntry = {
   ],
   promptTemplate: `横ドラッグできるリストに rubber band(overscroll bounce)を実装してください。
 
+- きっかけ: リストの枠内のどこでもポインタを押して横にドラッグ(タッチはスワイプで同じ動作)。端を越えて引くと減衰し、離すと端へ戻る
 - ドラッグ中はトラックを transform: translate3d(x, 0, 0) で動かす(left や scrollLeft は使わない)
 - 可動域の内側では指に1:1で追従させる
 - 端を越えた分は「はみ出し量 = (1 - 1 / (はみ出しの生値 * {{pull}} / {{maxOverscroll}} + 1)) * {{maxOverscroll}}」で減衰させる(引くほど重くなり {{maxOverscroll}}px に漸近する)

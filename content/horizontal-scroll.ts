@@ -28,19 +28,20 @@ export const horizontalScroll: MotionEntry = {
   ],
   promptTemplate: `縦スクロールに連動する horizontal scroll section を実装してください。
 
+- きっかけ: ページの縦スクロールだけで進む。親セクションの上端が画面上端に達した瞬間から横に流れ始め、セクションを抜けると縦スクロールに戻る。上へ戻せば逆再生（タッチは縦スワイプで同じ）
 - 親セクションの高さを「画面高さ + 画面幅 × {{distance}}」にし、その中に position: sticky; top: 0 で画面いっぱいのビューポートを固定する
-- ビューポート内に横並びのトラック(flex)を置き、セクション内のスクロール進捗0〜1を translateX(0 〜 −画面幅×{{distance}}) に変換する
-- 目標値へ直接飛ばさず、毎フレーム current += (target − current) × {{smooth}} の線形補間(lerp)で追従させる
+- ビューポート内に横並びのトラック(flex)を置き、セクション内のスクロール進捗 (scrollY − セクション上端) ÷ (画面幅×{{distance}}) を0〜1にclampし、 translateX(0 〜 −画面幅×{{distance}}) に変換する
+- 目標値へ直接飛ばさず、毎フレーム current += (target − current) × {{smooth}} の線形補間(lerp)で追従させる(係数は毎フレーム・60fps前提。差が0.05px未満になったら目標値に揃える)
 - 書き込みは requestAnimationFrame 側で transform: translate3d のみ。left や margin は使わない(リフロー禁止)
 - wheelイベントを乗っ取るスクロールハイジャックは実装しない(縦スクロールの主導権はユーザーに残す)
 - 祖先の overflow: hidden は sticky を殺すので、はみ出し対策には overflow: clip を使う
-- prefers-reduced-motion 時は lerp を切ってスクロールに1:1で即追従させるか、通常の縦積みレイアウトに戻す`,
+- prefers-reduced-motion 時は lerp を切って(係数1)スクロールに1:1で即追従させる`,
   ngExample: {
     say: "「スクロールしたら横に流れるギャラリーセクションを作って」",
     why: "wheelイベントを乗っ取って横スクロールに変換する『ハイジャック』実装が返ってきやすい。トラックパッドの慣性やスマホで破綻し、戻る操作も効かなくなる。移動距離とセクションの高さの関係も未定義のまま。",
   },
   okExample: {
-    say: "「horizontal scrollをsticky + translateXで実装。親は100vh+200vwの高さ、進捗を0〜-200vwに変換、lerp係数0.12で追従、書き込みはrAFでtranslate3dのみ。reduced-motion時は縦積みに戻す」",
+    say: "「horizontal scrollをsticky + translateXで実装。親は100vh+200vwの高さ、進捗を0〜-200vwに変換、lerp係数0.12で追従、書き込みはrAFでtranslate3dのみ。reduced-motion時はlerpを切って1:1追従」",
     why: "縦量→横量の変換式・親の高さ・慣性の係数まで指定している。「sticky + translateX」の一言でハイジャック実装を確実に封じられる。",
   },
   vocab: [

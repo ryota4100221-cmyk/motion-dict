@@ -38,12 +38,13 @@ export const stepper: MotionEntry = {
   ],
   promptTemplate: `フォームの進捗表示に stepper(段階プログレス)を実装してください。
 
+- きっかけ: 「進む」「戻る」ボタンのクリックで index を ±1、ステップの丸ノード自体のクリックでその段階へ直接ジャンプする（飛ばした連結線はまとめて同時に満ちる/戻る）。自動再生はしない
 - 丸ノードを横一列に並べ、隣り合うノードの間を連結線でつなぐ
 - 状態は「現在の段階index」1つで持ち、ノードは index を境に「完了 / 現在 / 未到達」の3状態に分ける
 - 次へ進んだら、通過した連結線を transform: scaleX(0→1)・transform-origin: left で {{duration}}s 満たす(width のアニメーションは使わずリフローさせない)
 - 現在ノードは transform: scale({{nodeScale}}) で強調し、完了済みノードは scale(1) に戻す
 - 連結線の伸びとノードの拡大は別要素・別transformに分け、重ねて同時に動かす
-- イージングは {{easing}} を使う("back(行き過ぎて戻る)"の場合は cubic-bezier(0.34, 1.56, 0.64, 1) で活性化を軽く弾ませる)
+- 連結線とノードのイージングは指定「{{easing}}」に従う。ease-out は cubic-bezier(0.22, 1, 0.36, 1)(序盤で一気に進む)、ease-in-out はCSS標準値、back は cubic-bezier(0.34, 1.56, 0.64, 1) で活性化を軽く弾ませる
 - 戻る操作でも同じ規則で連結線を scaleX(1→0) に戻す
 - prefers-reduced-motion 時は伸縮・拡大アニメーションをやめ、色だけで完了/現在/未到達を即時に切り替える`,
   ngExample: {

@@ -46,12 +46,13 @@ export const fogDrift: MotionEntry = {
   ],
   promptTemplate: `ヒーロー下部に fog drift(漂う霧)を実装してください。
 
+- きっかけ: ページ読み込み直後から操作なしで流れ続ける(無限ループ)。帯が画面外にある間だけ止め、戻れば続きから流れる
 - 霧を置く帯(fog bank)を position:absolute で下部に敷き、overflow: clip と pointer-events: none を付ける。コンテンツより奥の z-index に置く
 - 帯には mask-image: linear-gradient(transparent, #000 24%, #000 70%, transparent) をかけ、上下の縁を溶かす(ハードエッジが残ると霧ではなく画像の帯に見える)
 - 帯の中に霧の層を {{layers}} 枚重ねる。各層は帯より左右に大きく(inset: -8% -30% 程度)取り、流しても端が見えないようにする
 - 霧のテクスチャは1種類でよい。偶数番目の層は scaleX(-1) で左右反転して使い回し、同じ模様が並んで見えるのを防ぐ
-- 手前の層は {{duration}}s で片道、ease-in-out・alternate・infinite で往復させる。移動は translate3d(-{{travel}}%, 4%, 0) scale(1.04) → 途中で少し上下とscaleを揺らし → translate3d({{travel}}%, 2%, 0) scale(1.03)
-- 2枚目は逆向きに流す。周期は手前の約1.4倍・1.75倍…と「割り切れない比」にずらし、animation-delay を負の値にして開始位相もばらす(揃えると数十秒おきに全層が同期して、1枚の画像が動いているように見える)
+- 手前の層は {{duration}}s で片道、ease-in-out・alternate・infinite で往復させる。移動は translate3d(-{{travel}}%, 4%, 0) scale(1.04) → 52%: translate3d({{travel}}% × 0.1, -5%, 0) scale(1.1) → translate3d({{travel}}%, 2%, 0) scale(1.03)
+- 2枚目は逆向きに流す(0%: translate3d({{travel}}%, -4%, 0) scale(1.13) → 58%: translate3d(−{{travel}}% × 0.2, 5%, 0) scale(1.05) → 100%: translate3d(−{{travel}}%, -2%, 0) scale(1.1)、すべて scaleX(-1) 付き)。周期は手前の約1.4倍・1.75倍…と「割り切れない比」にずらし、animation-delay を負の値(各層の周期 × 0.47 / 0.73 / 0.89 / 0.3)にして開始位相もばらす(揃えると数十秒おきに全層が同期して、1枚の画像が動いているように見える)
 - 不透明度は手前を {{density}} とし、奥の層ほど0.8倍・0.55倍と減衰させる
 - 動かすのは transform だけ(background-position や left をアニメーションさせない)
 - IntersectionObserver で帯が画面外にあるときは animation-play-state: paused にする(長周期のループを見えないところで回し続けない)

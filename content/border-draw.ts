@@ -28,11 +28,12 @@ export const borderDraw: MotionEntry = {
   ],
   promptTemplate: `ボタンに border draw(ホバーで枠線が一筆書きのように描かれる演出)を実装してください。
 
+- きっかけ: ボタンに mouseenter で描き、mouseleave で消す(タッチはタップごとに描く/消すを切り替える)。描いている途中で離れたら、その時点から逆順の消去に移る
 - 枠線はborderではなく擬似要素2つ(::before / ::after)で作り、それぞれがL字型に2辺ずつを担当する
 - 各辺は width/height ではなく transform: scaleX / scaleY で伸ばす(リフロー禁止)
-- transform-origin を辺ごとに「描き始めの端」に設定し、transition-delay で 上→右→下→左 の順に連鎖させる
+- transform-origin を辺ごとに「描き始めの端」(上=左端・右=上端・下=右端・左=下端)に設定し、transition-delay を i × ({{duration}}/4)s(i=0〜3)にして 上→右→下→左 の順に連鎖させる
 - 線の太さは {{thickness}}px、4辺合計 {{duration}}s(1辺あたり {{duration}}/4 s)、速度が均一に見えるよう linear で描く
-- マウスが離れたら逆順(左→下→右→上)に消していく
+- マウスが離れたら逆順(左→下→右→上)に消していく。消すときの delay は (3 − i) × ({{duration}}/4)s、transform-origin は描くときと同じ端のまま
 - prefers-reduced-motion 時はアニメーションなしで枠線を常時表示する`,
   ngExample: {
     say: "「ホバーしたら枠が出るようにして」",

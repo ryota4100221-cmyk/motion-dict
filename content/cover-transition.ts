@@ -46,11 +46,12 @@ export const coverTransition: MotionEntry = {
   ],
   promptTemplate: `ページ遷移に cover transition を実装してください。
 
+- きっかけ: ページ面のどこをクリックしても次のページへ遷移する(小さなNEXTボタンだけにしない。タッチはタップで同じ動作)。クリックのたびに A→B→A… と交互に進む。遷移中のクリックは無視する
 - 旧ページと新ページを同じ枠に重ね、新ページを上のレイヤー(z-index)に置く
 - 新ページの開始状態は transform: translateY({{rise}}%) scale({{scaleFrom}}) と clip-path: inset(100% 0 0)
 - 遷移中に新ページを transform: none / clip-path: inset(0) へ {{duration}}s で動かす(clip-pathとtransformを同時に動かすことで、下辺から迫り上がりながら等倍に戻る)
 - 同時に旧ページを transform: translateY(-6%) scale({{recede}}) / opacity 0.48 へ、同じ duration・同じイージングで動かす
-- イージングは出だしが速く終わりが長い cubic-bezier(0.11, 0.82, 0.39, 1) 系を両者で共有する(ズレると2枚が別々の動きに見える)
+- イージングは出だしが速く終わりが長い cubic-bezier(0.11, 0.82, 0.39, 1) を両者で共有する(ズレると2枚が別々の動きに見える)。clip-path と transform は同じ新ページ要素に掛け、transform-origin は中央のまま
 - 動かすのは transform / clip-path / opacity のみ。top や height のアニメーションでリフローさせない
 - 遷移が終わったら新ページをベースに差し替え、レイヤーとwill-changeを片付ける
 - 遷移中は二重発火しないようにロックし、終了後に解除する

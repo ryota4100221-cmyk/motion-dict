@@ -47,11 +47,12 @@ export const conicSweep: MotionEntry = {
   ],
   promptTemplate: `円形ボタンに conic sweep(円弧スイープ)を実装してください。
 
+- きっかけ: 操作不要。表示した時点から自動で回り続ける無限ループ(ホバーやクリックを待たない)
 - 弧はSVGではなくconic-gradientで描く。始点角 --start と終点角 --end の2変数を用意し、
   background: conic-gradient(from 0deg, transparent 0deg var(--start), currentColor var(--start) var(--end), transparent var(--end) 360deg)
-- --start / --end は @property で syntax: "<angle>" として登録する(登録しないと角度が補間されず、弧が伸びずにパッと切り替わる)
+- --start / --end は @property で syntax: "<angle>"・inherits: false・initial-value: 0deg として登録する(登録しないと角度が補間されず、弧が伸びずにパッと切り替わる)。@property は文書全体に効くので、名前には部品固有の接頭辞を付ける
 - 中央をくり抜いて輪にするのは mask: radial-gradient(farthest-side, transparent calc(100% - {{thickness}}px), #000 calc(100% - {{thickness}}px))
-- 動きは {{mode}} 型にする。chase は --end を0→{{arc}}degへ伸ばしたあと、--start と --end を360degへ揃えて送り、尻尾が頭に追いつく形で消す。spin は弧の長さを {{arc}}deg で固定し、要素ごと transform: rotate(360deg) で回す
+- 動きは {{mode}} 型にする。chase は 1周の 0→45% で --end を0→{{arc}}degへ伸ばし(--start は0degのまま)、45→100% で --start と --end を両方360degへ送り、尻尾が頭に追いつく形で消す。spin は弧の長さを {{arc}}deg で固定し、要素ごと transform: rotate(360deg) で回す
 - 1周は {{duration}}s の linear。ループの継ぎ目が出ないよう、終端の角度は開始とちょうど360deg差に揃える
 - 回すのは transform、描くのは角度。width や border-width をアニメーションさせない(リフローさせない)
 - prefers-reduced-motion: reduce のときはアニメーションを止め、{{arc}}deg の弧を静止表示する`,

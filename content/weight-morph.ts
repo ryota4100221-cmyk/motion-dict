@@ -46,12 +46,13 @@ export const weightMorph: MotionEntry = {
   ],
   promptTemplate: `見出しに weight morph(可変フォントのウェイト軸アニメーション)を実装してください。
 
+- きっかけ: ページ読み込み直後から操作不要で波が流れ続ける(無限ループ)。ウェイトは rAF で毎フレーム経過時間から計算して書き込む。ホバーやスクロールには反応しない
 - 可変フォント(wght軸を持つもの。例: Inter / Roboto Flex)を weight のレンジ指定で読み込む。静的ウェイトのフォントだと400と700の間を飛ぶだけでアニメーションにならない
 - 語を1文字ずつ span に分割し、各 span を display: inline-block にする
 - 各文字のウェイトを {{wmin}} 〜 {{wmax}} の間で往復させる。位相は cos を使い w = wmin +(wmax - wmin)×(0.5 - 0.5×cos(2π×phase)) で求める
-- 1往復は {{duration}}s。隣の文字とは {{stagger}}ms ずつ位相をずらし、波が語を渡っていくようにする
+- 1往復は {{duration}}s。文字 i の phase = (経過ms − i × {{stagger}}) ÷ 1往復のms とし、右の字ほど遅らせて波が語を渡っていくようにする
 - 太さの指定は font-variation-settings ではなく font-weight を使う(wghtは登録済み軸なので高レベルプロパティ側が正しい。font-variation-settings は継承と font-matching を素通りする)
-- 🔴 ウェイトを変えると字幅(advance width)が変わりリフローする。各文字を最大ウェイトで1度だけ実測し、その幅を width に固定して隣の字が動かないようにする(計測は「全文字に最大ウェイトを当てる→まとめて幅を読む」の順で1回のレイアウトに収める)
+- 🔴 ウェイトを変えると字幅(advance width)が変わりリフローする。各文字を最大ウェイトで1度だけ実測し、その幅を width に固定して隣の字が動かないようにする(計測は「全文字に最大ウェイトを当てる→まとめて幅を読む」の順で1回のレイアウトに収める。document.fonts.ready を待ってから測る。フォント到着前だとフォールバックの幅で固定される)
 - 本文やボタンラベルには使わない。短い見出し1語だけに限定する
 - prefers-reduced-motion 時はアニメーションを止め、wmin と wmax の中間の太さで静止させる`,
   ngExample: {

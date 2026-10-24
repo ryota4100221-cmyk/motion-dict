@@ -28,11 +28,12 @@ export const dragScroll: MotionEntry = {
   ],
   promptTemplate: `横並びのギャラリーに drag scroll(慣性スクロール)を実装してください。
 
+- きっかけ: トラック上で pointerdown して左右にドラッグすると追従し、放すと慣性で滑る。滑走中に再び掴んだらその場で止めて掴み直す。タッチも同じ経路(touch-action: none)
 - Pointer Events(pointerdown/move/up)で実装し、マウスとタッチを1つの経路で扱う。pointerdown時に setPointerCapture する
 - ドラッグ中はポインタの移動量ぶんだけトラックを translateX で動かす(指に1:1で追従)。left/margin は使わずリフローさせない
-- 直近フレームの移動量を速度として保持しておく
-- 指を離したら、その速度を {{throw}} 倍にして初速とし、毎フレーム translateX に加算する慣性ループを回す
-- 速度は毎フレーム {{friction}} を掛けて減衰させ、|速度| が十分小さくなったらループを止める
+- 直前の pointermove 1回ぶんの移動量 dx(px)をそのまま速度(px/フレーム)として保持しておく
+- 指を離したら、その速度を {{throw}} 倍にして初速とし、毎フレーム translateX にそのまま加算する慣性ループを回す(dtは掛けない・60fps前提)
+- 速度は毎フレーム {{friction}} を掛けて減衰させ、|速度| が 0.1px/フレーム 未満になったらループを止める(離した瞬間に 0.1 未満なら慣性を始めない)
 - 移動範囲は 0 〜 -(トラック幅 - 表示幅) にクランプする。端に達したら速度を0にして止める(端で弾ませたい場合は rubber-band を別途重ねる)
 - 慣性ループは requestAnimationFrame で回し、ページ内に既にrAFループがあるなら1本に相乗りさせる
 - カーソルは grab / ドラッグ中は grabbing。テキスト選択と画像ドラッグは無効化する(user-select:none / draggable=false)

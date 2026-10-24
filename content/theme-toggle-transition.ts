@@ -39,12 +39,13 @@ export const themeToggleTransition: MotionEntry = {
   ],
   promptTemplate: `サイトのライト/ダーク切替ボタンに theme toggle transition(テーマ切替トランジション)を実装してください。
 
+- きっかけ: テーマ切替ボタンのクリック（タッチはタップ）1回ごとにライト⇄ダークを切り替えて塗り広げる。自動では切り替えない
 - document.startViewTransition(() => { html の data-theme を切り替える }) で切替前後の画面をスナップショットする
 - ::view-transition-old(root) は animation: none で静止させ、::view-transition-new(root) を上(z-index)に重ねる
-- 新しい側の clip-path を {{duration}}s で塗り広げる。形は {{shape}}(wipe なら inset(0 100% 0 0) → inset(0)、circle なら押したボタンの中心から circle(0) → 画面の対角線まで)
-- 向きは {{direction}}(テーマで反転なら ダークへは左→右、ライトへは右→左 に inset の辺を入れ替える)
+- 新しい側の clip-path を {{duration}}s で塗り広げる。形の指定は「{{shape}}」(wipe なら inset(0 100% 0 0) → inset(0)、circle なら押したボタンの中心から circle(0) → circle(150%) で画面の対角線まで)
+- 向きの指定は「{{direction}}」(テーマで反転なら ダークへは左→右、ライトへは右→左 に inset の辺を入れ替える。常に同じ向きなら毎回 左→右。circle では向きは関係しない)
 - イージングは cubic-bezier(.87, 0, .13, 1) の強い ease-in-out。両端を溜めて中盤で一気に塗る
-- 切替中は二重に押されても次の遷移を始めない(フラグで握りつぶし、finished で解除)
+- 切替中にもう一度押されたら、進行中の遷移を最後まで確定させて(transition.skipTransition())から、その時点のテーマを起点に次の遷移を始める
 - startViewTransition が無いブラウザでは data-theme を即時に切り替えるだけにする
 - prefers-reduced-motion 時はトランジションを使わず即時切替にする(画面全体が動く演出なので必ず外す)`,
   ngExample: {

@@ -28,11 +28,12 @@ export const wordRotate: MotionEntry = {
   ],
   promptTemplate: `見出しに word rotate を実装してください。
 
+- きっかけ: ページ表示後、操作なしで自動ループする（最初の単語を1周期表示してから最初の入れ替え）。ホバーやクリックでは何も起きない
 - 「◯◯を、伝わる形に」の◯◯部分だけを ["デザイン", "コピー", "実装"] で順に入れ替える
 - 回る単語は overflow: hidden のマスク(inline-block)で包み、translateY で回す
-- 各単語を {{interval}}s 表示したら、現在の単語を translateY(-100%) へ、次の単語を translateY(100%)→0 へ {{duration}}s の ease-out で同時に動かす
+- {{interval}}s ごと(切替時間を含む周期。setTimeout を繋いで回す)に、現在の単語を translateY(0→-105%) へ、次の単語を translateY(105%)→0 へ {{duration}}s の cubic-bezier(0.22, 1, 0.36, 1)(序盤で一気に動く ease-out)で同時に動かす。105% にするのは字の端をマスク内に残さないため
 - opacityフェードやdisplay切替ではなく transform で動かす(リフロー禁止)
-- 単語ごとの幅の違いはマスクの width を transition で追従させ、後続テキストのガタつきを抑える
+- 単語ごとの幅の違いはマスクの width を、単語の移動と同じ時間・同じイージングの transition で追従させ、後続テキストのガタつきを抑える
 - 最後の単語まで行ったら先頭に戻って無限ループ
 - prefers-reduced-motion 時は回転を止め、最初の単語を固定表示する`,
   ngExample: {

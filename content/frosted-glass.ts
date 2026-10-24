@@ -37,12 +37,13 @@ export const frostedGlass: MotionEntry = {
   ],
   promptTemplate: `画像の上に frosted glass panel(半透明+背景ぼかしのガラス風カード)を実装してください。
 
+- きっかけ: パネルを載せた画像全体への mouseenter で出現し、mouseleave で同じ時間をかけて初期状態へ戻す。タッチはタップごとに出す/隠すをトグル
 - パネルは backdrop-filter: blur({{blur}}px) saturate(160%) を適用する(-webkit-backdrop-filterも併記)
 - パネル背景は rgba(255,255,255,{{opacity}}) 程度の薄い白、境界線は rgba(255,255,255,0.14) の1px
 - 初期状態は opacity: 0, transform: translateY(16px) scale(0.96)
-- ホバー(またはスクロールで領域侵入)時に opacity: 1, transform: translateY(0) scale(1) へ {{duration}}s ease-outで遷移させる
+- ホバー時に opacity: 1, transform: translateY(0) scale(1) へ {{duration}}s ease-outで遷移させる
 - backdrop-filter未対応ブラウザ向けに @supports not (backdrop-filter: blur(1px)) でフォールバック背景色(不透明度高め)を用意する
-- prefers-reduced-motion 時は transform を使わずopacityの遷移のみにする`,
+- prefers-reduced-motion 時は transform を使わず opacity の 0.2s の遷移のみにする`,
   ngExample: {
     say: "「ガラスっぽい半透明のカードにして」",
     why: "「ガラスっぽい」だけでは単なる半透明白カードが返りやすく、backdrop-filterでの背景ぼかしが抜け落ちる。ぼかし量・地の不透明度・出現の起点を数値で指定しないと「環境に溶け込む」質感にならない。",

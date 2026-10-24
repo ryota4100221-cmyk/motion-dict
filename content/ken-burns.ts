@@ -37,9 +37,10 @@ export const kenBurns: MotionEntry = {
   ],
   promptTemplate: `ヒーローの静止画に ken burns effect を実装してください。
 
+- きっかけ: 操作不要。ページ読み込み直後から自動で再生し、往復のループを続ける
 - 画像を包む枠に overflow: clip を指定してはみ出しを切り落とす(枠のサイズは固定)
 - 画像は枠より一回り大きく配置し(inset: -7% 程度)、パンで端が露出しないブリードを確保する
-- 中の画像だけを @keyframes で scale(1) translate(0, 0) から scale({{zoom}}) translate({{pan}}%, {{pan}}%) まで、{{duration}}s の ease-in-out で動かす
+- 中の画像だけを @keyframes で scale(1) translate(0, 0) から scale({{zoom}}) translate({{pan}}%, calc({{pan}}% * -0.6)) まで（右へ{{pan}}%・上へその0.6倍の斜め上方向）、{{duration}}s の ease-in-out で動かす
 - animation-direction: alternate + infinite で往復させ、ループの継ぎ目にジャンプを作らない
 - 動かすのは transform のみ(width / height / background-position は使わない)。画像に will-change: transform を付ける
 - prefers-reduced-motion 時は animation: none にして静止画のまま表示する`,
@@ -48,7 +49,7 @@ export const kenBurns: MotionEntry = {
     why: "「ゆっくり」では倍率も周期も決まらない。background-positionを動かすカクつく実装や、ループ終端でscale(1)に一瞬で戻る「ジャンプ」付きの実装が返ってきやすい。",
   },
   okExample: {
-    say: "「ken burns effectを実装。overflow:clipの枠内で画像を@keyframesでscale(1→1.15)+translate 3%、片道12s ease-in-out、alternate infinite。transformのみ、reduced-motionでは静止」",
+    say: "「ken burns effectを実装。overflow:clipの枠内で画像を@keyframesでscale(1→1.15)+translate(3%, -1.8%)、片道12s ease-in-out、alternate infinite。transformのみ、reduced-motionでは静止」",
     why: "倍率・移動量・周期・ループ方式・パフォーマンス制約が一文に揃っている。「alternate」の一語で継ぎ目のジャンプ問題を先回りできる。",
   },
   vocab: [

@@ -46,6 +46,7 @@ export const moireDrift: MotionEntry = {
   ],
   promptTemplate: `背景に moiré drift(2枚のドットグリッドの干渉)を実装してください。
 
+- きっかけ: ページ読み込み直後から2枚目が自動でドリフトし続ける(操作不要・無限ループ)
 - グリッドはドットを要素で並べず、radial-gradient(色 30%, transparent 32%) を background-image に敷いた擬似要素2枚(::before / ::after)で作る
 - 1枚目の background-size は {{pitch}}px、2枚目は {{pitch}}px + {{beat}}px にする。このピッチ差が干渉縞の間隔(目安 pitch×(pitch+beat)÷beat px)を決める本体で、差が無ければ何も起きない
 - 2枚目だけを rotate({{angle}}deg) 傾ける。角度が付くほど縞は細かく斜めに走る

@@ -28,9 +28,10 @@ export const rippleTap: MotionEntry = {
   ],
   promptTemplate: `タップ地点から波紋が広がる ripple effect を実装してください。
 
+- きっかけ: 要素(ボタン面のどこでも)を押した瞬間(pointerdown。離すのを待たない)に1つ波紋を出す。マウスとタッチで同じ動作
 - クリック/タップ座標を getBoundingClientRect() で要素内の相対座標にし、その点を中心に円を配置する
 - 円は直径 {{size}}px で固定サイズに作り、transform: scale(0) から scale(1) へ {{duration}}s の ease-out で広げる
-- 同時に opacity を 0.35 程度から 0 へフェードさせ、アニメーション終了後にDOMから削除する
+- 同時に opacity を 0.35 から 0 へ(scale と同じ時間・同じ ease-out で)フェードさせ、アニメーション終了後にDOMから削除する
 - widthやheightをアニメーションさせず、transform と opacity のみで動かす(リフロー禁止)
 - 要素側は overflow: hidden で波紋を角丸内にクリップする
 - 連打されたら波紋を複数同時に重ねて出す(前の波紋を消さない)

@@ -28,9 +28,10 @@ export const tooltipPop: MotionEntry = {
   ],
   promptTemplate: `ホバーで補足を表示する tooltip を実装してください。
 
+- きっかけ: 対象ラベルへの mouseenter で待機タイマーを始め、待機中に mouseleave したらキャンセルして出さない。タッチはタップで遅延なしに開閉をトグルする
 - 対象にホバーしてから {{delay}}s 待ってから表示する(hover intent。カーソルが通過しただけでは出さない)
-- 出現は {{duration}}s の ease-out で、opacity 0→1 と transform: translateY(4px) scale(0.96) → 等倍 のポップにする。transform-origin は矢印側(対象に近い辺の中央)に置く
-- マウスが離れたら遅延なしで即座に消す。出は入りより短い0.1s前後のフェードのみでよい
+- 出現は {{duration}}s で、opacity は ease-out、transform は cubic-bezier(0.22, 1, 0.36, 1)(序盤で一気に寄る減速)。opacity 0→1 と transform: translateY(4px) scale(0.96) → 等倍 のポップにする。transform-origin は矢印側(対象に近い辺の中央)に置く
+- マウスが離れたら遅延なしで即座に消す。出は入りより短い0.12s ease-out で、opacity 0 と translateY(4px) scale(0.96) へ同時に戻す
 - 動かすのは transform と opacity のみ。display切替だけのON/OFFにしない
 - prefers-reduced-motion 時は transform を使わず opacity の短いフェードのみにする`,
   ngExample: {

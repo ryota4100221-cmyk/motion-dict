@@ -37,11 +37,13 @@ export const breathingGlow: MotionEntry = {
   ],
   promptTemplate: `ステータス表示(稼働中の点・おすすめプランのカード等)に breathing glow(呼吸する光)を実装してください。
 
+- きっかけ: 操作不要。表示した時点から自動で呼吸し続ける無限ループ(ホバーやスクロールに反応させない)
 - 本体の背後に、同じ形の擬似要素(::before)を置き、そこに box-shadow: 0 0 {{glow}}px をアクセント色で持たせる。光彩はこの層だけが担う
 - 呼吸させるのは擬似要素の opacity(0.25 → 1 → 0.25)と、本体の transform: scale(吐き切りで 1、吸い切りで {{scale}}% 大きく)。box-shadow のぼかし値そのものはアニメーションさせない(毎フレーム再描画が走る)
 - 1周期は {{period}}s の infinite ループ。@keyframes は 0%/100% を吐き切り、50% を吸い切りにして往復させる
 - イージングは cubic-bezier(0.37, 0, 0.63, 1)(sine in-out)。ease-out 系だと頂点で「ピコッ」と当たって点滅に見える
-- 画面内に複数ある場合は animation-delay を少しずつずらし、全部が同時に呼吸しないようにする
+- 画面内に複数ある場合は animation-delay を負の値で周期の 0 / 1/3 / 2/3 ずつずらし(−0.33 × {{period}}s など)、全部が同時に呼吸しないようにする。::before にも animation-delay: inherit で同じずれを渡す
+- カードのような大きな面は膨らみを点の1/5(1 + {{scale}}% × 0.2)に抑え、文字を揺らさない
 - 位置・サイズ(width/height)は動かさない。周りのレイアウトを揺らさない
 - prefers-reduced-motion 時はループを止め、光彩を中間の強さ(opacity 0.6 程度)で静止表示する`,
   ngExample: {

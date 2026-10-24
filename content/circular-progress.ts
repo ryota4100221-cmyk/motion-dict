@@ -28,11 +28,12 @@ export const circularProgress: MotionEntry = {
   ],
   promptTemplate: `進捗率に応じて円周が描かれるサークルプログレスを実装してください。
 
+- きっかけ: 操作不要。表示された直後(デモは0.4s後)に自動で1回、0%から目標値まで描く。再生し直すボタンを付ける場合は、transition: none で 0% に戻してから(1フレーム以上空けて)もう一度描く
 - SVGの circle を2つ重ね、背面は薄い色のトラック(完全な円)、前面が進捗の弧
 - 前面の circle に stroke-dasharray: 円周長(2πr) を設定し、stroke-dashoffset = 円周長 × (1 - 進捗率) で {{progress}}% まで描く
 - 開始位置が12時になるよう -90deg 回転させておく
-- 表示時に stroke-dashoffset を {{duration}}s の ease-out で transition させ、0%から目標値まで描く
-- stroke-linecap: round で先端を丸め、中央に進捗率の数値を置く
+- 表示時に stroke-dashoffset を {{duration}}s の cubic-bezier(0.16, 1, 0.3, 1)(出だしが速く長く減速する expo-out)で transition させ、0%から目標値まで描く
+- stroke-linecap: round で先端を丸め、中央に進捗率の数値を置く。数値はカウントアップさせず、最終値のまま opacity 0→1 を {{duration}}s ease-out でフェードさせる
 - レイアウトに影響するプロパティは動かさない(stroke-dashoffsetのみアニメーション)
 - prefers-reduced-motion 時はアニメーションせず、最終の進捗率を即時表示する`,
   ngExample: {
@@ -40,7 +41,7 @@ export const circularProgress: MotionEntry = {
     why: "conic-gradientの角がガタつく実装や、開始位置が3時のまま・先端が角ばったままの弧が返ってくる。dashoffset方式と開始位置・先端処理を指定しないと細部で崩れる。",
   },
   okExample: {
-    say: "「circular progressをSVG 2重circle + stroke-dashoffsetで。円周長をdasharrayに設定、-90degで12時始まり、1.5s ease-outで0→72%を描画。linecap round、中央に数値。reduced-motionでは即時表示」",
+    say: "「circular progressをSVG 2重circle + stroke-dashoffsetで。円周長をdasharrayに設定、-90degで12時始まり、1.5s cubic-bezier(0.16,1,0.3,1)で0→72%を描画。linecap round、中央に数値。reduced-motionでは即時表示」",
     why: "dashoffsetの計算式・開始位置・時間・先端処理まで指定。「12時始まり」の一言がないと弧は3時から描かれ、途端に素人っぽくなる。",
   },
   vocab: [

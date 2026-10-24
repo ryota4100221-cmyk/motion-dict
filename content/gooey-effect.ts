@@ -46,6 +46,7 @@ export const gooeyEffect: MotionEntry = {
   ],
   promptTemplate: `インジケーターに gooey effect(メタボール融合)を実装してください。
 
+- きっかけ: 各ドットの上に置いた44pxのボタンをクリック／タップすると、ブロブがそのドットへ移動する。自動では動かさない
 - SVGフィルタを1つ定義する:
   feGaussianBlur(in="SourceGraphic" stdDeviation="{{blur}}") → feColorMatrix(type="matrix")
   feColorMatrixのアルファ行は "0 0 0 {{threshold}} -{{threshold}}/2"(オフセットは倍率の半分の負値)にして、
@@ -53,8 +54,8 @@ export const gooeyEffect: MotionEntry = {
 - filter要素には color-interpolation-filters="sRGB" を付ける(既定のlinearRGBだと色がくすむ)
 - フィルタ領域は既定(-10%/120%)だとぼかしが切れるので x="-30%" y="-80%" width="160%" height="260%" に広げる
 - 融合させたい図形は**同じ<g>にまとめ**、そのgに filter を掛ける(個別に掛けると融合しない)
-- 間隔 {{gap}}px で並べた固定ドットの上を、大きいブロブが {{duration}}s かけて移動する
-- ブロブの後ろに一回り小さい追従ブロブを置き、移動時間を約1.4倍にして遅らせる
+- 間隔 {{gap}}px で並べた固定ドット(半径5)の上を、大きいブロブ(半径15)が {{duration}}s・cubic-bezier(0.5, 0, 0.2, 1) で移動する
+- ブロブの後ろに一回り小さい追従ブロブ(半径11・同じ塗り)を置き、同じイージングで移動時間を1.45倍にして遅らせる
   → 移動中に2つが離れて液体の首が伸び、到着で1つに戻る(これが無いと「ただ丸が動くだけ」になる)
 - 移動は transform: translateX() のみ。cx や left をアニメーションさせない
 - フィルタを掛けたgは pointer-events: none にし、クリック判定は別レイヤーの<button>で取る
@@ -64,7 +65,7 @@ export const gooeyEffect: MotionEntry = {
     why: "「液体みたい」ではblurの量も閾値も決まらない。CSSのborder-radiusを捏ねただけの実装や、図形を別々の要素に分けたままフィルタを掛けて一切融合しない実装が返ってくる。追従ブロブが無く、糸を引かないただの移動になることも多い。",
   },
   okExample: {
-    say: "「gooey effectを実装。feGaussianBlur stdDeviation=6 → feColorMatrixのアルファ行を 0 0 0 20 -10 にして閾値化、color-interpolation-filters=sRGB、フィルタ領域は x=-30% y=-80% w=160% h=260%。融合対象は同一<g>にまとめてgへfilter。間隔72pxのドット上を0.8sで移動する主ブロブ＋1.4倍遅れの追従ブロブ。移動はtranslateXのみ、reduced-motionでは即時移動」",
+    say: "「gooey effectを実装。feGaussianBlur stdDeviation=6 → feColorMatrixのアルファ行を 0 0 0 20 -10 にして閾値化、color-interpolation-filters=sRGB、フィルタ領域は x=-30% y=-80% w=160% h=260%。融合対象は同一<g>にまとめてgへfilter。間隔72pxのドット上を0.8sで移動する主ブロブ＋1.45倍遅れの追従ブロブ。移動はtranslateXのみ、reduced-motionでは即時移動」",
     why: "融合の正体が「ぼかし＋アルファ閾値」であることと、その2つの数値、そして同一グループに掛けるという成立条件まで指定している。追従ブロブの遅れ倍率まで書いてあるので、液体らしさの肝である「糸を引く」が再現される。",
   },
   vocab: [

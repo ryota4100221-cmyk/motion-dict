@@ -46,11 +46,12 @@ export const scanlines: MotionEntry = {
   ],
   promptTemplate: `画面に走査線を重ねる scanlines(CRTオーバーレイ)を実装してください。
 
+- きっかけ: ページ読み込み直後から常時表示。走査バーと明滅は自動で無限ループし、操作は不要
 - ラスタは position: fixed; inset: 0 のオーバーレイ1枚に持たせ、pointer-events: none と最前面の z-index を指定する(コンテンツ側のDOMには手を入れない)
-- 走査線は repeating-linear-gradient(180deg, transparent 0, transparent {{spacing}}px の半分, 半透明の黒 同位置, 半透明の黒 {{spacing}}px)で敷く(線を1本ずつ要素で並べない)
+- 走査線は repeating-linear-gradient(180deg, transparent 0, transparent {{spacing}}px の半分, rgba(0,0,0,0.9) 同位置, rgba(0,0,0,0.9) {{spacing}}px)で敷く。線の薄さはオーバーレイ全体の opacity で決める(線を1本ずつ要素で並べない)
 - オーバーレイ全体の opacity は {{opacity}} にする(0.15〜0.25が目安。それ以上は本文のコントラストを削る)
-- 走査バーは擬似要素1枚に「上端だけ明るい縦グラデーション」を描き、translate3d で画面の下から上端の外へ {{sweep}}s linear infinite で抜けさせる。top や margin ではなく transform で動かす(リフローさせない)
-- 明滅はラスタの background-position-y を steps() で1秒周期に刻んで表現する。振れ幅は走査線間隔の半分に {{flicker}} を掛けた量とし、要素の再生成や毎フレームの再描画はしない
+- 走査バーは擬似要素1枚に「上端だけ明るい縦グラデーション」を描き、translate3d(0, 100%, 0) → translate3d(0, -4%, 0)(画面の下から上端の外へ)を {{sweep}}s linear infinite で抜けさせる。帯はバー要素の上端0〜2.6%だけに描き、ピークは明るさ0.5程度。top や margin ではなく transform で動かす(リフローさせない)
+- 明滅はラスタの background-position-y を 0 から振れ幅まで steps(12) で1秒周期に刻み、周期の頭で0へ戻す。振れ幅は走査線間隔の半分に {{flicker}} を掛けた量とし、要素の再生成や毎フレームの再描画はしない
 - オーバーレイは画面を暗くする役ではない。mix-blend-mode や全面の黒フィルタで下のコンテンツを沈ませない
 - prefers-reduced-motion 時は走査バーの移動と明滅を止め、静止したラスタとしてだけ重ねる`,
   ngExample: {

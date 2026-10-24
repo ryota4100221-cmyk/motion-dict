@@ -29,10 +29,11 @@ export const sharedElement: MotionEntry = {
   ],
   promptTemplate: `サムネイル→詳細画面の shared element transition をFLIPで実装してください。
 
+- きっかけ: サムネイル(デモでは画面のどこでも)をクリック/タップで詳細へ、もう一度クリックで一覧へ同じFLIPで戻る。再生中のクリックは無視する
 - クリック直後、遷移前のサムネイルの位置とサイズを getBoundingClientRect で計測する(First)
 - レイアウトを詳細画面に切り替え、移動先のヒーロー要素の位置とサイズを計測する(Last)
 - FirstとLastの差分から translate と scale を逆算し、ヒーロー要素に「まだ元の位置にいる」ように見えるtransformを一旦かける(Invert)。ここまでを1フレーム内で終わらせる
-- そこから transform: none へ {{duration}}s で再生する(Play)。イージングは {{easing}}(overshootなら cubic-bezier(0.34, 1.56, 0.64, 1) のような行き過ぎ系)
+- そこから transform: none へ {{duration}}s で再生する(Play)。イージングは {{easing}}(ease-out＝cubic-bezier(0.33, 1, 0.68, 1)／ease-in-out＝cubic-bezier(0.65, 0, 0.35, 1)／overshoot＝cubic-bezier(0.34, 1.56, 0.64, 1))。scale は縦横別々(scale(sx, sy))に逆算する
 - transform-origin: top left を明示し、アニメーションはtransformのみで行う(width/height/top/leftは動かさない。リフロー禁止)
 - サムネイルとヒーローの縦横比が違うとscaleで絵が歪むため、できるだけaspect-ratioを揃える
 - prefers-reduced-motion 時はFLIPを行わず、即時切り替えか短いフェードにする`,

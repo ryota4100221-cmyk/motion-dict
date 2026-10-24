@@ -29,9 +29,10 @@ export const scrollZoom: MotionEntry = {
   ],
   promptTemplate: `ヒーロー直下の画像に scroll zoom を実装してください。
 
+- きっかけ: ページのスクロールに常時連動(スクロール量がそのまま倍率になり、戻せば倍率も戻る)。時間で動くアニメーションは無い
 - 画像を overflow: clip のフレームで包み、拡縮はフレーム内の画像側に transform: scale() でかける
 - スクロール進捗0→1に対して、{{direction}} 方向で倍率1と {{zoom}} の間を線形に補間する(in: 1→{{zoom}}、out: {{zoom}}→1)
-- 進捗はフレームがビューポート下端に入ってから上端へ抜けるまでのスクロール量を0〜1に正規化して求める
+- 進捗はフレームがビューポート下端に入ってから上端へ抜けるまでのスクロール量を0〜1に正規化して求める(進捗 = (ビューポート高 − フレーム上端のY) ÷ (ビューポート高 + フレーム高) をクランプ)。拡縮の基準は transform-origin: center
 - scrollイベントでは進捗の更新のみ行い、transform の書き込みは requestAnimationFrame 側で行う
 - width/height ではなく transform: scale で動かす(リフロー禁止)。はみ出しはフレームの clip で断つ
 - prefers-reduced-motion 時は拡縮を止め、倍率1で固定表示する`,

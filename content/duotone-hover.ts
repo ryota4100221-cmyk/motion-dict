@@ -28,6 +28,7 @@ export const duotoneHover: MotionEntry = {
   ],
   promptTemplate: `画像一覧に duotone hover を実装してください。
 
+- きっかけ: カード全体(画像+キャプション)への mouseenter でカラーに戻し、mouseleave で同じ時間をかけてデュオトーンへ戻す。タッチはタップごとに切り替えをトグル
 - img に filter: grayscale(1) を掛けてモノクロにする
 - img の上に position: absolute のカラーレイヤーを重ね、background にブランドカラー、mix-blend-mode: multiply、opacity: {{strength}} を指定する
 - ホバーでカラーレイヤーを opacity: 0、img を grayscale(0) に、{{duration}}s の ease-out で同時に切り替える

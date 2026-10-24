@@ -37,11 +37,12 @@ export const tilt: MotionEntry = {
   ],
   promptTemplate: `カードに tilt(3D傾き)を実装してください。
 
-- カーソルのカード内での位置を -1〜1 に正規化し、rotateX / rotateY にマッピングする
-- 最大回転角は {{maxAngle}}deg、perspective は {{perspective}}px
+- きっかけ: ホバー領域内での mousemove に追従して傾き、mouseleave で水平に戻る。タッチは領域内をドラッグ（touchmove）で同じく傾き、指を離すと戻る
+- カーソルの「カードを包むホバー領域(カードより一回り広い親)」内での位置を -1〜1 に正規化し、rotateY = x × 最大角、rotateX = −y × 最大角 にマッピングする(カーソル側が手前に沈む向き)
+- 最大回転角は {{maxAngle}}deg、perspective は transform 内の perspective({{perspective}}px) で掛ける
 - ホバー中はカードを scale {{scale}} でわずかに拡大する
-- 回転は毎フレーム lerp で補間し、カクつかせない
-- mouseleave 時は回転と拡大をなめらかに 0 に戻す
+- 回転と拡大は毎フレーム current += (target − current) × 0.12 の lerp で補間し(rAF・60fps前提)、カクつかせない
+- mouseleave 時は target を回転0・scale 1 に戻し、同じ lerp でなめらかに戻す
 - prefers-reduced-motion 時は傾きを無効化する`,
   ngExample: {
     say: "「カードをマウスでぐりぐり動くようにして」",

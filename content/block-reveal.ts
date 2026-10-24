@@ -46,13 +46,14 @@ export const blockReveal: MotionEntry = {
   ],
   promptTemplate: `見出しに block reveal(バーワイプ)を実装してください。
 
+- きっかけ: 見出しの行全体に mouseenter するたび、実行中の再生を cancel して全単語を最初から再生する(クリックでは再生しない)。タッチはタップで同じ動作。離れても逆再生はせず、文字は表示したまま
 - 見出しを単語ごとに <span> で包み、各単語に position: absolute の擬似要素でベタ塗りのバーを重ねる
-- バーの高さは単語の行高の {{barHeight}}% にする
+- バーの高さは単語の行高の {{barHeight}}% にし、top: 50% + translateY(-50%) で単語の縦中央に置く(scaleX を書き換えるときも translateY(-50%) を一緒に書く)
 - バーは transform: scaleX() で動かす(width は使わない・リフロー禁止)
 - 進行率 {{pivot}}% までは transform-origin: left で scaleX(0→1)、そこで origin を right に切り替えて scaleX(1→0) に抜ける
 - 単語の文字は初期 opacity: 0 とし、{{pivot}}% の時点で opacity: 1 に切り替える(バーの陰で入れ替える)
 - 1単語あたり {{duration}}s、単語ごとに {{stagger}}ms ずつ遅らせる
-- イージングは cubic-bezier(0.76, 0, 0.24, 1) のような in-out 系を使う
+- イージングは覆う区間(0→{{pivot}}%)と抜ける区間({{pivot}}%→100%)のそれぞれに cubic-bezier(0.76, 0, 0.24, 1) をかける(全体に1本かけない)
 - prefers-reduced-motion: reduce のときはバーを一切出さず、文字を最初から opacity: 1 で表示する`,
   ngExample: {
     say: "「見出しをかっこよく出して」",

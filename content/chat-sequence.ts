@@ -46,10 +46,12 @@ export const chatSequence: MotionEntry = {
   ],
   promptTemplate: `会話の吹き出しを順番に再生する chat sequence を実装してください。
 
+- きっかけ: 操作不要。会話欄が表示されてから0.5s後に自動で1件目の再生を始める。会話欄をクリック(タッチはタップ)したら表示中の発言を消して最初から再生し直す
 - 発言の配列を順に1つずつ追加する。相手側(左)の発言の前には、同じ位置に3点の typing indicator の吹き出しを出す
-- typing indicator を見せる時間は min(2.4, {{baseTyping}} + 文字数 × {{perChar}}ms)s とし、経過したら indicator を取り除いて同じ位置に本文の吹き出しを差し込む
+- typing indicator を見せる時間は min(2.4s, {{baseTyping}}s + 文字数 × {{perChar}}ms)(単位を秒かmsに揃えて足す)とし、経過したら indicator を取り除いて同じ位置に本文の吹き出しを差し込む
 - 自分側(右)の発言は indicator を出さず、そのまま差し込む
 - 吹き出しが出たら {{readPause}}s 待ってから次の発言を始める
+- indicator の3点は 1.15s ease-in-out の無限ループで、30% の時点で translateY(-3px)・opacity 0.55→1 に跳ね、0.15s ずつずらす
 - 吹き出し(と indicator)の出現は opacity 0→1 と translateY(8px→0) を {{enter}}s、cubic-bezier(.22,1,.36,1) で行う。transform と opacity だけで動かす
 - 会話欄は高さ固定で、新しい発言が下に足されると古い発言が上へ押し出されるようにする(常に最新が見える)
 - タイマーは1か所で管理し、欄が画面外に出た・閉じられたときは予約を全部取り消す

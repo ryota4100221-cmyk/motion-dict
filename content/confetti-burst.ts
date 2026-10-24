@@ -46,10 +46,11 @@ export const confettiBurst: MotionEntry = {
   ],
   promptTemplate: `ボタンのクリックで confetti burst(紙吹雪バースト)を実装してください。
 
+- きっかけ: ボタンの pointerdown(押した瞬間。click の指離しを待たない)で1発出す。タッチも同じ pointerdown。押すたびに新しい1発を重ねて出す
 - クリックで {{count}} 個の破片(小さな矩形)を要素中央から一度に生成する
-- 各破片は角度をランダムに散らし、飛距離を {{spread}}px 前後でばらつかせる。飛び先の座標は破片ごとに CSS カスタムプロパティ(--dx / --dy)に入れておく
-- 縦方向には gravity({{gravity}}、0〜1)に比例した落下量を --dy に足し込み、「打ち上げて舞い落ちる」弧を作る
-- アニメーションは transform: translate(0,0)→translate(var(--dx),var(--dy)) と rotate を {{duration}}s の ease-out で動かし、後半で opacity を 0 へフェードさせる
+- 各破片は角度を 0〜360° でランダムに散らし、飛距離を {{spread}}px × 0.5〜1.0 でばらつかせる。飛び先の座標は破片ごとに CSS カスタムプロパティ(--dx / --dy)に入れておく
+- 縦方向には gravity({{gravity}}、0〜1)に比例した落下量 {{gravity}} × {{spread}}px × 0.4〜1.0(下向き+)を --dy に足し込み、「打ち上げて舞い落ちる」弧を作る
+- アニメーションは transform: translate(0,0)→translate(var(--dx),var(--dy)) と rotate(破片ごとに ±360° のランダム)を {{duration}}s の cubic-bezier(0.2, 0.7, 0.35, 1) で動かす。20% の時点で scale 0.3→1・移動は約3割まで進め、20%→100% で opacity を 1→0 へフェードさせる。破片ごとに開始を 0〜80ms ランダムに遅らせる
 - 位置は必ず transform で動かす(top/left や width/height を動かさない=リフロー禁止)
 - 破片はアニメーション終了(animationend)を拾って DOM から削除する。連打されたら前の破片を消さず重ねて出す
 - 色は数色を破片ごとに割り当てる。回転量も破片ごとにランダムにすると紙が舞う質感が出る
@@ -59,7 +60,7 @@ export const confettiBurst: MotionEntry = {
     why: "破片の数・飛距離・重力・持続が決まらない。top/left をアニメーションさせるリフロー実装や、生成しっぱなしで DOM が溜まり続ける実装、連打で前の紙吹雪が消える実装が返ってきがち。",
   },
   okExample: {
-    say: "「confetti burst を中央から24個。角度ランダム・飛距離150px前後を --dx/--dy に入れ、gravity 0.5で落下量を加算。transformのtranslate+rotateを1s ease-out、後半でopacity 0、animationendでremove。連打は重ねる。reduced-motion時は動かさず色のパルスだけ」",
+    say: "「confetti burst を中央から24個。角度ランダム・飛距離150px前後を --dx/--dy に入れ、gravity 0.5で落下量を加算。transformのtranslate+rotateを1s cubic-bezier(0.2,0.7,0.35,1)、後半でopacity 0、animationendでremove。連打は重ねる。reduced-motion時は動かさず色のパルスだけ」",
     why: "破片数・飛距離・重力・変形方式・後始末・多重発火・reduced-motion まで指定。「transformで動かしてanimationendで消す」の一言が、パフォーマンスと DOM リークの両方を防ぐ。",
   },
   vocab: [

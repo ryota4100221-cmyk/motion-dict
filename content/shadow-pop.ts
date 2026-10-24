@@ -47,10 +47,11 @@ export const shadowPop: MotionEntry = {
   ],
   promptTemplate: `ボタンに shadow pop(段積みハードシャドウのホバー)を実装してください。
 
-- ホバーで box-shadow を {{steps}} 枚重ね、{{direction}} 方向へ 1枚ずつオフセットする(最終段のオフセット = {{depth}}px)
+- きっかけ: ボタンに mouseenter で押し出し、mouseleave で元に戻す。タッチはタップで押し出し／戻しをトグル
+- ホバーで box-shadow を {{steps}} 枚重ね、{{direction}} 方向へ等間隔にオフセットする(i段目 = {{depth}} × i ÷ {{steps}} px、最終段 = {{depth}}px)
 - 影は blur も spread も 0 にする(ぼかすと別物になる)。色は単色1つで統一する
 - 同時に本体を transform: translate() で影と真逆の方向へ {{depth}}px 動かし、押し出された板に見せる
-- 所要時間は {{duration}}s、イージングは cubic-bezier(0.47, 0, 0.745, 0.715) 程度の速い立ち上がりにする
+- 所要時間は {{duration}}s、イージングは本体の transform も影の opacity も cubic-bezier(0.47, 0, 0.745, 0.715)(立ち上がりの速い硬質なカーブ。ease-out では当たりが柔らかくなりすぎる)
 - box-shadow 自体を transition しない。影は inset: 0 / z-index: -1 の擬似要素に全段を事前描画し、opacity 0→1 で出す。動かすのは transform と opacity だけ(リフロー禁止)
 - タッチデバイスでは :active(または pointerdown/pointerup)でも同じ状態になるようにする
 - prefers-reduced-motion 時は移動量を 0 にし、影の表示は transition なしの即時切り替えにする`,

@@ -28,10 +28,11 @@ export const zoomThrough: MotionEntry = {
   ],
   promptTemplate: `ページ遷移に zoom through(クリックした要素へ突き抜けるズーム)を実装してください。
 
+- きっかけ: 遷移先へのリンクになっている要素（デモではタイル）のクリック/タップで、その要素の中心へ向かってズームして遷移する。遷移中のクリックは無視する
 - 現在のページ全体を1枚のレイヤーとして扱い、次のページをその下に重ねておく
 - クリックされた要素の中心座標(getBoundingClientRect)をビューポート内の%に変換し、レイヤーの transform-origin に設定する
-- レイヤーを scale(1) から scale({{zoom}}) まで {{duration}}s、ease-in系(cubic-bezier(0.4, 0, 1, 1)など)で拡大する
-- 拡大の後半(50%以降)で opacity を 1→0 にフェードし、下の次ページへ抜ける
+- レイヤーを scale(1) から scale({{zoom}}) まで {{duration}}s、cubic-bezier(0.4, 0, 1, 1) の ease-in で拡大する。イージングは区間ごとではなくアニメーション全体に1本掛ける(Web Animations API の options.easing)
+- キーフレームは 0%: scale(1)・opacity 1 → 50%: 拡大量の半分・opacity 1 → 100%: 最大倍率・opacity 0。後半だけでフェードし、下の次ページへ抜ける
 - 完了したら上のレイヤーを破棄する。動かすのはtransformとopacityのみ(リフロー禁止)
 - prefers-reduced-motion 時はズームせず、即時切り替えか短いクロスフェードにする`,
   ngExample: {

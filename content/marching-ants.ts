@@ -47,10 +47,11 @@ export const marchingAnts: MotionEntry = {
   ],
   promptTemplate: `SVGの経路に marching ants(流れる破線)を実装してください。
 
+- きっかけ: ページ読み込み直後から自動で流れ続ける(操作不要・無限ループ)
 - 経路は同じ d のパスを2本重ねる。下は薄い実線のベースライン、上が破線で、動かすのは上の破線だけ
 - 破線は stroke-dasharray: {{dash}} {{gap}} で作る(単位はSVGのユーザー座標)
 - stroke-dashoffset を dash+gap の合計値から 0 へ {{cycle}}s / linear / infinite で動かす。1周期がちょうど1パターンぶんなので、ループの継ぎ目が出ない
-- 流れる向きは {{direction}}。reverse のときは dashoffset を 0 → 合計値 の向きに動かす
+- 流れる向き: {{direction}}(forward=始点→終点)。reverse のときは dashoffset を 0 → 合計値 の向きに動かす
 - 動かすのは stroke-dashoffset だけにする(path の d や transform は触らない)
 - stroke-linecap は butt にする(round にすると線分が伸びて gap が潰れ、流れが読めなくなる)
 - 経路を差し替えても見えを保ちたい場合は path に pathLength="100" を宣言し、dasharray を全長の百分率で書く

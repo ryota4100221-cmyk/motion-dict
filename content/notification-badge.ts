@@ -47,13 +47,14 @@ export const notificationBadge: MotionEntry = {
   ],
   promptTemplate: `ヘッダーのベルアイコンに notification badge(未読バッジ)を実装してください。
 
+- きっかけ: 新着通知が届いたとき(未読が0→1)にバッジが出て、以降の着信では件数だけ弾む。ベルのボタンをクリック(タッチはタップ)すると既読になって消える
 - 未読が1件以上あるときだけ、ベルの右上の角(上と右に4pxはみ出す位置)にバッジを出す。中身は {{style}}。dot なら直径8pxの点、count なら高さ18px・最小幅18pxの角丸に件数を入れる(99件を超えたら「99+」)
 - 点の色はアクセント色、周りに背景色で2pxの輪(box-shadow: 0 0 0 2px 背景色)を付けてアイコンの線と離す
 - 出るとき: バッジを hidden から外し、1回リフローさせてから(要素の offsetWidth を読む)開いた状態の属性に切り替えて transition を走らせる
   - 位置はアイコンの中心側(左下)へ {{offset}}px ずらした所(向きは x:y = -0.55:0.83)から translate 0 へ 0.26s cubic-bezier(.22, 1, .36, 1)(アイコンの中心側から角へ滑り出る)
-  - 点は transform: scale(0) → scale(1) を {{duration}}s cubic-bezier(.34, {{overshoot}}, .64, 1) で(1を少し超えて戻る)。同時に filter: blur(2px) → blur(0) と opacity 0 → 1 も同じイージングで
-- 出てから1.2s後に opacity 1 ↔ 0.35 を2s周期でゆっくり明滅させ続ける(気付かせたあとは控えめに居座る)
-- count のとき、表示中に件数が増えたらバッジを scale 1 → 1.2 → 1 で {{duration}}s の0.6倍だけ弾ませる(出し直さない)
+  - 点は transform: scale(0) → scale(1) を {{duration}}s cubic-bezier(.34, {{overshoot}}, .64, 1) で(1を少し超えて戻る)。同時に filter: blur(2px) → blur(0) も同じ時間・同じイージングで。opacity 0 → 1 は同じイージングで {{duration}}s の0.8倍
+- 出てから1.2s後に opacity 1 ↔ 0.35 を2s周期(cubic-bezier(.5, 1, .89, 1)・infinite)でゆっくり明滅させ続ける(気付かせたあとは控えめに居座る)
+- count のとき、表示中に件数が増えたらバッジを scale 1 → 1.2(45%地点) → 1 を {{duration}}s の0.6倍・出るときと同じ cubic-bezier(.34, {{overshoot}}, .64, 1) で弾ませる(出し直さない)
 - 消えるとき: パネルを開いた・既読にした時点で、scale(0)・opacity 0・blur(2px) へ 0.18s cubic-bezier(.45, 0, .55, 1) で縮め、0.2s後に hidden に戻す(出るより速く)
 - 動かすのは transform / opacity / filter だけ(width・top・right を動かさない)
 - ベルのボタンの aria-label に「通知(未読3件)」のように件数を含め、点そのものは aria-hidden にする

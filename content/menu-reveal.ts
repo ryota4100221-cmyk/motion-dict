@@ -28,11 +28,12 @@ export const menuReveal: MotionEntry = {
   ],
   promptTemplate: `ハンバーガーメニューに menu reveal を実装してください。
 
+- きっかけ: ヘッダーの Menu ボタンを click(タッチはタップ)するたび開閉をトグルする。開いている間はボタン表記を Close にする
 - オーバーレイは画面全体を覆う固定レイヤー(position: fixed、最上位のz-index)とし、transform: translateY(-101%)→0 に {{duration}}s で下ろす
 - easingは cubic-bezier(0.77, 0, 0.175, 1) のようなease-in-out系を使う
-- ナビ項目は各行を overflow: hidden のマスクで包み、内側のテキストを translateY(110%)→0 で滑り込ませる
-- 項目は上から順に {{stagger}}s ずつ遅らせ、開始はオーバーレイが下り切る少し前(durationの5〜6割経過時点)に重ねて間延びを防ぐ
-- 閉じるときは項目を先に(逆順で素早く)引き、少し遅れてオーバーレイを上げる
+- ナビ項目は各行を overflow: hidden のマスクで包み、内側のテキストを translateY(110%)→0 に 0.5s / cubic-bezier(0.22, 1, 0.36, 1)(出だしが速い ease-out)で滑り込ませる
+- 項目は上から順に {{stagger}}s ずつ遅らせ、1行目の開始はオーバーレイが下り切る少し前(duration × 0.55 経過時点)に重ねて間延びを防ぐ
+- 閉じるときは項目を下の行から {{stagger}}s × 0.5 ずつずらして先に引き、オーバーレイは 0.15s 遅らせてから同じ {{duration}}s で上げる
 - 動かすのは transform と opacity のみ。メニューが開いている間は背面のスクロールを固定する
 - prefers-reduced-motion 時はスライドとstaggerをやめ、フェードのみ(または即時)で開閉する`,
   ngExample: {

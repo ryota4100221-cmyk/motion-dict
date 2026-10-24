@@ -46,9 +46,10 @@ export const openingCrawl: MotionEntry = {
   ],
   promptTemplate: `テキストブロックに opening crawl(star wars crawl)を実装してください。
 
+- きっかけ: 表示直後から自動で流れ、操作不要で infinite に繰り返す。ラッパーに mouseenter している間は animation-play-state: paused で止めて読めるようにし、離れたら続きから再開。タッチはタップで停止/再開を切り替える
 - 外側のラッパーに perspective: {{perspective}}px と perspective-origin: 50% 25% を置き、overflow: hidden で囲う
 - 内側の本文ブロックに transform-origin: 50% 100% と rotateX({{tilt}}deg) をかけ、傾けた面の上に文字を乗せる
-- 本文は translateY(100%) から translateY(-160%) へ {{duration}}s の linear で流す(easeを付けると等速に見えず失速する)
+- 本文は translateY(100%) から translateY(-160%) へ {{duration}}s の linear・infinite で流す(rotateX と同じ transform に translateY を後ろから重ねる。easeを付けると等速に見えず失速する)
 - 奥(上端)は mask-image: linear-gradient(to bottom, transparent 0, #000 {{fade}}%) で溶かす。opacityで要素ごと薄めない
 - 動かすのは transform のみ。top や margin のアニメーションはリフローするので使わない
 - prefers-reduced-motion 時は rotateX とアニメーションを外し、傾けていない静止テキストとして読める状態にする`,

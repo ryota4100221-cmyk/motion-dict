@@ -29,14 +29,15 @@ export const directionalHover: MotionEntry = {
   ],
   promptTemplate: `カード/ボタンに directional-aware hover(方向連動ホバー)を実装してください。
 
+- きっかけ: 各カードへの mouseenter で入った辺から塗りが流れ込み、mouseleave で引く。入る・出るのたびに毎回辺を判定し直す
 - 要素を position: relative + overflow: hidden にし、内側に塗り用オーバーレイ(::before か子要素)を敷く
 - mouseenter で getBoundingClientRect からカーソルと上下左右4辺の距離を求め、最も近い辺を「入った辺」とする
-- 入った辺の外側にオーバーレイを translate で退避させてから、transform: translate(0,0) へ {{duration}}s の ease-out で流し込む
-- mouseleave 時は leaveMode={{leaveMode}} に従う(出た辺へ引く / 入った辺へ戻す)。同じ {{duration}}s で退避方向へ translate する
+- 入った辺の外側(translate ±101%)へ transition: none で退避させ、offsetWidth を読んで位置を確定してから、translate(0,0) へ {{duration}}s の cubic-bezier(.3,.7,.2,1) で流し込む
+- mouseleave 時は塗りを{{leaveMode}}(出た辺＝離脱時のカーソル位置から同じ方法で判定)。同じ {{duration}}s、cubic-bezier(.5,.1,.7,.4)(加速して抜ける)で ±101% へ translate する
 - 動かすのは transform のみ(top/left や width ではなくtranslateXYで、リフローさせない)
 - テキストは z-index でオーバーレイより上に置き、必要なら mix-blend-mode: difference で塗りに対して自動反転させる
-- タッチデバイスでは辺判定ができないので、tap で中央からのフェードにフォールバックする
-- prefers-reduced-motion 時はスライドを無効化し、色の即時切り替え(または薄い定常オーバーレイ)にする`,
+- タッチデバイスでは辺判定ができないので、tap ごとに下辺(101%)からの流し込み/下辺への退避をトグルするフォールバックにする
+- prefers-reduced-motion 時はスライドを無効化し、色の即時切り替え(または薄い定常オーバーレイ)にする(薄い定常オーバーレイなら opacity 0.22 前後)`,
   ngExample: {
     say: "「ホバーでカードに色がスッと入るようにして」",
     why: "「スッと」では方向が決まらない。transform-origin固定のフィルや background-color の単純transitionが返り、どこから触っても同じ動きになって“方向連動”の気持ちよさが消える。",

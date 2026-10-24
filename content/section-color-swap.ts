@@ -28,6 +28,7 @@ export const sectionColorSwap: MotionEntry = {
   ],
   promptTemplate: `スクロール位置に応じてページ背景色が切り替わる section color swap を実装してください。
 
+- きっかけ: ページのスクロールに常時連動。セクションが下記の threshold の割合まで見えた時点でその色へ切り替え、上へ戻したときも同じ判定で前のセクションの色へ戻す
 - 背景色はbody(またはページのラッパー)1枚だけで管理し、CSS変数 --bg を background-color に割り当てる
 - 各セクションに data-bg 属性で色を持たせ、IntersectionObserver(threshold: {{trigger}})でセクションの進入を検知したら --bg を書き換える
 - 色の補間は transition: background-color {{duration}}s ease に任せる(JSで毎フレームRGBを補間しない)

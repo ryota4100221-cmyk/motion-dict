@@ -46,11 +46,12 @@ export const twinkle: MotionEntry = {
   ],
   promptTemplate: `背景に twinkling stars(星のまたたき)を実装してください。
 
-- 星は 1〜4px の丸い要素(border-radius: 50%)を {{count}} 個、背景レイヤーにランダム配置する。位置と大きさはシード付き乱数で固定し、描画のたびに変えない
+- きっかけ: ページ読み込み直後から操作不要で自動ループし続ける（明滅も流れ星も止まらない）。ホバーやスクロールには反応しない
+- 星は 1〜4px の丸い要素(border-radius: 50%。1px 55%・2px 30%・3px 11%・4px 4% の割合で小さい星を多く)を {{count}} 個、背景レイヤーにランダム配置する。位置と大きさはシード付き乱数で固定し、描画のたびに変えない
 - 各星に box-shadow: 0 0 (サイズ×2)px の白い光を付け、大きい星ほど光を広げる
 - 明滅は @keyframes 1本で共有する: 0%,100% { opacity: 0.15; transform: scale(0.6) } 50% { opacity: 1; transform: scale(1.4) }、ease-in-out・infinite
 - 周期は星ごとに {{duration}}s を基準に ±{{jitter}}% ずらした値を animation-duration へ個別に入れる。さらに animation-delay に負の値(周期×0〜1)を入れて、初回表示から位相をばらす(ここを揃えると全点が同時に点滅する)
-- 流れ星は細い線(幅80〜100px・高さ1px、進行方向へ向けた linear-gradient で尾を透明にする)を rotate(-35deg) で傾け、translate で斜め上へ走らせる。{{shootEvery}}s 周期のうち最初の1s前後だけ走らせ、残りは opacity: 0 で待機する(0 のときは流れ星を置かない)
+- 流れ星は細い線(幅80〜100px・高さ1px、進行方向へ向けた linear-gradient で尾を透明にする)を transform-origin: 0 50% で rotate(-35deg) に傾け、続けて translateX(0→220px) で傾いた向き(右上)へ走らせる。{{shootEvery}}s 周期のうち最初の1.1sだけ走らせ(opacity は走行の15%地点で1、終点で0。ease-out)、2本目は周期×1.45でずらして同じ場所から出続けないようにし、残りは opacity: 0 で待機する(0 のときは流れ星を置かない)
 - 動かすのは opacity と transform のみ。box-shadow の値や width/height をアニメーションしない(星の数だけ再描画が重なる)
 - 星のレイヤーは pointer-events: none・aria-hidden にし、本文の操作や読み上げを邪魔しない
 - prefers-reduced-motion 時は明滅も流れ星も止め、星を opacity 0.3〜0.9 のばらつきで静止表示する`,

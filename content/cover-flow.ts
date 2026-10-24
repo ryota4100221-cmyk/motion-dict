@@ -46,12 +46,14 @@ export const coverFlow: MotionEntry = {
   ],
   promptTemplate: `一覧に cover flow(中央だけ正面を向く3D回転カルーセル)を実装してください。
 
+- きっかけ: 一覧のどこでも左右にドラッグ/スワイプで送る(5px 以上動いてから setPointerCapture で掴み、それ未満はタップ扱い)。カードのクリック/タップでそのカードを中央へ、一覧にフォーカスがあるときは ←→ キーで1枚ずつ送る
 - 各カードの位置は「現在位置からのズレ o(枚数、小数可)」だけで決める。レイアウトは動かさず transform のみで配置する
-- 親に perspective を掛け、中央 (o=0) は rotateY(0) translateZ(0) で正面を向ける
-- 左右のカード (|o|≥1) は rotateY(∓{{angle}}deg) で中央側へ傾け、translateZ(-{{depth}}px) で奥へ沈める
-- 2枚目以降は {{spacing}}px 間隔で重ねる。0<|o|<1 の間は角度・奥行き・横位置を o に比例して補間し、中央へ回り込む途中も連続させる
+- 親に perspective: 700px(144px角のカード基準)を掛け、中央 (o=0) は rotateY(0) translateZ(0) で正面を向ける。各カードの transform は translate3d(x, 0, z) rotateY(角度) の順で書く
+- 左右のカード (|o|≥1) は rotateY で中央側へ傾け(左のカードは −{{angle}}deg、右のカードは +{{angle}}deg)、translateZ(-{{depth}}px) で奥へ沈める
+- 中央の隣 (|o|=1) は中央から横に 132px(カード幅の約0.9倍)、2枚目以降はそこから {{spacing}}px 間隔で重ねる。0<|o|<1 の間は角度・奥行き・横位置を o に比例して補間し、中央へ回り込む途中も連続させる
 - 重なり順は |o| が小さいほど手前(z-index)にする。左右のカードは半透明の黒を重ねて少し暗くし、中央を際立たせる
-- 送りは {{duration}}s の ease-out。ドラッグ/スワイプ中は指に1:1で追従させ、離したら最寄りの1枚へスナップ。左右キーとカードのタップでも移動できるようにする
+- 送りは {{duration}}s の ease-out(rAF で 1-(1-t)^3)。ドラッグ/スワイプ中は指に1:1で追従させ(横110px で1枚ぶん、両端は0.35枚までのはみ出しを許す)、離したら最寄りの1枚へスナップする
+- 暗さは min(0.78, min(|o|,1)×0.5 + max(0,|o|-1)×0.07) の黒を重ねる
 - 反射を付ける場合は box-reflect ではなく、scaleY(-1) の複製にグラデーションの mask-image を掛けて作る(ブラウザ差が出ない)
 - prefers-reduced-motion 時は rotateY と translateZ を 0 にして平らな横並びにし、送りのアニメーションも切って即座に切り替える`,
   ngExample: {

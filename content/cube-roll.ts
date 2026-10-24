@@ -47,17 +47,18 @@ export const cubeRoll: MotionEntry = {
   ],
   promptTemplate: `ボタンに cube roll(3Dキューブのころがし)を実装してください。
 
+- きっかけ: ボタン(箱を包む外側の要素)に mouseenter するたび180度回し、mouseleave で逆向きに180度戻す。タッチは touchstart で同じ回転
 - 中身を2枚重ねる «カードの裏返し» ではなく、6面を組んだ厚み {{depth}}px の箱として作る
-- 外側に perspective(800〜1000px)、回転する箱に transform-style: preserve-3d を指定する
+- 外側に perspective: 900px、回転する箱に transform-style: preserve-3d を指定する
 - 面の配置は幅w・高さh・奥行きd を CSS変数にして、front: translateZ(d/2) / back: rotateY(180deg) translateZ(d/2) / left・right: rotateY(±90deg) translateZ(w/2) / top・bottom: rotateX(±90deg) translateZ(h/2) で組む(left・rightは幅d、top・bottomは高さd)
 - 箱自体に translateZ(-d/2) をかけ、回転の中心を箱の中心に合わせる(これが無いと手前の面を軸に振り回されて «ころがり» にならない)
-- ホバーで {{axis}} 軸に180度回転させ、裏の面を正面に出す。マウスが離れたら同じ軸で0度へ戻す
-- 時間は {{duration}}s、イージングは終端で {{overshoot}}%ぶん回りすぎてから戻る cubic-bezier(y1を1より大きくする)にする
+- 回転軸は {{axis}}。ホバーでその軸まわりに180度回転させ、裏の面を正面に出す。マウスが離れたら同じ軸で0度へ戻す
+- 時間は {{duration}}s、イージングは cubic-bezier(0.34, 1 + {{overshoot}}/25, 0.64, 1)(既定で y1=1.56)。y1を1より大きくして終端で回りすぎてから戻す
 - 各面に backface-visibility: hidden を指定する。X軸で回す場合、背面の中身は rotate(180deg) で立て直さないと上下逆さまになる
 - 側面(見えるのは回転中だけ)は文字を置かず、面の «断面» と分かる色だけにする
 - 回すのは transform のみ。width / height / top / left をアニメーションさせない
 - ホバーできないタッチデバイスではタップで同じ回転をトグルできるようにする
-- ポインタが一定時間(2秒前後)乗らない間はゆっくり同じ方向へ回り続け、触らなくても «厚みのある箱が転がる» ことが伝わるようにする。ポインタ操作があればそちらを優先する
+- ポインタが乗っていない間は、最後の操作から2.2秒ごとに同じ方向へ180度ずつ回し続け(1回の回転は同じ {{duration}}s)、触らなくても «厚みのある箱が転がる» ことが伝わるようにする。ポインタ操作があればそちらを優先する
 - prefers-reduced-motion 時は回転も自走も止め、ホバーで表裏をアニメーションなしに切り替えるだけにする`,
   ngExample: {
     say: "「ボタンをホバーで3Dっぽくクルッと回して」",

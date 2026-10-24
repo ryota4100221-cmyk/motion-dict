@@ -38,7 +38,8 @@ export const lineDraw: MotionEntry = {
   ],
   promptTemplate: `SVGパスが一筆書きのように描かれていく line drawing を実装してください。
 
-- 各パスの全長を path.getTotalLength() で実測し、stroke-dasharray と stroke-dashoffset の両方にその値を設定する(この状態で線は完全に不可視になる)
+- きっかけ: 表示から0.5s後に自動で1回描く。Replay ボタンを押すたびに全パスを消して頭から描き直す（描き終わるまで＝{{duration}}s＋{{stagger}}s×(本数-1) のあいだはボタンを無効にする）
+- 各パスの全長を path.getTotalLength() で実測し、stroke-dasharray と stroke-dashoffset の両方にその値を設定する(この状態で線は完全に不可視になる)。描き直すときは一度 transition: none で全長に戻し、getBoundingClientRect() でリフローを1回挟んでから transition を張る
 - stroke-dashoffset を 0 まで {{duration}}s / {{easing}} の transition で戻すと、パスの始点から線が描かれていく
 - パスが複数ある場合は {{stagger}}s ずつ transition-delay をずらし、1本ずつ順に描く
 - fill のある図形は線を描き終えてから fill-opacity をフェードインさせる(線と塗りを同時に出さない)

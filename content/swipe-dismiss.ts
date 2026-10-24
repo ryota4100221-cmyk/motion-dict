@@ -46,12 +46,13 @@ export const swipeDismiss: MotionEntry = {
   ],
   promptTemplate: `カードに swipe to dismiss を実装してください。
 
+- きっかけ: 最前面のカードを左右どちらかへドラッグ（タッチは横スワイプ）して離すと判定する。左右どちらに引いても消せ、ドラッグを始めるのは最前面の1枚だけ
 - pointerdown/pointermove/pointerup で扱い、pointerdown時に setPointerCapture する
 - ドラッグ中はカードを transform: translateX(dx) で指に1:1追従させ、transitionは切る
 - 追従中の付加表現: rotate は dx/{{threshold}} * 6deg(上限6deg)、opacity は 1 - 0.28 * min(1, |dx|/{{threshold}}) まで落とす
-- 離した時の判定は二重にする: |dx| >= {{threshold}}px、または直前80msの速度が {{fling}}px/s 超
-- 判定が通ったら translateX(dx ± カード幅+80px) と opacity 0 まで {{flyout}}s ease-out で飛ばし、終了後にリストから外す
-- 通らなかったら translateX(0) へ {{snapBack}}s ease-out で戻す
+- 離した時の判定は二重にする: |dx| >= {{threshold}}px、または直前80msの速度が {{fling}}px/s 以上(速度判定は |dx| が2px超のときだけ有効)
+- 判定が通ったら translateX(dx ± カード幅+80px) と opacity 0 まで {{flyout}}s ease-out(cubic: 1−(1−t)³)で飛ばし、終了後にリストから外す
+- 通らなかったら translateX(0) へ {{snapBack}}s の同じ cubic ease-out で戻す
 - 速度は「ドラッグ全体の平均」ではなく直近80msの移動量から出す(途中で止めてから離したのに飛ぶ誤作動を防ぐ)
 - 消せない方向へ引いたときは d * 1/(1.5 + |d|/20) のゴムバンド減衰をかけて「動くが進まない」を返す
 - カードには touch-action: none と user-select: none を当て、left/top ではなく transform だけで動かす

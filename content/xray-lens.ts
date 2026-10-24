@@ -46,10 +46,11 @@ export const xrayLens: MotionEntry = {
   ],
   promptTemplate: `ページに x-ray lens（長押しで裏側を覗くレンズ）を実装してください。
 
+- きっかけ: 対象カードの上で長押し（主ボタンの pointerdown を保持）するとレンズが開き、押したまま動かすと追従、離す（pointerup / pointercancel）と閉じる。タッチは指の長押しで同じ動作
 - 表のレイヤーと、同じ座標に重ねた裏のレイヤー(設計図・注釈など)の2枚を用意する
 - 裏のレイヤーは clip-path: circle(r at x y) で切り抜き、普段は r=0 で隠しておく
-- pointerdown から {{hold}}ms 押し続けたらレンズを開く。それより前に離せば通常のクリック、途中で12px以上動いたら開かない(タッチは待ちを長めにする)
-- 半径は毎フレーム r += (目標 - r) × {{open}} で {{radius}}px まで寄せ、離したら同じ式で0に戻す
+- pointerdown から {{hold}}ms 押し続けたらレンズを開く。それより前に離せば通常のクリック、途中で12px以上動いたら開かない(タッチは待ちを max(指定値, 380ms) に長めにとる。pointerdown で setPointerCapture する)
+- 半径は毎フレーム(rAF・60fps前提) r += (目標 - r) × {{open}} で {{radius}}px まで寄せ、離したら同じ式で0に戻す(差が0.3px未満になったら目標値に揃える)
 - レンズの中心は毎フレーム x += (指の位置 - x) × {{follow}} で追従させる
 - 位置と半径の更新は requestAnimationFrame 1本にまとめ、pointermove ではイベントの座標を保存するだけにする
 - 縁にはリング線を描き、レンズの中だけ十字線と座標を出して「覗いている」ことを示す

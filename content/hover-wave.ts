@@ -37,8 +37,9 @@ export const hoverWave: MotionEntry = {
   ],
   promptTemplate: `ナビリンクに hover wave を実装してください。
 
+- きっかけ: リンクのテキスト全体に mouseenter するたび、波を先頭の文字から再生し直す（途中でも頭から）。タッチはタップ（touchstart）で同じ動作
 - リンクのテキストを1文字ずつ span に分割する(inline-blockにしないとtransformが効かない)
-- ホバーで各文字に translateY(-{{height}}px) して戻るキーフレームアニメーションを1回だけ再生する
+- ホバーで各文字に translateY(-{{height}}px) して戻るキーフレームアニメーションを1回だけ再生する。頂点（-{{height}}px）はキーフレームの35%に置き、timing-function は ease-in-out
 - 1文字の再生時間は {{duration}}s、i文字目の animation-delay は i × {{delay}}s にして波を左から右へ伝播させる
 - アニメーションは transform のみで行う(top や margin を動かさない)
 - 再ホバーで波がもう一度先頭から走るように、アニメーションをリスタートできる作りにする

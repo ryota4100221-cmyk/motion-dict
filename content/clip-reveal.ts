@@ -29,8 +29,9 @@ export const clipReveal: MotionEntry = {
   ],
   promptTemplate: `画像の表示に clip-path reveal を実装してください。
 
+- きっかけ: 画像が画面に入った瞬間(IntersectionObserver)に1回だけ自動で開く。操作は不要(デモは Play ボタンで再生している)。再生し直す操作を付ける場合は transition: none で隠した状態に戻し、1フレーム以上空けてから開き直す
 - 初期状態はclip-pathで全隠しにする(左から: inset(0 100% 0 0) / 下から上: inset(100% 0 0 0) / 中心から: inset(50%))
-- 表示トリガーで clip-path: inset(0) へ {{duration}}s かけて開く。方向は {{direction}}
+- 表示トリガーで clip-path: inset(0) へ {{duration}}s かけて開く。方向は {{direction}} とする(left=左端から右へ / up=下端から上へ / center=中心の一点から四方へ)
 - easingはease-outではなく cubic-bezier(0.16, 1, 0.3, 1)(easeOutExpo系)を使う
 - 画像自体はtransformで動かさない(マスクだけが動く)。動かす場合も逆方向へ10%までに抑える
 - 一度表示したら開いたまま維持する(スクロールで戻っても再生し直さない)

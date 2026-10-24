@@ -46,6 +46,7 @@ export const cornerBrackets: MotionEntry = {
   ],
   promptTemplate: `ヒーローやカードの四隅に corner brackets(L字の枠)を実装してください。
 
+- きっかけ: 操作不要。対象が表示された瞬間(マウント時)に4隅が1回自動で収まる。対象の枠のどこをクリックしても(キーボードは Enter / Space)最初から撃ち直せるようにする(タッチはタップで同じ動作)
 - ブラケットは要素を4つ置き、それぞれ {{size}}px 角の空div。border-width は自分の担当2辺だけ1pxにする(左上なら border-top と border-left)。四辺を閉じる枠線にはしない
 - 対象の内側に size と同じだけインセットして絶対配置する
 - transform-origin は自分のコーナー側に置く(左上なら 0 0、右下なら 100% 100%)。ここを中央にすると回転が滑って収まりが出ない
@@ -54,7 +55,7 @@ export const cornerBrackets: MotionEntry = {
 - duration {{duration}}s、easing は cubic-bezier(0.22, 1, 0.36, 1)(easeOutQuint)。終端でぴたっと止まるカーブにする
 - delay は左上→右上→左下→右下の順に {{stagger}}s ずつ増やす。animation-fill-mode: both で開始前の状態と終了後の状態を保持する
 - 動かすのは transform と opacity だけにする(top/left/width を動かしてリフローさせない)
-- prefers-reduced-motion 時は回転・移動・拡縮をすべて外し、ブラケットを最初から定位置に静止表示する(短いフェードインまでは可)`,
+- prefers-reduced-motion 時は回転・移動・拡縮をすべて外し、ブラケットを最初から定位置に静止表示する(短いフェードイン=opacity 0→1 を0.2s までは可)`,
   ngExample: {
     say: "「ヒーローの四隅に枠っぽい飾りをつけて、animationで出して」",
     why: "「枠」と言うと四辺を囲む border が返ってくる。L字になっても transform-origin が中央のままで、回転が芯からズレて「はまり込む」感じが出ない。4隅同時に出て時間差もない実装がほとんど。",

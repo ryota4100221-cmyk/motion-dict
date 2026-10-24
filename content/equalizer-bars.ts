@@ -46,10 +46,12 @@ export const equalizerBars: MotionEntry = {
   ],
   promptTemplate: `再生中インジケーターに equalizer bars(音量バー)を実装してください。
 
+- きっかけ: 再生中は表示した瞬間から無限ループで動き続ける。再生ボタンのクリック/タップで再生と停止をトグルし、それに合わせて動かす/止める
 - 同じ高さの縦バーを {{bars}} 本、flexの下端揃え(align-items: flex-end)で並べる
 - 各バーの中身は transform: scaleY() で伸縮させる。transform-origin: bottom を指定し、heightのアニメーションは使わない(毎フレームのレイアウト再計算を避ける)
 - アニメーションは \`animation: eq <周期> linear infinite alternate\` の1本だけにする。基準の周期は {{speed}}ms
-- 本ごとに周期を基準から最大 {{spread}}% ずらす。全本が同じ周期だと揃って点滅して見えるので必ずずらす
+- 本ごとに周期を基準から最大 {{spread}}% ずらす(周期 = {{speed}} × (1 + オフセット × {{spread}}/100)、オフセットは -1〜1 の固定値を本ごとにばらして持つ。例 0, -0.8, 0.5, -0.35, 0.9 …)。全本が同じ周期だと揃って点滅して見えるので必ずずらす
+- 上端の高さも本ごとに 0.68〜1 の範囲でばらす(keyframes は from: scaleY(floor) → to: scaleY(本ごとの上端))。全本が天井まで届くと上辺が横一線に揃う
 - 下端でも高さを {{floor}}% 残し、0にはしない
 - 停止時は animation を外し、全バーを {{floor}}% の高さで静止させる
 - バーは装飾なので aria-hidden にし、再生状態は再生ボタン側の aria-pressed / ラベルで伝える

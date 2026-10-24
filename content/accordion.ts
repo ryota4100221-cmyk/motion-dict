@@ -29,11 +29,12 @@ export const accordion: MotionEntry = {
   ],
   promptTemplate: `FAQに accordion(開閉アニメーション)を実装してください。
 
+- きっかけ: 質問の見出し(button)をクリックで開閉する(タッチはタップで同じ動作)。同時に開くのは1つだけで、別の質問を開くと開いていたものは閉じ、開いている質問をもう一度押すと閉じる。初期状態は先頭の1件だけ開いておく
 - 回答部分は display: grid のラッパーで包み、grid-template-rows を 0fr(閉)⇔1fr(開)で切り替えて {{duration}}s {{easing}} でtransitionする
 - グリッドの内側の要素に overflow: hidden と min-height: 0 を付ける(これがないと0frでも潰れず閉じない)
 - height: auto や max-height の決め打ちでアニメーションしない(内容量が変わると破綻する)
 - 見出しは button 要素にして aria-expanded を開閉状態と同期させる
-- +アイコンの回転などの装飾は transform で動かす
+- +アイコンは開くと rotate(45deg) で×にし、回答と同じ {{duration}}s {{easing}} で transform を動かす
 - prefers-reduced-motion 時はtransitionなしで即時に開閉する`,
   ngExample: {
     say: "「FAQをアコーディオンにして、開閉をアニメーションさせて」",

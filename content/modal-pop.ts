@@ -28,8 +28,9 @@ export const modalPop: MotionEntry = {
   ],
   promptTemplate: `ダイアログに modal pop(表示アニメーション)を実装してください。
 
-- オーバーレイ(背景の黒幕)は opacity 0→1 のフェード、パネルは opacity 0→1 と transform: scale({{scaleFrom}}→1) を同時に {{duration}}s のease-outで再生する
-- 閉じるときは同じ動きを逆再生し、時間は開きの6〜7割に短縮する
+- きっかけ: ページ上の「Open modal」ボタンを click(タッチはタップ)で開く。パネル内の Close ボタンか、パネルの外のオーバーレイを click で閉じる(パネル内のクリックでは閉じない)
+- オーバーレイ(背景の黒幕)は opacity 0→1 のフェード、パネルは opacity 0→1 と transform: scale({{scaleFrom}}→1) を同時に {{duration}}s で再生する。scale は cubic-bezier(0.22, 1, 0.36, 1)(出だしが速い ease-out)、opacity は ease
+- 閉じるときは同じ動きを逆再生(scale は {{scaleFrom}} へ戻す)し、時間は開きの 0.65 倍に短縮する
 - 動かすのは transform と opacity のみ(top / margin で位置をアニメーションしない)
 - 表示中は背面のスクロールを固定し、オーバーレイのクリックとEscキーで閉じられるようにする
 - パネルに role="dialog" と aria-modal="true" を付け、フォーカスをモーダル内へ移す

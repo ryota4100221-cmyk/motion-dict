@@ -37,10 +37,11 @@ export const grainOverlay: MotionEntry = {
   ],
   promptTemplate: `画面全体にフィルム粒子のノイズを重ねる film grain を実装してください。
 
-- ノイズは外部画像にせず、SVGの feTurbulence(type="fractalNoise"、baseFrequency={{grain}}、stitchTiles="stitch")+ feColorMatrix(saturate 0)を data URI 化して background-image に敷く
+- きっかけ: ページ読み込み直後から常時ゆらぎ続ける。操作不要で、ホバーやスクロールには反応させない
+- ノイズは外部画像にせず、SVGの feTurbulence(type="fractalNoise"、baseFrequency={{grain}}、numOctaves="2"、stitchTiles="stitch"、220×220pxのタイル)+ feColorMatrix(saturate 0)を data URI 化して background-image に敷く
 - グレインは position: fixed; inset: 0 のオーバーレイ1枚に持たせ、pointer-events: none と最前面の z-index を指定する(コンテンツ側のDOMには手を入れない)
 - オーバーレイの opacity は {{opacity}} にする(0.03〜0.08が目安。それ以上は可読性を削る)
-- ゆらぎはノイズの再生成ではなく、オーバーレイを毎秒 {{fps}} 回 transform: translate でランダムな位置に飛ばして表現する(オーバーレイは200%サイズで敷き、端の露出を防ぐ)
+- ゆらぎはノイズの再生成ではなく、オーバーレイを毎秒 {{fps}} 回 transform: translate(x%, y%) で x・y とも ±12% の範囲のランダムな位置に飛ばして表現する(補間せず瞬間移動。オーバーレイは inset: -50% の200%サイズで敷き、端の露出を防ぐ)
 - stitchTiles="stitch" でタイルの継ぎ目を消す。SVGの生成は初回1回だけにし、毎フレーム作り直さない
 - prefers-reduced-motion 時はゆらぎを止め、静止したテクスチャとして重ねる`,
   ngExample: {

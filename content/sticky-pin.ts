@@ -28,6 +28,7 @@ export const stickyPin: MotionEntry = {
   ],
   promptTemplate: `スクロール中に要素が画面に固定される sticky pin を実装してください。
 
+- きっかけ: ページを縦スクロールするだけ。親セクションの上端が top 位置に来た瞬間に固定が始まり、進捗演出はスクロール位置に完全連動（戻せば逆に減る）。クリック等の操作や自動再生は無い
 - JSでfixedを付け外しするのではなく、position: sticky; top: {{top}}px で実装する
 - 固定したい要素を高さのある親セクション(画面高さの {{length}} 倍)で包む。stickyが効くのはこの親の範囲内だけで、「親の高さ − 固定要素の高さ」が実質の固定区間になる
 - 祖先のどこかに overflow: hidden / auto / scroll があると sticky は無効になる。はみ出し対策が必要な祖先には overflow: clip を使う

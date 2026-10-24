@@ -46,13 +46,14 @@ export const morphingDropdown: MotionEntry = {
   ],
   promptTemplate: `グローバルナビに morphing dropdown(1枚のパネルを共有するドロップダウン)を実装してください。
 
+- きっかけ: ナビの各トリガーに pointerenter(キーボードは focus)した瞬間、パネルがその項目の位置とサイズへ変形する。ナビとパネルを包む領域全体から pointerleave したら閉じる(項目間を移る間は閉じない)。タッチはトリガーのタップで同じ動作
 - パネルはナビ項目ごとに作らず、ナビ全体で**1つだけ**をabsolute配置する。開いている項目が変わってもDOMは破棄せず、同じ要素を動かし続ける
 - 各項目の中身(リンク群)はパネル内にすべて置き、実寸(offsetWidth / offsetHeight)を計測しておく。ホバー中の項目の実寸をパネルの width / height に反映する
 - パネルの横位置は「ホバー中のトリガーの中心 − パネル幅の半分」。left ではなく transform: translate3d() で動かす
 - width / height / transform を {{duration}}s、easing は cubic-bezier(0.22, A, 0.36, 1) の A を 1 + {{overshoot}}/50 として算出した easeOutBack 系で動かす
-- 中身は絶対配置で重ね、ホバー中のものだけ opacity 1 / translateX(0)。それ以外は opacity 0 で、並び順が右のものは +{{contentShift}}px、左のものは −{{contentShift}}px へ逃がす。切り替えは {{contentFade}}s
+- 中身は絶対配置で重ね、ホバー中のものだけ opacity 1 / translateX(0)。それ以外は opacity 0 で、並び順が右のものは +{{contentShift}}px、左のものは −{{contentShift}}px へ逃がす。切り替えは {{contentFade}}s ease-out
+- 閉じるときはパネルの opacity だけを {{contentFade}}s ease-out で0にし、最後の形と位置は残す(次に開くとそこから変形する)
 - 非表示の中身は pointer-events: none にしてクリックを奪わせない
-- タッチデバイスではホバーが無いので、トリガーのタップで開閉をトグルする
 - prefers-reduced-motion 時は width / height / transform のトランジションを切り、パネルを新しい位置とサイズに即時表示する(中身の入れ替えも瞬時)`,
   ngExample: {
     say: "「ナビのメニューが項目間でぬるっと動くようにして」",

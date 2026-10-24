@@ -46,11 +46,12 @@ export const starRating: MotionEntry = {
   ],
   promptTemplate: `評価入力に star rating（hover preview 付き）を実装してください。
 
+- きっかけ: マウスは星への pointerenter でプレビュー（pointerType が mouse のときだけ）、クリックで確定。並びから外れたら確定値の表示に戻る。タッチはタップで即確定
 - 星は {{count}} 個。各星は <button type="button"> にし、aria-label="Rate n out of {{count}}"、確定中の星に aria-pressed="true" を付ける。並びには評価の説明ラベル（例:「満足度」）を添える
 - 状態は「確定値 value」と「ポインタが載っている星 hover」の2つを持ち、表示に使うのは hover ?? value。1番目から表示値までの星を塗り、それより後ろは輪郭だけにする
 - ポインタが載っている星（hover の星）だけを transform: scale({{lift}}) に拡大する。塗られた他の星は大きさを変えない
-- 色（color / fill）と transform に {{duration}}s の transition を掛ける。width や margin は動かさない（transform のみ・リフロー禁止）
-- 表示値が変わったとき、新しく灯る/消える星には手前から順に transition-delay を {{stagger}}ms ずつ足す（0 なら一斉に変わる）
+- 色（color / fill）と transform に {{duration}}s ease の transition を掛ける。width や margin は動かさない（transform のみ・リフロー禁止）
+- 表示値が変わったとき、切り替わる星だけに変化の起点側から順に transition-delay を {{stagger}}ms ずつ足す（増えるときは左から右へ、減るときは右から左へ。0 なら一斉に変わる）
 - 並び全体から pointerleave したら hover を null に戻し、確定値の表示に戻す
 - クリックで value を確定する。確定中の星をもう一度押したら value を null に戻す（取り消せる）
 - 表示値に応じて「Poor / Fair / Good / Very Good / Excellent」のような言葉を横に出す（5段階のとき）

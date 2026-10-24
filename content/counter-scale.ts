@@ -47,10 +47,12 @@ export const counterScale: MotionEntry = {
   ],
   promptTemplate: `サムネイルの出現に counter-scale を実装してください。
 
-- 枠(外側)は transform: scale({{aperture}}) から scale(1) へ {{duration}}s で開く
+- きっかけ: 操作不要。サムネイルが表示されたときに自動で1回開き、開いたらそのまま保つ(ホバーやクリックを待たない)
+- 構造は 枠線(リング)・表示窓・中身 の3層。枠線は表示窓と入れ子にせず兄弟の要素として重ね、中身だけを表示窓の子にする(枠線の scale が窓と中身に掛け算されないように)
+- 枠線は transform: scale({{aperture}}) から scale(1) へ {{duration}}s で開く
 - 表示窓は clip-path: inset(calc((1 - {{aperture}}) / 2 * 100%) round 50%) から inset(0 round 50%) へ、枠と同じ {{duration}}s・同じeasingで開く
 - 中身(画像)は {{mode}} の扱いにする。counter なら scale({{zoom}}) から scale(1) へ逆向きに縮め、lock なら scale(1) に固定する
-- easing は枠・窓・中身の3つとも同一にする(ease-out または cubic-bezier(0.16, 1, 0.3, 1))。ここがズレると中身が枠から遅れて見える
+- easing は枠・窓・中身の3つとも同一にする(ease-out。強めにするなら3つとも cubic-bezier(0.16, 1, 0.3, 1))。ここがズレると中身が枠から遅れて見える
 - width / height ではなく transform と clip-path で動かす(リフローさせない)
 - 中身は object-fit: cover で枠を満たし、縮めきった時点で余白が出ないようにする
 - prefers-reduced-motion 時はアニメーションなしで、枠も中身も最終状態(scale 1 / inset 0)で即座に表示する`,

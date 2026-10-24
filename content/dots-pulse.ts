@@ -28,9 +28,10 @@ export const dotsPulse: MotionEntry = {
   ],
   promptTemplate: `チャットの「入力中」に使うドットパルス(typing indicator)を実装してください。
 
+- きっかけ: 表示された瞬間から自動で無限ループする。操作は不要(相手が入力中の間だけ表示する)
 - 3つの点を横に並べ、1周期 {{speed}}s の ease-in-out 無限ループで各点を scale と opacity で膨らませる
 - 各点の animation-delay を {{stagger}}s ずつずらし、左から順に波が伝わるようにする
-- 膨らむのは周期の前半30%程度に収め、残りは静止させてリズムを作る(全区間動かし続けない)
+- keyframes は 0%: scale(1)・opacity 0.35 → 30%: scale(1.6)・opacity 1 → 60%: scale(1)・opacity 0.35 で、60〜100% は静止させてリズムを作る(全区間動かし続けない)
 - transform: scale で動かし、width / height はアニメーションさせない(リフロー禁止)
 - prefers-reduced-motion 時はアニメーションを止め、3点を同じ不透明度で静的に表示する`,
   ngExample: {
@@ -38,7 +39,7 @@ export const dotsPulse: MotionEntry = {
     why: "3点が同時に点滅するだけの実装や、opacityのみで動きの重心がないものが返ってくる。位相ずらし(delay)と「動く区間/止まる区間」の配分を指定しないと波にならない。",
   },
   okExample: {
-    say: "「typing indicatorを3点で。1.2s周期のease-in-outループ、各点のanimation-delayを0.15sずつずらす。膨らみはscale(1→1.6)+opacityで周期の前半30%に収める。reduced-motionでは静止」",
+    say: "「typing indicatorを3点で。1.2s周期のease-in-outループ、各点のanimation-delayを0.15sずつずらす。膨らみはscale(1→1.6)+opacity(0.35→1)を30%で頂点・60%で戻し、残りは静止。reduced-motionでは静止」",
     why: "周期・遅延・変化量・動く区間の配分まで数値で指定。「delayをずらす」と明示することで、点滅ではなく波として実装される。",
   },
   vocab: [

@@ -37,12 +37,13 @@ export const storyProgress: MotionEntry = {
   ],
   promptTemplate: `自動送りスライダーに story progress bars を実装してください。
 
+- きっかけ: 表示と同時に操作なしで自動送りが始まる。スライダー面を押している間だけ一時停止（タッチは長押し）、セグメントのクリック/タップでジャンプ。最後のスライドが満了したら1枚目に戻ってループする
 - スライダーの上端に {{segments}}本のセグメントを等幅・横一列(gapは4px程度)で並べる。1本の高さは {{height}}px
 - 各セグメントは「トラック(半透明の下地)」＋「フィル(不透明)」の二重構造にし、フィルを transform: scaleX(0→1) / transform-origin: left で満たす。width のアニメーションは使わない(リフロー禁止)
 - 表示中のセグメントだけを {{duration}}s の linear でフィルする。イージングは掛けない(残り時間の表示なので等速でないと嘘になる)
-- 進行の管理は CSS transition ではなく経過時間で行い、満了したら次のスライドへ送る。送り終わったセグメントは scaleX(1)、これからのセグメントは scaleX(0) に保つ
-- ステージを押している間(pointerdown〜pointerup / touchstart〜touchend)は進行を一時停止し、離したら残り時間から再開する
-- セグメント自体を button にして、クリック/タップでそのスライドへ直接ジャンプできるようにする(aria-label に「n枚目」を入れる)
+- 進行の管理は CSS transition ではなく経過時間で行い(rAF の dt 秒を加算、タブ復帰時の巨大な dt は0.1sで頭打ち)、満了したら次のスライドへ送る。スライド自体は opacity 0.35s ease で切り替える。送り終わったセグメントは scaleX(1)、これからのセグメントは scaleX(0) に保つ
+- ステージを押している間(pointerdown〜pointerup / touchstart〜touchend)は進行を一時停止し、離したら(pointerleave / pointercancel でも)残り時間から再開する
+- セグメント自体を button にして、クリック/タップでそのスライドへ直接ジャンプできるようにする(ジャンプ先は経過時間0から満たし直す。aria-label に「n枚目」を入れる)
 - 現在位置は aria-live ではなく、コンテナに role="group" と aria-label="スライド n / {{segments}}" を持たせて伝える
 - prefers-reduced-motion 時は自動送りとフィルのアニメーションを止め、現在位置までのセグメントを塗った静的なインジケーターにして、送りは操作でのみ行う`,
   ngExample: {

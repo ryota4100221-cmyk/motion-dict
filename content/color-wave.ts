@@ -46,10 +46,11 @@ export const colorWave: MotionEntry = {
   ],
   promptTemplate: `見出しに color wave(文字色の波によるリビール)を実装してください。
 
+- きっかけ: 見出しのテキストに mouseenter するたび、予約中のタイマーを全部取り消し、transition: none で全文字を沈んだ状態へ戻して(reflow を挟んで)先頭から再生し直す。タッチはタップで同じ動作
 - 見出しを1文字ずつ <span> に分割する(空白は white-space: pre で保持)
 - 初期状態は最終色のまま opacity を {{dim}}% まで落として沈めておく
-- {{batch}} 文字を1組として、組ごとに {{stagger}}ms ずつ遅らせて先頭から発火させる
-- 発火した文字は 120ms でアクセント色 + opacity 1 まで上がり、{{hold}}ms 保持したあと 120ms で最終色へ戻る(opacity は 1 のまま)
+- {{batch}} 文字を1組として、i 文字目の遅延を floor(i / {{batch}}) × {{batch}} × {{stagger}}ms にして先頭から発火させる(組の間隔は {{batch}}×{{stagger}}ms。波の進む速さは batch を変えても同じ)
+- 発火した文字は 120ms ease-out でアクセント色 + opacity 1 まで上がり、{{hold}}ms 保持したあと 120ms ease-in で最終色へ戻る(opacity は 1 のまま)
 - 動かすのは color と opacity だけ。文字送り(letter-spacing / width / margin)は変えずリフローさせない
 - 分割で font-kerning が崩れるため、分割した span を含む要素に font-kerning: none を指定する
 - prefers-reduced-motion 時は波を再生せず、最初から最終色 + opacity 1 で表示する`,

@@ -38,12 +38,13 @@ export const mouseParallax: MotionEntry = {
   ],
   promptTemplate: `FVビジュアルに mouse parallax layers を実装してください。
 
+- きっかけ: コンテナ上の mousemove に常時追従する(クリック不要)。タッチはコンテナ内のドラッグ(touchmove)で同じ動作、指を離すと中央へ戻る
 - レイヤーを3層重ね、各層に depth 係数を割り当てる(奥 0.3 / 中 0.6 / 手前 1.0)
 - マウス位置をコンテナ中心基準で -1〜1 に正規化する
 - 各層の移動量は 正規化座標 × {{strength}}px × depth とし、方向は {{direction}}(same=カーソルと同方向 / invert=逆方向)にする
-- 位置は毎フレーム lerp(係数 {{lerp}})で補間し、遅れて動く質感にする
+- 位置は毎フレーム current += (target - current) × {{lerp}} で補間し(60fps前提・dt は掛けない)、遅れて動く質感にする
 - 移動は transform: translate のみで行う(リフローさせない)
-- マウスがコンテナを離れたら全層をゆっくり中央へ戻す
+- マウスがコンテナを離れたら(mouseleave)目標を 0 に戻し、同じ lerp で全層を中央へ戻す
 - prefers-reduced-motion 時はレイヤーを動かさない`,
   ngExample: {
     say: "「マウスに合わせてパララックスさせて」",

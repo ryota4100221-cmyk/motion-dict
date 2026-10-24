@@ -38,6 +38,7 @@ export const headerInvert: MotionEntry = {
   ],
   promptTemplate: `固定ヘッダーに header color invert(背景の明暗に追従する色反転)を実装してください。
 
+- きっかけ: ページの scroll（と resize）のたびに判定する。暗いセクションが判定ラインに掛かっている間だけ反転、外れたら元に戻る。読み込み直後にも1回測る
 - 暗い背景のセクション側に data-dark 属性を付けて目印にする(どのセクションが何色かをJSの配列に持たせない)
 - スクロールとリサイズのたびに、ビューポート上端から {{probe}}px 下を走る判定ラインと交差している data-dark セクションを getBoundingClientRect で探す(rect.top <= probe && rect.bottom >= probe)
 - 交差していればヘッダーを反転状態にする。色は --header-fg / --header-bg のCSS変数1組にまとめ、クラス(またはdata-theme属性)の切り替えだけで差し替える

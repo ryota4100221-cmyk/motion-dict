@@ -46,9 +46,10 @@ export const holoSheen: MotionEntry = {
   ],
   promptTemplate: `カードに holographic sheen(ホロ箔の光沢)を実装してください。
 
+- きっかけ: 虹色の膜は操作不要でページ表示直後から流れ続ける。照り返しだけがカード上の pointermove に付いてきて、pointerleave / pointercancel で消える
 - カードの上に pointer-events: none のオーバーレイを1枚重ね、mix-blend-mode: screen、opacity: {{intensity}} にする
 - オーバーレイの背景は linear-gradient({{angle}}deg, transparent 28%, 白20% 43%, シアン(120,255,230)28% 50%, ピンク(255,150,220)18% 57%, transparent 72%)、background-size: 260% 260%
-- @keyframes で background-position を 130% → -130% へ {{period}}s の linear で無限ループさせる(虹色の膜が斜めに流れ続ける)
+- @keyframes で background-position を 130% 0 → -130% 0 へ(x だけ動かす) {{period}}s の linear で無限ループさせる(虹色の膜が斜めに流れ続ける)
 - オーバーレイの ::after に radial-gradient({{glare}}px {{glare}}px at var(--gx) var(--gy), 白30%, transparent 60%) を置き、opacity は var(--glow) で制御する
 - pointermove でカード内の相対位置(%)を --gx / --gy に、--glow を 1 に書き込む。pointerleave で --glow を 0 に戻し、opacity は 0.25s で遷移させる
 - 位置は CSS 変数の書き換えだけで反映し、再レンダリングやレイアウト計算を走らせない

@@ -38,8 +38,9 @@ export const trackingIn: MotionEntry = {
   ],
   promptTemplate: `見出しに tracking in を実装してください。
 
+- きっかけ: ページ読み込み直後（または見出しが画面に入った時）に自動で1回だけ再生する。ホバーやクリックは不要
 - 初期状態は letter-spacing {{spread}}em・opacity 0、最終状態は letter-spacing 0.02em・opacity 1
-- {{duration}}s かけて letter-spacing と opacity を同時に transition させる。easeは {{ease}}(expo-outは cubic-bezier(0.16, 1, 0.3, 1))
+- {{duration}}s かけて letter-spacing・margin-right・opacity を同時に transition させる。letter-spacing と margin-right の ease は「{{ease}}」(expo-out なら cubic-bezier(0.16, 1, 0.3, 1))、opacity は常に ease
 - 見出しは中央揃えにし、最後の文字の後ろに付く letter-spacing ぶんだけ margin-right をマイナスして収束の中心がずれないようにする
 - letter-spacing のアニメーションはリフローを伴うため、対象は1行の短い見出しに限定する。段落や複数要素に使う場合は文字を分割して translateX で寄せる方式に切り替える
 - 発火はページロード直後、またはIntersectionObserverで画面に入った1回だけ。ループさせない

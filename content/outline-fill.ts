@@ -29,6 +29,7 @@ export const outlineFill: MotionEntry = {
   ],
   promptTemplate: `見出しテキストに outline fill を実装してください。
 
+- きっかけ: 見出し(2枚を重ねた外側の要素)に mouseenter で塗り、mouseleave で戻す。タッチはタップで塗る/戻すを切り替える
 - 同じテキストを2枚重ねる。下層は color: transparent + -webkit-text-stroke: 1px の縁取り、上層は塗りの文字
 - 上層を clip-path: inset() で隠しておき、ホバーで inset(0 0 0 0) に {{duration}}s の ease で開いて塗る
 - 塗る方向は {{direction}}。left は inset(0 100% 0 0) から、bottom は inset(100% 0 0 0) から、center は inset(0 50% 0 50%) から開く

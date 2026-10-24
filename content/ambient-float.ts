@@ -46,10 +46,11 @@ export const ambientFloat: MotionEntry = {
   ],
   promptTemplate: `装飾要素に ambient float(常時ループする浮遊アニメーション)を実装してください。
 
-- 各要素を transform: translateY で上下 {{distance}}px の範囲で往復させる
+- きっかけ: 操作不要。ページ表示の時点から全要素が自動で無限ループし続ける(ホバーやスクロールに反応させない)
+- 各要素を transform: translateY で上下 {{distance}}px の範囲(中心から −{{distance}}/2 〜 +{{distance}}/2 px)で往復させる
 - 基準の周期は {{duration}}s、animation-direction: alternate + ease-in-out で折り返す
 - 要素ごとに周期を ±{{spread}}% ずらし、全体が同時に動かないようにする
-- 同時に rotate を ±{{rotate}}deg 添えて、単純な上下動に見せない
+- 同時に rotate を ±{{rotate}}deg 添えて(上端で −、下端で +)、単純な上下動に見せない。傾く向きは要素ごとに交互に反転させる
 - 開始位相もずらす。animation-delay に負の値を入れ、初回表示の時点で各要素が周期の途中にいる状態にする
 - top/margin ではなく transform のみで動かす(リフローさせない)。will-change: transform を付ける
 - prefers-reduced-motion 時はアニメーションを止め、要素は静止位置に置く`,
@@ -58,7 +59,7 @@ export const ambientFloat: MotionEntry = {
     why: "「ふわふわ」では振れ幅も周期も決まらない。全要素が同じ duration・同じ delay で animation され、6枚が完全に同期して上下する“エレベーター”になって返ってくることが多い。",
   },
   okExample: {
-    say: "「ambient floatを実装。translateYで±18px、周期6sをalternate + ease-in-outで往復。要素ごとに周期を±35%・開始位相を負のanimation-delayでずらす。rotateは±2度。transformのみ、reduced-motionでは静止」",
+    say: "「ambient floatを実装。translateYで上下18pxの幅(中心から±9px)、周期6sをalternate + ease-in-outで往復。要素ごとに周期を±35%・開始位相を負のanimation-delayでずらす。rotateは±2度。transformのみ、reduced-motionでは静止」",
     why: "振れ幅・周期・ばらつき・位相までを数値で指定している。特に「周期と位相をずらす」の一言が、機械的な同期を防いで有機的な浮遊にする決定打になる。",
   },
   vocab: [

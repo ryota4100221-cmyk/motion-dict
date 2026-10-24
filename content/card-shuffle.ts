@@ -46,12 +46,13 @@ export const cardShuffle: MotionEntry = {
   ],
   promptTemplate: `カードの束が1枚ずつ入れ替わる card stack shuffle を実装してください。
 
+- きっかけ: カードの束のどこをクリックしても(ボタンだけにしない)次の1枚へ送る。タッチはタップで同じ動作。送り出し中のクリックは無視する。操作が無くても {{interval}}秒ごとに自動で送る(下記)
 - カードは同じ親の中で position: absolute で完全に重ね、手前から順に rotate と scale をずらして扇状に見せる
 - 手前を rotate(-{{fan}}deg) scale(1)、以降1枚奥へ行くごとに角度を +{{fan}}deg 側へ寄せ、scale を {{scaleStep}} ずつ小さくする。重なり順は z-index で管理する
-- 送り出しは {{duration}}s。手前のカードを一度横（translateX(-90%)程度）へ逃がし、傾きを変えながら縮めて、最奥のカードの静止状態と同じ transform で着地させる
-- 送り出しの途中で z-index を最前面から最背面へ落とす（経路の中盤で切り替えると束の下に潜り込んで見える）
+- 送り出しは {{duration}}s・cubic-bezier(0.6, 0, 0.2, 1) の @keyframes。40% の時点で translateX(-90%) rotate(-3deg) scale(0.925) まで横へ逃がし、100% で最奥のカードの静止状態と同じ transform で着地させる。着地したら DOM の並び(配列)を1枚ずらす
+- 送り出しの途中で z-index を最前面から最背面へ落とす（0%で10 → 40%で-1。経路の中盤で切り替えると束の下に潜り込んで見える）
 - 動かすのは transform と z-index のみ。top/left や DOM の並べ替えでの見た目調整は禁止（リフローさせない）
-- 残ったカードは手前へ1段ずつ繰り上げる。transition-delay を 0.1s ずつずらすと束が生きて見える
+- 残ったカードは手前へ1段ずつ繰り上げる。transform の transition は {{duration}}s cubic-bezier(0.4, 0, 0.2, 1)、transition-delay を新しい段数 × 0.1s(新しい手前は0s)ずつずらすと束が生きて見える
 - 自動送りは {{interval}}秒間隔（0なら自動送りなし）。手動で送ったらタイマーを仕切り直す
 - クリック／タップでも次のカードへ送れるようにし、送りボタンには aria-label を付ける
 - prefers-reduced-motion 時は自動送りを止め、送り出しのアニメーションもなしで即座に並び替える`,

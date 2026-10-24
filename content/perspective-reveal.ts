@@ -46,11 +46,12 @@ export const perspectiveReveal: MotionEntry = {
   ],
   promptTemplate: `スクロールで現れる要素に perspective reveal(3D起き上がりリビール)を実装してください。
 
+- きっかけ: ページ(またはスクロール領域)をスクロールし、各要素が画面に入ったときに1回だけ起き上がる。スクロールを戻しても伏せ直さない
 - 親要素に perspective: {{perspective}}px を掛け、子要素の transform-origin を center bottom にする
 - 各要素は rotateX({{rotateX}}deg)・opacity 0・少し下(translateY 40px程度)の状態から、rotateX(0)・opacity 1・translateY(0) へ {{duration}}s かけて起き上がる
-- イージングは cubic-bezier(0.22, 1, 0.36, 1) のような強めの ease-out
-- 発火は IntersectionObserver(または ScrollTrigger)で、要素がビューポート下端から15%ほど入った時点で1回だけ。出っぱなしにする
-- リストは要素ごとに {{stagger}}ms ずつ遅延をずらし、手前から奥へ配るように見せる
+- イージングは cubic-bezier(0.22, 1, 0.36, 1)(強めの ease-out)
+- 発火は IntersectionObserver(または ScrollTrigger)で、要素の20%が見えた時点(threshold: 0.2)で1回だけ。出っぱなしにする
+- 同じタイミングで画面に入った要素どうしに、上から順に {{stagger}}ms ずつ遅延(transition-delay)をずらし、手前から奥へ配るように見せる
 - 動かすのは transform と opacity のみ。top/height/margin は触らずリフローさせない
 - prefers-reduced-motion 時は回転を行わず、全要素を rotateX(0)・opacity 1 で即表示する`,
   ngExample: {

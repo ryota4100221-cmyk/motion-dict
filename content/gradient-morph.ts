@@ -32,20 +32,21 @@ export const gradientMorph: MotionEntry = {
       max: 2,
       step: 1,
       default: 2,
-      options: ["linear", "ease-out", "ease-in-out"],
+      options: ["linear", "cubic-bezier(0.16, 1, 0.3, 1)", "ease-in-out"],
       desc: "背景はease-in-outが定番。始点と終点が静かなので、動いていることに気づかせずに変えられる。",
     },
   ],
   promptTemplate: `背景のグラデーションが状態ごとに滑らかに変わる gradient morph を実装してください。
 
+- きっかけ: スクロールして各セクションがビューポートに入るたびに、そのセクションに割り当てた状態(中心・半径・3色・2ストップの組)へ遷移する。戻れば前の状態へ戻る
 - グラデーションの中心・半径・各色・各カラーストップを、すべてCSSカスタムプロパティに逃がす
   (--gm-x / --gm-y / --gm-size-x / --gm-size-y / --gm-c1 / --gm-c2 / --gm-c3 / --gm-s1 / --gm-s2)
 - それらを @property で型付き登録する(<percentage> と <color>)。
   登録しないとCSSは値を「ただの文字列」として扱い、補間されずにパッと切り替わってしまう。ここが実装の要
-- background-image: radial-gradient(var(--gm-size-x) var(--gm-size-y) at var(--gm-x) var(--gm-y), ...) を1枚のレイヤーに置く
+- background-image: radial-gradient(var(--gm-size-x) var(--gm-size-y) at var(--gm-x) var(--gm-y), var(--gm-c1) var(--gm-s1), var(--gm-c2) var(--gm-s2), var(--gm-c3) 100%) を1枚のレイヤーに置く。状態ごとに中心・半径・色・ストップを全部ずらす(光源が移動しながら広がり、色の帯も伸び縮みする)
 - 半径は基準値に {{spread}}% を掛けた値にする
 - 状態が変わったらJSはカスタムプロパティを書き換えるだけにし、
-  transition: --gm-x, --gm-y, ... {{duration}}s {{easing}} で補間はCSSに任せる
+  transition: --gm-x, --gm-y, ... の9変数すべてに {{duration}}s・イージング {{easing}} をかけ、補間はCSSに任せる
   (JSで毎フレームRGBを補間したり、background-imageの文字列を組み直したりしない)
 - 背景レイヤーは position: fixed / inset: 0 / z-index: -1 に置き、前景のスクロールと切り離す
 - 状態の切り替えはIntersectionObserverでセクションの進入を検知する。scrollイベントでの位置計算はしない

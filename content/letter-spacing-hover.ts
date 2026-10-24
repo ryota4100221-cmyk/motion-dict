@@ -48,10 +48,12 @@ export const letterSpacingHover: MotionEntry = {
   ],
   promptTemplate: `ナビゲーションのリンクに letter-spacing hover を実装してください。
 
+- きっかけ: 各リンクに mouseenter でそのリンクだけ開き、mouseleave で閉じる。タッチはタップで開閉をトグル（下の行と同じ）
 - 通常時は letter-spacing: normal、ホバー時に {{spacing}}em まで開く
-- transition は letter-spacing に {{duration}}s / {{ease}} を指定し、leave では同じ時間で戻す
+- transition は letter-spacing と打ち消し用の margin-inline-start / margin-inline-end に同じ {{duration}}s をかける。カーブは {{ease}}（expo-out のときは cubic-bezier(0.16, 1, 0.3, 1)）。leave では同じ時間・同じカーブで戻す
 - letter-spacing は「最後の1文字の後ろにも」余白を足すので、素のままだとリンクの幅が 文字数×{{spacing}}em 増えて隣のリンクを押す
 - 幅の打ち消しは {{compensate}} 方式で行う
+  - none: 打ち消さない(隣のリンクを押しのける)
   - trailing: margin-inline-end: -{{spacing}}em で末尾の余白だけ消す(見た目の右端が揃う)
   - full: margin-inline: calc(文字数 * -{{spacing}}em / 2) を左右に入れ、外形の幅を一定に保つ
 - 文字数はJSで textContent.length から出してCSS変数に渡す(決め打ちの固定値を書かない)
@@ -64,7 +66,7 @@ export const letterSpacingHover: MotionEntry = {
     why: "letter-spacing を足すだけの実装が返ってきて、ホバーのたびに隣のリンクが右へずれるナビになる。打ち消しの指定が無いと、この横ズレはまず直らない。",
   },
   okExample: {
-    say: "「ナビのリンクにletter-spacing hoverを実装。normal→0.2em、1.4sのexpo-out、leaveも同じ。文字数×0.2emの半分を左右に負のmargin-inlineで入れて外形の幅を固定。文字数はJSでCSS変数に渡す。色と下線は変えない。reduced-motion時は字間を動かさず色で示す」",
+    say: "「ナビのリンクにletter-spacing hoverを実装。normal→0.2em、1.4sのexpo-out(cubic-bezier(0.16,1,0.3,1))、margin-inlineも同じtransition、leaveも同じ。文字数×0.2emの半分を左右に負のmargin-inlineで入れて外形の幅を固定。文字数はJSでCSS変数に渡す。色と下線は変えない。reduced-motion時は字間を動かさず色で示す」",
     why: "開く量・時間・カーブに加えて「幅を固定する」という要件と、その具体的な打ち消し方まで指定している。この一言があるかどうかでナビが揺れるか揺れないかが決まる。",
   },
   vocab: [

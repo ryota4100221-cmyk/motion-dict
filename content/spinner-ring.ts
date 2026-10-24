@@ -28,9 +28,11 @@ export const spinnerRing: MotionEntry = {
   ],
   promptTemplate: `不確定ローディング用のリングスピナーを実装してください。
 
+- きっかけ: 表示した瞬間から自動で回り続ける(無限ループ・操作不要)。読み込み完了で要素ごと外す
 - borderを回すのではなく、SVGの circle に stroke-dasharray を設定して弧を描く
 - 全体を {{speed}}s/周 の linear で回転させ続ける
-- 同時に stroke-dasharray / stroke-dashoffset を ease-in-out でループさせ、弧が伸び縮みするようにする(Material Design系の質感)
+- 同時に stroke-dasharray / stroke-dashoffset を ease-in-out でループさせ、弧が伸び縮みするようにする(Material Design系の質感)。周期は回転の1.5倍({{speed}}s × 1.5)にして回転と位相をずらす
+- 伸縮のキーフレームは円周 C(r=28 なら ≈176)基準で 0%: dasharray 2 174・offset 0 → 50%: 132 44・offset −44 → 100%: 2 174・offset −176
 - 線の太さは stroke-width {{thickness}}px、stroke-linecap: round で先端を丸める
 - 背面に薄い色のトラック(完全な円)を敷き、リングの居場所を常に示す
 - transform と stroke-* のみで動かし、レイアウトを変化させない

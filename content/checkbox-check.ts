@@ -46,10 +46,11 @@ export const checkboxCheck: MotionEntry = {
   ],
   promptTemplate: `フォームのチェックボックスに animated checkbox(checkmark draw)を実装してください。
 
+- きっかけ: 箱だけでなく行の label 全体のクリック(タッチはタップ、キーボードは Space)で checked を切り替え、その change に合わせて再生する。入れたときだけ線を描き、外したときは静かに消す
 - ネイティブの input[type=checkbox] は appearance: none で見た目だけ消し、キーボード操作・label との関連付け・checked 状態はそのまま使う（div で作り直さない）
 - 箱の中に「塗りの層」と「SVGのチェック線」を重ねる。チェック線は path に pathLength="1" を付け、stroke-dasharray: 1 / stroke-dashoffset: 1 で隠しておく
 - チェックを入れたとき
-  1. 塗りの層：{{fillDuration}}s で scale(0)→scale({{popScale}})（尺の70%地点）→scale(1)、同時に opacity 0→1
+  1. 塗りの層：{{fillDuration}}s の ease-out で scale(0)→scale({{popScale}})（尺の70%地点）→scale(1)、同時に opacity 0→1（70%地点で1に達する）
   2. チェック線：{{drawDelay}}s 遅らせて、{{drawDuration}}s の ease で stroke-dashoffset 1→0。待ち時間中は animation-fill-mode: both で線を隠したままにする
 - チェックを外すときは線を逆再生しない。塗りの層ごと opacity を 0.2s で抜くだけにする（外す操作は静かに）
 - 動かすのは transform / opacity / stroke-dashoffset だけ（width・height・border-width を動かさない＝リフロー禁止）

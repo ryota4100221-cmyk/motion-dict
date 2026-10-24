@@ -37,6 +37,7 @@ export const focusDim: MotionEntry = {
   ],
   promptTemplate: `リストに focus dimming(ホバーした項目以外を沈ませる)を実装してください。
 
+- きっかけ: 項目への mouseenter でその項目を主役にして他を沈め、別の項目に入るたびに付け替える。リスト全体から mouseleave したら全項目を原寸に戻す。タッチは項目のタップで主役を付け替え、同じ項目の再タップで解除
 - リスト全体をコンテナで包み、コンテナが :hover のときだけ全項目を「沈み」状態にする
 - 個々の項目に :hover したものは沈みを打ち消して原寸(opacity 1 / blur 0)に戻す
 - 沈み状態: opacity を {{dimOpacity}}、filter: blur({{dimBlur}}px)

@@ -38,6 +38,7 @@ export const staggerGrid: MotionEntry = {
   ],
   promptTemplate: `カードグリッドに stagger grid loading(時間差の点灯)を実装してください。
 
+- きっかけ: グリッドを表示するタイミング（読み込み完了・データ取得後）に1回だけ再生する。再生し直すときは全カードのアニメーションを一度外して opacity 0 に戻してから付け直す
 - 各カードは opacity: 0 と translateY(8px) で隠しておき、表示時に opacity 1・translateY(0) へ {{duration}}s の ease-out でフェードインさせる
 - 遅延は行番号(row)と列番号(col)から計算する。方向は {{direction}}。diagonal なら delay = (row + col) × {{stagger}}s、row なら row × {{stagger}}s、column なら col × {{stagger}}s
 - 遅延は animation-delay(または transition-delay)で与え、JSのタイマーを枚数分発行しない

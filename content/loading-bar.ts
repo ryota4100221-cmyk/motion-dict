@@ -28,9 +28,10 @@ export const loadingBar: MotionEntry = {
   ],
   promptTemplate: `ページ遷移・非同期処理中の loading bar を実装してください。
 
+- きっかけ: ページ遷移・非同期処理を開始した瞬間に scaleX(0) から自動で走り出し、処理の完了通知で畳む。走っているあいだの再スタートは受け付けない
 - 画面上端に固定した高さ {{height}}px のバー(アクセントカラー)を置く
-- 実進捗が取れない前提で、transform: scaleX を 0→0.9 まで {{duration}}s の expo-out で進め、90%付近で待機する(進んでいるふり)
-- 処理完了の通知を受けたら残りを 0.2s で scaleX(1) まで一気に進め、その後 opacity を 0.3s でフェードアウトして取り除く
+- 実進捗が取れない前提で、transform: scaleX を 0→0.9 まで {{duration}}s の expo-out(t=経過/{{duration}}s として 0.9×(1−2^(−10t)) を毎フレーム scaleX に入れる)で進め、90%付近で待機する(進んでいるふり)
+- 処理完了の通知を受けたら残りを 0.2s ease-out で scaleX(1) まで一気に進め、0.25s 遅らせて opacity を 0.3s ease でフェードアウトし、終わったら取り除く
 - transform-origin: left を指定し、width ではなく transform で動かす(リフロー禁止)
 - 100%到達前に処理が完了した場合も、値の逆走やジャンプバックはさせない(単調増加のみ)
 - prefers-reduced-motion 時はバーのアニメーションを行わず、aria-busy とテキストで読み込み中を伝える`,

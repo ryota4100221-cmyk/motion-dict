@@ -48,11 +48,12 @@ export const notchedCorner: MotionEntry = {
   ],
   promptTemplate: `ボタン(またはカード)に notched corner(角欠け)を実装してください。
 
+- きっかけ: 各ボタンへの mouseenter / focus で形が変わり、mouseleave / blur で戻る。クリック(タッチはタップ)でそのボタンを選択状態にし、選択中は形を保つ(並んだボタンのうち選択は常に1つ)
 - 角の欠けは clip-path: polygon() 1本で作る。border-radius や、背景色の三角形を重ねる擬似要素で切り欠きを偽装しない
 - 欠けの深さは CSS変数 --notch: {{notch}}px として要素に持たせ、polygon の各頂点は calc(100% - var(--notch)) のように --notch を参照して書く
 - 欠けを入れるのは {{corners}}。残りの角は直角のまま残す
 - **頂点は常に12個で固定する。** 欠けが0の角も「角の座標に重なった3点」として必ず書く。頂点数が状態で変わると clip-path は補間できず、アニメーションせずに瞬間的に切り替わる
-- ホバー時と選択時は {{swap}}。transition は clip-path のみ、{{duration}}s、イージングは cubic-bezier(0.7, 0, 0.3, 1)
+- ホバー時と選択時の形は「{{swap}}」(閉じる＝欠けを0まで詰めて四隅とも直角に戻す／反転する＝欠けていた角を直角に、直角だった角を同じ深さで欠けさせる)。transition は clip-path のみ、{{duration}}s、イージングは cubic-bezier(0.7, 0, 0.3, 1)
 - 動かすのは clip-path だけにする。width / height / padding / border-radius は一切触らない(リフローさせない)
 - 枠線が要る場合、border は clip-path で切り落とされて欠け部分に線が残らないことを前提に設計する。線を回り込ませたいなら background に線幅ぶんのグラデーションを敷いて同じ polygon で抜く
 - prefers-reduced-motion: reduce では transition を切り、選択状態の形を最初から静的に出す`,

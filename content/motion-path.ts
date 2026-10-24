@@ -47,10 +47,11 @@ export const motionPath: MotionEntry = {
   ],
   promptTemplate: `要素をパスに沿って動かす motion path を実装してください。
 
-- 移動は直線ではなく曲線(2次ベジェ)にする。始点と終点の中点を垂直方向に {{curve}}px ずらした点を制御点にする(curve=0なら直線)
+- きっかけ: ページ表示時に1回自動で再生し、要素群を置いた領域のどこをクリック(Enter/Spaceも可)しても始点から撃ち直す。再生中の連打は前のアニメーションを cancel してから撃つ
+- 移動は直線ではなく曲線(2次ベジェ)にする。始点と終点の中点を上方向(y を減らす向き)に {{curve}}px ずらした点を制御点にする(curve=0なら直線)
 - CSS の offset-path: path("M ...") と offset-distance の 0%→100% アニメーションで動かす(top/left/margin は使わない=リフローさせない)
 - 複数要素は {{stagger}}s ずつ遅らせて発火し、束がほどけるような«流れ»(cascade)を作る
-- 1要素あたり {{duration}}s、expo系のイージング(例: cubic-bezier(0.16,1,0.3,1))で動かす
+- 1要素あたり {{duration}}s、イージングは cubic-bezier(0.16,1,0.3,1)(expo.out寄り)で動かす。fill: both で発火待ちの間は始点、着地後は終点に留める
 - 進行方向への向き付けは「{{rotate}}」。«接線に沿う»なら offset-rotate: auto、«固定»なら offset-rotate: 0deg にする
 - offset-distance のアニメーションは Web Animations API の element.animate() で撃つ(再生・撃ち直しが容易)
 - prefers-reduced-motion 時はパス移動をやめ、終点に置いた要素を opacity のフェードインだけで登場させる`,

@@ -28,9 +28,10 @@ export const scrollProgress: MotionEntry = {
   ],
   promptTemplate: `ページ上部に scroll progress bar を実装してください。
 
+- きっかけ: ページのスクロールに常時連動(上へ戻せばバーも縮む)。操作はスクロールだけ
 - 進捗 = scrollY ÷ (ドキュメント全高 − ビューポート高)で0〜1を算出する
 - バーは position: fixed、高さ {{height}}px、transform-origin: left で transform: scaleX(進捗) で伸ばす
-- 反映は requestAnimationFrame + lerp(係数 {{smoothing}})でなめらかに追従させる(1なら即時)
+- 反映は requestAnimationFrame で毎フレーム current += (進捗 − current) × {{smoothing}} として追従させる(1なら即時)
 - width の書き換えは使わず、scaleX でリフローを避ける
 - prefers-reduced-motion 時は lerp をやめて即時反映にする`,
   ngExample: {

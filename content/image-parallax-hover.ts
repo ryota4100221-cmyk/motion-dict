@@ -28,6 +28,7 @@ export const imageParallaxHover: MotionEntry = {
   ],
   promptTemplate: `サムネイル画像に image parallax hover(枠内の画像だけが動く視差)を実装してください。
 
+- きっかけ: 枠を含むカード一帯で mousemove するたびに追従し、mouseleave で中央へ戻す（枠の外にいるときは正規化値を-1〜1にクランプ）。タッチはドラッグ（touchmove）で同じ動作、指を離したら中央へ
 - 枠に overflow: hidden と固定の aspect-ratio を指定し、枠自体は絶対に動かさない
 - 中の画像は position: absolute で枠より大きく敷く(insetをマイナスに)。はみ出し余白は最大移動量 {{shift}}px より大きく取る
 - カーソル位置を枠の中心基準で -1〜1 に正規化し、その逆方向へ transform: translate() で最大 {{shift}}px 動かす

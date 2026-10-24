@@ -28,9 +28,10 @@ export const liftHover: MotionEntry = {
   ],
   promptTemplate: `カードに lift hover(浮き上がり)を実装してください。
 
+- きっかけ: カード全体に mouseenter で浮かせ、mouseleave で戻す。タッチはタップするたびに浮く／戻るをトグル
 - ホバーで transform: translateY(-{{lift}}px) に、{{duration}}s の ease-out で浮かせる
 - 影は薄く大きく: alpha 0.1 前後・blur は浮く距離の3〜4倍・オフセットは下方向のみ(翳りは真下に落とす)
-- 影は ::after 擬似要素に box-shadow で事前描画し、opacity 0→1 で切り替える(box-shadow自体をtransitionさせない)
+- 影は ::after 擬似要素に box-shadow で事前描画し、opacity 0→1 で切り替える(box-shadow自体をtransitionさせない)。opacity もカードと同じ {{duration}}s ease-out
 - top や margin ではなく transform で動かす(リフローさせない)
 - マウスが離れたら同じ duration で元の位置に戻す
 - prefers-reduced-motion 時は浮き上がりを無効化し、状態変化は即時切り替えにする`,

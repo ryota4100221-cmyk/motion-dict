@@ -37,10 +37,11 @@ export const gradientBorder: MotionEntry = {
   ],
   promptTemplate: `カードやボタンに animated gradient border(枠を光のグラデーションが周回する演出)を実装してください。
 
+- きっかけ: ページ読み込み直後から常時回り続ける。ホバーやクリックは不要
 - 回転角を @property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false } で登録する(これが無いと角度が数値補間されずアニメーションが一切効かない)
 - 枠は border ではなく、要素の背景を conic-gradient(from var(--angle), ...) にし、内側に本来の地色を敷いた層を {{thickness}}px 内側へ重ねてリング状に見せる
-- グラデーションは大部分を暗いベース色にし、一箇所だけ明るい帯を置く(ベース → 明色 → ベース)。この帯が周回する光の正体
-- 同じ conic-gradient を filter: blur({{glow}}px) で複製して要素の背後に敷く。ブラーが縁の外へにじみ出て発光になる。{{glow}}=0 なら発光なしのシャープな枠
+- グラデーションは大部分を暗いベース色にし、一箇所だけ明るい帯を置く(ベース 0〜44deg → 明色 80deg → 最も明るい色 96deg → 明色 112deg → ベース 148〜360deg＝帯の幅は約100deg)。この帯が周回する光の正体
+- 同じ conic-gradient を filter: blur({{glow}}px)・opacity 0.6 で複製して要素の背後に敷く。ブラーが縁の外へにじみ出て発光になる。{{glow}}=0 なら発光なしのシャープな枠
 - @keyframes で --angle を 0deg→360deg へ {{speed}}s の linear で無限回転させる(等速。ease系だと周回が脈打って見える)
 - 動かすのは角度変数だけにする。width/height や position ではなく色の角度を回すのでリフローは走らない
 - prefers-reduced-motion 時は回転を止め、光の帯を1箇所に固定した静的な枠として表示する`,

@@ -46,11 +46,12 @@ export const statefulButton: MotionEntry = {
   ],
   promptTemplate: `フォームの送信ボタンに stateful button(idle → loading → success)を実装してください。
 
+- きっかけ: 送信ボタンのクリック/タップ（idle のときだけ）で loading が始まり、処理完了で success、保持時間の後に自動で idle に戻る。それ以外の状態でのクリックは捨てる
 - 状態は idle / loading / success / error の4つを1つの変数で持つ。クリックを受け付けるのは idle のときだけにする（loading 中の連打で二重送信させない）
 - ボタンの幅と高さは idle のラベルに合わせて固定し、中身が入れ替わってもボタン自体の大きさを変えない（周囲のレイアウトを動かさない）
 - 中身は「ラベル」「スピナー」「チェック」を同じ位置に重ね、表示する1つだけを切り替える
-- loading：ラベルを 0.15s でフェードアウトし、SVGの円のスピナーを出す（円全体は 2s linear で1回転、stroke-dasharray を 1.5s ease-in-out で伸縮）。デモでは {{loadingTime}}s 後に完了させる
-- success：背景色を成功色へ 0.3s で切り替え、チェックを {{checkDuration}}s で translateY({{rise}}px)・opacity 0 → 32%で translateY(-5px)・opacity 1 → 68%で translateY(2px) → 0 と、弾んで入れる
+- loading：ラベルを即座に外してSVGの円のスピナーに差し替える（円全体は 2s linear で1回転、stroke-dasharray を 1.5s ease-in-out で伸縮）。デモでは {{loadingTime}}s 後に完了させる
+- success：背景色を成功色へ 0.3s で切り替え、チェックを {{checkDuration}}s で translateY({{rise}}px)・opacity 0 → 32%で translateY(-5px)・opacity 1 → 68%で translateY(2px) → 0 と、弾んで入れる（ease）。idle に戻るときはラベルを 0.15s ease-out でフェードインさせる
 - success / error は {{holdTime}}s 表示してから自動で idle に戻す。戻る前に状態が変わったらタイマーは必ずクリアする
 - 動かすのは transform / opacity / background-color だけ（width・padding をアニメーションさせない）
 - disabled 属性ではなく aria-disabled と aria-busy で状態を伝え、フォーカスをボタンに残す。結果は aria-live="polite" の非表示テキストで「送信しました」と読み上げる

@@ -46,11 +46,13 @@ export const squashStretch: MotionEntry = {
   ],
   promptTemplate: `要素のジャンプに squash and stretch(潰れと伸び)を実装してください。
 
+- きっかけ: 要素(デモはステージのどこでも)をクリック/タップするたびに1回跳ぶ。再生中に押したら頭から撃ち直す(Enter / Space でも同じ)
 - 変形は非一様スケールで表現する。**体積保存**を守り、scaleY を s 倍にしたら scaleX は 1/s 倍にする(片方だけ動かさない)
 - 接地・跳び出しの瞬間: scaleY を {{squash}}% 縮め、scaleX をその逆数分だけ広げる
 - 上昇/落下の速度が最大の区間: scaleY を {{stretch}}% 伸ばし、scaleX をその逆数分だけ狭める
 - 頂点(速度ゼロ)では変形を 1.0 に戻す。**速度と変形量を連動させる**のが肝で、常時変形させてはいけない
 - 潰れから元の形に戻すのは {{recover}}s、戻る途中で {{overshoot}}% だけ逆向きに行き過ぎてから収める
+- 1回のジャンプ＝滞空0.66s＋復元時間。時刻の目安は 0.1s 予備動作で潰れる → 0.2s 高さの38%で伸び → 0.38s 頂点(変形1.0)→ 0.56s 落下で伸び → 0.66s 着地で潰れ → 着地＋復元時間×0.45 で行き過ぎ(scaleY 1＋行き過ぎ量)→ 終了で1.0。区間ごとに、上昇は ease-out・落下は ease-in
 - transform-origin は接地面側(下端 = center bottom)に置く。中心のままだと足元が床にめり込む
 - width/height ではなく transform のみで動かす(リフローさせない)
 - 実装は Web Animations API の element.animate() でキーフレームを組む(押すたびに撃ち直せるため)

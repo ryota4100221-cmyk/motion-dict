@@ -46,11 +46,12 @@ export const likeBurst: MotionEntry = {
   ],
   promptTemplate: `いいね（お気に入り）ボタンに like button animation(heart burst)を実装してください。
 
+- きっかけ: ボタン全体のクリック／タップで ON/OFF を切り替える（タッチはタップで同じ動作）。弾けは OFF→ON にした瞬間に毎回最初から再生する
 - ボタンは OFF/ON のトグル。aria-pressed で状態を持ち、演出は OFF→ON の瞬間だけ再生する（ON→OFF は色を戻すだけで弾けさせない）
 - 全体の尺は {{duration}}s。3つの層を時間差で重ねる
-  1. 円：アイコンと同径の塗り円を scale(0.2)→scale(1) へ広げ、尺の 0〜60% で再生。後半で opacity 1→0 に抜く
-  2. ハート：塗りのハートを scale({{startScale}})→scale(1) へ戻す。尺の 40〜70% で再生し、開始までは animation-fill-mode: backwards で縮んだ姿のまま待たせる（円に隠れて生まれ直す見え方にする）
-  3. 粒：{{count}} 方向に等間隔（360/{{count}}° おき）で、各方向に大粒と、角度を +10° ずらした小粒を置く。大粒は中心から {{spread}}px、小粒は {{spread}}px の約0.25倍から0.9倍まで飛ばし、小粒は scale(0.5) まで縮める。尺の 20〜100% で再生
+  1. 円：アイコンと同径の塗り円を尺の 0〜60% の区間・linear で再生。区間の0%で scale(0.2)、75%で scale(1)。opacity は区間の50%まで1を保ち、100%で0に抜く
+  2. ハート：塗りのハートを scale({{startScale}})→scale(1) へ戻す。尺の 40〜70% で linear に再生し、開始までは animation-fill-mode: backwards で縮んだ姿のまま待たせる（円に隠れて生まれ直す見え方にする）
+  3. 粒：{{count}} 方向に等間隔（360/{{count}}° おき）で、各方向に大粒と、角度を +10° ずらした小粒を置く。大粒は中心から {{spread}}px、小粒は {{spread}}px の0.25倍から0.88倍まで飛ばし、小粒は scale(0.5) まで縮める。尺の 20〜100% で ease に再生し、粒は opacity 0→1 で現れて終了と同時に消える（fill-mode は backwards だけ。forwards を付けない）
 - 粒は rotate(var(--angle)) translateX(...) の transform だけで飛ばす（top/left を動かさない＝リフロー禁止）。角度は粒ごとに CSS カスタムプロパティで渡す
 - 連打で ON に戻ったときは粒と円を必ず頭から再生し直す（要素を key で作り直すか、animation を一度外して付け直す）
 - ボタンのヒット領域は粒の飛ぶ範囲ではなくアイコン周り 44px 以上に固定し、粒は pointer-events: none にする

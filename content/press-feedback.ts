@@ -37,8 +37,9 @@ export const pressFeedback: MotionEntry = {
   ],
   promptTemplate: `ボタンに press feedback(押下時の沈み込み)を実装してください。
 
+- きっかけ: ボタンを押している間(pointerdown〜pointerup)だけ沈む。指やカーソルがボタンの外へ出たとき(pointerleave / pointercancel)も戻す。タッチは押している間だけ同じ動作
 - :active(タッチも拾うならpointerdown/pointerup)で transform: translateY({{depth}}px) scale({{scale}}) を適用する
-- 入りのtransitionは0.05s程度でほぼ瞬時に沈める(指の接触と同時に反応させる)
+- 入りのtransitionは0.05sの ease-out でほぼ瞬時に沈める(指の接触と同時に反応させる)
 - 離したら {{release}}s の ease-out で元に戻す。入りより戻りを遅くする非対称設計とする
 - box-shadowやmarginではなくtransformのみで動かす(リフロー禁止)
 - モバイルでは -webkit-tap-highlight-color: transparent で標準ハイライトを消し、二重のフィードバックを避ける

@@ -38,11 +38,12 @@ export const passwordStrength: MotionEntry = {
   ],
   promptTemplate: `パスワード入力欄に password strength meter を実装してください。
 
+- きっかけ: パスワード入力欄に文字を打つ・消すたび(input イベント)にメーターが伸び縮みする。欄を空にすると長さ0に戻る
 - 入力のたびに(input イベント) パスワードを採点し、空欄・短すぎる・弱い・ふつう・強い の5状態のどれか1つにする。採点は zxcvbn などの推定ライブラリで 0〜4 のスコアを出し、0〜1=短すぎる / 2=弱い / 3=ふつう / 4=強い に丸める(「8文字以上・記号必須」の自前ルールだけで判定しない)
 - 判定は最後の入力から {{debounce}}ms 待ってから行う(0 なら即時)
 - メーターは入力欄の真下に置き、形は {{style}}。bar なら高さ6px・角丸3pxのトラックの中で、塗りを 短すぎる 34% / 弱い 57% / ふつう 71% / 強い 100% の長さにする。segments なら4マスを並べ、段階の数だけ左から点ける
 - 色は 短すぎる=赤 / 弱い=橙 / ふつう=黄 / 強い=緑。空欄のときは塗りを長さ0にしてトラックだけ残す
-- 長さは width ではなく transform: scaleX(比率) と transform-origin: left で変え、scaleX と background-color を {{duration}}s で遷移させる(リフローさせない)
+- 長さは width ではなく transform: scaleX(比率) と transform-origin: left で変え、scaleX と background-color を {{duration}}s・ease で遷移させる(リフローさせない)。segments は各マスの background-color だけを同じ時間で遷移させる
 - メーターの右か下に段階名を文字でも出す(色覚に頼らない)。その文字を aria-live="polite" にして、変わったときに読み上げさせる。入力欄とは aria-describedby で結ぶ
 - 「表示」の切り替えで type を password / text に替えられるようにし、切り替えても採点とメーターは保つ
 - prefers-reduced-motion 時は遷移を付けず、長さと色を即時に切り替える(段階名の文字はそのまま出す)`,

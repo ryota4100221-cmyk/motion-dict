@@ -46,12 +46,13 @@ export const aiOrb: MotionEntry = {
   ],
   promptTemplate: `AIアシスタントのアイコンを、待機(idle)・思考中(thinking)・発話中(speaking)の3状態で演じ分ける AI orb を実装してください。
 
+- きっかけ: タイマーで回さず、チャットの実処理のイベント(送信・最初のトークン受信・完了/失敗)で data-state を書き換える(下の「状態は実処理に結び付ける」の通り)
 - 構造は1つの部品のまま、data-state 属性を idle / thinking / speaking と書き換えて状態を切り替える(状態ごとに別の画像・スピナーへ差し替えない)
 - 外周に conic-gradient の色環を置き、filter: blur で滲ませた後光にする。その上に不透明な円(本体)を重ね、中央に3つの点を並べる
 - 色環の回転は @property で登録した --angle を回す。1周の時間は待機 {{idleSpin}}s、思考中は {{boost}}×2/3 倍速、発話中は {{boost}} 倍速にする
-- 回転速度を状態で変えるとき animation-duration を書き換えない(進捗が比率で再計算されて角度が飛ぶ)。rAF で角速度を毎フレーム積分し、速度そのものを {{stateFade}}s かけて目標へ寄せる
-- 後光の濃さとぼかしは 待機 opacity 0.5 / blur 7px、思考 0.75 / 5px、発話 0.85 / 4px(直径48px基準。大きくするならぼかしも比例させる)とし、{{stateFade}}s の transition でつなぐ。わずかな呼吸(scale)と漂い(translate 数px)も状態が上がるほど速くする。inset や width ではなく transform で動かす
-- 中央の3点は、待機では2.8s周期で0.4sずつずらしてまばたき(opacity と scale)、思考中は1.4s周期・0.18sずらしで上下に波打たせ、発話中は角丸の縦棒に変形して高さを {{barMax}}px × 1 / 0.8 / 0.6 の範囲で往復させる。3本の周期は0.32〜0.42sでばらし、同期させない
+- 回転速度を状態で変えるとき animation-duration を書き換えない(進捗が比率で再計算されて角度が飛ぶ)。rAF で角速度(deg/s)に dt(秒)を掛けて毎フレーム角度へ積分し、速度そのものを {{stateFade}}s かけて目標へ寄せる(毎フレーム speed += (target - speed) × (1 - exp(-dt / ({{stateFade}}/3))))
+- 後光の濃さとぼかしは 待機 opacity 0.5 / blur 7px、思考 0.75 / 5px、発話 0.85 / 4px(直径48px基準。大きくするならぼかしも比例させる)とし、{{stateFade}}s の transition でつなぐ。わずかな呼吸(scale)と漂い(translate 数px)も状態が上がるほど速くする(呼吸: 待機 1→1.02 を4s / 思考 1→1.05 を1.5s / 発話 0.99⇔1.08 を0.5sで往復、漂い: 3〜4px を 6s / 2s / 1s 周期)。inset や width ではなく transform で動かす
+- 中央の3点(直径10px)は、待機では2.8s周期で0.4sずつずらしてまばたき(opacity 1→0.1・scale 1→0.6)、思考中は1.4s周期・0.18sずらしで上下12px波打たせ、発話中は幅8pxの角丸の縦棒に変形して高さを 10px ⇔ {{barMax}}px × 0.8 / 1 / 0.6(左・中・右)で往復させる。3本の周期は 0.38s / 0.32s / 0.42s とばらし、同期させない
 - 状態は実処理に結び付ける: 送信した瞬間に thinking、最初のトークンが届いた瞬間に speaking、応答完了・失敗時は必ず idle に戻す(finally で戻し、思考中のまま固まらせない)
 - 部品自体は aria-hidden にし、状態の変化は近くの視覚的に隠したテキスト(aria-live="polite")で「考えています」「回答中」と伝える
 - prefers-reduced-motion 時は回転・呼吸・点の動きをすべて止め、後光の濃さと点の形(点 / 3本の棒)の静的な違いだけで状態を示す`,

@@ -37,18 +37,19 @@ export const magneticHover: MotionEntry = {
   ],
   promptTemplate: `ボタンに magnetic hover を実装してください。
 
-- カーソルが要素の中心から {{radius}}px 以内に入ったら反応
-- 要素はカーソル方向に strength {{strength}} で吸い付く
-- 追従は毎フレーム lerp(係数 {{lerp}})で補間し、遅れて付いてくる質感にする
+- きっかけ: ボタンを含む周囲の面で mousemove するたび、カーソルとの距離を測って反応する。半径の外に出るか面から mouseleave したら戻る。タッチは面の上をドラッグして同じ動作、指を離すと戻る
+- カーソルがボタンの元位置の中心から {{radius}}px 以内に入ったら反応
+- 目標位置 = (カーソル − 元の中心)× {{strength}}(px)。ボタンをその分カーソル方向へずらす
+- 追従は毎フレーム current += (target − current) × {{lerp}} で補間し、遅れて付いてくる質感にする
 - 内側のテキストは外枠の 0.35 倍の強さで動かす(視差)
-- mouseleave 時は elastic 系イージングで元の位置に戻す
+- 半径の外へ出たとき・mouseleave 時は目標を0に戻し、戻りは係数を {{lerp}} × 0.7 に弱めた同じ毎フレーム lerp で戻す(吸い付きより一段ゆっくり)
 - prefers-reduced-motion 時はアニメーションを無効化`,
   ngExample: {
     say: "「ボタンをぬるっと磁石っぽくして」",
     why: "「ぬるっと」は速度・粘り・距離のどれを指すのか曖昧。AIはtransitionを付けただけの平凡なhoverを返しがち。何が「磁石」なのかも未定義。",
   },
   okExample: {
-    say: "「magnetic hoverを実装。lerpで追従、strengthとradiusは数値指定、mouseleaveでelastic系イージングで戻す」",
+    say: "「magnetic hoverを実装。lerpで追従、strengthとradiusは数値指定、mouseleaveで目標を0にして一段弱いlerp(×0.7)で戻す」",
     why: "動きの正式名称 + 実装方式(lerp) + パラメータ数値 + 終了時の挙動。この4点が揃うと一発で意図通りになる。",
   },
   vocab: [

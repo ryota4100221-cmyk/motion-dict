@@ -37,9 +37,11 @@ export const scrollMarquee: MotionEntry = {
   ],
   promptTemplate: `scroll-driven marquee を実装してください。
 
+- きっかけ: ページ読み込み直後から基本速度で自動で流れ続け、ページ(またはスクロールコンテナ)のスクロールで加速・逆流する。スクロールが止まると余韻を残して基本速度へ戻る
 - テキストを2セット以上複製して横に並べ、translateX をループさせる(1セット分の幅を超えたら巻き戻す)
-- requestAnimationFrame で毎フレーム offset を進める。基本速度は {{speed}}px/s(CSS animationではなくrAFで自前ループにする)
-- 毎フレームの scrollY 差分 × {{factor}} を速度に加算し、lerp(係数 {{lerp}})で基本速度へ滑らかに戻す
+- requestAnimationFrame で毎フレーム offset を進める。基本速度は {{speed}}px/s で、dt(秒、上限0.064)を掛けて足す(CSS animationではなくrAFで自前ループにする)
+- スクロール由来の加算 boost は px/フレーム単位で持ち、毎フレーム boost += (scrollY差分px × {{factor}} − boost) × {{lerp}} で追従させる。offset += {{speed}} × dt + boost とし、boost には dt を掛けない(60fps前提のフレーム単位。px/s に換算すると勢いが数倍ずれる)
+- 2段目の行は同じ offset を符号反転して使い、1段目と逆向きに流す
 - 下スクロールで加速、上スクロールでは速度が負になり逆流させる(負のoffsetのmodulo計算に注意)
 - 移動は translateX のみで行い、will-change: transform を指定する(left等のアニメーション禁止)
 - prefers-reduced-motion 時は自動の流れもスクロール加算も止め、静止したテキストとして表示する`,
@@ -48,7 +50,7 @@ export const scrollMarquee: MotionEntry = {
     why: "「反応」が速度の加算なのか、スクロール量に位置を対応させるscrubなのか決まらない。CSS animationのままでは速度を動的に変えられないため中途半端な実装になりやすく、逆スクロールで巻き戻らないものも多い。",
   },
   okExample: {
-    say: "「scroll-driven marqueeを実装。rAFで基本60px/s+毎フレームのscrollY差分×4を加算、lerp 0.08で基本速度へ復帰。逆スクロールで逆流を許容、2セット複製してtranslateXでシームレスループ」",
+    say: "「scroll-driven marqueeを実装。rAFで基本60px/s(dtを掛ける)+毎フレームのscrollY差分×4をpx/フレームのままoffsetへ加算、lerp 0.08で基本速度へ復帰。逆スクロールで逆流を許容、2セット複製してtranslateXでシームレスループ」",
     why: "基本速度・加算係数・戻り・逆流の許容まで数値で指定している。「rAFで自前ループ」と伝えることで、速度を毎フレーム変えられる構造になる。",
   },
   vocab: [

@@ -47,9 +47,10 @@ export const copyToClipboard: MotionEntry = {
   ],
   promptTemplate: `コピーボタンに copy to clipboard feedback を実装してください。
 
+- きっかけ: 各行のコピーボタンの click(タッチはタップ)で、その行の文字列をコピーして演出を再生する。演出はそのボタン自身の上でだけ起こす
 - クリックで navigator.clipboard.writeText(コピーする文字列) を await し、成功なら success、例外なら error の状態にする。状態は1つの変数で持つ
 - 押すたびに演出を頭から再生し直す。状態を一度空にしてから次のフレームで success / error を入れ直すか、フィードバック要素の key を毎回変えて作り直す(連打しても2回目以降が無反応にならないように)
-- 返し方は {{feedback}}。float-label ならボタンの真上(bottom: 150%・left: 50%・translateX(-50%))に「コピーしました」を出し、icon-swap ならクリップボードのアイコンをチェックに 0.2s で入れ替える(both は両方)
+- 返し方は {{feedback}}。float-label ならボタンの真上(bottom: 150%・left: 50%・translateX(-50%))に「コピーしました」を出し、icon-swap ならクリップボードのアイコンをチェックに 0.2s ease で入れ替える(出る側は opacity 0→1・scale 0.6→1、引っ込む側はその逆。both は両方)
 - ボタンの背景は成功色を 0% のキーフレームにだけ置き、{{flash}}s の ease-out で透明に戻す(光って引く)。error のときは同じ動きを赤で行う
 - ラベルは {{hold}}s + 0.8s かけて translateY(0 → -{{rise}}px) を ease-out で浮かせ、{{hold}}s 待ってから 0.8s の ease-in で opacity 0 にする。終わったら要素を外す(fill-mode を付けずに終わると一瞬戻って見える)。icon-swap のアイコンも同じ {{hold}}s + 0.8s 後に元へ戻す
 - writeText が拒否されたら(http・埋め込みの iframe・権限なし)、コピー対象の文字列を選択して document.execCommand("copy") で1回だけ再挑戦する。それも失敗したら error にし、ラベルを「コピーできませんでした」にして選択状態を残し、手動コピー(⌘C / Ctrl+C)へ逃がす

@@ -37,10 +37,11 @@ export const scratchCard: MotionEntry = {
   ],
   promptTemplate: `クーポン表示に scratch card(scratch to reveal)を実装してください。
 
+- きっかけ: カード上のどこでも押したまま動かす(マウスはドラッグ、タッチは指でなぞる)と、その軌跡だけ膜が削れる。押した点にも1点ぶん穴を開ける
 - 当たりの中身(コードや割引率)は普通のHTMLで下に置き、その上に同じ大きさの canvas を重ねて銀色の膜を描く(グラデーション＋「SCRATCH TO REVEAL」の文字)。canvas は devicePixelRatio を掛けた解像度で確保する
 - pointerdown〜pointermove の間、前回の点から今回の点まで線を引いて膜を消す。ctx.globalCompositeOperation = "destination-out"、lineWidth は {{brush}}px、lineCap / lineJoin は round。点だけ打つと速く動かしたときに破線になるので、必ず線でつなぐ
 - 消した跡は消さずに積み重ねる(毎フレーム描き直さない)。setPointerCapture でカードの外へはみ出しても線が途切れないようにし、canvas には touch-action: none を付けてスマホでページがスクロールしないようにする
-- 削れ率は getImageData で数フレームおきに間引いて測り(全画素を毎回数えない)、透明な画素の割合が {{threshold}}% を超えたら残りの膜を opacity で {{fade}}s かけて消し、canvas の pointer-events を切る
+- 削れ率は getImageData で数フレームおきに間引いて測り(全画素を毎回数えない)、透明な画素の割合が {{threshold}}% を超えたら残りの膜を opacity で {{fade}}s の ease-out をかけて消し、canvas の pointer-events を切る。同時に下の中身を transform: scale(1.04) へ 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) で少しだけ弾ませる
 - 描画はイベントハンドラではなく requestAnimationFrame 内でまとめて行う。イベントでは座標を溜めるだけにする
 - 結果は aria-live="polite" で読み上げ、キーボードやスクリーンリーダーの利用者向けに「削らずに表示」ボタンを別に置く(削る操作だけを唯一の手段にしない)
 - prefers-reduced-motion 時は自動のデモ再生(コインが擦る演出)をせず、閾値を超えたらフェードなしで即座に膜を消す`,

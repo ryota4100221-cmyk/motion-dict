@@ -46,10 +46,11 @@ export const liquidDistortion: MotionEntry = {
   ],
   promptTemplate: `要素に liquid distortion(SVG変位マップによる水面状の歪み)を実装してください。
 
-- SVGフィルタを1つ定義する: feTurbulence(type="fractalNoise"、baseFrequency={{frequency}}、numOctaves={{octaves}}、seed固定、result="turb")→ feDisplacementMap(in="SourceGraphic"、in2="turb"、scale={{scale}}、xChannelSelector="R"、yChannelSelector="G")
+- きっかけ: 操作不要。ページ表示直後から自動で揺らぎ続け、無限ループする
+- SVGフィルタを1つ定義する: feTurbulence(type="fractalNoise"、baseFrequency={{frequency}}、numOctaves={{octaves}}、seed固定（例: 7）、X/Y同値、result="turb")→ feDisplacementMap(in="SourceGraphic"、in2="turb"、scale={{scale}}、xChannelSelector="R"、yChannelSelector="G")
 - filter要素には x="-20%" y="-20%" width="140%" height="140%" と color-interpolation-filters="sRGB" を指定する(既定のlinearRGBだと色が沈み、余白がないと歪んだ端が切れる)
 - 対象のHTML要素に CSS で filter: url(#フィルタID) を掛ける。IDはページ内で必ず一意にする
-- 揺らぎは feTurbulence 内の <animate attributeName="baseFrequency"> で {{duration}}s・repeatCount="indefinite"・calcMode="spline" のイージング付きで往復させる。JSのrequestAnimationFrameでbaseFrequencyを毎フレーム書き換えるのは禁止(フィルタ再計算が毎フレーム走って重い)
+- 揺らぎは feTurbulence 内の <animate attributeName="baseFrequency"> で {{duration}}s・repeatCount="indefinite"・calcMode="spline" で往復させる。values は「{{frequency}} → {{frequency}}の1.7倍 → {{frequency}}」、keyTimes="0; 0.5; 1"、keySplines は2区間とも "0.42 0 0.58 1"(ease-in-out)。JSのrequestAnimationFrameでbaseFrequencyを毎フレーム書き換えるのは禁止(フィルタ再計算が毎フレーム走って重い)
 - baseFrequencyはX/Yを別値にできる。横方向だけ細かくすると水平の水流、等値にすると全方向のうねりになる
 - 常時再生する面なので、対象は画面の一部に限定し、テキスト本文には掛けない(可読性とアクセシビリティのため)
 - prefers-reduced-motion: reduce のときは <animate> を出力せず、歪みを静止させたまま表示する(歪み自体は消さなくてよい。動きだけを止める)`,

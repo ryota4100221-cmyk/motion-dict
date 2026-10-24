@@ -28,13 +28,14 @@ export const imageTrail: MotionEntry = {
   ],
   promptTemplate: `image trail(カーソルの軌跡に画像が次々現れて消える演出)を実装してください。
 
+- きっかけ: 演出エリア全体での mousemove。画像はカーソル位置を中心に（translate(-50%,-50%)）置く。mouseleave で前回位置を忘れ、再入場後の最初の移動ですぐ1枚出す。タッチはドラッグ（touchmove）で同じ動作
 - mousemoveのたびに生成せず、前回の生成位置から {{spacing}}px 以上動いたときだけ1枚生成する(距離ベースの間引き)
-- 各画像は出現時に scale 0.6→1 / opacity 0→1、{{life}}s 経過でフェードアウトし、必ずDOMから削除する(寿命管理)
+- 各画像は出現時に scale 0.6→1 / opacity 0→1 を {{life}}s×0.25 の ease-out transition で行う。出現から {{life}}s 経過したら同じ長さで opacity 0 / scale 0.85 へ縮めて消し、消え終わったら必ずDOMから削除する(寿命管理)
 - 同時表示は最大10枚程度に制限し、超えたら古いものから消す
 - 位置はleft/topではなく transform: translate で決め、transform/opacityのみを動かす
 - 画像は配列からローテーションで順に使う
 - タッチデバイスではドラッグ追従にするか無効化する
-- prefers-reduced-motion 時は軌跡を生成せず、静止した1枚の表示に留める`,
+- prefers-reduced-motion 時は軌跡を生成せず、1枚だけをアニメーションなしでカーソル位置に置く表示に留める`,
   ngExample: {
     say: "「カーソルに画像がついてくるおしゃれなやつをやって」",
     why: "単なるカーソルフォロワーが返ってくるか、mousemove毎に無制限生成してDOMが数百枚溜まる実装になりがち。間引きの基準と削除のルールは言わないと入らない。",

@@ -46,14 +46,16 @@ export const crtPowerOff: MotionEntry = {
   ],
   promptTemplate: `要素の消え方に CRT power-off(ブラウン管の電源オフ)を実装してください。
 
+- きっかけ: 電源ボタンをクリックするたびにオフ/オンを切り替える。再生中はボタンを無効にして連打を受け付けない
 - 全体を {{duration}}s で消し切る。内訳は「明滅 → 縦につぶれる → 横につぶれて消える」の3段
+- 時間配分は明滅に全体の30%(0回なら0)、残りを「縦に潰す42% : 線のまま留める22% : 点にして消す36%」で割る。潰し切ってすぐ消すと一本の線が目に残らない
 - 明滅は brightness() を上下させるCSSアニメーションを steps() で刻み、animation-iteration-count を {{flicker}} にして回数で制御する(0回のときは明滅の段を飛ばす)
 - 次に transform: scaleY() で高さを {{line}}% まで一気に潰し、同時に filter: brightness({{flash}}) まで持ち上げて、中央に横一本の輝いた線を残す。イージングは ease-in(最後に加速して潰れる)
-- 潰れる要素の中に白い発光レイヤーを1枚重ね、潰れるのと同じ時間で opacity を上げる。暗い画面を scaleY で潰すだけでは「光る線」にならない
-- 最後にその線を transform: scaleX() で同じ {{line}}% まで縮めて点にし、opacity 0 へ落とす
+- 潰れる要素の中に白い発光レイヤーを1枚重ね、潰れるのと同じ時間で opacity を min(1, ({{flash}} - 1) / 2.5) まで ease-in で上げる。暗い画面を scaleY で潰すだけでは「光る線」にならない
+- 最後にその線を transform: scaleX() で同じ {{line}}% まで縮めて点にし、opacity 0 へ落とす(どちらも ease-in)
 - transform-origin は center。height や width のアニメーションでは絶対に作らない(リフローが走り、周囲のレイアウトが動く)
 - transform と filter と opacity 以外のプロパティは触らない。潰れる要素には will-change: transform を付ける
-- 電源オンはこの逆再生(点 → 横一本の線 → 縦に開いて brightness が 1 に戻る)で、明滅は入れない
+- 電源オンはこの逆再生(点 → 横一本の線 → 縦に開いて brightness が 1 に戻る)で、明滅は入れない。各段は ease-out、時間はオフ側の対応する段と同じ
 - prefers-reduced-motion 時は潰す動きと明滅を一切行わず、opacity のフェードだけで消す`,
   ngExample: {
     say: "「閉じるときに昔のテレビみたいに消して」",

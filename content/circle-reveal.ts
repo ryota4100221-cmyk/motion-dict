@@ -29,10 +29,11 @@ export const circleReveal: MotionEntry = {
   ],
   promptTemplate: `ページ遷移に circle reveal を実装してください。
 
+- きっかけ: 画面(フレーム)のどこをクリックしても遷移を発火する(ボタンだけにしない。タッチはタップで同じ click を拾う)。遷移中のクリックは無視し、次のクリックで次のページへ進む
 - 次の画面を最前面のレイヤーとして重ね、clip-path: circle(0% at 原点) で完全に隠しておく
-- 発火原点は {{origin}}(clickの場合はクリック座標を要素内の%に変換して at に渡す)
+- 発火原点は {{origin}} とする(click=クリック座標を要素内の%に変換して at に渡す / center=50% 50% / top-left=0% 0% / bottom-right=100% 100%)
 - 発火したら clip-path を circle(150% at 原点) まで {{duration}}s で広げる(150%なら原点が四隅でも画面全域を覆える)
-- easingは cubic-bezier(0.4, 0, 0.2, 1) のようなease-in-out系を使う
+- easingは cubic-bezier(0.4, 0, 0.2, 1)(ease-in-out系)を使う
 - アニメーションは clip-path のみで行い、width/heightやborder-radiusの変形でリフローさせない
 - 広がり切ったら下の旧画面レイヤーを破棄し、clip-pathを外して通常表示に戻す
 - prefers-reduced-motion 時は円を出さず、即時切り替えまたは短いフェードにする`,
