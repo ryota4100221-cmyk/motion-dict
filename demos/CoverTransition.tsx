@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import DemoStage from "@/components/motion/DemoStage";
 import { addTick } from "@/lib/raf";
 import type { ParamValues } from "@/lib/types";
@@ -85,9 +86,10 @@ export default function CoverTransition({ params }: { params: ParamValues }) {
     animsRef.current = [up, back];
 
     up.onfinish = () => {
-      // ベースを次ページに差し替えてからfillを解除する。どちらも同じコミットで
-      // 反映されるため、覆い切った絵とベースの絵が入れ替わってもチラつかない
-      setPage((p) => (p === "A" ? "B" : "A"));
+      // ベースを次ページに差し替えてからfillを解除する。setPage は再描画が後回しになり、
+      // cancel() は即時に効くため、そのままだと旧ページが1コマ映った（盲検2周目で実測）。
+      // flushSync で差し替えを同期で確定させてから fill を外す
+      flushSync(() => setPage((p) => (p === "A" ? "B" : "A")));
       up.cancel();
       back.cancel();
       animsRef.current = [];

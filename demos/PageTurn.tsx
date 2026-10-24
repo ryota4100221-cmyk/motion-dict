@@ -72,18 +72,29 @@ export default function PageTurn({ params }: { params: ParamValues }) {
   const dirRef = useRef<1 | -1>(1);
   const { turned, states, active } = book;
 
-  const go = (dir: 1 | -1) => setBook((b) => turn(b, dir));
+  // 最後の実操作の時刻。自走のタイマーと実操作が同時に来ると1クリックで2枚進んだ（録画で実測）
+  const lastInputRef = useRef(0);
+  const [rearm, setRearm] = useState(0);
+  const go = (dir: 1 | -1) => {
+    lastInputRef.current = performance.now();
+    setBook((b) => turn(b, dir));
+  };
 
   // 自走: 最後までめくったら1枚ずつ戻し、また進める。操作があればそこから数え直す
   useEffect(() => {
     if (reduce) return;
     const id = window.setTimeout(() => {
+      // 直近に実操作があれば、その分だけ自走を待たせる
+      if (performance.now() - lastInputRef.current < params.duration * 1000 + HOLD) {
+        setRearm((n) => n + 1);
+        return;
+      }
       if (turned >= LEAVES) dirRef.current = -1;
       if (turned <= 0) dirRef.current = 1;
       setBook((b) => turn(b, dirRef.current));
     }, params.duration * 1000 + HOLD);
     return () => window.clearTimeout(id);
-  }, [turned, params.duration, reduce]);
+  }, [turned, params.duration, reduce, rearm]);
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "ArrowRight") go(1);

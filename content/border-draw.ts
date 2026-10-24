@@ -29,7 +29,7 @@ export const borderDraw: MotionEntry = {
   promptTemplate: `ボタンに border draw(ホバーで枠線が一筆書きのように描かれる演出)を実装してください。
 
 - きっかけ: ボタンに mouseenter で描き、mouseleave で消す(タッチはタップごとに描く/消すを切り替える)。描いている途中で離れたら、その時点から逆順の消去に移る
-- 枠線はborderではなく擬似要素2つ(::before / ::after)で作り、それぞれがL字型に2辺ずつを担当する
+- 枠線はborderではなく、ボタンの中に置いた装飾用の要素4つ(aria-hidden の span)で作り、1要素が1辺を担当する(上・右・下・左)。擬似要素2つのL字分割では1辺ずつ順に伸ばせないので使わない
 - 各辺は width/height ではなく transform: scaleX / scaleY で伸ばす(リフロー禁止)
 - transform-origin を辺ごとに「描き始めの端」(上=左端・右=上端・下=右端・左=下端)に設定し、transition-delay を i × ({{duration}}/4)s(i=0〜3)にして 上→右→下→左 の順に連鎖させる
 - 線の太さは {{thickness}}px、4辺合計 {{duration}}s(1辺あたり {{duration}}/4 s)、速度が均一に見えるよう linear で描く
@@ -40,13 +40,13 @@ export const borderDraw: MotionEntry = {
     why: "「出る」だけではborderの単純表示やopacityフェードが返ってくる。「一筆書き」の順序性と、どの角から描き始めるかは明示しないと伝わらない。",
   },
   okExample: {
-    say: "「border drawを::before/::afterのL字2分割で。各辺scaleX/Y + transition-delayで上→右→下→左に連鎖、合計0.8s・線1px・linear。leaveは逆順で消す」",
-    why: "実装方式(擬似要素のL字分割)・順序・数値・タイミング関数まで指定。「scaleで伸ばす」の一言がwidthアニメーションの重い実装を防ぐ。",
+    say: "「border drawを1辺1要素(aria-hiddenのspan×4)で。各辺scaleX/Y + transition-delayで上→右→下→左に連鎖、合計0.8s・線1px・linear。leaveは逆順で消す」",
+    why: "実装方式(1辺1要素)・順序・数値・タイミング関数まで指定。「scaleで伸ばす」の一言がwidthアニメーションの重い実装を防ぐ。",
   },
   vocab: [
     {
-      term: "L字分割",
-      desc: "::beforeが上+右、::afterが下+左のように擬似要素2つに2辺ずつ担当させる定番の分割法。要素を増やさず4辺を制御できる。",
+      term: "1辺1要素",
+      desc: "4辺をそれぞれ別の要素にする。擬似要素2つのL字分割は要素が少なく済むが、1つの要素の中の2辺を別々の時刻に伸ばせないため、一筆書きの順序が作れない。",
     },
     {
       term: "transition-delay",
