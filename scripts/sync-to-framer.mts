@@ -29,6 +29,7 @@ type Entry = { slug: string; category: string; nameJa: string; nameEn: string; l
 const paramsMd = (ps: DemoParam[]) => !ps?.length ? "" : ps.map((p) => p.options
   ? `- **${p.label}** — 選択: ${p.options.join(" / ")}（初期: ${p.options[p.default] ?? p.default}）  \n  ${p.desc}`
   : `- **${p.label}** — 範囲 ${p.min}〜${p.max} / 初期 ${p.default}  \n  ${p.desc}`).join("\n");
+const quote = (t: string) => { const x = t.trim(); return /^[「『]/.test(x) && /[」』]$/.test(x) ? x : `「${x}」`; };
 const vocabMd = (v: Entry["vocab"]) => (v || []).map((x) => `- **${x.term}** — ${x.desc}`).join("\n");
 
 async function waitUrl(url: string, label: string, tries = 40) {
@@ -54,12 +55,25 @@ const run = (cmd: string, opts: any = {}) => execSync(cmd, { cwd: REPO, stdio: "
   execFileSync("node", [path.join(REPO, "scripts/record-one.cjs"), slug, e.category],
     { cwd: REPO, stdio: "inherit", env: { ...process.env, NODE_PATH: PW_PATH } });
 
+  // 2.2) 録画v2（2026-10-24〜）：ステージ全面・60fps・台本 rec/<slug>.json（無ければヒント文から推定）。
+  //      新しい一覧/詳細（entries-v2.json・public/v2/）が使う。旧録画(上)は現行本番の一覧のために並行で残す。
+  //      v2 の失敗は非致命（旧の公開は止めない）。
+  await waitUrl(`${GH}/stage/${slug}/`, `stage/${slug}`).catch(() => {});
+  let v2ok = false;
+  try {
+    execFileSync("node", [path.join(REPO, "scripts/record-v2.cjs"), slug, "--base", GH],
+      { cwd: REPO, stdio: "inherit", env: { ...process.env, NODE_PATH: PW_PATH } });
+    v2ok = true;
+  } catch (err) { console.error("[rec-v2] failed (non-fatal):", (err as Error).message); }
+
   // 2.5) ホーム一覧(コードコンポーネントMotionDictionary)が読む entries.json を再生成
   //      ＝これを忘れると新項目が一覧に出てこない。
   run(`npx --yes tsx ${path.join(REPO, "scripts/export-entries-json.mts")}`);
 
   // 3) 動画・ポスター・entries.json をpush
-  run(`git add public/videos/${slug}.mp4 public/posters/${slug}.jpg public/entries.json`);
+  run(`git add public/videos/${slug}.mp4 public/posters/${slug}.jpg public/entries.json public/entries-v2.json public/entry`);
+  if (v2ok) run(`git add public/v2/videos/${slug}.mp4 public/v2/posters/${slug}.jpg`);
+  run(`git add -A rec`);
   try { run(`git commit -q -m "video: ${slug} ループ動画＋ポスター＋一覧（毎朝同期）"`); run(`git push origin main`); }
   catch { console.log("[git] nothing to commit (unchanged) — skip push"); }
 
@@ -73,8 +87,12 @@ const run = (cmd: string, opts: any = {}) => execSync(cmd, { cwd: REPO, stdio: "
     liveUrl: `${GH}/demo/${slug}`,
     promptTemplate: "```\n" + e.promptTemplate.trim() + "\n```",
     params: paramsMd(e.params), vocab: vocabMd(e.vocab),
-    ng: `**言い方:** 「${e.ngExample.say}」\n\n**なぜNG:** ${e.ngExample.why}`,
-    ok: `**言い方:** 「${e.okExample.say}」\n\n**なぜOK:** ${e.okExample.why}`,
+    // say が既に「」で括られていると「「…」」になっていた（2026-10-24 修正）
+    ng: `**言い方:** ${quote(e.ngExample.say)}\n\n**なぜNG:** ${e.ngExample.why}`,
+    ok: `**言い方:** ${quote(e.okExample.say)}\n\n**なぜOK:** ${e.okExample.why}`,
+    // EntryLab（詳細ページの触れるデモ＋連動プロンプト）がバインドする生の雛形とスライダー定義
+    promptRaw: e.promptTemplate.trim(),
+    paramsJson: JSON.stringify(e.params),
     videoUrl: `${GH}/videos/${slug}.mp4`,
     posterUrl: `${GH}/posters/${slug}.jpg`,
   };

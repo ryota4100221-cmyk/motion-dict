@@ -34,6 +34,9 @@ const fd = {
   [F["NG Example"].id]: ft(p.ng),
   [F["OK Example"].id]: ft(p.ok),
 };
+// v2のフィールド（詳細ページ EntryLab 用）。まだ無いプロジェクト（切替前の本番）では書かない。
+if (F["Prompt Raw"] && p.promptRaw != null) fd[F["Prompt Raw"].id] = { type: "string", value: p.promptRaw };
+if (F["Params JSON"] && p.paramsJson != null) fd[F["Params JSON"].id] = { type: "string", value: p.paramsJson };
 if (videoAsset) fd[F["Demo Video"].id] = { type: "file", value: videoAsset.url };
 if (posterAsset) fd[F["Poster"].id] = { type: "image", value: posterAsset.url };
 

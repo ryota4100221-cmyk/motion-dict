@@ -91,3 +91,19 @@ Slack通知には以下を含める:
 - スキップした場合はその理由
 
 > 辞典本体（Framer CMS）への同期は skill の仕事ではなく、`daily.sh` が push後に `scripts/sync-to-framer.mts` で自動実行する（録画→動画push→CMS upsert）。Framerの辞典項目URL `https://motion-dict.framer.website/entries/<slug>` は同期完了時に daily.sh が別途Slack通知する。
+
+## 2026-10-24 追加：録画v2と、デモで踏んだ本番の不具合2型
+
+### 録画の台本 `rec/<slug>.json`（6点目のファイル）
+一覧のカードと詳細ページは、`/stage/<slug>/`（ステージ全面の裸デモ）を **台本どおりに操作して撮った** ループ動画を使う（`scripts/record-v2.cjs`）。
+台本が無いとヒント文から推定した汎用操作になり、見せ場が写らないことが多い。**項目を足す日は台本も書く。**
+書式・良い台本の基準は既存の `rec/*.json` を見本にする（`rec/magnetic-hover.json`・`rec/accordion.json`）。要点：
+- 3〜7秒で名前どおりの動きがはっきり見える／最初の動きまで0.3秒以内／**始まりと終わりが同じ状態**（開いたら閉じる・スクロールしたら戻す）
+- 中身が小さいデモは `"zoom": 1.2〜1.8`。座標は画面比 0〜1。画面の外（<0, >1）は指定しても端で止まる
+- 撮ったら `python3 scripts/rec-qa.py public/v2/videos/<slug>.mp4 /tmp/qa.png` で数値とコマ画像を確かめる
+
+### 🔴 デモの書き方の禁止2つ（`npm run validate` が検出して落とす）
+1. **素材を `"/demo/..."` で参照しない** → GH Pages（basePath `/motion-dict`）で404。`"/motion-dict/demo/dummy-01.svg"` と書く。
+   2026-10-24 に20ファイル以上で画像が出ていなかった。
+2. **`@property` で登録するカスタムプロパティはデモ固有の接頭辞を付ける**（例 `--ai-orb-angle`）。
+   `@property` は文書全体に効くので、`--angle` のような汎用名は他のデモの同名変数を壊す（barber-pole の縞・moire-drift の傾きが消えていた）。
