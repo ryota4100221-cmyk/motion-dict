@@ -17,7 +17,7 @@
 .img {
   position: absolute;
   inset: 0;
-  background-image: url("/demo/dummy-02.svg");
+  background-image: url("/motion-dict/demo/dummy-02.svg");
   background-size: cover;
   background-position: center;
   transition-property: filter, transform;

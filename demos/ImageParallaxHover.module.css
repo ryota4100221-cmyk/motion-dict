@@ -18,7 +18,7 @@
 .img {
   position: absolute;
   inset: -32px;
-  background-image: url("/demo/dummy-01.svg");
+  background-image: url("/motion-dict/demo/dummy-01.svg");
   background-size: cover;
   background-position: center;
   transform: translate(0, 0);

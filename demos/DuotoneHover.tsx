@@ -41,7 +41,7 @@ export default function DuotoneHover({ params }: { params: ParamValues }) {
       >
         <div className={styles.frame}>
           <img
-            src="/demo/dummy-02.svg"
+            src="/motion-dict/demo/dummy-02.svg"
             alt=""
             draggable={false}
             className={styles.img}

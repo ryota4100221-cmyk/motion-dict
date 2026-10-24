@@ -58,7 +58,7 @@ export default function FlipCard({ params }: { params: ParamValues }) {
         >
           <div className={`${styles.face} ${styles.front}`} style={frontStyle}>
             <img
-              src="/demo/dummy-02.svg"
+              src="/motion-dict/demo/dummy-02.svg"
               alt=""
               draggable={false}
               className={styles.img}

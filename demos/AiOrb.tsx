@@ -83,7 +83,7 @@ export default function AiOrb({ params }: { params: ParamValues }) {
       angle = (angle + speed * dt) % 360;
 
       // ノードは毎フレーム引き直す
-      haloRef.current?.style.setProperty("--angle", `${angle}deg`);
+      haloRef.current?.style.setProperty("--ai-orb-angle", `${angle}deg`);
     });
   }, [reduce]);
 

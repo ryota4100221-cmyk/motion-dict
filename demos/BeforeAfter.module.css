@@ -16,14 +16,14 @@
 
 /* ダミー画像(/demo/dummy-03.svg): afterはカラーそのまま */
 .after {
-  background-image: url("/demo/dummy-03.svg");
+  background-image: url("/motion-dict/demo/dummy-03.svg");
   background-size: cover;
   background-position: center;
 }
 
 /* beforeは同じ構図をグレースケール化。差分がひと目でわかる */
 .before {
-  background-image: url("/demo/dummy-03.svg");
+  background-image: url("/motion-dict/demo/dummy-03.svg");
   background-size: cover;
   background-position: center;
   filter: grayscale(1);

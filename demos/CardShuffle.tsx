@@ -6,7 +6,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./CardShuffle.module.css";
 
-const CARDS = ["/demo/dummy-01.svg", "/demo/dummy-02.svg", "/demo/dummy-03.svg"];
+const CARDS = ["/motion-dict/demo/dummy-01.svg", "/motion-dict/demo/dummy-02.svg", "/motion-dict/demo/dummy-03.svg"];
 
 // 手前(0)から奥へ、扇の角度を -1→0→+1 の向きで割り当てる
 const ROTATION_SIGN = [-1, 0, 1];

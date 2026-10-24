@@ -59,7 +59,7 @@
 .image {
   position: absolute;
   inset: 0;
-  background-image: url("/demo/dummy-03.svg");
+  background-image: url("/motion-dict/demo/dummy-03.svg");
   background-size: cover;
   background-position: center;
   transform-origin: center;

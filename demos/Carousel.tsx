@@ -7,9 +7,9 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./Carousel.module.css";
 
 const SLIDES = [
-  "/demo/dummy-01.svg",
-  "/demo/dummy-02.svg",
-  "/demo/dummy-03.svg",
+  "/motion-dict/demo/dummy-01.svg",
+  "/motion-dict/demo/dummy-02.svg",
+  "/motion-dict/demo/dummy-03.svg",
 ];
 
 export default function Carousel({ params }: { params: ParamValues }) {

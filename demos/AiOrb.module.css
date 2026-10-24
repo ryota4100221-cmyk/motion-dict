@@ -1,4 +1,4 @@
-@property --angle {
+@property --ai-orb-angle {
   syntax: "<angle>";
   inherits: false;
   initial-value: 0deg;
@@ -29,7 +29,7 @@
   inset: -10px;
   border-radius: 50%;
   background: conic-gradient(
-    from var(--angle),
+    from var(--ai-orb-angle),
     var(--ai) 0%,
     var(--ai-pale) 18%,
     transparent 38%,

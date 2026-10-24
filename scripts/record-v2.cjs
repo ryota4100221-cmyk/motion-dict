@@ -26,7 +26,7 @@ if (!slug) { console.error("usage: record-v2.cjs <slug>"); process.exit(2); }
 const recPath = path.join(REPO, "rec", `${slug}.json`);
 const spec = fs.existsSync(recPath) ? JSON.parse(fs.readFileSync(recPath, "utf8")) : null;
 
-const CURSOR_CSS = `#__pw_cursor{position:fixed;left:-40px;top:-40px;width:14px;height:14px;border-radius:50%;background:#A5E02E;box-shadow:0 0 0 4px rgba(165,224,46,.22),0 1px 6px rgba(0,0,0,.5);pointer-events:none;z-index:2147483647;transform:translate(-50%,-50%);transition:transform .08s ease-out}`;
+const CURSOR_CSS = `#__pw_cursor{opacity:0;transition:opacity .15s,transform .08s ease-out;position:fixed;left:-40px;top:-40px;width:14px;height:14px;border-radius:50%;background:#A5E02E;box-shadow:0 0 0 4px rgba(165,224,46,.22),0 1px 6px rgba(0,0,0,.5);pointer-events:none;z-index:2147483647;transform:translate(-50%,-50%)}`;
 
 const P = (pt) => [Math.round(pt[0] * W), Math.round(pt[1] * H)];
 
@@ -42,8 +42,18 @@ async function target(page, s) {
   return [W / 2, H / 2];
 }
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-let cur = [W * 0.5, H * 1.15]; // カーソルは画面外（下）から入ってくる
-async function glide(page, to, dur) {
+// 画面外の座標へ動かしてもマウスイベントは発火しない（実測）。目標は画面内の端に丸め、
+// 「画面外へ出た」ことは疑似カーソルを消して表す（＝hover は端で確実に外れる）。
+const clampPt = (p) => [Math.min(W - 1, Math.max(1, p[0])), Math.min(H - 1, Math.max(1, p[1]))];
+const outside = (p) => p[0] < 0 || p[0] > W || p[1] < 0 || p[1] > H;
+async function cursorVisible(page, on) {
+  await page.evaluate((v) => { const c = document.getElementById("__pw_cursor"); if (c) c.style.opacity = v ? "1" : "0"; }, on).catch(() => {});
+}
+let cur = [W * 0.5, H - 1]; // 下端から入ってくる（最初は見えない）
+let hidden = true;
+async function glide(page, toRaw, dur) {
+  const to = clampPt(toRaw);
+  if (hidden && !outside(toRaw)) { hidden = false; await cursorVisible(page, true); }
   const from = cur.slice();
   const n = Math.max(2, Math.round(dur / 16));
   for (let i = 1; i <= n; i++) {
@@ -52,6 +62,7 @@ async function glide(page, to, dur) {
     await page.waitForTimeout(dur / n);
   }
   cur = to.slice();
+  if (outside(toRaw)) { hidden = true; await cursorVisible(page, false); }
 }
 
 async function runSteps(page, steps) {
@@ -67,7 +78,7 @@ async function runSteps(page, steps) {
     else if (d === "click") { const c = await target(page, s); await glide(page, c, s.dur || 450); await page.mouse.down(); await page.waitForTimeout(90); await page.mouse.up(); }
     else if (d === "drag") {
       const a = s.fromSel ? await center(page, s.fromSel) : P(s.from); const b = s.toSel ? await center(page, s.toSel) : P(s.to);
-      await glide(page, a, 400); await page.mouse.down(); await glide(page, b, s.dur || 900); await page.mouse.up();
+      await glide(page, a, s.pre ?? 400); await page.mouse.down(); await glide(page, b, s.dur || 900); await page.mouse.up();
     }
     else if (d === "wheel") {
       if (s.at || s.sel) await glide(page, await target(page, s), 300);
@@ -126,6 +137,7 @@ function defaultSteps(hint) {
   await page.waitForTimeout(120);
   await runSteps(page, spec?.steps || defaultSteps(hint));
   await page.waitForTimeout(spec?.tail ?? 200);
+  const tEnd = Date.now() / 1000;
   await cdp.send("Page.stopScreencast");
   await page.waitForTimeout(150);
   await browser.close();
@@ -136,12 +148,13 @@ function defaultSteps(hint) {
   frames.forEach((f, i) => {
     const p = path.join(TMP, `f${String(i).padStart(5, "0")}.png`);
     fs.writeFileSync(p, Buffer.from(f.data, "base64"));
-    const next = frames[i + 1] ? frames[i + 1].t : f.t + 1 / FPS;
+    // screencast は画が変わった時しかフレームを送らない＝最後の静止は来ない。最後の1枚は終了時刻まで出す
+    const next = frames[i + 1] ? frames[i + 1].t : Math.max(f.t + 1 / FPS, tEnd);
     list.push(`file '${p}'\nduration ${Math.max(1 / FPS, next - f.t).toFixed(4)}`);
   });
   list.push(`file '${path.join(TMP, `f${String(frames.length - 1).padStart(5, "0")}.png`)}'`);
   fs.writeFileSync(path.join(TMP, "list.txt"), list.join("\n"));
-  const span = frames.length ? frames[frames.length - 1].t - frames[0].t : 0;
+  const span = frames.length ? tEnd - frames[0].t : 0;
   const raw = path.join(TMP, "raw.mp4");
   execSync(`ffmpeg -y -loglevel error -f concat -safe 0 -i "${path.join(TMP, "list.txt")}" -vf "fps=${FPS},scale=${W * DPR}:${H * DPR}:flags=lanczos,format=yuv420p" -c:v libx264 -preset slow -crf 20 -movflags +faststart -an "${raw}"`);
 
@@ -150,7 +163,7 @@ function defaultSteps(hint) {
   try {
     const s = execSync(`ffmpeg -i "${raw}" -vf "scale=360:-1,tblend=all_mode=difference,signalstats,metadata=print:key=lavfi.signalstats.YAVG" -an -f null - 2>&1`, { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
     const ts = [...s.matchAll(/pts_time:([0-9.]+)[\s\S]*?YAVG=([0-9.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
-    const first = ts.find(([, y]) => y > 0.15);
+    const first = ts.find(([t, y]) => t > 0.25 && y > 0.15);
     if (first && first[0] > 0.3 && !spec?.keepHead) start = Math.max(0, first[0] - 0.15);
   } catch (e) {}
   fs.mkdirSync(path.join(OUT, "videos"), { recursive: true });

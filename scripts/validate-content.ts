@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 // コンテンツデータの整合性チェック(npx tsx scripts/validate-content.ts)
 // - promptTemplateの{{key}}がparamsに存在するか
 // - optionsパラメータの min/max/step/default が規約通りか
@@ -35,6 +37,31 @@ for (const e of entryList) {
     errors.push(`${e.slug}: NG/OK例が不完全`);
   if (!e.promptTemplate.includes("reduced-motion"))
     errors.push(`${e.slug}: template に reduced-motion 言及なし`);
+}
+
+// ── デモのソースの機械点検（2026-10-24 録画v2の撮り直しで見つかった本番の不具合2型）──
+// ① public/ の素材を basePath 無しの絶対パス（"/demo/..."）で参照 → GH Pages(/motion-dict)で404。
+//    画像の出ないデモが20ファイル以上あった。"/motion-dict/demo/..." と書く。
+// ② @property で登録したカスタムプロパティは文書全体に効く（inherits:false 等が他のデモにも及ぶ）。
+//    AiOrb の --angle 登録で barber-pole の縞と moire-drift の傾きが消えていた。名前はデモ固有の接頭辞で。
+{
+  const dir = path.join(process.cwd(), "demos");
+  const files = readdirSync(dir).filter((f) => /\.(tsx|css)$/.test(f));
+  const src = Object.fromEntries(files.map((f) => [f, readFileSync(path.join(dir, f), "utf8")]));
+  const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  for (const [f, t] of Object.entries(src)) {
+    if (/["'`(]\/demo\//.test(strip(t))) errors.push(`demos/${f}: 素材を "/demo/..." で参照（basePath が付かず本番で404）→ "/motion-dict/demo/..."`);
+  }
+  const owners: Record<string, string> = {};
+  for (const [f, t] of Object.entries(src)) for (const m of t.matchAll(/@property\s+(--[\w-]+)/g)) owners[m[1]] = f;
+  for (const [prop, owner] of Object.entries(owners)) {
+    const base = owner.replace(/\.module\.css$/, "");
+    for (const [f, t] of Object.entries(src)) {
+      if (f.startsWith(base + ".")) continue;
+      if (new RegExp(prop.replace(/-/g, "\\-") + "(?![\\w-])").test(strip(t)))
+        errors.push(`demos/${f}: ${prop} は demos/${owner} が @property で全体登録している名前（干渉する）`);
+    }
+  }
 }
 
 if (errors.length) {

@@ -23,9 +23,9 @@ function useReducedMotion(): boolean {
 
 // リンクと対応するプレビュー画像(用意済みダミー)
 const ITEMS = [
-  { label: "Mountain", src: "/demo/dummy-01.svg" },
-  { label: "Dune", src: "/demo/dummy-02.svg" },
-  { label: "City", src: "/demo/dummy-03.svg" },
+  { label: "Mountain", src: "/motion-dict/demo/dummy-01.svg" },
+  { label: "Dune", src: "/motion-dict/demo/dummy-02.svg" },
+  { label: "City", src: "/motion-dict/demo/dummy-03.svg" },
 ];
 
 export default function HoverPreview({ params }: { params: ParamValues }) {

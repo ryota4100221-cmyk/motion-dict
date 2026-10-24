@@ -26,13 +26,13 @@
 
 /* ダミー画像3種(ローテーションで使用) */
 .v1 {
-  background-image: url("/demo/dummy-01.svg");
+  background-image: url("/motion-dict/demo/dummy-01.svg");
 }
 
 .v2 {
-  background-image: url("/demo/dummy-02.svg");
+  background-image: url("/motion-dict/demo/dummy-02.svg");
 }
 
 .v3 {
-  background-image: url("/demo/dummy-03.svg");
+  background-image: url("/motion-dict/demo/dummy-03.svg");
 }
