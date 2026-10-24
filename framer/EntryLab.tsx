@@ -624,7 +624,7 @@ export default function EntryLab(props: Props) {
 
     return (
         <div ref={rootRef} style={{ width: "100%", color: ink, fontFamily: JP, ...props.style }}>
-            <style>{`
+            <style dangerouslySetInnerHTML={{ __html: `
 .mdlab-range{-webkit-appearance:none;appearance:none;width:100%;height:32px;background:transparent;margin:0;cursor:pointer}
 .mdlab-range:focus{outline:none}
 .mdlab-range:focus-visible{outline:2px solid ${accent};outline-offset:2px;border-radius:4px}
@@ -678,7 +678,7 @@ export default function EntryLab(props: Props) {
 @media (min-width: 640px){.mdlab-bar{left:24px;right:24px;bottom:20px;max-width:640px;margin:0 auto}}
 @media (min-width: 640px) and (max-width: 1023.98px){.mdlab-bar{right:184px}}
 @media (prefers-reduced-motion: reduce){.mdlab-dyn,.mdlab-bar,.mdlab-recchip{transition:none}}
-`}</style>
+` }} />
             {/* 1つの DOM を幅で組み替える（≥980 = デモ左・操作右の2列／640〜979 = 1列・スライダー2列／<640 = SP・デモ貼り付け） */}
             <div className="mdlab-wrap">
                 <div className="mdlab-grid">

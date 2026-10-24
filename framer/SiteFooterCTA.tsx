@@ -43,7 +43,7 @@ export default function SiteFooterCTA(props: Props) {
     } = props
     return (
         <footer style={{ width: "100%", background: ink, color: paper, fontFamily: JP, containerType: "inline-size", ...props.style } as CSSProperties}>
-            <style>{`
+            <style dangerouslySetInnerHTML={{ __html: `
 .mdf-wrap{max-width:1680px;margin:0 auto;padding:clamp(72px,10cqi,140px) clamp(16px,3.4cqi,40px) clamp(40px,5cqi,64px);display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(32px,5cqi,80px);align-items:end}
 @container (max-width: 760px){.mdf-wrap{grid-template-columns:1fr}}
 .mdf-h{margin:0;font-weight:700;font-size:clamp(44px,8cqi,96px);line-height:1.02;letter-spacing:-0.045em;white-space:pre-line;font-feature-settings:"palt"}
@@ -58,7 +58,7 @@ export default function SiteFooterCTA(props: Props) {
 .mdf-base{max-width:1680px;margin:0 auto;padding:20px clamp(16px,3.4cqi,40px) 28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid rgba(244,244,241,.14);font-family:${MONO};font-size:12px;letter-spacing:.04em;color:rgba(244,244,241,.55)}
 .mdf-base a{color:inherit;text-decoration:none}.mdf-base a:hover{color:${paper}}
 @media (prefers-reduced-motion: reduce){.mdf-cta,.mdf-cta .ar{transition:none}}
-`}</style>
+` }} />
             <div className="mdf-wrap">
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                     <span style={{ fontFamily: MONO, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: accent }}>Made by monaka design.</span>

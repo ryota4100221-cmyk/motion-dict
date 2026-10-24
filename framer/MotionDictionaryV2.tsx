@@ -768,7 +768,7 @@ export default function MotionDictionaryV2(props: Props) {
 
     return (
         <div ref={rootRef} style={{ position: "relative", width: "100%", background: paper, color: ink, fontFamily: JP, ...props.style }}>
-            <style>{`
+            <style dangerouslySetInnerHTML={{ __html: `
 .mdx-chips{scrollbar-width:none}
 .mdx-chips::-webkit-scrollbar{display:none}
 .mdx-chip:focus-visible,.mdx-card:focus-visible,.mdx-x:focus-visible{outline:2px solid ${accent};outline-offset:3px}
@@ -802,7 +802,7 @@ export default function MotionDictionaryV2(props: Props) {
 .mdx-credit:focus-visible{outline:2px solid ${accent};outline-offset:4px}
 .mdx-door.light .mdx-credit:focus-visible{outline-color:${ink}}
 @media (prefers-reduced-motion: reduce){.mdx-card .ph video{transition:none}.mdx-card .lf,.mdx-card .tx{transition:none;transform:none!important}}
-`}</style>
+` }} />
 
             {/* 検索＋カテゴリ（貼り付く） */}
             <div

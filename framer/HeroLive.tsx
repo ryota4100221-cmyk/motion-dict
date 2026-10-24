@@ -590,7 +590,7 @@ export function HeroConsole(props: ConsoleProps) {
         <div ref={rootRef}
             onPointerDown={() => setAuto(false)}
             style={{ width: "100%", background: ink, color: paper, borderRadius: 10, overflow: "hidden", fontFamily: JP, position: "relative", ...props.style }}>
-            <style>{`
+            <style dangerouslySetInnerHTML={{ __html: `
 .mdh-chips{scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mdh-chips::-webkit-scrollbar{display:none}
 .mdh-chip{flex:none;height:34px;padding:0 15px;border-radius:100px;border:1px solid ${line};background:transparent;color:${paper};font-family:${JP};font-weight:700;font-size:14px;letter-spacing:.04em;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
@@ -614,7 +614,7 @@ export function HeroConsole(props: ConsoleProps) {
 .mdh-range:active::-webkit-slider-thumb{transform:scale(1.18)}
 .mdh-link{color:${paper};text-decoration:none;border-bottom:1px solid ${accent};padding-bottom:2px;white-space:nowrap}
 @media (prefers-reduced-motion: reduce){.mdh-chip,.mdh-dyn{transition:none}.mdh-caret{animation:none}}
-`}</style>
+` }} />
 
             {/* 巡回の残り時間（触ると消える） */}
             <span aria-hidden="true" key={`bar${tick}`}

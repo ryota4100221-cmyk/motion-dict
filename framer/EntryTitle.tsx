@@ -5,7 +5,7 @@ import { addPropertyControls, ControlType } from "framer"
 // 旧版の問題：項目名がそのまま76pxで流れ、「テーマ切替トランジシ／ョン」「メータ／ー」のように
 // 小書き文字や長音が行頭に落ちていた。項目名は「本名（言い換え）」の形が多いので、
 //  ・括弧の前＝見出し語（大）／括弧の中＝言い換え（小・次の行）に分ける
-//  ・Intl.Segmenter で語の切れ目に <wbr> を入れ、word-break: keep-all で語の途中で折らない
+//  ・文字種の切れ目で語に分けて <wbr> を入れ、word-break: keep-all で語の途中で折らない
 //  ・字数で段階的に縮める（見出し語が長いほど小さく）
 
 interface Props {
@@ -25,13 +25,15 @@ function split(name: string): [string, string] {
     return m ? [m[1].trim(), m[2].trim()] : [name || "", ""]
 }
 function phrases(s: string): ReactNode[] {
-    const Seg = (Intl as any).Segmenter
-    if (!Seg) return [s]
-    const segs: string[] = Array.from(new Seg("ja", { granularity: "word" }).segment(s), (x: any) => x.segment)
-    // 助詞・記号・小書き/長音は前の語にくっつける（行頭に来させない）
+    // 文字種の切れ目（漢字／ひらがな／カタカナ／英数）で語に分ける。Intl.Segmenter は Framer のサーバー描画に無く、
+    // サーバーは <wbr> なし・ブラウザは <wbr> ありで HTML が食い違い、hydration エラー（#425）を出していた。
+    // 同じ規則で両方が同じ HTML を出すよう、正規表現だけで切る
+    const segs = s.match(/[\u4E00-\u9FFF\u3005]+|[\u3041-\u309F]+|[\u30A0-\u30FF\u30FC]+|[A-Za-z0-9]+|\s+|./gu) || [s]
+    // 助詞・記号・小書き/長音は前の語にくっつける（行頭に来させない）。漢字＋送り仮名も1語にする
     const out: string[] = []
     for (const g of segs) {
-        if (out.length && /^([ぁ-ゖ]{1,2}|[、。・）」』！？ー〜ァィゥェォッャュョヮ]+|\s+)$/.test(g)) out[out.length - 1] += g
+        const prev = out[out.length - 1]
+        if (out.length && (/^([ぁ-ゖ]{1,2}|[、。・）」』！？ー〜ァィゥェォッャュョヮ]+|\s+)$/.test(g) || (/^[ぁ-ゖ]+$/.test(g) && /[\u4E00-\u9FFF\u3005]$/.test(prev)))) out[out.length - 1] += g
         else out.push(g)
     }
     return out.flatMap((t, i) => (i ? [<wbr key={"w" + i} />, t] : [t]))
