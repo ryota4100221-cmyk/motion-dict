@@ -1,0 +1,17 @@
+{
+  "note": "受信ボタンで点がベルの角にポンと付き、もう1件で件数側も同じ流れ、少し居座って明滅し、ベルを押すと縮んで消えて始まりと同じ空の状態に戻る",
+  "zoom": 1.5,
+  "before": [
+    { "do": "click", "sel": "button >> nth=0", "dur": 1 },
+    { "do": "wait", "ms": 500 }
+  ],
+  "steps": [
+    { "do": "click", "sel": "button >> nth=1", "dur": 250 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "click", "sel": "button >> nth=1", "dur": 250 },
+    { "do": "wait", "ms": 2200 },
+    { "do": "click", "sel": "button >> nth=0", "dur": 350 },
+    { "do": "wait", "ms": 700 },
+    { "do": "leave", "dur": 300 }
+  ]
+}

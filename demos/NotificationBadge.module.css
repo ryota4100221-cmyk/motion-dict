@@ -1,0 +1,198 @@
+/* 観察元(40px のベル・8px の点)を1.5倍にして、ステージ中央にベルと受信ボタンを縦に置く */
+.field {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 36px;
+  width: 100%;
+  height: 240px;
+}
+
+.bell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  background: transparent;
+  color: rgba(233, 233, 227, 0.82);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: scale 0.2s cubic-bezier(0.5, 1, 0.89, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bell:active {
+  scale: 0.96;
+}
+
+.bell:focus-visible,
+.send:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 3px;
+}
+
+.icon {
+  width: 27px;
+  height: 27px;
+}
+
+/* 角に4px(×1.5=6px)はみ出す定位置。出るときは中心側から 0.26s ease-out-quint で滑り出る */
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  pointer-events: none;
+  animation:
+    nbSlide 0.26s cubic-bezier(0.22, 1, 0.36, 1) both,
+    nbFade calc(var(--nb-dur) * 0.8) var(--nb-ease) both;
+}
+
+@keyframes nbSlide {
+  from {
+    translate: var(--nb-dx) var(--nb-dy);
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes nbFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 既読: 出るより速く 0.18s で縮めて消す */
+.out {
+  animation: nbOut 0.18s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+
+@keyframes nbOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  to {
+    transform: scale(0);
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+/* 件数が増えたときの弾み。同じ中身の A/B を入れ替えて頭から再生させる */
+.bump {
+  display: block;
+}
+
+.bumpA {
+  animation: nbBumpA calc(var(--nb-dur) * 0.6) var(--nb-ease);
+}
+
+.bumpB {
+  animation: nbBumpB calc(var(--nb-dur) * 0.6) var(--nb-ease);
+}
+
+@keyframes nbBumpA {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes nbBumpB {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.2);
+  }
+}
+
+/* 点: scale 0→1 を ease-out-back で行き過ぎさせ、blur 2px→0。1.2s後から 1↔0.35 を2s周期で明滅 */
+.dot {
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--ai);
+  box-shadow: 0 0 0 3px var(--sumi);
+  animation:
+    nbPop var(--nb-dur) var(--nb-ease) both,
+    nbPulse 2s cubic-bezier(0.5, 1, 0.89, 1) 1.2s infinite;
+}
+
+.count {
+  width: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  color: var(--sumi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes nbPop {
+  from {
+    transform: scale(0);
+    filter: blur(2px);
+  }
+  to {
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes nbPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.send {
+  padding: 10px 18px;
+  background: transparent;
+  color: rgba(233, 233, 227, 0.62);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.send:hover {
+  color: rgba(233, 233, 227, 0.86);
+  border-color: rgba(233, 233, 227, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge,
+  .out,
+  .bumpA,
+  .bumpB,
+  .dot {
+    animation: none;
+  }
+  .bell {
+    transition: none;
+  }
+}

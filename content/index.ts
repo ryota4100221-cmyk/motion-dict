@@ -108,6 +108,7 @@ import { expandingSearch } from "./expanding-search";
 import { flipCard } from "./flip-card";
 import { floatingLabel } from "./floating-label";
 import { passwordStrength } from "./password-strength";
+import { notificationBadge } from "./notification-badge";
 import { dropdownReveal } from "./dropdown-reveal";
 import { menuToggle } from "./menu-toggle";
 import { errorShake } from "./error-shake";
@@ -373,6 +374,7 @@ const all: MotionEntry[] = [
   hintNudge,
   gestureHint,
   scrollCue,
+  notificationBadge,
   pulseRing,
   breathingGlow,
   ambientFloat,

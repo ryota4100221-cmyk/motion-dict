@@ -144,6 +144,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "flip-card": d(() => import("./FlipCard")),
   "floating-label": d(() => import("./FloatingLabel")),
   "password-strength": d(() => import("./PasswordStrength")),
+  "notification-badge": d(() => import("./NotificationBadge")),
   "dropdown-reveal": d(() => import("./DropdownReveal")),
   "menu-toggle": d(() => import("./MenuToggle")),
   "error-shake": d(() => import("./ErrorShake")),
