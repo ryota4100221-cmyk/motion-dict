@@ -37,7 +37,7 @@ export const scrollScrub: MotionEntry = {
   ],
   promptTemplate: `スクロールで映像を送る scroll scrub を実装してください。
 
-- きっかけ: wrapper の上端がビューポート上端に達した時点から、スクロール量がそのまま再生位置になる。スクロールを止めれば映像も止まり、戻せば逆再生する(タッチは上下スワイプで同じ)
+- きっかけ: wrapper はスクロール領域の先頭に置き、前に別のセクションを置かない。スクロールを始めた瞬間(wrapper の上端がビューポート上端にある状態)から、スクロール量がそのまま再生位置になる。スクロールを止めれば映像も止まり、戻せば逆再生する(タッチは上下スワイプで同じ)
 - 対象セクションを高さ {{length}} 画面分の wrapper で囲み、中の <video>(または連番画像を描く <canvas>)を position: sticky; top: 0 で固定する
 - video には muted / playsinline / preload="auto" を付ける。autoplay も controls も付けない(再生位置はスクロールだけが決める)
 - 進捗は progress = -wrapperRect.top / (wrapperHeight - viewportHeight) を 0〜1 にクランプして求める
