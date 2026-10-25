@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react"
+import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react"
 import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 
 // FVの見せ場。「言葉を選ぶと動きになり、動きを触ると言葉（プロンプト）になる」を1画面目で起こす。
@@ -127,85 +127,135 @@ function reducedMotion() {
 /* ------------------------------------------------------------------ */
 /* 見出しの演技（WAAPI）。すべて fill:"backwards"＝終われば素の h1 に戻る */
 /* ------------------------------------------------------------------ */
+// 6周目（指摘5）：4秒周期で約0.5秒・どの言語でもできる動きだった（独立レビュー A）。
+// 8語とも約1.2秒に伸ばし、和文の組版でしかできない動きに作り直した。値（スライダー）は従来どおり各演技の芯に効く。
+//  ポンッ   … 画数で重さが変わる：画数の少ない字（の・え）ほど高く跳ね、画数の多い字（辞・動）は低く重く着く
+//  ふわっと … 送り仮名が先に浮かび、漢字が後から追いつく（仮名＝骨組み → 漢字＝意味）
+//  パタン   … 屏風折り：隣り合う字が互い違いの蝶番で折れて、開く
+//  ぷるん   … 仮名は柔らかく、漢字は硬い：潰れ・伸びの量を字ごとの画数で変える
+//  シュッ   … 均等割り → ツメ組み：版面いっぱいに均等に割り付けた字が、仮想ボディの枠ごと一気に詰まる
+//  ガタガタ … 活字のがたつき：組版の中で活字が1本ずつ順にがたつく（段のある動き＝steps）
+//  じわっと … 籠字に墨入れ：縁取りだけの字に、筆の向き（上から下）で墨が満ちる
+//  カタカタ … かな漢字変換：読み（うごきの／つたえかた／じてん）を打ち、文節ごとに変換して確定する
+// 読める規則：どの演技も 0.8 秒以内に一度、見出しが全部読める（シュッ・カタカタ以外は最初から読める状態から始まる）。
 
 // rise＝上へ動いてよい距離（px）。見出しの上にあるラベル等へ字が重ならないよう、跳ね・落下の高さをここで頭打ちにする
-type Ctx = { chars: HTMLElement[]; caret: HTMLElement | null; fontPx: number; ink: string; rise: number; cleanups: (() => void)[] }
+type Ctx = { chars: HTMLElement[]; caret: HTMLElement | null; host: HTMLElement; text: string; fontPx: number; ink: string; accent: string; rise: number; cleanups: (() => void)[] }
 const anim = (el: HTMLElement, kf: Keyframe[], o: KeyframeAnimationOptions) => el.animate(kf, { fill: "backwards", ...o })
 
+// 画数（見出しの字だけ。無い字は仮名=2・それ以外=9 とみなす）。軽さ＝1画で1、13画で0
+const STROKES: Record<string, number> = { 動: 11, き: 4, の: 1, 伝: 6, え: 2, 方: 4, 辞: 13, 典: 8 }
+const isKana = (ch: string) => /[ぁ-ゟ゠-ヿ]/.test(ch)
+const lightOf = (el: HTMLElement) => {
+    const ch = el.textContent || ""
+    const n = STROKES[ch] ?? (isKana(ch) ? 2 : 9)
+    return Math.max(0, Math.min(1, (13 - n) / 12))
+}
+// かな漢字変換の読み（見出しの文節ごと：字数と読み）。この見出し以外は従来のタイプライターで打つ
+const IME: Record<string, { n: number; r: string }[]> = {
+    動きの伝え方辞典: [{ n: 3, r: "うごきの" }, { n: 3, r: "つたえかた" }, { n: 2, r: "じてん" }],
+}
+const alpha = (hex: string, a: string, fb: string) => (/^#[0-9a-f]{6}$/i.test(hex) ? hex + a : fb)
+// 字を行ごとに分ける（SP は2行組み）
+function linesOf(chars: HTMLElement[]): HTMLElement[][] {
+    const out: HTMLElement[][] = []
+    let top = NaN
+    chars.forEach((c) => {
+        if (Math.abs(c.offsetTop - top) > 4 || !out.length) { out.push([]); top = c.offsetTop }
+        out[out.length - 1].push(c)
+    })
+    return out
+}
+
 const ACTS: Record<string, (c: Ctx, v: Record<string, number>) => void> = {
-    // ふわっと：ぼけ＋わずかな浮き上がりから、ピントが合うように1文字ずつ
+    // ふわっと：送り仮名（き・の・え）が先に浮かび、漢字が後から。ぼけ＋わずかな浮き上がりから、ピントが合うように
     "blur-reveal": ({ chars, fontPx }, v) => {
         const b = v.blur * (fontPx / 80)
-        chars.forEach((c, i) => {
+        const order = [...chars.filter((c) => isKana(c.textContent || "")), ...chars.filter((c) => !isKana(c.textContent || ""))]
+        order.forEach((c, i) => {
             anim(c, [
-                { filter: `blur(${b}px)`, opacity: 0, transform: `translateY(${0.12 * fontPx}px)` },
-                { filter: "blur(0px)", opacity: 1, transform: "translateY(0px)" },
+                { filter: `blur(${b}px)`, opacity: 0, transform: `translateY(${0.12 * fontPx}px) scale(1.06)` },
+                { filter: "blur(0px)", opacity: 1, transform: "translateY(0px) scale(1)" },
             ], { duration: v.duration * 1000, delay: i * v.stagger, easing: "cubic-bezier(.2,.7,.2,1)" })
         })
     },
-    // パタン：上へ倒れて消え、下から起き上がる（text-flip の出る側／入る側を1文字の中で続けて行う）
+    // パタン：屏風折り。偶数の字は右の辺、奇数の字は左の辺を蝶番にして、隣どうしが向かい合うように折れて開く
     "text-flip": ({ chars, fontPx }, v) => {
         const p = v.perspective * (fontPx / 64)
-        const half = v.duration * 1000 * 0.6
+        const D = v.duration * 1000 * 1.6
         chars.forEach((c, i) => {
+            const s = i % 2 ? 1 : -1
+            const o = i % 2 ? "0% 50%" : "100% 50%"
             anim(c, [
-                { offset: 0, transform: `perspective(${p}px) rotateX(0deg)`, transformOrigin: "50% 0%", opacity: 1, easing: "cubic-bezier(.55,0,.9,.45)" },
-                { offset: 0.5, transform: `perspective(${p}px) rotateX(-90deg)`, transformOrigin: "50% 0%", opacity: 0 },
-                { offset: 0.5, transform: `perspective(${p}px) rotateX(90deg)`, transformOrigin: "50% 100%", opacity: 1, easing: "cubic-bezier(.2,.9,.3,1.12)" },
-                { offset: 1, transform: `perspective(${p}px) rotateX(0deg)`, transformOrigin: "50% 100%", opacity: 1 },
-            ], { duration: half * 2, delay: i * 55 })
+                { offset: 0, transform: `perspective(${p}px) rotateY(0deg)`, transformOrigin: o, easing: "cubic-bezier(.55,0,.9,.45)" },
+                { offset: 0.42, transform: `perspective(${p}px) rotateY(${s * 84}deg)`, transformOrigin: o, opacity: 0.55 },
+                { offset: 0.5, transform: `perspective(${p}px) rotateY(${s * 84}deg)`, transformOrigin: o, opacity: 0.55, easing: "cubic-bezier(.2,.9,.3,1.18)" },
+                { offset: 1, transform: `perspective(${p}px) rotateY(0deg)`, transformOrigin: o, opacity: 1 },
+            ], { duration: D, delay: i * 35 })
         })
     },
-    // ぷるん：予備動作で潰れ→跳ぶ→着地で潰れ→行き過ぎて収まる。体積保存（scaleX = 1/scaleY）・足元基準
+    // ぷるん：予備動作で潰れ→跳ぶ→着地で潰れ→行き過ぎて収まる。体積保存（scaleX = 1/scaleY）・足元基準。
+    // 仮名は柔らかく（潰れ・伸び・行き過ぎが大きい）、画数の多い漢字は硬い
     "squash-stretch": ({ chars, fontPx, rise }, v) => {
-        const H = Math.min(0.22 * fontPx, rise)
-        const sq = 1 - v.squash / 100, st = 1 + v.stretch / 100, ov = 1 + v.overshoot / 100
         const T = 660 + v.recover * 1000
-        const pts: [number, number, number, string][] = [
-            [0, 0, 1, "ease-out"],
-            [100, 0, sq, "ease-out"],
-            [200, -0.38 * H, st, "ease-out"],
-            [380, -H, 1, "ease-in"],
-            [560, -0.38 * H, st, "ease-in"],
-            [660, 0, sq, "ease-out"],
-            [660 + v.recover * 450, 0, ov, "ease-in-out"],
-            [T, 0, 1, "linear"],
-        ]
-        const kf: Keyframe[] = pts.map(([t, y, sy, e]) => ({
-            offset: t / T, transform: `translateY(${y}px) scale(${1 / sy}, ${sy})`, easing: e,
-        }))
         chars.forEach((c, i) => {
+            const L = lightOf(c)
+            const f = 0.35 + 1.3 * L
+            const H = Math.min(0.22 * fontPx * (0.5 + 0.5 * L), rise)
+            const sq = Math.max(0.5, 1 - (v.squash / 100) * f), st = 1 + (v.stretch / 100) * f, ov = 1 + (v.overshoot / 100) * f
+            const pts: [number, number, number, string][] = [
+                [0, 0, 1, "ease-out"],
+                [100, 0, sq, "ease-out"],
+                [200, -0.38 * H, st, "ease-out"],
+                [380, -H, 1, "ease-in"],
+                [560, -0.38 * H, st, "ease-in"],
+                [660, 0, sq, "ease-out"],
+                [660 + v.recover * 450, 0, ov, "ease-in-out"],
+                [T, 0, 1, "linear"],
+            ]
+            const kf: Keyframe[] = pts.map(([t, y, sy, e]) => ({ offset: t / T, transform: `translateY(${y}px) scale(${1 / sy}, ${sy})`, easing: e }))
             c.style.transformOrigin = "50% 100%"
             anim(c, kf, { duration: T, delay: i * 40 })
         })
     },
-    // シュッ：開いた字間から一気に詰まる（複数文字なので translateX で寄せる方式）。
-    // 見出しは左揃えなので、字間を開いたときと同じく左端を基準に右へ開いた位置から寄せる
-    "tracking-in": ({ chars, fontPx }, v) => {
-        const sp = v.spread * fontPx
-        chars.forEach((c, i) => {
-            const dx = i * sp
-            anim(c, [{ transform: `translateX(${dx}px)` }, { transform: "translateX(0px)" }], { duration: v.duration * 1000, easing: "cubic-bezier(0.16, 1, 0.3, 1)" })
-            anim(c, [{ opacity: 0 }, { opacity: 1 }], { duration: v.duration * 1000 * 0.6, easing: "ease" })
+    // シュッ：均等割り → ツメ組み。行の字を版面いっぱいに均等に割り付けた位置から、仮想ボディ（字の枠）ごと詰める。
+    // spread 0.5em（既定）で版面いっぱい。小さくすると割り付けの幅が比例して狭まる
+    "tracking-in": ({ chars, host, ink }, v) => {
+        const cw = Math.max(host.offsetWidth, (host.parentElement?.clientWidth || 0) - 64)
+        const k = Math.min(1.4, v.spread / 0.5)
+        const box = alpha(ink, "40", "rgba(10,10,10,.25)")
+        const none = alpha(ink, "00", "rgba(10,10,10,0)")
+        const D = v.duration * 1000
+        linesOf(chars).forEach((line) => {
+            const m = line.length
+            const used = line.reduce((s, c) => s + c.offsetWidth, 0)
+            const gap = m > 1 ? (Math.max(0, cw - used) / (m - 1)) * k : 0
+            line.forEach((c, j) => {
+                // 均等割りの位置で一拍（約0.25秒）溜めてから詰める＝割り付けた状態が一度ちゃんと見える（溜めの間も字は読める）
+                anim(c, [{ transform: `translateX(${j * gap}px)`, offset: 0 }, { transform: `translateX(${j * gap}px)`, offset: 0.22, easing: "cubic-bezier(0.16, 1, 0.3, 1)" }, { transform: "translateX(0px)", offset: 1 }], { duration: D })
+                anim(c, [{ opacity: 0 }, { opacity: 1 }], { duration: D * 0.16, easing: "ease" })
+                anim(c, [{ boxShadow: `inset 0 0 0 1px ${box}` }, { boxShadow: `inset 0 0 0 1px ${box}`, offset: 0.55 }, { boxShadow: `inset 0 0 0 1px ${none}` }], { duration: D, easing: "ease-out" })
+            })
         })
     },
-    // ガタガタ：減衰する左右の振れ。隣り合う文字で位相を逆にして、板が鳴るようにする
+    // ガタガタ：活字のがたつき。組んだ活字が1本ずつ順に、段のある動き（steps）で左右・上下・傾きにがたついて収まる
     "error-shake": ({ chars, fontPx }, v) => {
         // 入力欄（高さ40px前後）用の震え幅を、見出しの大きさへ比例拡大する
         const A = v.amplitude * (fontPx / 40)
         const N = Math.round(v.shakes) * 2
         chars.forEach((c, i) => {
             const s = i % 2 ? 1 : -1
-            const kf: Keyframe[] = [{ transform: "translateX(0px) rotate(0deg)" }]
+            const kf: Keyframe[] = [{ transform: "translate(0px, 0px) rotate(0deg)", easing: "steps(1, end)" }]
             for (let j = 0; j < N; j++) {
                 const d = s * (j % 2 ? 1 : -1) * (1 - j / N)
-                kf.push({ transform: `translateX(${d * A}px) rotate(${d * 3}deg)` })
+                const up = (j % 2 ? -1 : 1) * 0.28 * Math.abs(d)
+                kf.push({ transform: `translate(${d * A}px, ${up * A}px) rotate(${d * 4}deg)`, easing: "steps(1, end)" })
             }
-            kf.push({ transform: "translateX(0px) rotate(0deg)" })
-            anim(c, kf, { duration: v.duration * 1000, delay: i * 40, easing: "ease-out" })
+            kf.push({ transform: "translate(0px, 0px) rotate(0deg)" })
+            anim(c, kf, { duration: v.duration * 1000, delay: i * 110 })
         })
     },
-    // じわっと：縁取りだけになり、左から塗りが満ちていく（塗りの層＝background-clip:text の背景幅を開く）
+    // じわっと：籠字（縁取りだけの字）に、筆の向き＝上から下へ墨が満ちる。字ごとに順に
     "outline-fill": ({ chars, fontPx, ink, cleanups }, v) => {
         const sw = Math.max(1, Math.round((fontPx / 90) * 10) / 10)
         const props: [string, string][] = [
@@ -214,68 +264,138 @@ const ACTS: Record<string, (c: Ctx, v: Record<string, number>) => void> = {
             ["background-image", `linear-gradient(${ink}, ${ink})`],
             ["background-repeat", "no-repeat"],
             ["background-position", "0 0"],
-            ["background-size", "0% 100%"],
+            ["background-size", "100% 0%"],
             ["-webkit-background-clip", "text"],
             ["background-clip", "text"],
         ]
         const clear = (c: HTMLElement) => props.forEach(([k]) => c.style.removeProperty(k))
         chars.forEach((c, i) => {
             props.forEach(([k, val]) => c.style.setProperty(k, val))
-            const a = anim(c, [{ backgroundSize: "0% 100%" }, { backgroundSize: "100% 100%" }], { duration: v.duration * 1000, delay: i * 90, easing: "ease", fill: "both" })
+            const a = anim(c, [{ backgroundSize: "100% 0%" }, { backgroundSize: "100% 100%" }], { duration: v.duration * 1000, delay: i * 85, easing: "cubic-bezier(.45,0,.2,1)", fill: "both" })
             a.onfinish = () => { clear(c); a.cancel() }
             cleanups.push(() => clear(c))
         })
     },
-    // ポンッ：上から落ちて、減衰しながら跳ねて静止。区間の長さは高さの平方根に比例、上りease-out／下りease-in
+    // ポンッ：上から落ちて、減衰しながら跳ねて静止。区間の長さは高さの平方根に比例、上りease-out／下りease-in。
+    // 画数で重さが変わる：軽い字（の・え）ほど高く落ちて高く跳ね、重い字（辞・動）は低く短く着く
     "bounce-in": ({ chars, fontPx, rise }, v) => {
-        const H = Math.min((v.height / 120) * 0.9 * fontPx, rise)
         const B = Math.round(v.bounces)
-        const segs: { y0: number; y1: number; t: number; e: string }[] = [{ y0: -H, y1: 0, t: Math.sqrt(H), e: "ease-in" }]
-        let h = H
-        for (let b = 0; b < B; b++) {
-            h *= v.damping
-            segs.push({ y0: 0, y1: -h, t: Math.sqrt(h), e: "ease-out" })
-            segs.push({ y0: -h, y1: 0, t: Math.sqrt(h), e: "ease-in" })
-        }
-        const total = segs.reduce((s, x) => s + x.t, 0)
-        let acc = 0
-        const kf: Keyframe[] = segs.map((s) => {
-            const k = { offset: acc / total, transform: `translateY(${s.y0}px)`, easing: s.e }
-            acc += s.t
-            return k
-        })
-        kf.push({ offset: 1, transform: "translateY(0px)" })
         chars.forEach((c, i) => {
-            anim(c, kf, { duration: v.duration * 1000, delay: i * 32 })
-            anim(c, [{ opacity: 0 }, { opacity: 1 }], { duration: v.duration * 150, delay: i * 32, easing: "ease-out" })
+            const L = lightOf(c)
+            const H = Math.min((v.height / 120) * 0.9 * fontPx * (0.35 + 0.65 * L), rise)
+            const damp = v.damping * (0.7 + 0.3 * L)
+            const segs: { y0: number; y1: number; t: number; e: string }[] = [{ y0: -H, y1: 0, t: Math.sqrt(H), e: "ease-in" }]
+            let h = H
+            for (let b = 0; b < B; b++) {
+                h *= damp
+                segs.push({ y0: 0, y1: -h, t: Math.sqrt(h), e: "ease-out" })
+                segs.push({ y0: -h, y1: 0, t: Math.sqrt(h), e: "ease-in" })
+            }
+            const total = segs.reduce((s, x) => s + x.t, 0)
+            let acc = 0
+            const kf: Keyframe[] = segs.map((s) => {
+                const k = { offset: acc / total, transform: `translateY(${s.y0}px)`, easing: s.e }
+                acc += s.t
+                return k
+            })
+            kf.push({ offset: 1, transform: "translateY(0px)" })
+            anim(c, kf, { duration: v.duration * 1000, delay: i * 24 })
+            anim(c, [{ opacity: 0 }, { opacity: 1 }], { duration: v.duration * 150, delay: i * 24, easing: "ease-out" })
         })
     },
-    // カタカタ：全部消えて、1文字ずつ打たれる。キャレットが文字と一緒に進み、打ち終わりで1回点滅して消える
-    "typewriter": ({ chars, caret }, v) => {
-        const n = chars.length
-        const sp = v.speed
-        chars.forEach((c, i) => anim(c, [{ opacity: 0 }, { opacity: 0 }], { duration: (i + 1) * sp }))
+    // カタカタ：かな漢字変換。文節ごとに読みを打ち（点線の下線＝未確定）、変換キーで漢字に替わり（下敷き＝変換中）、最後に確定する
+    "typewriter": (c, v) => {
+        const seg = IME[c.text]
+        const { chars, caret, host, fontPx, ink, accent, cleanups } = c
+        if (!seg || seg.reduce((s, g) => s + g.n, 0) !== chars.length) return typePlain(c, v)
+        const sp = Math.max(20, v.speed * 0.5) // 1かなの間隔（読みは見出しの約3分の1の大きさなので、打つ速さも詰める。既定70ms→35ms）
+        const CONV = 50 // 打ち終わり → 変換
+        const GAP = 20 // 変換 → 次の文節を打ち始める（既定値で全文が漢字に替わるのは約0.61秒＝0.8秒の規則に余裕）
+        const hl = alpha(accent, "66", "rgba(165,224,46,.4)")
+        const kanaFs = 0.36
+        const carets: Keyframe[] = []
+        const caretH = (h: number) => `${Math.round(h)}px`
+        const timers: number[] = []
+        cleanups.push(() => timers.forEach((x) => clearTimeout(x)))
+        let t = 0, i0 = 0
+        const convAt: number[] = []
+        const plan: { cs: HTMLElement[]; ov: HTMLElement; ks: HTMLElement[]; t0: number; tc: number }[] = []
+        seg.forEach((g) => {
+            const cs = chars.slice(i0, i0 + g.n)
+            i0 += g.n
+            const first = cs[0]
+            const ov = document.createElement("span")
+            ov.setAttribute("aria-hidden", "true")
+            ov.style.cssText = `position:absolute;left:${first.offsetLeft}px;top:${Math.round(first.offsetTop + first.offsetHeight / 2 - fontPx * kanaFs * 0.62)}px;font-size:${kanaFs}em;line-height:1.2;letter-spacing:0;white-space:nowrap;opacity:0;pointer-events:none;color:${ink};text-decoration:underline dotted ${Math.max(2, Math.round(fontPx * 0.014))}px;text-underline-offset:.18em`
+            const ks = Array.from(g.r).map((ch) => {
+                const k = document.createElement("span")
+                k.textContent = ch
+                ov.appendChild(k)
+                return k
+            })
+            host.appendChild(ov)
+            cleanups.push(() => ov.remove())
+            timers.push(window.setTimeout(() => ov.remove(), 1e4))
+            const tc = t + ks.length * sp + CONV
+            plan.push({ cs, ov, ks, t0: t, tc })
+            convAt.push(tc)
+            t = tc + GAP
+        })
+        const end = convAt[convAt.length - 1] + 480 // 確定（変換中の下敷きが消える＝約1.1秒）
+        const total = end + 120
+        plan.forEach((p, n) => {
+            const next = n + 1 < plan.length ? plan[n + 1].t0 + sp : end
+            anim(p.ov, [{ opacity: 1 }, { opacity: 1 }], { delay: p.t0, duration: p.tc - p.t0, fill: "none" })
+            p.ks.forEach((k, j) => anim(k, [{ opacity: 0 }, { opacity: 0 }], { duration: p.t0 + j * sp }))
+            p.cs.forEach((ch) => {
+                anim(ch, [{ opacity: 0 }, { opacity: 0 }], { duration: p.tc })
+                anim(ch, [{ backgroundColor: hl }, { backgroundColor: hl }], { delay: p.tc, duration: next - p.tc, fill: "none" })
+            })
+            // キャレット：読みを打つ間は読みの後ろ、変換したら漢字の後ろ
+            const oh = p.ov.offsetHeight
+            p.ks.forEach((k, j) => carets.push({ offset: (p.t0 + j * sp) / total, transform: `translate(${p.ov.offsetLeft + k.offsetLeft + k.offsetWidth + 2}px, ${p.ov.offsetTop + oh * 0.1}px)`, height: caretH(oh * 0.8), easing: "steps(1, end)" }))
+            const last = p.cs[p.cs.length - 1]
+            carets.push({ offset: p.tc / total, transform: `translate(${last.offsetLeft + last.offsetWidth + last.offsetHeight * 0.03}px, ${last.offsetTop + last.offsetHeight * 0.11}px)`, height: caretH(last.offsetHeight * 0.78), easing: "steps(1, end)" })
+        })
         if (!caret) return
-        const gap = chars[0].offsetHeight * 0.05
-        const xAt = (i: number) => (i === 0 ? chars[0].offsetLeft : chars[i - 1].offsetLeft + chars[i - 1].offsetWidth + gap)
-        const yAt = (i: number) => chars[Math.max(0, i - 1)].offsetTop
-        caret.style.height = chars[0].offsetHeight * 0.78 + "px"
-        const typeMs = (n + 1) * sp
-        const blinkMs = v.blink * 1000
-        const total = typeMs + blinkMs * 1.5
-        const pos: Keyframe[] = []
-        for (let i = 0; i <= n; i++) pos.push({ offset: Math.min(1, (i * sp) / total), transform: `translate(${xAt(i)}px, ${yAt(i) + chars[0].offsetHeight * 0.11}px)`, easing: "steps(1, end)" })
-        pos.push({ ...pos[pos.length - 1], offset: 1 })
-        anim(caret, pos, { duration: total, fill: "none" })
-        const t1 = typeMs / total, h = blinkMs / 2 / total
+        carets.sort((a, b) => (a.offset as number) - (b.offset as number))
+        carets.unshift({ ...carets[0], offset: 0 })
+        carets.push({ ...carets[carets.length - 1], offset: 1 })
+        anim(caret, carets, { duration: total, fill: "none" })
+        const e1 = end / total
         anim(caret, [
             { offset: 0, opacity: 1, easing: "steps(1, end)" },
-            { offset: t1, opacity: 1, easing: "steps(1, end)" },
-            { offset: Math.min(1, t1 + h), opacity: 0, easing: "steps(1, end)" },
-            { offset: Math.min(1, t1 + 2 * h), opacity: 1, easing: "steps(1, end)" },
-            { offset: 1, opacity: 1 },
+            { offset: e1, opacity: 1, easing: "steps(1, end)" },
+            { offset: Math.min(1, e1 + 0.05), opacity: 0, easing: "steps(1, end)" },
+            { offset: 1, opacity: 0 },
         ], { duration: total, fill: "none" })
     },
+}
+// 読みの無い見出し用：全部消えて、1文字ずつ打たれる。キャレットが文字と一緒に進み、打ち終わりで1回点滅して消える
+function typePlain({ chars, caret }: Ctx, v: Record<string, number>) {
+    const n = chars.length
+    const sp = v.speed
+    chars.forEach((c, i) => anim(c, [{ opacity: 0 }, { opacity: 0 }], { duration: (i + 1) * sp }))
+    if (!caret) return
+    const gap = chars[0].offsetHeight * 0.05
+    const xAt = (i: number) => (i === 0 ? chars[0].offsetLeft : chars[i - 1].offsetLeft + chars[i - 1].offsetWidth + gap)
+    const yAt = (i: number) => chars[Math.max(0, i - 1)].offsetTop
+    caret.style.height = chars[0].offsetHeight * 0.78 + "px"
+    const typeMs = (n + 1) * sp
+    const blinkMs = v.blink * 1000
+    const total = typeMs + blinkMs * 1.5
+    const pos: Keyframe[] = []
+    for (let i = 0; i <= n; i++) pos.push({ offset: Math.min(1, (i * sp) / total), transform: `translate(${xAt(i)}px, ${yAt(i) + chars[0].offsetHeight * 0.11}px)`, easing: "steps(1, end)" })
+    pos.push({ ...pos[pos.length - 1], offset: 1 })
+    anim(caret, pos, { duration: total, fill: "none" })
+    const t1 = typeMs / total, h = blinkMs / 2 / total
+    anim(caret, [
+        { offset: 0, opacity: 1, easing: "steps(1, end)" },
+        { offset: t1, opacity: 1, easing: "steps(1, end)" },
+        { offset: Math.min(1, t1 + h), opacity: 0, easing: "steps(1, end)" },
+        { offset: Math.min(1, t1 + 2 * h), opacity: 1, easing: "steps(1, end)" },
+        { offset: 1, opacity: 1 },
+    ], { duration: total, fill: "none" })
 }
 
 /* ------------------------------------------------------------------ */
@@ -471,6 +591,8 @@ function mainText(w: Word, v: Record<string, number>) {
 function useActor(o: {
     isStatic: boolean
     ink: string
+    accent: string
+    text: string
     inView: { current: boolean }
     host: { current: HTMLElement | null }
     chars: { current: (HTMLSpanElement | null)[] }
@@ -500,7 +622,7 @@ function useActor(o: {
             stop()
             const els = o.chars.current.filter(Boolean) as HTMLElement[]
             if (!els.length) return
-            act({ chars: els, caret: o.caret.current, fontPx: parseFloat(getComputedStyle(host).fontSize) || 100, ink: o.ink, rise: o.rise(), cleanups: cleanups.current }, { ...defaults(w), ...(d.params || {}) })
+            act({ chars: els, caret: o.caret.current, host, text: o.text, fontPx: parseFloat(getComputedStyle(host).fontSize) || 100, ink: o.ink, accent: o.accent, rise: o.rise(), cleanups: cleanups.current }, { ...defaults(w), ...(d.params || {}) })
         }
         const onHero = (ev: Event) => {
             const d = (ev as CustomEvent<HeroDetail>).detail
@@ -512,7 +634,7 @@ function useActor(o: {
         window.addEventListener(EVT, onHero)
         return () => { window.removeEventListener(EVT, onHero); cancelAnimationFrame(raf); stop() }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [o.isStatic, o.ink])
+    }, [o.isStatic, o.ink, o.accent, o.text])
 }
 
 /** 見出しの上にある要素（ラベル等）までの空き。祖先をさかのぼって、最初に見つかった「上の兄弟」の下端との距離 */
@@ -568,12 +690,22 @@ export function HeroTitle(props: TitleProps) {
     const markT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
     // 1文字の幅 ≒ 1em − 字詰め。幅いっぱいに収める cqi を文字数から出す
     const fit = 100 / (chars.length * 0.96 + 0.1)
+    // 6周目（指摘7）：SP は1行だと約45pxにしかならなかった → 文節の切れ目（「動きの／伝え方辞典」）で2行に組み、約72〜76px。
+    // 改行位置＝最初の仮名の後ろ（見出しを差し替えた場合も、仮名→漢字の切れ目で割る）。改行は CSS だけで切り替える＝SSR とクライアントで同じ HTML
+    const brAt = useMemo(() => {
+        const half = chars.length / 2
+        let best = -1
+        for (let i = 1; i < chars.length; i++) if (/[ぁ-ゟ]/.test(chars[i - 1]) && !/[ぁ-ゟ]/.test(chars[i]) && (best < 0 || Math.abs(i - half) < Math.abs(best - half))) best = i
+        return best < 0 ? Math.ceil(half) : best
+    }, [chars])
+    const longest = Math.max(brAt, chars.length - brAt)
+    const fitSp = 100 / (longest * 0.96 + 0.1)
 
     useVisible(rootRef, isStatic, (v) => (inView.current = v))
     useEffect(() => { if (!isStatic) ensureData(base) }, [isStatic, base])
     useEffect(() => () => clearTimeout(markT.current), [])
     useActor({
-        isStatic, ink, inView, host: h1Ref, chars: charRefs, caret: caretRef,
+        isStatic, ink, accent, text, inView, host: h1Ref, chars: charRefs, caret: caretRef,
         // 上のラベルに字が掛からない高さまで。字面の上には行送りの余り（約0.12em）があるので、その分は使ってよい
         rise: () => {
             const h1 = h1Ref.current
@@ -600,6 +732,8 @@ export function HeroTitle(props: TitleProps) {
     return (
         <div ref={rootRef} className="mdh-t" style={{ width: "100%", containerType: "inline-size", ...props.style } as CSSProperties}>
             <style dangerouslySetInnerHTML={{ __html: `
+.mdh-t h1{font-size:min(${maxSize}px, ${fit.toFixed(2)}cqi)}
+.mdh-t .mdh-br{display:none}
 .mdh-t .mdh-rail{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 40px;margin-top:22px}
 .mdh-t .mdh-tc{display:flex;flex-wrap:wrap;gap:8px;flex:none;max-width:100%}
 .mdh-t .mdh-tc button{position:relative;overflow:hidden;flex:none;height:38px;padding:0 17px;border-radius:100px;border:1px solid ${line};background:transparent;color:${ink};font-family:${JP};font-weight:700;font-size:15px;letter-spacing:.04em;cursor:pointer;transition:border-color .2s,background-color .2s;touch-action:manipulation}
@@ -624,11 +758,17 @@ export function HeroTitle(props: TitleProps) {
 .mdh-t .mdh-caret{display:inline-block;width:.55em;height:1.1em;vertical-align:-.2em;margin-left:2px;background:${ink};animation:mdh-tblink 1s steps(1,end) infinite}
 @keyframes mdh-tblink{50%{opacity:0}}
 @keyframes mdh-tbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* PC：プロンプトの全文は隣の黒いパネルが一画面目に見えている＝見出しの下の頭出しは重複なので出さない（6周目・指摘4：FV が同じことを3回言っていた） */
+@container (min-width: 1081px){
+.mdh-t .mdh-head{display:none}
+}
 /* 版面が狭いとき（タブレット〜）：値の表記はチップ列の下の行へ（横に詰めると項目名が潰れる） */
 @container (max-width: 1080px){
 .mdh-t .mdh-now{flex-basis:100%;justify-content:flex-start}
 }
 @container (max-width: 640px){
+.mdh-t h1{font-size:min(76px, ${fitSp.toFixed(2)}cqi);line-height:1.08}
+.mdh-t .mdh-br{display:block}
 .mdh-t .mdh-rail{margin-top:16px;gap:12px}
 .mdh-t .mdh-tc{gap:6px}
 .mdh-t .mdh-tc button{height:36px;padding:0 13px;font-size:14px}
@@ -648,12 +788,15 @@ export function HeroTitle(props: TitleProps) {
                 <h1 ref={h1Ref} aria-label={text}
                     style={{
                         position: "relative", width: "fit-content", margin: 0, fontFamily: JP, fontWeight: 700, color: ink,
-                        fontSize: `min(${maxSize}px, ${fit.toFixed(2)}cqi)`, lineHeight: 1.18, letterSpacing: "-0.04em",
+                        lineHeight: 1.18, letterSpacing: "-0.04em",
                         whiteSpace: "nowrap", fontKerning: "none",
                     }}>
                     {chars.map((ch, i) => (
-                        <span key={i} aria-hidden="true" ref={(el) => { charRefs.current[i] = el }}
-                            style={{ display: "inline-block", whiteSpace: "pre" }}>{ch}</span>
+                        <Fragment key={i}>
+                            {i === brAt ? <span className="mdh-br" aria-hidden="true" /> : null}
+                            <span aria-hidden="true" ref={(el) => { charRefs.current[i] = el }}
+                                style={{ display: "inline-block", whiteSpace: "pre" }}>{ch}</span>
+                        </Fragment>
                     ))}
                     <span ref={caretRef} aria-hidden="true"
                         style={{ position: "absolute", left: 0, top: 0, width: "0.06em", height: "0.9em", background: ink, opacity: 0, pointerEvents: "none" }} />
@@ -752,10 +895,6 @@ export function HeroConsole(props: ConsoleProps) {
     const [reduced, setReduced] = useState(false)
     const [narrow, setNarrow] = useState(false)
     const rootRef = useRef<HTMLDivElement>(null)
-    const stageRef = useRef<HTMLDivElement>(null)
-    const wordRef = useRef<HTMLSpanElement>(null)
-    const charRefs = useRef<(HTMLSpanElement | null)[]>([])
-    const caretRef = useRef<HTMLSpanElement>(null)
     const inView = useRef(true)
 
     useVisible(rootRef, isStatic, (x) => (inView.current = x))
@@ -771,8 +910,6 @@ export function HeroConsole(props: ConsoleProps) {
         ro.observe(rootRef.current)
         return () => ro.disconnect()
     }, [isStatic])
-    // 小さな実演：見出しと同じ md:hero を受けて、同じ値で、その擬音そのものが演じる
-    useActor({ isStatic, ink: paper, inView, host: wordRef, chars: charRefs, caret: caretRef, rise: () => 1e4, defer: true })
 
     const w = st.words[st.idx]
     const v = st.values[w.slug] || defaults(w)
@@ -786,7 +923,6 @@ export function HeroConsole(props: ConsoleProps) {
     const pad = narrow ? 16 : 24
     const fill = main ? ((v[w.main] - main.min) / (main.max - main.min)) * 100 : 0
     const replay = () => fireNow(S.values[S.words[S.idx].slug])
-    const wordChars = Array.from(w.word)
 
     return (
         <div ref={rootRef}
@@ -800,9 +936,8 @@ export function HeroConsole(props: ConsoleProps) {
 .mdh-caret{display:inline-block;width:.55em;height:1.1em;vertical-align:-.2em;margin-left:2px;background:${accent};animation:mdh-blink 1s steps(1,end) infinite}
 @keyframes mdh-blink{50%{opacity:0}}
 @keyframes mdh-bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.mdh-stage{position:relative;overflow:hidden;border-radius:6px;background:rgba(244,244,241,.05);border:1px solid ${line};cursor:pointer}
-.mdh-stage:hover .mdh-replay{color:${paper};border-color:rgba(244,244,241,.5)}
-.mdh-replay{position:absolute;right:8px;top:8px;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:100px;border:1px solid ${line};background:${ink};color:${dim};font-family:${MONO};font-size:11px;letter-spacing:.04em;cursor:pointer;transition:color .2s,border-color .2s}
+.mdh-replay:hover{color:${paper};border-color:rgba(244,244,241,.5)}
+.mdh-replay{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:100px;border:1px solid ${line};background:${ink};color:${dim};font-family:${MONO};font-size:11px;letter-spacing:.04em;cursor:pointer;transition:color .2s,border-color .2s}
 .mdh-range{-webkit-appearance:none;appearance:none;width:100%;height:32px;background:transparent;margin:0;cursor:pointer}
 .mdh-range:focus{outline:none}
 .mdh-range:focus-visible{outline:2px solid ${accent};outline-offset:2px;border-radius:4px}
@@ -827,6 +962,9 @@ export function HeroConsole(props: ConsoleProps) {
                 <span style={{ fontFamily: MONO, fontSize: 12, letterSpacing: "0.04em", color: dim, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {`// ${w.slug}.md`}
                 </span>
+                <span style={{ display: "inline-flex", gap: 8, flex: "none" }}>
+                {/* 見出しをもう一度演じさせる（小さな実演を外したので、再生の手はここ） */}
+                <button type="button" className="mdh-replay" onClick={replay}>↻ もう一度</button>
                 {!reduced ? (
                     <button className="mdh-auto" aria-pressed={st.auto} onClick={(e) => { e.stopPropagation(); if (st.auto) stopAuto(); else startAuto() }}
                         onPointerDown={(e) => e.stopPropagation()}>
@@ -834,28 +972,15 @@ export function HeroConsole(props: ConsoleProps) {
                         {st.auto ? "Auto" : "Paused"}
                     </button>
                 ) : null}
+                </span>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "188px 1fr", gap: narrow ? 14 : 24, padding: `${narrow ? 14 : 18}px ${pad}px ${narrow ? 6 : 8}px` }}>
-                {/* その動きの絵：擬音そのものが、見出しと同じ値で演じる（押すともう一度） */}
-                <div ref={stageRef} className="mdh-stage" onClick={replay} aria-hidden="true"
-                    style={{ minHeight: narrow ? 116 : 140 }}>
-                    <button type="button" className="mdh-replay" tabIndex={-1} onClick={(e) => { e.stopPropagation(); replay() }}>↻ もう一度</button>
-                    <span style={{ position: "absolute", left: 14, right: 14, bottom: 30, height: 1, background: line }} />
-                    <span ref={wordRef} key={w.slug}
-                        style={{ position: "absolute", left: 14, bottom: 30, fontFamily: JP, fontWeight: 700, fontSize: narrow ? 36 : 40, lineHeight: 1.18, letterSpacing: "-0.02em", color: paper, whiteSpace: "nowrap" }}>
-                        {wordChars.map((ch, i) => (
-                            <span key={i} ref={(el) => { charRefs.current[i] = el }} style={{ display: "inline-block", whiteSpace: "pre" }}>{ch}</span>
-                        ))}
-                        <span ref={caretRef} style={{ position: "absolute", left: 0, top: 0, width: "0.06em", height: "0.9em", background: paper, opacity: 0, pointerEvents: "none" }} />
-                    </span>
-                    <span style={{ position: "absolute", left: 14, bottom: 8, fontFamily: MONO, fontSize: 11, letterSpacing: "0.04em", color: dim, whiteSpace: "nowrap" }}>{mainText(w, v)}</span>
-                </div>
-
+            {/* 6周目（指摘4）：小さな実演（擬音が演じる絵）を外した。演じるのは見出しだけ＝パネルはプロンプトの全文と主パラメータのスライダーの細い役割 */}
+            <div style={{ padding: `${narrow ? 14 : 18}px ${pad}px ${narrow ? 6 : 10}px` }}>
                 <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10 }}>
                     {/* プロンプトの全文（打ち出し） */}
                     {/* 高さは8語のうち一番長いプロンプトの行数ぶん確保（PC・SP とも4行）＝語が替わっても面の高さと下の行が動かない */}
-                    <div style={{ fontFamily: MONO, fontSize: narrow ? 13 : 14, lineHeight: 1.75, whiteSpace: "pre-wrap", overflowWrap: "anywhere", display: "grid", alignContent: "start", minHeight: narrow ? 92 : 98 }}>
+                    <div style={{ fontFamily: MONO, fontSize: narrow ? 13 : 15, lineHeight: 1.75, whiteSpace: "pre-wrap", overflowWrap: "anywhere", display: "grid", alignContent: "start", minHeight: narrow ? 92 : 98 }}>
                         {/* 全文ぶんの高さを先に確保して、打ち出し中にレイアウトを動かさない */}
                         <div aria-hidden="true" style={{ gridArea: "1 / 1", visibility: "hidden" }}><Segs segs={segs} w={w} v={v} limit={Infinity} flash="" cls="mdh-dyn" /></div>
                         <div aria-live="off" style={{ gridArea: "1 / 1" }}>

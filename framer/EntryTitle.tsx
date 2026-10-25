@@ -45,6 +45,14 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 //  ・marquee：字の幅の中で回る帯（同じ語が後ろから続く）／輪（rotating-badge 等）・奥へ流れる・投げる・沈める系は量か時間を詰めた
 //  ・章扉と同じ演技（C）は値の定義が後から届いても張り直さない（着地の演技が約50msで消されていた）
 //  ・SP の右上のラベル：値を2行目に出す（「durati…」で切れていた）
+//
+// 2026-10-25（Awwwards 6周目・指摘3／6）
+//  ・右上のラベルを 11/12px → 14px（項目名 16px・SP 15px）。演技が動き出す瞬間（lead の後）に、ラベルの下線が左から走り、
+//    項目名の後ろにライムの印が付いて、演技が終わると右へ抜ける（cue）。見出しの高さ・位置は変えない（ラベルは絶対配置のまま）
+//    SP：章扉と同じ演技の「↗」は1行目の右端へ（値の行の幅を食わない）。選択肢の値は括弧の注記を落とす（右の「いまの値」に全文）
+//  ・scratch-card の膜をデモと同じ銀箔グラデーション＋点線にし、膜の寿命を 520ms に（旧版はベタの muted で約1.1秒）
+//  ・字を隠して通る帯・板（curtain / shutter / cover）もベタの近黒1色から、近黒→濃い無彩色の傾きに
+//    （196件の機械判定 aww/r6/detail/test/judge6.cjs の plate＝「見出しの面の3割以上が1色の平たい面」の時間で探した）
 
 interface Param {
     key: string
@@ -401,6 +409,11 @@ function pad(b: Box, c: Ctx, k = 0.08): Box {
     return { x: b.x - e * 1.6, y: b.y - e, w: b.w + e * 3.2, h: b.h + e * 2 }
 }
 const at = (b: Box) => `left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px;`
+// 6周目（指摘6）：字を隠して通り過ぎる帯・板の素材。ベタの近黒1色だと「平たい板が乗っている」＝止めて撮ると不具合に見えた
+// （scratch-card の膜と同じ型。デモ側の帯は写真＋暗い重ね）。近黒から無彩色の濃いグレーへの面の傾きを付け、進む向きの先端を少し明るくする
+function panelBg(c: Ctx, deg: number) {
+    return `background:${c.ink};background-image:linear-gradient(${deg}deg, ${c.ink} 0%, #1c1c1c 55%, #343434 100%);`
+}
 
 // 1行ごとの範囲（下線・マーカー等）
 function lineBoxes(c: Ctx): Box[] {
@@ -713,7 +726,7 @@ const ACT = {
         for (let k = 0; k < n; k++) {
             const bh = p.barH ? B.h * p.barH : B.h
             const box = vert ? { x: B.x + (B.w / n) * k, y: B.y, w: B.w / n + 1, h: B.h } : { x: B.x, y: B.y + (B.h / n) * k + (B.h / n - bh / n) / 2, w: B.w, h: bh / n + 1 }
-            const el = c.fx(at(box) + `background:${p.color || c.ink};`)
+            const el = c.fx(at(box) + (p.color ? `background:${p.color};` : panelBg(c, vert ? 0 : p.dir === 1 ? 270 : 90)))
             const o1 = p.dir === 1 ? "right" : "left", o2 = p.dir === 1 ? "left" : "right"
             const sc = vert ? "scaleY" : "scaleX"
             const org1 = vert ? "50% 100%" : `${o1} center`, org2 = vert ? "50% 0%" : `${o2} center`
@@ -735,7 +748,7 @@ const ACT = {
         const n = Math.round(p.n)
         for (let k = 0; k < n; k++) {
             const box = p.horiz ? { x: B.x, y: B.y + (B.h / n) * k, w: B.w, h: B.h / n + 1 } : { x: B.x + (B.w / n) * k, y: B.y, w: B.w / n + 1, h: B.h }
-            const el = c.fx(at(box) + `background:${c.ink};`)
+            const el = c.fx(at(box) + panelBg(c, p.horiz ? 180 : 90))
             const sc = p.horiz ? "scaleY" : "scaleX"
             c.a(el, [{ transform: `${sc}(0)`, easing: INOUT }, { offset: 0.45, transform: `${sc}(1)` }, { offset: 0.55, transform: `${sc}(1)`, easing: INOUT }, { transform: `${sc}(0)` }], { duration: p.dur, delay: k * p.st, fill: "both" })
         }
@@ -1284,7 +1297,7 @@ const FIT: Record<string, [0 | 1, number]> = {
     "preloader-counter": [0, 700],
     "tracking-in": [0, 700],
     "smooth-scroll": [0, 700],
-    "outline-fill": [0, 700],
+    "outline-fill": [0, 600], // 6周目：SP の着地で 0.79〜0.80秒と境目だった（r5 786ms）→ 600 に詰めて余裕を取る
     "line-draw": [0, 700],
     "rack-focus": [0, 700],
     "spring-easing": [0, 700],
@@ -1584,7 +1597,7 @@ function stackAct(c: Ctx, v: V) {
 function coverAct(c: Ctx, v: V) {
     const D = S(v.duration)
     const B = pad(c.tb, c)
-    const panel = c.fx(at(B) + `background:${c.ink};border-radius:${c.fs * 0.06}px;`)
+    const panel = c.fx(at(B) + panelBg(c, 0) + `border-radius:${c.fs * 0.06}px;`)
     c.a(panel, [
         { offset: 0, transform: `translateY(${B.h * (1 + v.rise / 100)}px) scale(${v.scaleFrom})`, opacity: 0, easing: OUT },
         { offset: 0.45, transform: "translateY(0px) scale(1)", opacity: 1, easing: "linear" },
@@ -2022,19 +2035,39 @@ function scratch(c: Ctx, v: V) {
     // 2026-10-25（3周目）：旧版は行の端どうしを斜めに結ぶジグザグで削っていたので、削り終わりに三角の膜が字の上に残り、
     // 消えるまで約1秒「削り残し」に見えていた（レビュー指摘・SP）。行ごとに横へ往復して削り、
     // しきい値に届いた瞬間から残りを fade 秒で消す（デモと同じ「打ち切りの閾値」）
+    // 6周目（指摘6）：膜が muted のベタ塗りで、着地から約1秒「平たい灰色の板」で見出しが隠れてバグに見えていた。
+    //  ・膜はデモ（demos/ScratchCard.tsx の paintFoil）と同じ5段の銀箔グラデーション＋点線（＝見出しの上に同じカードが降りる）
+    //  ・膜が見えている時間は全部で 600ms 以内：降りる 80 → 削る 440−fade → 残りを消す fade（＝520ms）。fade は値の0.3倍（40〜160ms）
+    //  ・太い brush で行が2本になると下の行が最後まで残っていた → 行は3本以上・線の太さは行の間隔の1.3倍以上
     const B = pad(c.tb, c, 0.1)
     const { g } = overlayCanvas(c)
-    g.fillStyle = c.muted
+    const fg = g.createLinearGradient(B.x, B.y, B.x + B.w, B.y + B.h)
+    fg.addColorStop(0, "#e9e9e9")
+    fg.addColorStop(0.35, "#bdbdbd")
+    fg.addColorStop(0.55, "#f5f5f5")
+    fg.addColorStop(0.8, "#b3b3b3")
+    fg.addColorStop(1, "#dadada")
+    g.fillStyle = fg
     g.fillRect(B.x, B.y, B.w, B.h)
-    const br = K(c, v.brush, 32) * 0.5
-    // 4周目：見えている字の上に膜が降りてから削る（旧版は1コマ目から灰色の膜で字が隠れていた）。
-    // 膜が降りる 0.2秒 → 削る 0.6秒 → しきい値で残りを消す。字が膜の下にある時間は約0.4秒まで
-    const IN = 200
-    const D = 600
-    const fade = Math.min(300, Math.max(120, S(v.fade)))
+    // デモの膜と同じ点線（膜の下寄り）。見出しの高さに合わせて点の数を決める
+    g.strokeStyle = "#a6a6a6"
+    g.lineWidth = Math.max(1.5, c.fs * 0.03)
+    g.lineCap = "round"
+    g.beginPath()
+    const dash = Math.max(6, c.fs * 0.12), nDash = Math.max(3, Math.floor(B.w / (dash * 4)))
+    for (let i = 0; i < nDash; i++) {
+        const x = B.x + ((i + 0.5) * B.w) / nDash
+        g.moveTo(x - dash / 2, B.y + B.h * 0.86)
+        g.lineTo(x + dash / 2, B.y + B.h * 0.86)
+    }
+    g.stroke()
+    const rows = Math.max(3, Math.ceil(B.h / (K(c, v.brush, 32) * 0.85)))
+    const br = Math.max(K(c, v.brush, 32) * 0.5, (B.h / rows) * 0.65)
+    // fade の値は残す（スライダーで差が見える）が、膜の寿命 600ms に収まるよう縮めて、その分だけ削る時間を詰める
+    const IN = 80
+    const fade = Math.min(160, Math.max(40, S(v.fade) * 0.3))
+    const D = 440 - fade
     c.a(g.canvas, [{ opacity: 0 }, { opacity: 1 }], { duration: IN, easing: "ease-out" })
-    // 線の太さ（2br）より行の間隔を狭くして、行と行の間に膜が残らないようにする
-    const rows = Math.max(2, Math.ceil(B.h / (br * 1.7)))
     const pts: [number, number][] = []
     for (let r = 0; r < rows; r++) {
         const y = B.y + (B.h * (r + 0.5)) / rows
@@ -2332,6 +2365,9 @@ export default function EntryTitle(props: Props) {
     // ── 演技のエンジン（クライアントのみ） ──
     const playRef = useRef<(why: string) => void>(() => {})
     const landedRef = useRef("")
+    // 6周目・指摘3：右上のラベルの合図（演技が走る瞬間に下線が左から走り、項目名にライムの印が付く）
+    const tagRef = useRef<HTMLDivElement>(null)
+    const cueRef = useRef<Animation[]>([])
     useEffect(() => {
         if (isStatic || typeof window === "undefined" || !slug) return
         const root = mainRef.current
@@ -2665,11 +2701,40 @@ export default function EntryTitle(props: Props) {
             if (res && (res as Hold).hold) return { hold: true, ms: (res as Hold).ms / tempo + lead }
             return res
         }
+        // 合図：演技が動き出す瞬間（lead の後）に、ラベルの下線が左から走って演技の間だけ残り、終わりに右へ抜ける。
+        // 項目名の後ろにライムの印（右の「いまの値」で変えた値の印と同じ使い方＝ライムは地、字は近黒）。演技の層とは別に持つ（stop で消さない）
+        const cue = (ms: number, delay: number) => {
+            const tg = tagRef.current
+            cueRef.current.forEach((a) => { try { a.cancel() } catch {} })
+            cueRef.current = []
+            if (!tg || typeof tg.animate !== "function") return
+            const line = tg.querySelector(".mdt-cue") as HTMLElement | null
+            const nm = tg.querySelector(".mdt-play b") as HTMLElement | null
+            const IN = 280, OUTMS = 240, hold = Math.max(120, Math.min(4000, ms - IN))
+            const dur = IN + hold + OUTMS, o1 = IN / dur, o2 = (IN + hold) / dur
+            if (line) cueRef.current.push(line.animate([
+                { clipPath: "inset(0 100% 0 0)", easing: OUT },
+                { offset: o1, clipPath: "inset(0 0% 0 0%)" },
+                { offset: o2, clipPath: "inset(0 0% 0 0%)", easing: EIO },
+                { clipPath: "inset(0 0% 0 100%)" },
+            ], { duration: dur, delay, fill: "none" }))
+            if (nm) cueRef.current.push(nm.animate([
+                { backgroundSize: "0% 100%", backgroundPosition: "0% 0", easing: OUT },
+                { offset: o1, backgroundSize: "100% 100%", backgroundPosition: "0% 0" },
+                { offset: o2, backgroundSize: "100% 100%", backgroundPosition: "100% 0", easing: EIO },
+                { backgroundSize: "0% 100%", backgroundPosition: "100% 0" },
+            ], { duration: dur, delay, fill: "none" }))
+        }
         const play = (why: string) => {
             if (reduced || !inView) return
             stop()
             const res = fitAct(run(why))
             if (!res) { stop(); return }
+            {
+                const L = lead
+                const ms = typeof res === "number" ? res - L : (res as Hold).hold ? (res as Hold).ms - L + 650 : (res as Follow).kind === "f" ? 1700 : 1400
+                cue(why === "hover" && (res as Hold).hold && isH ? 1200 : ms, L)
+            }
             if (typeof res === "number") {
                 busyUntil = performance.now() + res
                 const my = gen
@@ -2859,7 +2924,8 @@ export default function EntryTitle(props: Props) {
         : keys
               .map((k) => params.find((p) => p.key === k))
               .filter(Boolean)
-              .map((p) => `${keyOf(p!.label)} ${fmt(p!, values[p!.key] ?? p!.default)}${p!.options ? "" : unitOf(p!.label)}`)
+              // 6周目：選択肢の値は括弧の注記を落とす（ラベルを14pxに上げて「shape wipe(横ワイプ)」が切れたため。右の「いまの値」には全文が出る）
+              .map((p) => `${keyOf(p!.label)} ${p!.options ? fmt(p!, values[p!.key] ?? p!.default).replace(/\s*[（(][^（()）]*[)）]\s*$/, "") : fmt(p!, values[p!.key] ?? p!.default)}${p!.options ? "" : unitOf(p!.label)}`)
     const vals = valParts.map((t, i) => (
         <span key={i} className={"v" + (i ? " v2" : "")}>{(i ? "· " : "") + t}</span>
     ))
@@ -2870,7 +2936,7 @@ export default function EntryTitle(props: Props) {
     // 5周目・指摘8：右上の表記＝再生ボタン。押すと見出しが「いまのスライダーの値」で演じ直す（Enter / Space・SP はタップ）
     const replay = () => playRef.current("replay")
     const playIcon = (
-        <svg className="pi" width="8" height="9" viewBox="0 0 8 9" aria-hidden="true" focusable="false">
+        <svg className="pi" width="10" height="11" viewBox="0 0 8 9" aria-hidden="true" focusable="false">
             <path d="M0 0 L8 4.5 L0 9 Z" fill="currentColor" />
         </svg>
     )
@@ -2929,15 +2995,18 @@ export default function EntryTitle(props: Props) {
 .mdt-stage .mdt-p,.mdt-stage .mdt-c{position:absolute;display:block;white-space:pre}
 .mdt-fx{position:absolute;pointer-events:none;display:block}
 .mdt-ghost{font:inherit;letter-spacing:inherit;line-height:inherit}
-.mdt-tag{position:absolute;right:0;bottom:calc(100% + 6px);display:flex;gap:8px;align-items:baseline;justify-content:flex-end;max-width:72%;font-family:${MONO};font-size:11px;line-height:16px;letter-spacing:.04em;color:${muted};white-space:nowrap;overflow:visible;text-decoration:none}
-.mdt-tag b{font-family:${JP};font-weight:700;font-size:12px;letter-spacing:.02em;color:${ink}}
+.mdt-tag{position:absolute;right:0;bottom:calc(100% + 8px);display:flex;gap:10px;align-items:baseline;justify-content:flex-end;max-width:calc(100% - 132px);font-family:${MONO};font-size:14px;line-height:20px;letter-spacing:.02em;color:${muted};white-space:nowrap;overflow:visible;text-decoration:none}
+.mdt-tag .k{font-family:${JP};letter-spacing:.04em}
+.mdt-tag b{font-family:${JP};font-weight:700;font-size:16px;letter-spacing:.02em;color:${ink};padding:0 4px;border-radius:2px;background-image:linear-gradient(${accent},${accent});background-repeat:no-repeat;background-size:0% 100%;background-position:0% 0}
+.mdt-cue{position:absolute;left:0;right:0;bottom:6px;height:2px;background:${ink};clip-path:inset(0 100% 0 0);pointer-events:none}
 .mdt-tag .v{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
 .mdt-tag .v2{flex:0 1000 auto}
 .mdt-tag .ks{display:none}
 .mdt-tag .br{display:none}
-.mdt-play{all:unset;box-sizing:border-box;display:flex;gap:inherit;align-items:baseline;justify-content:flex-end;min-width:0;max-width:100%;flex-wrap:inherit;cursor:pointer;color:inherit;font:inherit;letter-spacing:inherit;line-height:inherit;white-space:nowrap;overflow:hidden;padding:6px 0;margin:-6px 0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.mdt-play{all:unset;box-sizing:border-box;position:relative;display:flex;gap:inherit;align-items:baseline;justify-content:flex-end;min-width:0;max-width:100%;flex-wrap:inherit;cursor:pointer;color:inherit;font:inherit;letter-spacing:inherit;line-height:inherit;white-space:nowrap;overflow:hidden;padding:6px 0;margin:-6px 0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .mdt-play .pi{flex:none;align-self:center;color:${ink};transition:transform .2s cubic-bezier(.2,.7,.2,1)}
 .mdt-play:hover b{text-decoration:underline;text-underline-offset:3px}
+@media (prefers-reduced-motion: reduce){.mdt-cue{display:none}}
 .mdt-play:hover .pi{transform:scale(1.25)}
 .mdt-play:active .pi{transform:scale(.85)}
 .mdt-play:focus-visible,a.mdt-chap:focus-visible{outline:2px solid ${ink};outline-offset:2px;border-radius:2px}
@@ -2961,9 +3030,10 @@ a.mdt-chap:hover{color:${ink}}
 .mdt-now-v.o .r{display:block;font-size:.5em;letter-spacing:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mdt-now.n2 .mdt-now-g{grid-template-columns:minmax(0,1fr)}
 @media (prefers-reduced-motion: reduce){.mdt-play .pi,.mdt-now-k .k{transition:none}.mdt-now{animation:none!important}}
-@container (max-width: 640px){.mdt-tag{max-width:calc(100% - 140px);font-size:10px;gap:0 6px;flex-wrap:wrap;line-height:15px}.mdt-tag .k,.mdt-tag .v2{display:none}.mdt-tag .ks{display:inline}
-.mdt-tag .br{display:block;flex-basis:100%;height:0}.mdt-tag .v{overflow:visible;text-overflow:clip;white-space:nowrap}.mdt-tag b{overflow:hidden;text-overflow:ellipsis;min-width:0}
-.mdt-play{padding:10px 0;margin:-10px 0}}
+@container (max-width: 640px){.mdt-tag{max-width:calc(100% - 124px);font-size:14px;gap:0 6px;flex-wrap:nowrap;align-items:flex-end;line-height:20px}.mdt-tag .k,.mdt-tag .v2{display:none}.mdt-tag .ks{display:inline}
+.mdt-play{flex-wrap:wrap}.mdt-tag .br{display:block;flex-basis:100%;height:0}.mdt-tag .v{overflow:visible;text-overflow:clip;white-space:nowrap;flex:none}.mdt-tag b{font-size:15px;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.mdt-play{padding:10px 0;margin:-10px 0}.mdt-cue{bottom:10px}
+.mdt-tag.ch a.mdt-chap{position:absolute;right:0;top:0;line-height:20px;padding:0 2px;margin:0}.mdt-tag.ch .mdt-play b{margin-right:22px}}
 ` }} />
             <div className={"mdt-clip " + cls}>
                 <h1
@@ -3013,7 +3083,7 @@ a.mdt-chap:hover{color:${ink}}
                     <span className="ks">動き</span>
                 </div>
             ) : (
-                <div className="mdt-tag">
+                <div className={"mdt-tag" + (chap ? " ch" : "")} ref={tagRef}>
                     <button type="button" className="mdt-play" onClick={replay} title={chap ? "見出しの動きを再生（章扉と同じ動き）" : "見出しの動きを、いまの値で再生"}>
                         {playIcon}
                         <span className="k">この見出しの動き</span>
@@ -3021,6 +3091,7 @@ a.mdt-chap:hover{color:${ink}}
                         <b>{tagName}</b>
                         <span className="br" aria-hidden="true" />
                         {vals}
+                        <span className="mdt-cue" aria-hidden="true" />
                     </button>
                     {chap ? (
                         <a className="mdt-chap" href={"/entries/" + chap.slug} aria-label={chap.ja + "の項目へ"} title="章扉と同じ動きの項目へ">

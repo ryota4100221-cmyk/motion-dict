@@ -90,6 +90,10 @@ interface Chapter {
     // 並び：pc=列数（≥1100）、sp=列数（<640）、bigs=大判の位置（R=右寄せ）、row=横長カード、size=カードの格
     // bigs の i は「強い1枚」を除いた並びでの位置
     grid: { pc: number; sp: number; bigs?: { i: number; side: "L" | "R" }[]; row?: "sp" | "all"; size: "s" | "m" | "l" }
+    // 6周目：格子に残すのは pick 枚（SP は pickSp）だけ。残りは文字中心の索引（ix.cols 列・サムネ幅 ix.tw）に畳む
+    pick: number
+    pickSp: number
+    ix: { cols: number; tw: number; wide?: boolean }
     after: number // 章の末尾の余白（PC）
     // 強い1枚（2026-10-25 Awwwards 2周目）：扉の直後に全幅に近い大判で置く章の代表。
     // at = 録画の位置（full＝全幅・L/R＝版面の2/3を左右どちらに）。扉の動きの項目とは別のものを選ぶ（同じ動きを2度見せない）
@@ -102,7 +106,8 @@ const CHAPTERS: Record<string, Chapter> = {
         tone: "dark", kind: "magnetic", align: "left", fs: 260, fsSp: 76, minH: 620, minHSp: 300, after: 120,
         line: "カーソルを乗せたときの返事。押す前に「押せる」と伝える動き。",
         demo: { slug: "magnetic-hover", ja: "マグネティックホバー", params: "strength 0.35 · lerp 0.12" },
-        grid: { pc: 3, sp: 2, bigs: [{ i: 8, side: "R" }, { i: 19, side: "L" }], size: "m" },
+        grid: { pc: 3, sp: 2, bigs: [{ i: 0, side: "L" }], size: "m" },
+        pick: 6, pickSp: 5, ix: { cols: 2, tw: 128 },
         // 写真がカーソルの跡に次々と湧く＝画面いっぱいに絵が動く。ホバー章で唯一「面」で見せられる項目
         feat: { slug: "image-trail", at: "R" },
     },
@@ -111,7 +116,9 @@ const CHAPTERS: Record<string, Chapter> = {
         line: "読み進める指の速さと位置に、画面が付いてくる動き。",
         demo: { slug: "velocity-skew", ja: "速度スキュー", params: "factor 0.5 · max 8°" },
         // 3周目：格子を2サイズに（大判2枚）
-        grid: { pc: 4, sp: 2, bigs: [{ i: 6, side: "L" }, { i: 17, side: "R" }], size: "m" },
+        // 6周目：大判なしの4枚1段（フィルムの帯）＋索引2列
+        grid: { pc: 4, sp: 2, size: "m" },
+        pick: 4, pickSp: 4, ix: { cols: 2, tw: 128 },
         // 写真のカードが積み上がる＝枠の全面が動く。この章は暗いUIの枠が多いので、写真が主役の1本を頭に
         feat: { slug: "stacking-cards", at: "S" },
     },
@@ -120,6 +127,7 @@ const CHAPTERS: Record<string, Chapter> = {
         line: "文字そのものが出方で語る。読ませる順番をつくる動き。",
         demo: { slug: "split-text-reveal", ja: "分割テキストリビール", params: "stagger 30ms · 0.6s" },
         grid: { pc: 2, sp: 1, row: "all", size: "l" },
+        pick: 4, pickSp: 2, ix: { cols: 1, tw: 176, wide: true },
         // 文字盤が横一杯にパタパタ返る＝大判にしたとき一番「文字が動く」が遠目で読める
         feat: { slug: "split-flap", at: "C" },
     },
@@ -127,7 +135,9 @@ const CHAPTERS: Record<string, Chapter> = {
         tone: "dark", kind: "wipe", align: "right", fs: 190, fsSp: 54, minH: 500, minHSp: 260, after: 104,
         line: "ページとページの継ぎ目。どこからどこへ移ったかを見せる動き。",
         demo: { slug: "curtain-wipe", ja: "カーテンワイプ", params: "0.8s × 2 · in-out" },
-        grid: { pc: 3, sp: 2, bigs: [{ i: 4, side: "R" }], size: "m" },
+        // 6周目：2枚を大きく（版面の半分ずつ）＋索引1列
+        grid: { pc: 2, sp: 2, size: "m" },
+        pick: 2, pickSp: 2, ix: { cols: 1, tw: 176, wide: true },
         // 写真の上を円が広がって次の画面が出る＝「継ぎ目」が1コマで分かる
         feat: { slug: "circle-reveal", at: "L" },
     },
@@ -135,7 +145,8 @@ const CHAPTERS: Record<string, Chapter> = {
         tone: "dark", kind: "clip", align: "left", fs: 340, fsSp: 96, minH: 660, minHSp: 320, after: 128,
         line: "写真と映像の見せ方。額縁と現れ方で、同じ1枚の温度を変える動き。",
         demo: { slug: "clip-reveal", ja: "クリップリビール", params: "0.9s · expo-out" },
-        grid: { pc: 4, sp: 2, bigs: [{ i: 5, side: "R" }, { i: 14, side: "L" }, { i: 23, side: "R" }, { i: 30, side: "L" }], size: "m" },
+        grid: { pc: 4, sp: 2, bigs: [{ i: 0, side: "L" }], size: "m" },
+        pick: 9, pickSp: 5, ix: { cols: 3, tw: 144 },
         // 風景写真が1bitの粒に溶けて戻る＝写真の「温度を変える」をいちばん大きな差で見せる
         feat: { slug: "dither-dissolve", at: "S" },
     },
@@ -144,7 +155,8 @@ const CHAPTERS: Record<string, Chapter> = {
         line: "押す・開く・閉じる。部品が操作に答える動き。",
         demo: { slug: "press-feedback", ja: "プレスフィードバック", params: "scale 0.97 · 0.05s / 0.2s" },
         // 5列（1枚 256px）では中身が読めなかった（独立レビュー2人）→ 4列（1440で約320px）
-        grid: { pc: 4, sp: 2, bigs: [{ i: 8, side: "R" }, { i: 20, side: "L" }, { i: 33, side: "R" }, { i: 46, side: "L" }, { i: 57, side: "R" }], size: "s" },
+        grid: { pc: 4, sp: 2, bigs: [{ i: 0, side: "R" }], size: "s" },
+        pick: 5, pickSp: 5, ix: { cols: 3, tw: 112 },
         // ライムの面が枠の大半を占め、擦った跡が残る＝暗い部品の章の中で最も遠くから効く
         feat: { slug: "scratch-card", at: "R" },
     },
@@ -152,12 +164,35 @@ const CHAPTERS: Record<string, Chapter> = {
         tone: "dark", kind: "count", align: "left", fs: 150, fsSp: 52, minH: 300, minHSp: 200, after: 72,
         line: "待ち時間を「進んでいる」に変える動き。",
         demo: { slug: "preloader-counter", ja: "プリローダーカウンター", params: "1.8s · expo-out" },
-        grid: { pc: 3, sp: 2, bigs: [{ i: 2, side: "R" }], size: "m" },
+        grid: { pc: 3, sp: 2, size: "m" },
+        pick: 3, pickSp: 2, ix: { cols: 2, tw: 128 },
         // 写真のタイルが時間差で点く＝「読み込み」の章で唯一、絵が枠いっぱいに出る
         feat: { slug: "stagger-grid", at: "C" },
     },
 }
 
+// ─── 格子を崩す（2026-10-25 Awwwards 6周目・指摘1）───────────────────────────
+// 6周続けて「中盤 約30,000px が黒い16:9の箱の均一な格子」と言われた（2人とも第1位）。
+// 章の中身を3つの質感に分けた：①実演面（フル幅・既存）②格子＝その章で「絵が面を埋める」数枚だけ ③索引＝残り全部を文字中心の一覧（小さなサムネ＋和名＋英名＋番号）。
+// 格子に残す項目は、ポスターのうち黒以外が占める割合（明度48超の画素率＋彩度40超の画素率×0.5）の高い順（r6/home/scores.json で実測）。
+// 黒地に小さな白文字のポスターは索引の小さなサムネに回る＝「黒い箱」が大きく並ばない。新しく増えた項目は索引に入る。
+// 章の地も分ける：暗い章（Hover / Transition / Media / Loading）は格子も索引も近黒の上（黒いポスターの地が溶けて「箱」が消える）、明るい章は生成り＋罫線。
+const PICK: Record<string, string[]> = {
+    hover: ["xray-lens", "shadow-pop", "lift-hover", "directional-hover", "holo-sheen", "row-expand", "fill-hover", "image-swap-hover"],
+    scroll: ["footer-reveal", "header-invert", "horizontal-scroll", "parallax", "scroll-zoom", "scroll-marquee"],
+    text: ["block-reveal", "outline-fill", "sliced-text", "text-flip", "split-text-reveal", "weight-morph"],
+    transition: ["split-screen", "menu-reveal", "gradient-morph", "cover-transition", "curtain-wipe", "zoom-through"],
+    media: ["grain-overlay", "ascii-effect", "quadtree-reveal", "image-parallax-hover", "carousel", "image-zoom-hover", "frosted-glass", "drag-scroll", "before-after"],
+    ui: ["theme-toggle-transition", "flip-card", "drawer-slide", "modal-pop", "prize-wheel", "bar-chart-grow", "stateful-button"],
+    loading: ["spiral-reveal", "liquid-fill", "circular-progress", "dots-pulse"],
+}
+/** 章の項目を「格子に残す pick 枚」と「索引」に分ける。索引は元の並び順のまま */
+function pickOut(key: string, items: Entry[], n: number): { pick: Entry[]; rest: Entry[] } {
+    const order = PICK[key] || []
+    const rank = (e: Entry) => { const i = order.indexOf(e.slug); return i < 0 ? 1e3 : i }
+    const pick = items.filter((e) => rank(e) < 1e3).sort((a, b) => rank(a) - rank(b)).slice(0, n)
+    return { pick, rest: items.filter((e) => !pick.includes(e)) }
+}
 
 const SR: CSSProperties = { position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }
 
@@ -177,6 +212,17 @@ interface DoorProps {
     isStatic: boolean
 }
 
+/** 演技が走った瞬間の合図：下線が左から走って消える（0.9s）。連打で途切れないよう、走っている間は撃ち直さない */
+function fireSig(el: HTMLElement | null) {
+    if (!el || typeof window === "undefined") return
+    const now = performance.now()
+    if (now - (Number(el.dataset.t) || 0) < 700) return
+    el.dataset.t = String(now)
+    el.classList.remove("on")
+    void el.offsetWidth
+    el.classList.add("on")
+}
+
 function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, hoverable, isStatic }: DoorProps) {
     const ch = CHAPTERS[c.key]
     const dark = ch.tone === "dark"
@@ -187,6 +233,7 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
     const tRef = useRef<HTMLSpanElement>(null)
     const fxRef = useRef<HTMLSpanElement>(null) // wipe の幕／count の数字
     const barRef = useRef<HTMLSpanElement>(null) // count の進捗線／skew の読み値
+    const sigRef = useRef<HTMLSpanElement>(null) // 演技が走った合図（「この扉の動き」の項目名の下線）
     // press：押している間だけ章名の地と文字を反転（ボタンの押下状態。色は増やさない）
     const accentRef = useRef(accent)
     const inkRef = useRef(ink)
@@ -229,8 +276,10 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                 barRef.current!.style.transform = "scaleX(0)"
             }
         }
+        const sig = () => fireSig(sigRef.current)
         const play = () => {
             armed = false
+            sig()
             if (ch.kind === "split") {
                 // split-text-reveal の既定値：stagger 30ms・0.6s・cubic-bezier(0.22,1,0.36,1)。移動量 30px は本文サイズの値なので、章名では 115%（マスクの外から）に読み替え
                 ls.forEach((l, i) => {
@@ -287,8 +336,10 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                 const y = window.scrollY
                 const target = Math.max(-8, Math.min(8, (y - last) * 0.5))
                 last = y
+                const was = Math.abs(cur)
                 cur += (target - cur) * 0.1
                 if (Math.abs(cur) < 0.01) cur = 0
+                if (was < 1 && Math.abs(cur) >= 1) sig()
                 t.style.transform = `skewY(${cur.toFixed(2)}deg)`
                 if (read) read.textContent = (cur < 0 ? "−" : "+") + Math.abs(cur).toFixed(1) + "°"
                 if (inView) raf = requestAnimationFrame(loop)
@@ -326,7 +377,7 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
             }
             const kick = () => { if (!running) { running = true; raf = requestAnimationFrame(loop) } }
             if (hoverable) {
-                const mv = (e: PointerEvent) => { px = e.clientX; py = e.clientY; has = true; kick() }
+                const mv = (e: PointerEvent) => { if (!has) sig(); px = e.clientX; py = e.clientY; has = true; kick() }
                 const lv = () => { has = false; kick() }
                 root.addEventListener("pointermove", mv)
                 root.addEventListener("pointerleave", lv)
@@ -337,6 +388,7 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                 ;(root as any)._start = () => {
                     if (done) return
                     done = true
+                    sig()
                     const r = t.getBoundingClientRect()
                     const t0 = performance.now()
                     const sweep = (now: number) => {
@@ -483,11 +535,15 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
             href={"/entries/" + ch.demo.slug}
             style={{ ...meta, color: dark ? accent : ink, textDecoration: "none", display: "inline-flex", gap: 10, alignItems: "baseline", flexWrap: "wrap", justifyContent: ch.align === "right" && !sp ? "flex-end" : "flex-start" }}
         >
-            <span style={{ color: sub }}>この扉の動き</span>
-            <span style={{ fontFamily: JP, fontWeight: 700, fontSize: sp ? 12 : 13, letterSpacing: "0.02em" }}>{ch.demo.ja}</span>
+            {/* 6周目（指摘3）：12px の灰色では初見が気づかなかった → 14〜16px。演技が走る瞬間に下線が走る（.mdx-sig） */}
+            <span style={{ color: sub, fontSize: sp ? 13 : 14 }}>この扉の動き</span>
+            <span style={{ position: "relative", fontFamily: JP, fontWeight: 700, fontSize: sp ? 15 : 16, letterSpacing: "0.02em" }}>
+                {ch.demo.ja}
+                <span ref={sigRef} aria-hidden className="mdx-sig" style={{ background: dark ? accent : ink }} />
+            </span>
             {/* 矢印は直前の語と離さない（SP で「↗」だけが次の行に落ちていた） */}
-            {sp ? <span style={{ whiteSpace: "nowrap" }}>{ch.demo.slug}<span aria-hidden> ↗</span></span> : <span>{ch.demo.slug}</span>}
-            {!sp ? <span style={{ color: sub, whiteSpace: "nowrap" }}>{ch.demo.params}<span aria-hidden style={{ color: dark ? accent : ink }}> ↗</span></span> : null}
+            {sp ? <span style={{ whiteSpace: "nowrap", fontSize: 13 }}>{ch.demo.slug}<span aria-hidden> ↗</span></span> : <span style={{ fontSize: 14 }}>{ch.demo.slug}</span>}
+            {!sp ? <span style={{ color: sub, whiteSpace: "nowrap", fontSize: 14 }}>{ch.demo.params}<span aria-hidden style={{ color: dark ? accent : ink }}> ↗</span></span> : null}
         </a>
     )
 
@@ -498,7 +554,8 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
             style={{
                 background: dark ? ink : paper,
                 color: fg,
-                borderTop: dark ? undefined : `1px solid ${ink}`,
+                // 暗い章が続く（Transition → Media）と境目が消えるので、暗い扉の頭にも細い罫
+                borderTop: dark ? "1px solid rgba(244,244,241,.16)" : `1px solid ${ink}`,
                 borderBottom: dark ? undefined : "1px solid rgba(10,10,10,.12)",
             }}
         >
@@ -597,6 +654,8 @@ export default function MotionDictionaryV2(props: Props) {
     const [w, setW] = useState(1200)
     const [hoverable, setHoverable] = useState(true)
     const [reduced, setReduced] = useState(false)
+    // 貼り付く検索バーの高さ（章の一覧の帯をその直下に貼る）。SSR とクライアント初回は 66
+    const [barH, setBarH] = useState(66)
     const rootRef = useRef<HTMLDivElement>(null)
     const barRef = useRef<HTMLDivElement>(null)
     const inited = useRef(false)
@@ -682,7 +741,10 @@ export default function MotionDictionaryV2(props: Props) {
         compute()
         const ro = new ResizeObserver(compute)
         ro.observe(el)
-        return () => ro.disconnect()
+        const bar = barRef.current
+        const ro2 = new ResizeObserver(() => { if (bar) setBarH(bar.offsetHeight) })
+        if (bar) ro2.observe(bar)
+        return () => { ro.disconnect(); ro2.disconnect() }
     }, [])
 
     useEffect(() => {
@@ -760,7 +822,7 @@ export default function MotionDictionaryV2(props: Props) {
         return { n, bigs: g.bigs || [], row: g.row === "all" || (g.row === "sp" && n === 1), size: g.size, wide: g.row === "all" }
     }
 
-    const Grid = ({ items, chapter }: { items: Entry[]; chapter?: string }) => {
+    const Grid = ({ items, chapter, rest = [], dark = false }: { items: Entry[]; chapter?: string; rest?: Entry[]; dark?: boolean }) => {
         const L = layoutFor(chapter)
         const n = L.n
         // 大判：3列以上は2列×2行、2列では全幅1行、1列・横長カードの章では無し
@@ -772,8 +834,30 @@ export default function MotionDictionaryV2(props: Props) {
         const colGap = sp ? 12 : small ? 20 : n === 2 ? 40 : 28
         const rowGap = sp ? (L.row ? 20 : 28) : small ? 32 : n === 2 ? 64 : 44
         const one = (e: Entry, o: { big?: boolean; row?: boolean; wide?: boolean }) => (
-            <Card e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} big={o.big} row={o.row} wide={o.wide} size={L.size} />
+            <Card e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} big={o.big} row={o.row} wide={o.wide} size={L.size} dark={dark} />
         )
+        // 索引（6周目）：格子に残さなかった項目を、文字中心の一覧に畳む。列数とサムネ幅は章ごと
+        const ch0 = chapter ? CHAPTERS[chapter] : undefined
+        const ix = ch0?.ix
+        const ixCols = !ix ? 1 : sp ? 1 : w < 900 ? 1 : w < 1240 ? Math.min(ix.cols, 2) : ix.cols
+        const ixWide = !!ix?.wide && !sp
+        const tw = sp ? 104 : ix ? (ixCols >= 3 && w < 1360 ? Math.min(ix.tw, 112) : ix.tw) : 128
+        const base = items.length + (chapter ? 1 : 0) // 番号は実演面（01）と格子の続きから
+        const index = rest.length ? (
+            <div className={"mdx-ixl" + (dark ? " dk" : "")} style={{ marginTop: items.length ? (sp ? 36 : 64) : 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 16, paddingBottom: sp ? 10 : 14, fontFamily: MONO, fontSize: sp ? 12 : 13, letterSpacing: "0.04em", color: dark ? "rgba(244,244,241,.62)" : muted }}>
+                    <span>索引 <span style={{ color: dark ? paper : ink }}>Index</span></span>
+                    <span style={{ fontVariantNumeric: "tabular-nums" }}>{String(base + 1).padStart(2, "0")}–{String(base + rest.length).padStart(2, "0")}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: `repeat(${ixCols}, minmax(0, 1fr))`, columnGap: sp ? 0 : 40 }}>
+                    {rest.map((e, k) => (
+                        <div key={e.slug} className="mdx-gi" data-c={k % ixCols} style={{ minWidth: 0 }}>
+                            <IndexRow e={e} no={base + k + 1} ink={ink} paper={paper} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} dark={dark} tw={tw} wide={ixWide} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        ) : null
         const body = (
             <>
                 {P.places.length ? (
@@ -797,6 +881,7 @@ export default function MotionDictionaryV2(props: Props) {
                         ))}
                     </div>
                 ) : null}
+                {index}
             </>
         )
         const frame: CSSProperties = { padding: `${sp ? 20 : 40}px ${gutter}px 8px`, maxWidth: 1680, margin: "0 auto", boxSizing: "border-box", width: "100%" }
@@ -804,9 +889,22 @@ export default function MotionDictionaryV2(props: Props) {
         // 検索結果（章なし）は素の一覧。章の一覧は、その章の扉と同じ動きの言語で一覧全体が振る舞う
         if (!ch) return <div style={frame}>{body}</div>
         return (
-            <GridFx key={"gx-" + chapter} kind={ch.kind} demo={ch.demo} n={items.length} frame={frame} ink={ink} muted={muted} sp={sp} hoverable={hoverable} reduced={reduced} isStatic={isStatic}>
+            <GridFx key={"gx-" + chapter} kind={ch.kind} demo={ch.demo} n={items.length + rest.length} frame={frame} ink={ink} paper={paper} muted={muted} accent={accent} sp={sp} hoverable={hoverable} reduced={reduced} isStatic={isStatic} dark={dark} top={stickyTop + barH} gutter={gutter}>
                 {body}
             </GridFx>
+        )
+    }
+    // 章の中身（実演面＋格子＋索引）。地は章の調子（暗い章は近黒・明るい章は生成り）で、版面の外まで塗る
+    const Body = (key: string, items: Entry[]) => {
+        const S = split(key, items)
+        const ch = CHAPTERS[key]
+        const dark = ch?.tone === "dark"
+        const O = pickOut(key, S.rest, ch ? (sp ? ch.pickSp : ch.pick) : S.rest.length)
+        return (
+            <div className={dark ? "mdx-dk" : undefined} style={{ background: dark ? ink : paper }}>
+                {S.feat ? Lead({ e: S.feat, at: S.at, n: items.length, chapter: key }) : null}
+                {Grid({ items: O.pick, rest: O.rest, chapter: key, dark })}
+            </div>
         )
     }
 
@@ -914,7 +1012,7 @@ export default function MotionDictionaryV2(props: Props) {
 /* 一覧の振る舞い（GridFx）。transform / opacity / clip-path だけ */
 .mdx-gi{position:relative}
 .gx-split .mdx-gi.gx-sa,.gx-split .mdx-gi.gx-sg{clip-path:inset(-24px -24px 0 -24px)}
-.gx-split .mdx-gi.gx-sa>*{transform:translateY(62%);opacity:0}
+.gx-split .mdx-gi.gx-sa>*{transform:translateY(100%);opacity:0}
 .gx-split .mdx-gi.gx-sg>*{transition:transform .6s cubic-bezier(.22,1,.36,1) var(--gd,0ms),opacity .6s ease var(--gd,0ms)}
 .gx-clip .mdx-gi .ph>img,.gx-clip .mdx-gi .ph>video{clip-path:inset(0 0 0 0)}
 .gx-clip .mdx-gi.gx-ca .ph>img,.gx-clip .mdx-gi.gx-ca .ph>video{clip-path:inset(0 100% 0 0)}
@@ -923,9 +1021,31 @@ export default function MotionDictionaryV2(props: Props) {
 .gx-wipe .mdx-gi.gx-cw .lf::before{animation:gx-cw 1.66s var(--gd,0ms) both}
 @keyframes gx-cw{0%{transform:scaleX(0);transform-origin:left center;animation-timing-function:cubic-bezier(.76,0,.24,1)}48.2%{transform:scaleX(1);transform-origin:left center}51.8%{transform:scaleX(1);transform-origin:right center;animation-timing-function:cubic-bezier(.76,0,.24,1)}100%{transform:scaleX(0);transform-origin:right center}}
 .gx-press .mdx-gi{transition:transform .2s ease-out}
-.gx-press .mdx-gi.gx-pd{transform:translateY(2px) scale(.97);transition:transform .05s ease-out}
+.gx-press .mdx-gi.gx-pd{transform:translateY(6px) scale(.94);transition:transform .05s ease-out}
 .gx-press .mdx-gi.gx-pw{animation:gx-pw .51s var(--gd,0ms) both}
-@keyframes gx-pw{0%{transform:none;animation-timing-function:ease-out}9.8%{transform:translateY(2px) scale(.97)}60.8%{transform:translateY(2px) scale(.97);animation-timing-function:ease-out}100%{transform:none}}
+@keyframes gx-pw{0%{transform:none;animation-timing-function:ease-out}9.8%{transform:translateY(6px) scale(.94)}60.8%{transform:translateY(6px) scale(.94);animation-timing-function:ease-out}100%{transform:none}}
+/* 暗い章（6周目）：幕は近黒の地では見えないので生成り（ライムで面を塗ると「印だけ」の約束を破る） */
+.gx-wipe.dk .mdx-gi .lf::before{background:${paper}}
+/* 演技が走った合図（扉と一覧の帯の項目名の下線） */
+.mdx-sig{position:absolute;left:0;right:0;bottom:-5px;height:2px;transform:scaleX(0);transform-origin:left center;pointer-events:none;opacity:0}
+.mdx-sig.on{animation:mdx-sig .9s cubic-bezier(.22,1,.36,1) both}
+@keyframes mdx-sig{0%{transform:scaleX(0);opacity:1}45%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
+/* 暗い章の地：黒いポスターの地が溶ける＝「箱」が消えて中身だけが浮く。枠は細い生成りの線で残す */
+.mdx-dk .mdx-card .ph{background:#121211}
+.mdx-dk .mdx-card .ph::after{box-shadow:inset 0 0 0 1px rgba(244,244,241,.12)}
+.mdx-dk .mdx-card .lf::after{box-shadow:0 24px 48px rgba(0,0,0,.5)}
+/* 索引（6周目）：文字中心の一覧。サムネ＋番号＋和名＋英名（広い章は説明1行）。罫線1px */
+.mdx-card.mdx-ix{display:grid;grid-template-columns:var(--tw) minmax(0,1fr) auto;align-items:center;column-gap:18px;padding:14px 0;border-top:1px solid rgba(10,10,10,.14)}
+.mdx-ixl.dk .mdx-card.mdx-ix{border-top-color:rgba(244,244,241,.14)}
+.mdx-ix .ph{border-radius:4px}
+.mdx-ix .ph::after{border-radius:4px}
+.mdx-ix .lf::after{display:none}
+.mdx-ix .no{font-family:${MONO};font-size:12px;letter-spacing:.04em;font-variant-numeric:tabular-nums;align-self:start;padding-top:2px}
+@media (hover:hover) and (pointer:fine){
+.mdx-card.mdx-ix:hover .lf{transform:scale(1.06)}
+.mdx-card.mdx-ix:hover .tx{transform:translateX(6px)}
+}
+@media (max-width: 639px){.mdx-card.mdx-ix{column-gap:14px;padding:12px 0}}
 .gx-count .mdx-gi{transition:opacity .18s ease-out}
 .gx-count .mdx-gi.gx-dim{opacity:.28}
 @media (prefers-reduced-motion: reduce){.gx-wipe .mdx-gi .lf::before{display:none}.mdx-gi{transition:none!important;animation:none!important;opacity:1!important;transform:none!important}}
@@ -1044,13 +1164,7 @@ export default function MotionDictionaryV2(props: Props) {
                         // 1カテゴリの絞り込み（検索なし）はその章の並びを使う。検索中は均一の並び
                         !searching && activeCat !== "all" ? (
                             (() => {
-                                const S = split(activeCat, filtered)
-                                return (
-                                    <>
-                                        {S.feat ? Lead({ e: S.feat, at: S.at, n: filtered.length, chapter: activeCat }) : null}
-                                        {Grid({ items: S.rest, chapter: activeCat })}
-                                    </>
-                                )
+                                return Body(activeCat, filtered)
                             })()
                         ) : (
                             Grid({ items: filtered })
@@ -1082,21 +1196,13 @@ export default function MotionDictionaryV2(props: Props) {
                     if (!items.length) return null
                     const ch = CHAPTERS[c.key]
                     return (
-                        <section key={c.key} aria-labelledby={"cat-" + c.key} style={{ paddingBottom: sp ? Math.round(ch.after * 0.5) : ch.after }}>
+                        <section key={c.key} aria-labelledby={"cat-" + c.key} style={{ paddingBottom: sp ? Math.round(ch.after * 0.5) : ch.after, background: ch.tone === "dark" ? ink : paper }}>
                             {/* 扉はフックを持つので要素として描く（関数呼び出しにすると件数0→196でフックの数が変わる） */}
                             <Door
                                 c={c} n={items.length} idx={i} ink={ink} paper={paper} muted={muted} accent={accent} w={w} sp={sp} gutter={gutter}
                                 reduced={reduced} hoverable={hoverable} isStatic={isStatic}
                             />
-                            {(() => {
-                                const S = split(c.key, items)
-                                return (
-                                    <>
-                                        {S.feat ? Lead({ e: S.feat, at: S.at, n: items.length, chapter: c.key }) : null}
-                                        {Grid({ items: S.rest, chapter: c.key })}
-                                    </>
-                                )
-                            })()}
+                            {Body(c.key, items)}
                         </section>
                     )
                 })
@@ -1115,14 +1221,17 @@ export default function MotionDictionaryV2(props: Props) {
 // 「出る前」に隠すのは画面のすぐ下（1.5画面ぶん）に来たセルだけ＝全ページ撮影や遠い位置で空のカードを見せない。
 // 幕（transition）と押下（ui）は「見えている状態から1回崩して戻す」ので、隠す状態を持たない。
 // 毎フレーム回るのは hover と scroll の2つだけで、どちらも一覧が画面にある間・動いている間だけ。
-const GRID_FX: Record<Kind, { params: string }> = {
-    magnetic: { params: "pull 0.06 · max 12px · lerp 0.12" },
-    skew: { params: "factor 0.15 · max 2.5°" },
-    split: { params: "stagger 80ms · 0.6s" },
-    wipe: { params: "0.8s × 2 · in-out" },
-    clip: { params: "0.9s · expo-out" },
-    press: { params: "scale 0.97 · 0.05s / 0.2s" },
-    count: { params: "1.8s · expo-out" },
+// 6周目（指摘2）：pull 0.06・最大12px、skew 最大2.5° では撮影で一度も見えなかった（独立レビュー B）。
+// 体感できる大きさへ引き上げ、章の一覧の頭に貼り付く帯に「いまの一覧の動き＝◯◯ 値」をライブで出す（値が動くと数字も動く）。
+// 読みやすさの線：skew は止まれば 0°（読むのは止まってから）、磁石は最大 28px（カードの余白 28〜40px を越えない）。
+const GRID_FX: Record<Kind, { params: string; idle: string }> = {
+    magnetic: { params: "pull 0.18 · max 28px · lerp 0.12", idle: "offset 0.0px" },
+    skew: { params: "factor 0.35 · max 7°", idle: "skewY +0.0°" },
+    split: { params: "stagger 80ms · 0.6s · rise 100%", idle: "translateY 0%" },
+    wipe: { params: "0.8s × 2 · in-out", idle: "scaleX 0.00" },
+    clip: { params: "0.9s · expo-out", idle: "inset(0 0% 0 0)" },
+    press: { params: "scale 0.94 · 6px · 0.05s / 0.2s", idle: "scale 1.000" },
+    count: { params: "1.8s · expo-out", idle: "" },
 }
 
 interface GridFxProps {
@@ -1131,18 +1240,25 @@ interface GridFxProps {
     n: number
     frame: CSSProperties
     ink: string
+    paper: string
     muted: string
+    accent: string
     sp: boolean
     hoverable: boolean
     reduced: boolean
     isStatic: boolean
+    dark: boolean
+    top: number // 帯を貼る位置（検索バーの下端）
+    gutter: number
     children: ReactNode
 }
 
-function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isStatic, children }: GridFxProps) {
+function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable, reduced, isStatic, dark, top, gutter, children }: GridFxProps) {
     const rootRef = useRef<HTMLDivElement>(null)
     const wrapRef = useRef<HTMLDivElement>(null)
     const cntRef = useRef<HTMLSpanElement>(null)
+    const readRef = useRef<HTMLSpanElement>(null) // いまの値（ライブ）
+    const sigRef = useRef<HTMLSpanElement>(null) // 演技が走った合図
 
     useEffect(() => {
         if (isStatic || reduced || typeof window === "undefined" || !("IntersectionObserver" in window)) return
@@ -1163,6 +1279,53 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
         const vis = new IntersectionObserver((es) => { for (const en of es) inView = en.isIntersecting }, { threshold: 0 })
         vis.observe(root)
         offs.push(() => vis.disconnect())
+        const say = (s: string) => { const r = readRef.current; if (r && r.textContent !== s) r.textContent = s }
+        const sig = () => fireSig(sigRef.current)
+
+        // ── 入る型（split / clip / wipe / press）の読み値：最後に動き出したセルの今の値を、動いている間だけ毎フレーム読む
+        let mEl: HTMLElement | null = null
+        let mEnd = 0
+        let mRaf = 0
+        const num = (m: string, i: number) => { const v = (m.match(/-?[\d.]+/g) || [])[i]; return v ? parseFloat(v) : NaN }
+        const readNow = (el: HTMLElement): string => {
+            if (kind === "split") {
+                const c = el.firstElementChild as HTMLElement | null
+                if (!c) return ""
+                const ty = num(getComputedStyle(c).transform, 5)
+                return `translateY ${Math.round(((ty || 0) / Math.max(1, c.offsetHeight)) * 100)}%`
+            }
+            if (kind === "clip") {
+                const im = el.querySelector(".ph>img") as HTMLElement | null
+                const cp = im ? getComputedStyle(im).clipPath : ""
+                const r = num(cp, 1)
+                return `inset(0 ${Math.round(r || 0)}% 0 0)`
+            }
+            if (kind === "wipe") {
+                const lf = el.querySelector(".lf") as HTMLElement | null
+                const tf = lf ? getComputedStyle(lf, "::before").transform : ""
+                const a = tf && tf !== "none" ? num(tf, 0) : 0
+                return `scaleX ${(a || 0).toFixed(2)}`
+            }
+            if (kind === "press") {
+                const tf = getComputedStyle(el).transform
+                const a = tf && tf !== "none" ? num(tf, 0) : 1
+                return `scale ${(a || 1).toFixed(3)}`
+            }
+            return ""
+        }
+        const meter = (el: HTMLElement, ms: number) => {
+            mEl = el
+            mEnd = performance.now() + ms
+            sig()
+            if (mRaf) return
+            const step = () => {
+                if (!mEl || performance.now() > mEnd) { mRaf = 0; say(GRID_FX[kind].idle); return }
+                say(readNow(mEl))
+                mRaf = requestAnimationFrame(step)
+            }
+            mRaf = requestAnimationFrame(step)
+        }
+        offs.push(() => { cancelAnimationFrame(mRaf); mRaf = 0 })
 
         // ── 入る直前に「出る前」へ、目に入る帯で「出る」。完全に画面外へ出たら完成形に戻す（次の入場で再び）
         // arm/play/reset はセルごと。帯：画面の下 1.5画面ぶんに入ったら arm（まだ見えていないものだけ）
@@ -1198,17 +1361,20 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
         }
 
         if (kind === "skew") {
-            // velocity-skew：速度(px/フレーム)×0.15 → ±2.5° → lerp 0.1。扉（×0.5・±8°）と同じ式で、面が大きいぶん弱く
+            // velocity-skew：速度(px/フレーム)×0.35 → ±7° → lerp 0.1。扉（×0.5・±8°）と同じ式
             let last = window.scrollY, cur = 0, running = false
             const loop = () => {
                 const y = window.scrollY
-                const target = Math.max(-2.5, Math.min(2.5, (y - last) * 0.15))
+                const target = Math.max(-7, Math.min(7, (y - last) * 0.35))
                 last = y
+                const was = Math.abs(cur)
                 cur += (target - cur) * 0.1
+                if (was < 1 && Math.abs(cur) >= 1) sig()
                 if (Math.abs(cur) < 0.01 && Math.abs(target) < 0.01) {
                     cur = 0
                     wrap.style.transform = ""
                     wrap.style.willChange = ""
+                    say(GRID_FX.skew.idle)
                     running = false
                     return
                 }
@@ -1216,6 +1382,7 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
                 const r = root.getBoundingClientRect()
                 wrap.style.transformOrigin = `50% ${Math.round(window.innerHeight / 2 - r.top)}px`
                 wrap.style.transform = `skewY(${cur.toFixed(2)}deg)`
+                say(`skewY ${cur < 0 ? "−" : "+"}${Math.abs(cur).toFixed(1)}°`)
                 raf = requestAnimationFrame(loop)
             }
             on(window, "scroll", () => {
@@ -1230,11 +1397,11 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
         }
 
         if (kind === "magnetic") {
-            // magnetic-hover：半径内でカーソルへ寄る（差分×0.06・最大12px）。追従 lerp 0.12、戻り 0.084
-            // タッチ：画面の中央の横線が磁石。スクロールで通り過ぎるカードが中央へ最大8px寄る
+            // magnetic-hover：半径480内でカーソルへ寄る（差分×0.18×近さ・最大28px）。追従 lerp 0.12、戻り 0.084
+            // タッチ：画面の中央の横線が磁石。スクロールで通り過ぎるカードが中央へ最大16px寄る
             let list: { el: HTMLElement; x: number; y: number; ox: number; oy: number }[] = []
             let px = 0, py = 0, has = false, running = false
-            const R = 420, MAX = hoverable ? 12 : 8
+            const R = 480, MAX = hoverable ? 28 : 16
             const measure = () => {
                 list = cells().map((el) => {
                     const prev = list.find((q) => q.el === el)
@@ -1245,6 +1412,7 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
             }
             const loop = () => {
                 let moving = false
+                let peak = 0
                 const sy = window.scrollY, sx = window.scrollX, vh = window.innerHeight
                 for (const q of list) {
                     const cx = q.x - sx, cy = q.y - sy
@@ -1253,26 +1421,28 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
                     if (hoverable) {
                         const dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy)
                         if (has && d < R) {
-                            const k = 0.06 * (1 - d / R) * 2
+                            const k = 0.18 * (1 - d / R) * 2
                             tx = Math.max(-MAX, Math.min(MAX, dx * k))
                             ty = Math.max(-MAX, Math.min(MAX, dy * k))
                         }
                     } else {
                         const dy = vh / 2 - cy
-                        if (Math.abs(dy) < vh * 0.6) ty = Math.max(-MAX, Math.min(MAX, dy * 0.03 * (1 - Math.abs(dy) / (vh * 0.6)) * 2))
+                        if (Math.abs(dy) < vh * 0.6) ty = Math.max(-MAX, Math.min(MAX, dy * 0.06 * (1 - Math.abs(dy) / (vh * 0.6)) * 2))
                     }
                     const kk = tx || ty ? 0.12 : 0.084
                     q.ox += (tx - q.ox) * kk
                     q.oy += (ty - q.oy) * kk
                     if (Math.abs(tx - q.ox) > 0.05 || Math.abs(ty - q.oy) > 0.05) moving = true
+                    peak = Math.max(peak, Math.abs(q.ox), Math.abs(q.oy))
                     q.el.style.transform = Math.abs(q.ox) < 0.05 && Math.abs(q.oy) < 0.05 && !tx && !ty ? "" : `translate3d(${q.ox.toFixed(2)}px,${q.oy.toFixed(2)}px,0)`
                 }
+                say(`offset ${peak.toFixed(1)}px`)
                 if (moving && inView) raf = requestAnimationFrame(loop)
                 else running = false
             }
             const kick = () => { if (!running) { running = true; raf = requestAnimationFrame(loop) } }
             if (hoverable) {
-                on(root, "pointerenter", (e: PointerEvent) => { if (e.pointerType === "mouse") { measure(); has = true; px = e.clientX; py = e.clientY; kick() } })
+                on(root, "pointerenter", (e: PointerEvent) => { if (e.pointerType === "mouse") { measure(); has = true; px = e.clientX; py = e.clientY; sig(); kick() } })
                 on(root, "pointermove", (e: PointerEvent) => { if (e.pointerType !== "mouse") return; if (!list.length) measure(); px = e.clientX; py = e.clientY; has = true; kick() })
                 on(root, "pointerleave", () => { has = false; kick() })
                 on(window, "scroll", () => { if (has) kick() }, { passive: true })
@@ -1291,6 +1461,7 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
                     el.style.setProperty("--gd", col(el) * 80 + "ms")
                     el.classList.add("gx-sg")
                     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("gx-sa")))
+                    meter(el, 720 + col(el) * 80)
                     later(() => el.classList.remove("gx-sg"), 700 + col(el) * 80)
                 },
                 (el) => el.classList.remove("gx-sa", "gx-sg"),
@@ -1305,6 +1476,7 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
                     el.style.setProperty("--gd", col(el) * 70 + "ms")
                     el.classList.add("gx-cg")
                     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("gx-ca")))
+                    meter(el, 1000 + col(el) * 70)
                     later(() => el.classList.remove("gx-cg"), 1000 + col(el) * 70)
                 },
                 (el) => el.classList.remove("gx-ca", "gx-cg"),
@@ -1318,6 +1490,7 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
                 (el) => {
                     el.style.setProperty("--gd", col(el) * 90 + "ms")
                     el.classList.add("gx-cw")
+                    meter(el, 1700 + col(el) * 90)
                     later(() => el.classList.remove("gx-cw"), 1700 + col(el) * 90)
                 },
                 (el) => el.classList.remove("gx-cw"),
@@ -1325,19 +1498,20 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
         }
 
         if (kind === "press") {
-            // press-feedback：入ると1回押されて沈む（0.05s で scale 0.97・2px → 0.2s で戻す）。列ごとに 70ms＝鍵盤を順に叩く
+            // press-feedback：入ると1回押されて沈む（0.05s で scale 0.94・6px → 0.2s で戻す）。列ごとに 70ms＝鍵盤を順に叩く
             entry(
                 null,
                 (el) => {
                     el.style.setProperty("--gd", col(el) * 70 + "ms")
                     el.classList.add("gx-pw")
+                    meter(el, 640 + col(el) * 70)
                     later(() => el.classList.remove("gx-pw"), 620 + col(el) * 70)
                 },
                 (el) => el.classList.remove("gx-pw"),
             )
             // 押している間は沈む（タッチもマウスも）
             const up = (e: Event) => { const g = (e.target as HTMLElement)?.closest?.(".mdx-gi"); wrap.querySelectorAll(".gx-pd").forEach((x) => { if (x !== g || e.type !== "pointerdown") x.classList.remove("gx-pd") }) }
-            on(wrap, "pointerdown", (e: PointerEvent) => { const g = (e.target as HTMLElement)?.closest?.(".mdx-gi") as HTMLElement | null; if (g) { g.classList.remove("gx-pw"); g.classList.add("gx-pd") } })
+            on(wrap, "pointerdown", (e: PointerEvent) => { const g = (e.target as HTMLElement)?.closest?.(".mdx-gi") as HTMLElement | null; if (g) { g.classList.remove("gx-pw"); g.classList.add("gx-pd"); meter(g, 400) } })
             on(window, "pointerup", up)
             on(window, "pointercancel", up)
             on(wrap, "pointerleave", up)
@@ -1349,7 +1523,7 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
             let sequencing = false
             const cnt = cntRef.current
             const total = () => cells().length
-            const label = (k: number) => { if (cnt) cnt.textContent = `${String(k).padStart(2, "0")} / ${String(total()).padStart(2, "0")}` }
+            const label = (k: number) => { if (cnt) cnt.textContent = `lit ${String(k).padStart(2, "0")} / ${String(total()).padStart(2, "0")}` }
             const arm = () => { armed = true; cells().forEach((el) => el.classList.add("gx-dim")); label(0) }
             const reset = () => { armed = false; sequencing = false; cancelAnimationFrame(raf); cells().forEach((el) => el.classList.remove("gx-dim")); label(total()) }
             let lit = 0
@@ -1372,6 +1546,7 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
             const play = () => {
                 armed = false
                 lit = 0
+                sig()
                 const vh = window.innerHeight
                 const list = cells().filter((el) => { const r = el.getBoundingClientRect(); return r.top < vh * 0.88 && r.bottom > 0 })
                 const N = list.length
@@ -1412,23 +1587,36 @@ function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isSt
             cancelAnimationFrame(raf)
             timers.forEach((t) => clearTimeout(t))
             offs.forEach((f) => f())
+            say(GRID_FX[kind].idle)
         }
     }, [kind, hoverable, reduced, isStatic])
 
-    const meta: CSSProperties = { fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.04em", color: muted, fontVariantNumeric: "tabular-nums" }
+    const fg = dark ? paper : ink
+    const sub = dark ? "rgba(244,244,241,.62)" : muted
+    const bg = dark ? ink : PAPER
+    const meta: CSSProperties = { fontFamily: MONO, fontSize: sp ? 13 : 14, letterSpacing: "0.03em", color: sub, fontVariantNumeric: "tabular-nums" }
+    // 値の札：FV の「↑ いまの見出し＝」と同じ見え方（明るい地＝ライムの薄い下敷きに近黒の字／暗い地＝ライムの字）
+    const chipCss: CSSProperties = dark
+        ? { color: accent, background: "rgba(165,224,46,.14)" }
+        : { color: ink, background: "rgba(165,224,46,.38)" }
+    const live = kind === "count" ? `lit ${String(n).padStart(2, "0")} / ${String(n).padStart(2, "0")}` : GRID_FX[kind].idle
     return (
-        <div ref={rootRef} className={"mdx-gx gx-" + kind} style={frame}>
-            {/* 扉と同じ自己言及：この一覧の振る舞い自体が辞典の1項目 */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 16, marginBottom: sp ? 14 : 20, minHeight: 18 }}>
-                <a className="mdx-credit" href={"/entries/" + demo.slug} style={{ ...meta, color: ink, textDecoration: "none", display: "inline-flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
-                    <span style={{ color: muted }}>この一覧の動き</span>
-                    <span style={{ fontFamily: JP, fontWeight: 700, fontSize: sp ? 12 : 13, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>{demo.ja}{sp ? <span aria-hidden> ↗</span> : null}</span>
+        <div ref={rootRef} className={"mdx-gx gx-" + kind + (dark ? " dk" : "")} style={frame}>
+            {/* 扉と同じ自己言及：この一覧の振る舞い自体が辞典の1項目。帯は検索バーの直下に貼り付き、章の一覧を読んでいる間ずっと値が見える */}
+            <div className="mdx-gxbar" style={{ position: "sticky", top, zIndex: 4, background: bg, margin: `0 -${gutter}px ${sp ? 14 : 22}px`, padding: `${sp ? 8 : 10}px ${gutter}px`, borderBottom: `1px solid ${dark ? "rgba(244,244,241,.14)" : "rgba(10,10,10,.12)"}`, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, minHeight: sp ? 36 : 40, boxSizing: "border-box" }}>
+                <a className="mdx-credit" href={"/entries/" + demo.slug} style={{ ...meta, color: fg, textDecoration: "none", display: "inline-flex", gap: sp ? 8 : 12, alignItems: "baseline", minWidth: 0, overflow: "hidden", whiteSpace: "nowrap" }}>
+                    <span style={{ color: sub }}>{sp ? "一覧の動き" : "この一覧の動き"}</span>
+                    <span style={{ position: "relative", fontFamily: JP, fontWeight: 700, fontSize: sp ? 15 : 16, letterSpacing: "0.02em" }}>
+                        {demo.ja}{sp ? <span aria-hidden> ↗</span> : null}
+                        <span ref={sigRef} aria-hidden className="mdx-sig" style={{ background: dark ? accent : ink }} />
+                    </span>
                     {!sp ? <span>{demo.slug}</span> : null}
-                    {!sp ? <span style={{ color: muted, whiteSpace: "nowrap" }}>{GRID_FX[kind].params}<span aria-hidden style={{ color: ink }}> ↗</span></span> : null}
+                    {!sp ? <span style={{ color: sub, overflow: "hidden", textOverflow: "ellipsis" }}>{GRID_FX[kind].params}<span aria-hidden style={{ color: fg }}> ↗</span></span> : null}
                 </a>
-                {kind === "count" ? (
-                    <span ref={cntRef} aria-hidden style={{ ...meta, color: ink }}>{`${String(n).padStart(2, "0")} / ${String(n).padStart(2, "0")}`}</span>
-                ) : null}
+                <span aria-hidden style={{ ...meta, color: fg, display: "inline-flex", alignItems: "baseline", gap: 10, flex: "none" }}>
+                    {!sp ? <span style={{ color: sub }}>いま</span> : null}
+                    <span ref={kind === "count" ? cntRef : readRef} style={{ ...chipCss, fontFamily: MONO, fontSize: sp ? 13 : 15, borderRadius: 3, padding: "1px 7px", whiteSpace: "nowrap", display: "inline-block", minWidth: sp ? "11ch" : "13ch", textAlign: "center" }}>{live}</span>
+                </span>
             </div>
             <div ref={wrapRef} className="mdx-gw">{children}</div>
         </div>
@@ -1702,12 +1890,20 @@ interface CardProps {
     row?: boolean
     wide?: boolean // 横長カード（文字の章：見本が読める大きさのポスター＋説明）
     size?: "s" | "m" | "l"
+    dark?: boolean // 暗い章の地（6周目）
 }
 
-function Card({ e, ink, muted, accent, hoverable, reduced, isStatic, sp, big, row, wide, size = "m" }: CardProps) {
+// 6周目（指摘6）：一覧の名前の演技は 600ms 以内（1.2s だと撮った瞬間に「メニ_」「グラデーシ」と途中で止まって見えた）
+const CARD_CAP = 600
+const DIM_ON_INK = "rgba(244,244,241,.62)"
+
+function Card({ e, ink, muted, accent, hoverable, reduced, isStatic, sp, big, row, wide, size = "m", dark = false }: CardProps) {
     const P = usePlay(e.slug, big ? 1.5 : 1, hoverable, isStatic)
     const nameRef = useRef<HTMLSpanElement>(null)
-    const pf = useCardPerform(nameRef, e, { hoverable, reduced, isStatic, cap: 1200, colors: { ink, paper: PAPER, muted, accent } })
+    const fg = dark ? PAPER : ink
+    const sub = dark ? DIM_ON_INK : muted
+    // 暗い地では演技の「地」と「字」を入れ替える（実演面と同じ）
+    const pf = useCardPerform(nameRef, e, { hoverable, reduced, isStatic, cap: CARD_CAP, colors: dark ? { ink: PAPER, paper: ink, muted: DIM_ON_INK, accent } : { ink, paper: PAPER, muted, accent } })
     const [main, alt] = splitName(e.nameJa)
 
     return (
@@ -1726,7 +1922,7 @@ function Card({ e, ink, muted, accent, hoverable, reduced, isStatic, sp, big, ro
                         fontWeight: 700,
                         lineHeight: 1.45,
                         letterSpacing: "-0.005em",
-                        color: ink,
+                        color: fg,
                         // PC：横は切って省略記号、縦は演技のはみ出し（跳ねる・浮く）を見せる。
                         // SP：2列で1枚 170px 前後しかなく「…」で切れていた（5周目・独立レビュー A/B）→ 折り返して全部見せる。言い換えの括弧は小さく薄く
                         ...(sp
@@ -1738,17 +1934,70 @@ function Card({ e, ink, muted, accent, hoverable, reduced, isStatic, sp, big, ro
                     <span ref={nameRef} className="mdx-pf">
                         <span className="mdt-t">{charPhrases(main)}</span>
                     </span>
-                    {alt ? (sp ? <span style={{ fontSize: "0.86em", fontWeight: 400, color: muted }}>（{alt}）</span> : `（${alt}）`) : null}
+                    {alt ? (sp ? <span style={{ fontSize: "0.86em", fontWeight: 400, color: sub }}>（{alt}）</span> : `（${alt}）`) : null}
                 </span>
-                <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.01em", color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.01em", color: sub, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {sentence(e.nameEn)}
                 </span>
                 {(big || row || size === "l") && !(sp && row) ? (
-                    <span style={{ marginTop: 8, fontSize: 14, lineHeight: 1.8, color: "#45453F", maxWidth: 640, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    <span style={{ marginTop: 8, fontSize: 14, lineHeight: 1.8, color: dark ? "rgba(244,244,241,.78)" : "#45453F", maxWidth: 640, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                         {e.lede}
                     </span>
                 ) : null}
             </span>
+        </a>
+    )
+}
+
+// ─── 索引の1行（2026-10-25 Awwwards 6周目・指摘1）───────────────────────────
+// 構造はカードと同じ（a.mdx-card > .lf > .ph > img/video）＝カード→詳細の伸びる遷移・戻りの位置復元・録画の自動再生（優先度は低め）・名前の演技がそのまま効く。
+// 見た目は辞典の索引：小さなサムネ（16:9）＋和名＋英名（広い章は説明1行）＋通し番号。罫線1px で区切る
+interface IndexRowProps {
+    e: Entry
+    no: number
+    ink: string
+    paper: string
+    muted: string
+    accent: string
+    hoverable: boolean
+    reduced: boolean
+    isStatic: boolean
+    sp: boolean
+    dark: boolean
+    tw: number
+    wide: boolean
+}
+function IndexRow({ e, no, ink, paper, muted, accent, hoverable, reduced, isStatic, sp, dark, tw, wide }: IndexRowProps) {
+    const P = usePlay(e.slug, 0.5, hoverable, isStatic)
+    const nameRef = useRef<HTMLSpanElement>(null)
+    const fg = dark ? paper : ink
+    const sub = dark ? DIM_ON_INK : muted
+    const pf = useCardPerform(nameRef, e, { hoverable, reduced, isStatic, cap: CARD_CAP, colors: dark ? { ink: paper, paper: ink, muted: DIM_ON_INK, accent } : { ink, paper, muted, accent } })
+    const [main, alt] = splitName(e.nameJa)
+    const fs = wide ? 22 : sp ? 15 : 16
+    return (
+        <a className="mdx-card mdx-ix" data-slug={e.slug} href={"/entries/" + e.slug} title={`${e.nameJa} — ${sentence(e.nameEn)}`} style={{ ["--tw" as string]: tw + "px", color: fg } as CSSProperties} {...P.hov} {...pf}>
+            <span className="lf">
+                <Media e={e} isStatic={isStatic} P={P} />
+            </span>
+            <span className="tx" style={{ display: "flex", flexDirection: "column", gap: wide ? 4 : 2, minWidth: 0 }}>
+                {/* SP は省略記号で切らずに折り返す（5周目のカードと同じ） */}
+                <span className={sp ? "nm w" : "nm"} style={{ alignSelf: "flex-start", maxWidth: "100%", fontFamily: JP, fontSize: fs, fontWeight: 700, lineHeight: 1.45, letterSpacing: wide ? "-0.01em" : "0", color: fg, ...(sp ? { whiteSpace: "normal", overflow: "visible", lineBreak: "strict" } : { overflowX: "clip", overflowY: "visible", textOverflow: "ellipsis", whiteSpace: "nowrap" }) } as CSSProperties}>
+                    <span ref={nameRef} className="mdx-pf">
+                        <span className="mdt-t">{charPhrases(main)}</span>
+                    </span>
+                    {alt ? <span style={{ fontSize: "0.8em", fontWeight: 400, color: sub }}>（{alt}）</span> : null}
+                </span>
+                <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.01em", color: sub, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {sentence(e.nameEn)}
+                </span>
+                {wide ? (
+                    <span style={{ marginTop: 4, fontSize: 14, lineHeight: 1.7, color: dark ? "rgba(244,244,241,.78)" : "#45453F", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 760 }}>
+                        {e.lede}
+                    </span>
+                ) : null}
+            </span>
+            <span className="no" aria-hidden style={{ color: sub }}>{String(no).padStart(2, "0")}</span>
         </a>
     )
 }
@@ -2089,6 +2338,10 @@ function morphAndGo(a: HTMLAnchorElement, ev: MouseEvent): void {
     // Framer 側のリンク処理まで届かせない（defaultPrevented を見て止まるが、念のため）
     ev.stopPropagation()
     bindCleanup()
+    // 6周目（指摘6）：飛ぶ前に、一覧の名前の演技を全部止めて素の名前（正しい文字）に確定させる。
+    // 止めないと、地が満ちるまでの約0.3秒「PXSUTUYRUM」のような途中の字が残って見えた（独立レビュー B sheet_click）。
+    // 飛んでいる間は新しい演技も始めない（1.5秒で自動で解ける＝戻ってきたときに止まったままにならない）
+    pfFreeze(1500)
 
     const vw = document.documentElement.clientWidth
     const nameJa = (a.title || a.textContent || "").split(" — ")[0]
@@ -2126,7 +2379,8 @@ function morphAndGo(a: HTMLAnchorElement, ev: MouseEvent): void {
             c.getContext("2d")!.drawImage(v, 0, 0)
             Object.assign(c.style, { position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", display: "block" })
             plate.appendChild(c)
-            c.animate([{ opacity: 1 }, { opacity: 1, offset: 0.1 }, { opacity: 0 }], { duration: DUR * 0.45, easing: "linear", fill: "forwards" })
+            // 6周目：ポスターへ戻さない。ポスターは「見せ場」のコマで、文字の項目では崩れた字（text-scramble＝「CIY.DCSZM」）のことがある。
+            // 押した瞬間に見ていたコマ（録画の今のコマ）のまま伸ばす
         } catch {}
     }
 
@@ -2278,6 +2532,14 @@ interface PfOpts { slug: string; cat: string; en: string; cap: number; hold: boo
 interface PfHandle { root: HTMLElement; card: boolean; held: boolean; stop: () => void; release: () => void }
 
 const PF_LIVE: PfHandle[] = []
+// 遷移の間は演技を始めない（pfFreeze）
+let pfHoldUntil = 0
+function pfFreeze(ms: number) {
+    if (typeof window === "undefined") return
+    pfHoldUntil = performance.now() + ms
+    for (const h of PF_LIVE.slice()) h.stop()
+    PF_QUEUE.length = 0
+}
 // 同時に演じるカードの名前は3枚まで（5周目：PC でも画面に入ったら演じるようにしたので、2→3。多いと目が散る）
 const PF_MAX = 3
 
@@ -2288,6 +2550,7 @@ function pfReduced() {
 /** root（.mdx-pf）の名前を、slug の動きで1回演じる。終わると素の名前に戻る */
 function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
     if (typeof window === "undefined" || typeof root.animate !== "function" || pfReduced()) return null
+    if (performance.now() < pfHoldUntil) return null
     const txt = root.querySelector(".mdt-t") as HTMLElement | null
     if (!txt || root.clientWidth < 2) return null
     // 同じ名前で演技中なら、それを戻してから
@@ -2964,205 +3227,452 @@ const PF_DIM =
 // ポスターの下塗り（5周目）：遅延読み込みが追いつかない間、黒い枠が並んでいた（高速スクロールで 192件中47件だけ読み込み済み・独立レビュー2人）。
 // 各ポスターを 32×18 に縮めた WebP（暗いものは PF_DIM と同じ明るさ補正を焼き込み済み）を .ph の背景に敷く＝本画像が来るまで「ぼけた同じ絵」が見える。
 // 計測：v2/posters/*.jpg 196枚 → 29,661 文字（平均151字/枚）。生成＝/motion-dict-v2-blind/aww/r5/posters/ の PIL（LANCZOS・quality 35）
+// 6周目（指摘1）：32×18 では黒地の細い白文字が潰れ、下塗りが「ほぼ黒い箱」に見えた → 96×54（quality 35）に。70833 文字（平均361字/枚）。
+// 1440幅の格子の1枚（約320px）でも字や図形の形が読める＝本画像が来る前から「同じ絵の少し甘い版」が見える
 const PF_LQIP =
-    "accordion:UklGRlAAAABXRUJQVlA4IEQAAADwAwCdASogABIAPwFurU6rJqQiMAgBYCAJaQAAW+sdJHSU62LBf3YAAP7udzYXr1MfvhOiOT86dQqW8gMWEzhA0wAAAA== ai-orb:UklGRlIAAABX" +
-    "RUJQVlA4IEYAAADwAwCdASogABIAPwFurU6rJqQiMAgBYCAJaQAAW4RZZCEW5d7TD1wAAP7wxvuqWfsvCi06IpEzMCrC7XVFxHWE+ahXv8AA ambient-float:UklGRkgAAABXRUJQVlA4IDwAAAB" +
-    "QAwCdASogABIAPwFwr1CrJqQisBgIAWAgCWkAADpwJAcQAAD+75775zD5G05rh4UdWzG8lLaa9mSzAAA= animated-beam:UklGRk4AAABXRUJQVlA4IEIAAABQAwCdASogABIAPwFqrE8rJiQiMA" +
-    "gBYCAJaQAAccCiKrVAAAD+8CPqBDgf+Hvh4+tOQTcU6hnnrRAMNT3LfgRcAAA= arrow-slide-through:UklGRkgAAABXRUJQVlA4IDwAAACQAwCdASogABIAPwFssFErJaSisBgIAWAgCWkAADp" +
-    "wT669GaTAAP7vpxPTe4Uy4bLg/oTgN9D4CKxgAAA= ascii-effect:UklGRngAAABXRUJQVlA4IGwAAAAQBACdASogABIAPwFqrU8rJiQiMAgBYCAJZQC+SCLv0eWYLopot8N/0AD+8N9nexP+VXE" +
-    "LjPUnPjLfeZTDkD8ajlxBFU/WHtIbVucUC6w7TXuR2VS+9RNeohBZ5gBjzmmHGnGOQaNX5/DpQAA= bar-chart-grow:UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASogABIAPwFqrU8rJiQiMAgBY" +
-    "CAJYwDO7CHfjEBann0A+pAiSAD+8L1KiSsZH23MWucuLPBycsMI3MtITKW/saHrsbNn/vejy6H8T2xv3puCSDRUEXMYLcS64/nXLGL9nuaysQAA barber-pole:UklGRogAAABXRUJQVlA4IHwAAA" +
-    "AQBACdASogABIAPwFqrU6rJiQiMAgBYCAJYwDLaYtK32tif8W+LbNKQAD+8L3/cW2KqtpYSCuLKqhWLDii9/HxlMlZxg8mTudsgIaoSMyWgorI5FmBMZxVnBzTtz5CYiTkf9vZ4vFuubmLwdNO49BE" +
-    "T1iZbFvjMU+OV6AA before-after:UklGRnAAAABXRUJQVlA4IGQAAAAwBACdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+vxL2p/pFniwJXMHQAA/vDUrNAZfCfNM30Qcpotr/Zxv0qwwrJfskcv" +
-    "vAtf6jhpyFY/wIDnyKTVUB6yxDaHow2QAL5hwAAA blob-morph:UklGRnAAAABXRUJQVlA4IGQAAAAwBACdASogABIAPwFyr1CrJyQisBgIAWAgCUAAEe6/XGi3o4WGLxUW+gAA/vQhOS1jC8G7xY" +
-    "SWnnkY0IN4zTks5Q3zh4fUlSnW1qhGKQHW7/3tAHTVZqZ3nBvKV469eBgigAAA block-reveal:UklGRnIAAABXRUJQVlA4IGYAAACwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJQBlABDv5pREVvN" +
-    "kDgAD+8L35NXvvfg4tYdpf30S6abU8c3xjK7Qwd1MODQteKlOX4i71vEwVimqCBJK8oGGAYzr/6KWBofqKLZGYAAA= blur-load:UklGRogAAABXRUJQVlA4IHwAAABwBACdASogABIAPwFsrU6rJ" +
-    "iQiMAgBYCAJaQAD5koaWydVqK5F0CFoXzcIAAD+8M6KL7OJXhNsFrpW/dgN5ULyt/ksb3WKHn2trAMeelxPWUPpenmM4Q3MA6nLtnXqmOc99VeZMVKDJcjU6hIOkvt9NsG/giouQfmTAAAA blur-r" +
-    "eveal:UklGRlgAAABXRUJQVlA4IEwAAADwAwCdASogABIAPwFqrE6rJiQiMAgBYCAJaQAAW+wK4ayV8mGVMlYAAP7wvLlILnnJvSRryq5K7a/68YCmHq3zhWGGtaUCnILvgAAA boot-sequence:U" +
-    "klGRkQAAABXRUJQVlA4IDgAAABwAwCdASogABIAPwF2s1OrJySiqAgBYCAJaQAALnVTBXRkGAAA/u51FhBW5soYJo0SDLESGhAAAA== border-draw:UklGRkYAAABXRUJQVlA4IDoAAACQAwCdAS" +
-    "ogABIAPwFyr1CrJyQisBgIAWAgCWkAADpwZWirlpyAAP7vxw7gTAcwAGV1HbE21FpAAAAA bounce-in:UklGRloAAABXRUJQVlA4IE4AAACwAwCdASogABIAPwFyr1CrJyQisBgIAWAgCWMAAI91l" +
-    "+Kb3wvoAAD+9CIyZeZedGGoTxFzh1llvRvS0YYt1JxudKv+UqQbMCWfVjSNgAA= breathing-glow:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFqrU6rJiQiMAgBYCAJZwAAWp9cd/k" +
-    "W13083vogAP7w1IcUAp/LpmvaYASUt3LP8e6+6KNOs+UuDxGYF0vAJtfbPwUtVQAA card-shuffle:UklGRoIAAABXRUJQVlA4IHYAAABwBACdASogABIAPwFqr1ErJaQisBgIAWAgCWUAAC6tq8Z" +
-    "Jd7M93pxap8vR4AD+8NStGMrUdJPet4Gg2TqN1CMdOATCvoR/p69L/9ROr5yKQ6yqz9TUcD5+ER5xQttx+s3P0u+psH79ToqFez6GftBDp4lREAAA carousel:UklGRoYAAABXRUJQVlA4IHoAAAA" +
-    "wBACdASogABIAPwFsrE8rJiQiMAgBYCAJZgDI1CHfZHi0xkP3p+HLWAAA/vDUrNvsaaVZkMuntpuXtKs0IAa1mZdTaDigLckKTOm2pFiT3JNySz/zbgKD1RZAmexe4GFtNL7jqsnfyEVjIoVrDFk+f" +
-    "Y82sgOZ0QAAAA== chat-sequence:UklGRlwAAABXRUJQVlA4IFAAAADQAwCdASogABIAPwFqrU6rJiQiMAgBYCAJZQAAW+sc/CjY5FmJMwAA/vC9R9ASBGi0NCuzKfL1R/1NLY+d7/bq5J1NQAK2" +
-    "Lj+AoLanIAAAAA== checkbox-check:UklGRmAAAABXRUJQVlA4IFQAAACwAwCdASogABIAPwF4s1OrJySiqAgBYCAJaQAALnXZ2koFf/goAAD+8L3cysmQN3aBw1QDpQ+7s+vM309XkuZz9ZQOur" +
-    "d/M6zJfBILKbByECgAAAA= circle-reveal:UklGRqgAAABXRUJQVlA4IJwAAADQBACdASogABIAPwFur1CrJiQisBgIAWAgCWgAvzgyyKB0SQ9nQMpb53kqoR/EQAD+9DKD3ixuiZcsDwNMM6Qa6" +
-    "7dWRK5FYHmM2jmXH8VRPzxvcpccW36Hq1xh5AhYP6JWp4ZhReRQn45gXC2jD+kNqt0zhQhENn79tOe4pyOS0UrKJ+4F+oOFJ3yMvMjCBTbJWtyYoAG0mQ7GwAA= circular-progress:UklGRkoA" +
-    "AABXRUJQVlA4ID4AAACwAwCdASogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+s5+2KcHU9JgAD+8LsS40AuyiOfhTwDT+enU4ZiQwAAAA== clip-reveal:UklGRm4AAABXRUJQVlA4IGIAAAAQBACdA" +
-    "SogABIAPwFuqU8rJqOiMBgMAWAgCWkAAI91oHOw+cWhB1GGgAD+9CBEqkt896bIRHHvCW1uJGHT72lFeLRr7Wz75hq3OFOhgzJP59R4x7d7TTKuP8nlNlkrZAAAAA== color-wave:UklGRlYAAAB" +
-    "XRUJQVlA4IEoAAACQAwCdASogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+sqeCNDYkoAAP7wukrXk1fUYBuvYVaCfN2i5U9MUoa7pj/FARYauyd+xfwAAA== confetti-burst:UklGRlAAAABXRUJQV" +
-    "lA4IEQAAACQAwCdASogABIAPwFurk8rJqQiMAgBYCAJZQAAW+s2kPYx/FeAAP7wuz0AB7PhrQupnndTfORKTK4D95vlkHmuVXMgAA== conic-sweep:UklGRk4AAABXRUJQVlA4IEIAAACQAwCdAS" +
-    "ogABIAPwFoqU+rJaOiMBgMAWAgCWcAAC51mB+d0RCAAP7wuY+9vqyGAqGjJxJOgiFUfPGxLyPcOswAAAA= copy-to-clipboard:UklGRlIAAABXRUJQVlA4IEYAAADQAwCdASogABIAPwFssFErJ" +
-    "aSisBgIAWAgCWkAAC51H89OkI8vjtAA/u52SE6u1n5+CtNc2QzXX0e6nzJqVkw1FD9uswAA corner-brackets:UklGRkQAAABXRUJQVlA4IDgAAACQAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQ" +
-    "AAW+swHtZM/bcAAP7uc6AGCx1+l0j3UCf0eAAAAA== counter-scale:UklGRkwAAABXRUJQVlA4IEAAAADQAwCdASogABIAPwFyrlArJyQisBgIAWAgCWUAAI91x7NRndEP9hgA/vQaZYUqA/a7Q" +
-    "DW3x1NZE/1sCe7S1AAA counter:UklGRlgAAABXRUJQVlA4IEwAAACwAwCdASogABIAPwFqrU6rJiQiMAgBYCAJaQAAW+uIkD8CiSgNAAD+8LwbQcaeTEk+jF6RRx4IIWThLqkKK3S3lcOwvPXqS2" +
-    "VoAAAA cover-flow:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAW/EGdBZLf/GrZP3YAP7w03ysGeB9x+l89H6KMaPZ9OWlfMc/h48zN/6qg9I+IFMemBdU" +
-    "LMAA cover-transition:UklGRm4AAABXRUJQVlA4IGIAAAAQBACdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAUqj1ZIpMcmb6wDWWAAD+8N+vrW+XqxJYlaM0kftv0avarMHgiKPqevfVo72t26+s" +
-    "SMxnX5l2+JIHYIHdgkp40Z6KTwAAAA== crossfade:UklGRmAAAABXRUJQVlA4IFQAAADwAwCdASogABIAPvVkqU6qpaQiMAwBUB6JaQAAW+ssXmQK45NvNkQAAP7yl92u6dO0x3daaxFuE4Fj1NG" +
-    "4rZ2U6QM7EAMmxVciRWlWwl7nF3wAAAA= crt-power-off:UklGRmIAAABXRUJQVlA4IFYAAADwAwCdASogABIAPvFmqk6ppaQiMAwBMB4JaQAAWp+EpYcs9QfoirYgAP7yo7en14ZsXFoYBdkQB/" +
-    "tQ8ogfEhiHayHjM0cIq0oDUm6/zVKobGIQnf/AAA== cube-roll:UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASogABIAPwForE6rJaQiMAgBYCAJZwAAW+s2Kur9XRfYAAD+8Ly2qFNNKpr//QEVw" +
-    "qhHN4YH9rP9i0AC9uHkCY6BCBsW0gBFNXuCwAAA curtain-wipe:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFqrU6rJiQiMAgBYCAJaQAAUqm8uZely1hrLHAAAP7w2v85MbYqKQVic" +
-    "acfhfkTiHWiSjH+RKWiFnXH8KEtJVAOI5EfsAAA custom-cursor:UklGRk4AAABXRUJQVlA4IEIAAACQAwCdASogABIAPwFys1GrJqSiqAqpYCAJaQAALnVTAcdRRmgAAP7udTBxVeQIWE638tEY" +
-    "0F8vOHH+wvzTWYAAAAA= directional-hover:UklGRmoAAABXRUJQVlA4IF4AAAAQBACdASogABIAPwFsrU8rJiQiMAgBYCAJZwAAUquOl2oQM38GxeRsAAD+8M60/O+jRrZ64jAWkXq+dpS7iCq" +
-    "Dof8hsXEsv9TkmnpI3y+aMqwtmlVV/7H6gI7kwAAA dither-dissolve:UklGRmgAAABXRUJQVlA4IFwAAABQBACdASogABIAPwFsrU8rJiQiMAgBYCAJZwAAYA8H6AP9QY5zY0ERAiwAAP7w3Cz5" +
-    "MfMD7aB0GnCfr3u6S5RzA0jAKwK2Nmo5yLcT4aovHPqQ2U5R9TlK+AAAAA== dock-magnify:UklGRlYAAABXRUJQVlA4IEoAAADwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+tBTPDpmp74" +
-    "UDtAAP7uc6jOsieVQ6DMuVB0weIkakNVkCIL3cxwJYer3mgAAA== dot-pagination:UklGRlIAAABXRUJQVlA4IEYAAAAQBACdASogABIAPwFuqE8rJqOiMBgMAWAgCWcAAI91ycP4dc8rV5m8AA" +
-    "D+8pcAGLiOTeG7J5hKxRZTZFxD7zfgrF0AAAAA dots-pulse:UklGRkYAAABXRUJQVlA4IDoAAACQAwCdASogABIAPwFsrU6rJiQiMAgBYCAJZwAAW+s59hzzAicAAP7wuWxjXOxJG3k7rwVd43Oo" +
-    "0IAA drag-scroll:UklGRoIAAABXRUJQVlA4IHYAAADwAwCdASogABIAPwFqrE8rJiQiMAgBYCAJZwDPoCHWH3Ez1lJLiZYAAP7ww2AgqXMuP8E9GzXiI/istKed7Sw9E5Toshn4pushLCdvcv7IK" +
-    "GiX7fXUSGHtzgLU3ScDvHndFYVVIjYPISNpelCP35tlZS0yIAAA drawer-slide:UklGRmIAAABXRUJQVlA4IFYAAADQAwCdASogABIAPv1urE6rJqQiMBgMAWAfiWkAACnT8dsxxJKWD4AA/vDfs" +
-    "tHEb+TzoE0gNPjclhjHDrEcH3O4RGYezdSATZfcB71gxBHdjBP0I4AAAA== drop-zone:UklGRk4AAABXRUJQVlA4IEIAAADQAwCdASogABIAPwFusFCrJiSisBgIAWAgCWkAAJkwT70NHi5/dgAA" +
-    "/vDCc36szZ66lcfY6tkCLAovrqo3wmwAAAA= dropdown-reveal:UklGRlYAAABXRUJQVlA4IEoAAAAwBACdASogABIAPuVgpU6pJiOiN+gBIByJaQAAiOZSDm7s1vQjxRbHgAAA/vKVRgtybCYOH" +
-    "9UUT9isUsuhv40a7139JZuDkAAAAA== duotone-hover:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFurk8rJqQiMAgBYCAJaQAAW+qszsDyF0Y5U90AAP7wvLahVBn8tZdPt+Jfueq4" +
-    "ZT7mJdSjF005Rd1BPygEbBgeMMBIVSAA dvd-bounce:UklGRjoAAABXRUJQVlA4IC4AAABQAwCdASogABIAPwF0sFIrJqSiqAqpYCAJaQAAOo+vv340AAD+7916nFBWwAAA equalizer-bars:Uk" +
-    "lGRkoAAABXRUJQVlA4ID4AAABwAwCdASogABIAPwF0r1CrJyQisBgIAWAgCWkAAC51ncASFxAA/u5x8RikkT65OxH8UK16R6hPNCo0L9gAAA== error-shake:UklGRk4AAABXRUJQVlA4IEIAAAD" +
-    "wAwCdASogABIAPwFwr1CrJqQisBgIAWAgCWkAAC518F+fo23zCKtAAP7udpbcBDfjZXY3ADWeuqMmaxH2soaAAAA= expanding-search:UklGRlIAAABXRUJQVlA4IEYAAACwAwCdASogABIAPwF" +
-    "qrU8rJiQiMAgBYCAJaQAAW9GFhMbIPHhKAAD+8MPmQ/O3NtuUL6HdHtW994AmDp/QWGb5FfOODAAA eye-blink:UklGRnoAAABXRUJQVlA4IG4AAAAQBACdASogABIAPwFyr1CrJyQisBgIAWAgCU" +
-    "AAEe6mNPz1IRZAVF5MAAD+9Bt6iGzI4OYU4errQHU8glyIICa8Ivc+L4O3jbfJcG3QK8axMBBAwOmacjkfKBLN+Kq51Qmns/pJIGjGhIty/+AAAA== fill-hover:UklGRmAAAABXRUJQVlA4IFQA" +
-    "AADQAwCdASogABIAPwFsrU6rJiQiMAgBYCAJQBmLBDv4E8PydFBqcQAA/vC8s2Pzu+tgeBn5D67y3CabEi4lR8wBcjvZvgK1S0izN1YYSWacnK4ogAA= flame-flicker:UklGRlwAAABXRUJQVlA" +
-    "4IFAAAABwAwCdASogABIAPwFusFCrJiSisBgIAWAgCWkAAC51k+Z0qMAA/u52jqfu5bSNdCM7gFwTMjLutkGZaFgQMpIrMR27L3LLtoIQr8J3rhQAAA== flicker-on:UklGRkoAAABXRUJQVlA4I" +
-    "D4AAACQAwCdASogABIAPwFoq06rJaOiMAgBYCAJaQAAW+s2kPYsOQoAAP7wuzq6DvmD0j73YaCuzz8EbMAekwgAAA== flip-card:UklGRlQAAABXRUJQVlA4IEgAAACwAwCdASogABIAPvVmrE6q" +
-    "paSiMAwBUB6JaQAAWp+iODIEkstwgAD+8qQqtua+PSw43tGGPthU1XSBDVhlJuM841xqlHAAAAA= floating-label:UklGRkIAAABXRUJQVlA4IDYAAABwAwCdASogABIAPwFwr1CrJqQisBgIAW" +
-    "AgCWkAAC51nPPW+AAA/u5yLqHEpFHSfTWPuMgAAAA= floating-reactions:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFurlErJiQisBgIAWAgCWMAAI91ukoZzMHCf/5AAP70GlY4" +
-    "2DAphoLtXxLfw2Kmt4wtvJDvYMhynQ6YUuxUI7GDlQJZLIAA fly-to-cart:UklGRmIAAABXRUJQVlA4IFYAAACQAwCdASogABIAPwF2s1OrJySiqAgBYCAJZwAALdA8h47ROnCAAP7p/pJyCPdWE" +
-    "Ye1ZwZBThuiGse6rwrg0iaSwIh/sWw1/NI3Haxd/Xj5dxgaCgAAAA== focus-dim:UklGRmAAAABXRUJQVlA4IFQAAACwAwCdASogABIAPvVmqU6qpaQiN/VYAVAeiWkcRAAETql7EFUxYAD+8Abc" +
-    "OMAp6KpeQWrMm0jm+O5siUrrOyIXMB6Nzs8TTuSrGMzURPyBMyS0AAA= fog-drift:UklGRmIAAABXRUJQVlA4IFYAAADwAwCdASogABIAPwFqrE6rJiQiMAgBYCAJZwAAXE7GQNoYSj8PPCjgAP7" +
-    "w1KmtrMEoJ31KXlnzt6DCdCsmtcKH4IZaoYk1BUkPRPJat2zHgGKT1TMAAA== footer-reveal:UklGRmIAAABXRUJQVlA4IFYAAAAQBACdASogABIAPwFqrE8rJiQiMAgBYCAJYgDE2CHe3dbTTr" +
-    "0ZHcNawAD+6/Cuf8sTEl3Aykj8FTB/sG7ETX38V0N4Qp3kMVp5fpsPOv2eXfPjAAAAAA== frosted-glass:UklGRoAAAABXRUJQVlA4IHQAAACwBACdASogABIAPwF0rlArJyQisBgIAWAgCUAY/" +
-    "IaQKO3Ht5D3MKmnr+QJjH24AP7yplNGJEgbl0sZULzShtfcS0ZL/9Xg83iXV9khC3N4ZTFch/F3HbcZ1/rmd9gacUUiKY2L1I8FZbdLh+LVER0nSQAAAA== gauge-meter:UklGRlgAAABXRUJQVl" +
-    "A4IEwAAABwAwCdASogABIAPwFurk8rJqQiMAgBYCAJZwAAW+svyB9d10AA/u5/RnmshOS8epCz2sLuZvHEcO5ytzrayojeHRgzjwcZ6KZ8AAAA gesture-hint:UklGRk4AAABXRUJQVlA4IEIAAA" +
-    "BwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAccGGawpamAAA/u8vv/prfMELCfrW5V9pcXU/9zGtXbEBEw/khAA= gift-box-reveal:UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASogABIAPwF" +
-    "0rVMrJqOiqAqpYCAJaAABHuv9l7bsmiszfNhagAD++l3hn8eqO3r90zl9BCYcbA/K0S1jT2c4GiXSIP1B1JX0E33rOxL7U+2ob1NdEYtElWGsfN94uQ2j88QM7hAA glitch-hover:UklGRlIAAAB" +
-    "XRUJQVlA4IEYAAACQAwCdASogABIAPwFqrU6rJiQiMAgBYCAJZwAAW+s2Kun1Fq6AAP7wuc84Lszc5wlLL3o8WhhbaIOsHV5HMf7CXjeQWAAA god-rays:UklGRkoAAABXRUJQVlA4ID4AAABQAwC" +
-    "dASogABIAPwFsrE6rJiQiMAgBYCAJaQAAUvo6B7hWAAD+7qE4gV//RNAAMyx0dzLlaPjoOPYhykAAAA== gooey-effect:UklGRkQAAABXRUJQVlA4IDgAAABQAwCdASogABIAPwF6tVQrJ6UjKAg" +
-    "BYCAJZwAALnWXmpioAAD+8LoKUbRw32I5EX71/VtpGhwAAA== gradient-border:UklGRk4AAABXRUJQVlA4IEIAAAAQAwCdASogABIAPvlmqk6qpaQiN/VYAVAfCWcAADuXBgAA/vBbQUo7HRcb" +
-    "Danmun1OeLE5FECPbyPYQTszabMwAAA= gradient-morph:UklGRmQAAABXRUJQVlA4IFgAAABQBACdASogABIAPwFmqk6rJSOiMAgBYCAJYgDIXCHgH+3+d3/tgM/prNAAAP7wyy4R4qCIUQuJwl" +
-    "VgyH/Hs2ZwoF3e6K6Ky38EaI1KGZ+EEJLqWaTwAAAA gradient-shine:UklGRk4AAABXRUJQVlA4IEIAAACwAwCdASogABIAPwFssFErJaSisBgIAWAgCWcAAC51l8oK67VwoAD+8Lr2U5HT81Py" +
-    "WaCViNfGDih1HrLGa/AAAAA= gradient-wipe:UklGRnQAAABXRUJQVlA4IGgAAADwAwCdASogABIAPwFqrE6rJiQiMAgBYCAJZwAAW+pn2VAAuxurHVoAAP7wx6YAgyp1VyqL6TzIcNcNjaOPDVH" +
-    "lRw4YttGtybdBcaszS6m8Fw1W8GVl9xdfvVd3OayaSKFCndUFTkAAAA== grain-overlay:UklGRoIAAABXRUJQVlA4IHYAAABwBACdASogABIAPvFkrE6ppaSiMAwBMB4JZQAAVJigYzuV4tVgTT" +
-    "WrJMlwQAD+8rT27y/Mo5bQQpggDJV8t5JsXqXv5KEbof/iT8XkLHQLVacjQSZ/aRBviiUUiORo+Rvqme1cODzbXAdZzLX2Tcgk++XEgAAA halftone:UklGRmIAAABXRUJQVlA4IFYAAADQAwCdAS" +
-    "ogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+tHgfEwJl3f12AA/vC92rl1sjd0G2JLw8EBCIdm33JXvnKnnj88xNKWQJcTHUhYxcDNewzyaAAAAA== header-hide-on-scroll:UklGRngAAABXRUJQV" +
-    "lA4IGwAAABQBACdASogABIAPvViq06qpaQiMAwBUB6JZQAAUrYeR4cmxGl1vML8fYuAAP7c6HDrY75L2lF99/6xN24NBoSgojxPHnlfsIRAtdxUBxm2MCYn56jWhZIKzwwLWju6fF5q1M/0/rW+wBU" +
-    "tAAA= header-invert:UklGRk4AAABXRUJQVlA4IEIAAACQAwCdASogABIAPwFurk6rJqQiMAgBYCAJaQAAYf+Dqgf10pHAAP7nnpfMayGbuc3tbynFY2Uf5eeLp2WPIEY4AAA= header-shrink" +
-    ":UklGRmQAAABXRUJQVlA4IFgAAACwAwCdASogABIAPwF4tFOrJySiqAgBYCAJaWbvABYyReGKQknFbAD+4+rP3bG/0ju+eVzahwv1OCkid2WU6pOWMg3r9XHbfFLau0r8dn6oN8YxF3yEAAAA hint" +
-    "-nudge:UklGRkAAAABXRUJQVlA4IDQAAABwAwCdASogABIAPwFys1GrJqSiqAqpYCAJaQAAOoc6O+cksQAA/u9Xf/prfMEK/cqWAAAA holo-sheen:UklGRlIAAABXRUJQVlA4IEYAAAAQBACdASo" +
-    "gABIAPwFusFCrJiSisBgIAWAgCWUAAI91xjZqiJnVbDvqIAD+9CIj46fd/reZRGiPoHMrv3blCobE0HbIwAAA horizontal-scroll:UklGRtAAAABXRUJQVlA4IMQAAACQBQCdASogABIAPwFqsF" +
-    "ErJaSisBgIAWAgCWIAy0xd8AH6qgKUhowAkd+BJiiZBJKzi6V8QAD+6SkXl2DAw0awYNnJzo9CHY0vz2tXb2Of+5Ge8/kiEdbo6Hait8XKDdWvjqvbbn1IppAe7o7PL5jEuPCI3UHMJ4cvZ6v8bFNe" +
-    "5O4sf+pUHlkyVHoZF6IKoA9rQm6eYfpnvt/wDPa8pBVBk8qRSX3pbNdH3dJS5d988cizfpL2VdN+aLYG5IEIllF/MEAA hover-preview:UklGRmgAAABXRUJQVlA4IFwAAADwAwCdASogABIAPvV" +
-    "oqU6qpiQiN/VYAVAeiWkAAM9YpEpXONtGr4AAAP7xrljUQ3Ert7PEnnoqY0WmBpP1oCsQXVpqOnuwbIFOPK5ADjk3qz2SrodzIXoi6AAAAA== hover-wave:UklGRkQAAABXRUJQVlA4IDgAAACwA" +
-    "wCdASogABIAPwFyr1CrJyQisBgIAWAgCWkAAC51mxd2i7OSsAD+8LnC7rp0qVwO29VG0wAAAA== image-parallax-hover:UklGRoYAAABXRUJQVlA4IHoAAABQBACdASogABIAPwFsrU8rJiQiM" +
-    "AgBYCAJZgDMHB6R7ZN3bgvakQvuH8wAAP7w37LRmUs3m7yAdhmuNcfGm+agtOWFtPEk5V0pxVIY2d0lBGM+SWQcIwhaw7OY0V5ZLP4zJQYXehcfzGQusqIxEVzBOXCgNEcri6AAAA== image-swap" +
-    "-hover:UklGRm4AAABXRUJQVlA4IGIAAADwAwCdASogABIAPwFurE8rJqQiMAgBYCAJaQAAW+qhBk5uVXN17uAAAP7wxXgI9xm7fJCtjgCJ2Yyglpc+uxf3D8a+Xx47MxODiY80h9aM5D8+SfIjMHQ" +
-    "JVR/XJZBziAAAAA== image-trail:UklGRngAAABXRUJQVlA4IGwAAABwBACdASogABIAPvlor06qpiSiMBgMAVAfCWcAAC51y8k5XLuAKXbxek6IEAD+8Ly5NOahx3V3zgESmAmmNr+vDFv82Npg" +
-    "KHCMsyZxWGnUpouMnz9RLACaIV5dRTsBpZ7jbxykaoW1IdgAAAA= image-zoom-hover:UklGRoQAAABXRUJQVlA4IHgAAACwBACdASogABIAPvFmqk6ppaQiMAwBMB4JQAXf+A8kA2kPUTVtTriy" +
-    "FNJh4scwAP7yo8oUBawzVclmgTXdqqS4aKCvJeFi7Y8ruvth/qbwQJwQdo0lvxSEdEyAx7R5Qb78V+XYS2//YyFuRL42TbfUjpsowAAAAAA= ken-burns:UklGRmQAAABXRUJQVlA4IFgAAADwAwC" +
-    "dASogABIAPwFurk6rJqSiMAgBYCAJYwBTAAeiAa9q2Xr0OxYYAP7wvLYl/sDK7ZeLH3G1bkLwbEfXMK52rcJnvWh2UTVl/E48tmIBAjJHwLzhgAAA letter-spacing-hover:UklGRkIAAABXRUJ" +
-    "QVlA4IDYAAAAwAwCdASogABIAPwF2rlKrJyOiqAqpYCAJaQAAOockyL8AAP7vnz5lf27gUvVB8MH5DJ0swAA= lift-hover:UklGRmoAAABXRUJQVlA4IF4AAAAQBACdASogABIAPvVkq06qpaQiM" +
-    "AwBUB6JaScAAAk0SN42s9dC9EcMAAD+8pff4Ra48q+kvXWGNFl+2JizVXpdAntzXf25wJPUiNUchRHNwuxAG+oSaTnnUNh9/vAA lightbox:UklGRmoAAABXRUJQVlA4IF4AAADwAwCdASogABIAP" +
-    "wFsrU8rJiQiMAgBYCAJaQAAW+soH8wR6awR5qIAAP7wvLaW7c9GzPdhbTQxMNxeu+MdiL5qZTtFY3e/DewMSfgVV3lIeng6aQOcyvj8qtxl8AAA like-burst:UklGRkoAAABXRUJQVlA4ID4AAAB" +
-    "wAwCdASogABIAPwFsrU8rJiQiMAgBYCAJZQAAW+s2kPmFKkAA/u5xw535qi5Ll/E56m/SJu1wG37vY4AAAA== line-boil:UklGRk4AAABXRUJQVlA4IEIAAACwAwCdASogABIAPwFsrU6rJiQiMA" +
-    "gBYCAJaQAAW+s3Zn5TAtJMAAD+8LtKLPkhIT5ysMin/xNDjiNQ3JEjr7rAwAA= line-draw:UklGRlgAAABXRUJQVlA4IEwAAACwAwCdASogABIAPvVmqk6qpaQiMAwBUB6JaQAAW+qgojxYWJ0kw" +
-    "AD+8LwZ0MFVPHLmXQnQ2LpN/i2dAErF+7Up6oiCrxIdt6GvwAAA liquid-distortion:UklGRlwAAABXRUJQVlA4IFAAAACQBACdASogABIAPwFoq06rJaOiMAgBYCAJZwAAW+xI4bdl98+nD68n" +
-    "Mb5BASgA/u6FMLwuM4XR4s8FYqr25JheSKnaCb0GfROBro39PYAAAA== liquid-fill:UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASogABIAPwFyr1CrJyQisBgIAWAgCWMAAI91nZeh0lCXYskAA" +
-    "P70GntsvB7VbdzQk1Iitm3yXBG36SQodrcAKbmPhN1vbg/NJtCAAA== list-add-remove:UklGRmIAAABXRUJQVlA4IFYAAACQAwCdASogABIAPwF2s1OrJySiqAgBYCAJaQAALnX1W3aBXYJwAP" +
-    "7ud2i6EZEgMERXO8o6pu0qsNtXN609duXa0JDEkpbR+xUpvYrLBtw+yUf+5UAAAA== loading-bar:UklGRkoAAABXRUJQVlA4ID4AAABwAwCdASogABIAPulmp06pJiOiN/qoASAdCWkAAHCc6+p" +
-    "4agAA/vBa+oM9/w9bEvXDuLlNH9wKQHAAQRaAAA== logo-marquee:UklGRkgAAABXRUJQVlA4IDwAAABwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+snAwydioAA/u5yyKQY0A4nq+3oczS" +
-    "goEQM10QAAAA= magnetic-hover:UklGRj4AAABXRUJQVlA4IDIAAABwAwCdASogABIAPwFwr1CrJiQisBgIAWAgCWkAADpwJVzYlAAA/u/as8VbWWw8JgAAAA== marching-ants:UklGRkgAAA" +
-    "BXRUJQVlA4IDwAAAAQAwCdASogABIAPwFqsFGrJaSisBgIAWAgCWkAADqwqgAA/u/Ga7jjWpTKT5p5SOZJ0j6Sxl4y0Le1AAA= marker-line:UklGRlQAAABXRUJQVlA4IEgAAADQAwCdASogABI" +
-    "APvVoqU6qpiOiMAwBUB6JaQAAW+sN/kMVuRO1kQAA/vKbNyQGpjGutn6XLfFK12valWwTyfJZZNFIXJIAAAA= marquee:UklGRkwAAABXRUJQVlA4IEAAAABQAwCdASogABIAPwFysVIrJqSiqAqp" +
-    "YCAJaQAALnWc8/O1IAD+8LrdKlFvRhwHwp/3FmLhMGHc6pesMS12QAAA menu-reveal:UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASogABIAPwFwrk+rJqQiMAgBYCAJaQAAUqjLE6Bei1OPufMAA" +
-    "P7w3xQR5O6RLREgJYRtHQhJkliWxnbpLiLFSyjjS/wCZX/aUlgIAA== menu-toggle:UklGRkIAAABXRUJQVlA4IDYAAACwAwCdASogABIAPwFyr1CrJyQisBgIAWAgCWkAAC51nPs7PjXx4AD+7n" +
-    "HDRnAHn84FxudAAAA= modal-pop:UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+s3cscYKVyqAAD+8Ly3xyae7++k69EIavxyd9lUABpak15P3HzXwSw8f" +
-    "RQUygf3/NYmAAAA moire-drift:UklGRkYAAABXRUJQVlA4IDoAAAAQBACdASogABIAPwFoq06rJaOiMAgBYCAJZwAAW+n/tXMZKkOQ1dZDoAD+7o7oTx8KYIHTGr7SMAAA morphing-dropdown" +
-    ":UklGRkgAAABXRUJQVlA4IDwAAABwAwCdASogABIAPwFyr1CrJyQisBgIAWAgCWcAAJkXjbB7BoAA/vDotX+Evv6nEPm20h0gt96NgyKo4AA= mosaic-reveal:UklGRmoAAABXRUJQVlA4IF4AAA" +
-    "BQBACdASogABIAPwFsq06rJiOiMAgBYCAJZQBTAAeiAU6TXccvUS2Sy1iAAP7wvCujlITyA97UVSD7T3zP0xVEV4juIhPTucw4zqujm4LVOt2eLhTmGtyBLxgEAAAA motion-path:UklGRl4AAAB" +
-    "XRUJQVlA4IFIAAADwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJZQDNwCHf4ml34sIcmxQAAP7wu3+GwLcCrxDLO+rdxjiJ8KgEDo8eg0Umw7BL8zgo0fZohEbhuEAA mouse-parallax:UklGRlYAA" +
-    "ABXRUJQVlA4IEoAAAAQBACdASogABIAPwFyr1CrJyQisBgIAWAgCUAZ9AaN9NVb5Rb2SxfQAAD+9COFLKX9vovu9JZAnvcNZfpbkYD+H9bhWo5gLXgAAA== notched-corner:UklGRmAAAABXRUJ" +
-    "QVlA4IFQAAAAQBACdASogABIAPwFssFErJaSisBgIAWAgCWUAAC51p6YsvQK77TbUwAD+8LrfJBGGdTTYuds6iuIyaJ+VgfosglHYZI6Vdw3qcVaa70ygt1jgAAA= notification-badge:UklGR" +
-    "kgAAABXRUJQVlA4IDwAAADwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAW+tzKJTiZiqi9JgAAP7ucWdF712rTYZfT39NqmgAAAA= number-roll:UklGRlQAAABXRUJQVlA4IEgAAACwAwCdAS" +
-    "ogABIAPwFqrE6rJiQiMAgBYCAJaQAAW+s2KuxBbmvIAAD+8LsBQo6bRZyrbuhMASslBkSRK0+xWXDZd+0FuN+3gAA= opening-crawl:UklGRlwAAABXRUJQVlA4IFAAAABQBACdASogABIAPu1gq" +
-    "E6ppaQiN/qoATAdiWcAAFu1mxzFdVED1/nbAbOAAP7ylwjliz9RZgMW2gsjs2b6AENMSBu2Pd58CyTLWFSfM8AAAA== orbit:UklGRlAAAABXRUJQVlA4IEQAAABwAwCdASogABIAPwF0slKrJqSi" +
-    "qAqpYCAJaQAAmbBSHCC3LgAA/vEQFCUB+b6yfDTW6Kon8Mn/+Y52OSkDYcyPl50gAA== outline-fill:UklGRnAAAABXRUJQVlA4IGQAAADwAwCdASogABIAPwFsrk8rJiQiMAgBYCAJZQAD4tIO" +
-    "AMOuBpwdL48wAP7wvU79BkpAuKpL7QsU+3FfKpMX1efxKg2iFe5KpUuKChAmzWt/KosOsNOlNrVJIVuKIoHeitlMACAA page-turn:UklGRloAAABXRUJQVlA4IE4AAADwAwCdASogABIAPwFqsFE" +
-    "rJaSisBgIAWAgCWkAAC52K1cVlZ9TWHbAAP7uhTF08ZqCbIEG68yNtbzK/+qj6gLYCx5GEK4AR28QOtAAAAA= paper-crumple:UklGRlAAAABXRUJQVlA4IEQAAACwAwCdASogABIAPwFqrU8rJi" +
-    "QiMAgBYCAJaQAAW+s3g3otSTXgAAD+8Ly33qqVGpyLVVMenpyydGaFJ9hB93AHkAAAAA== parallax:UklGRpgAAABXRUJQVlA4IIwAAADQBACdASogABIAPwFurk6rJqSiMAgBYCAJZwCyzCHXTh" +
-    "5iO6g2WGSE6A5drc/t0AD+0fouRlUEn6CG87ITGjM/ApDwiq5uUMDDH7lYJvBlSdMpIsyGy3aB5mJoXDE5MuDbH17Urup9zROntU7jCfIu2SbQuz+e+Acewfj6zFNigywo0oKumxm+8AAAAA== pas" +
-    "sword-strength:UklGRk4AAABXRUJQVlA4IEIAAADwAwCdASogABIAPwFwsFCrJiSisBgIAWAgCWkAAC51m+mJbKMKgyeAAP7wu+gqPRz0jfuV0NS5p6tED5C5V+QAAAA= pendulum-swing:Ukl" +
-    "GRmQAAABXRUJQVlA4IFgAAABQBACdASogABIAPwFur1CrJiQisBgIAWAgCUAZzoaN/vkdYroDWxEobC2gAP70GzfP2msaFXthYettRnUlALbocqqb7lrmT+g4jwKnJuVLfMwVGAZ6gAAA perspect" +
-    "ive-reveal:UklGRkwAAABXRUJQVlA4IEAAAACwAwCdASogABIAPwF2r1KrJyQiqAqpYCAJaR9AAAJj8zBTtkE9SAD+7qw9lPoxqfJP/RqaoRsARF8L5xjJwAAA pill-expand:UklGRkYAAABXRU" +
-    "JQVlA4IDoAAABwAwCdASogABIAPwFur1ErJiQisBgIAWAgCWkAAC51UMqJObAA/u50ozODFLMxLvNZ2gM3T+nI8AAA preloader-counter:UklGRkIAAABXRUJQVlA4IDYAAADwAgCdASogABIAP" +
-    "vlsqk6qpqOiMAwBUB8JaQAActB+AAD+8AXVDEWNVhSjlT9Waqps8gAAAAA= press-feedback:UklGRkIAAABXRUJQVlA4IDYAAACQAwCdASogABIAPwFqrU6rJiQiMAgBYCAJaQAAW+s59hz/rfd" +
-    "AAP7ucbZNMk3Fl8SbR+gAAAA= prize-wheel:UklGRpgAAABXRUJQVlA4IIwAAAAwBACdASogABIAPwFyr1CrJyQisBgIAWAgCUAABc7LFrV5RAxx7v1prNAA/vDLQ2RA+6X+1sC33BUyhdYua9dx" +
-    "4nI85WMNZsXCryb91YdT/SXNIzxOWUWvJCOq4FL1PIgfhSLdp4EdKlckpdQ1dKFHs07NGssnyfXBDQpE7X6+lZU0yoz4jE0ihAAAAA== progressive-blur:UklGRkIAAABXRUJQVlA4IDYAAACQ" +
-    "AwCdASogABIAPwF4s1OrJySiqAgBYCAJaQAALo3I0/5eKEYAAP7uoiwPhHJwvDOvf2mYAAA= pulse-ring:UklGRkoAAABXRUJQVlA4ID4AAACwAwCdASogABIAPwFwrk8rJqSiMAgBYCAJZQAAW+" +
-    "uTh/HTNqxNAAD+7nOop7CteZAJb/HmahU/kHUWkwAAAA== quadtree-reveal:UklGRpQAAABXRUJQVlA4IIgAAAAwBACdASogABIAPwFsrU6rJiQiMAgBYCAJaADImB6QZm99h2RoQ0TFS9gA/vD" +
-    "fgvWxHYRPEtUzdLeGP9RhlHLOrnvsgy+KXHHnKBHIBhDdc+pZ7s4GdVgkljxHFSefdMz1OL0NNdyM0i91JrFiBuFGUhsVKyA3zuDs38p/Y04x12XxVOEAAAAA rack-focus:UklGRoYAAABXRUJQV" +
-    "lA4IHoAAAAwBACdASogABIAPwFqrU8rJiQiMAgBYCAJZwAAW+pmC6lxj1/qMwKo0AAA/vDAsVllzEXRy3mbHtdwvLY2glq/gYaLOBtXmf8IXdDXmBbMxnbl/7pEMBK7fEx5/LE065WGBBBcBfupbax" +
-    "SkFewjUS+JbfQ5dU0LAAAAA== radial-carousel:UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASogABIAPwF0r1CrJyQisBgIAWAgCWUAAJkweUWPtkfmAAD+8Ld1ciU6NMSMICBKJo3yNBrpV80Q" +
-    "q9TfaCTIxdtArPGPm3qiFct6wAAA ripple-tap:UklGRlAAAABXRUJQVlA4IEQAAAAwBACdASogABIAPwFqrE6rJiQiMAgBYCAJZQAAW+qry+q1k4btDkS1V0AA/u52kgZXpDUU8rLkNPAl4fxrju" +
-    "Nx7HAAAA== rotating-badge:UklGRmAAAABXRUJQVlA4IFQAAACQAwCdASogABIAPwFysVIrJqSiqAqpYCAJaQAALnX8GRsUSjAAAP7ugLrkD4BZhONN299Tos34q4Dnv4iz/7D1ZWZyfGjf2Y4u" +
-    "fXqhH3IKQKAAAAA= row-expand:UklGRoAAAABXRUJQVlA4IHQAAAAwBACdASogABIAPwFssFErJaSisBgIAWAgCWkAACnVo969bqz/mZ/zZMAA/vDfgrRjGJ6Y/ASHE4aCIakfWPBLowtGLg4w9U" +
-    "R7woj8hIDg7nFxBNW04YJkjzy1DbE1hQV3/inHgCA4rKtrFWxWj+uVYAAAAA== rubber-band:UklGRkgAAABXRUJQVlA4IDwAAADQAwCdASogABIAPwFys1GrJqSiqAqpYCAJaQAALnWThL34nhY" +
-    "neAAA/u53OVhvQAt+zoLqZp9u6JcgAAA= ruler-scrubber:UklGRkwAAABXRUJQVlA4IEAAAACwAwCdASogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+s6usJalQaHaAD+7nSej+3R8AgeaEOFbnR5P" +
-    "re8vt53gAAA scanlines:UklGRlYAAABXRUJQVlA4IEoAAAAQAwCdASogABIAPwFsrU8rJiQiMAgBYCAJZ2i2ADPFx8AA/u8PzW2rdCJGw/5H0kROPZEBdJHvREnuRkvfOBwPjf+vhcdNCAAAAA==" +
-    " scratch-card:UklGRoAAAABXRUJQVlA4IHQAAAAQBACdASogABIAPwFqrE6rJiQiMAgBYCAJZgC/7B6QeL67tK3N+86iAAD+8M6/Ma8IufZ5XKZUvl9XwVgMUILfz2LX6OmeHNATxHLoS6Zrtjiy" +
-    "rWjM5MBXpHF6a8F4+7uNLe5sedSEP3xNVvtV89WUQUAAAA== scroll-cue:UklGRkQAAABXRUJQVlA4IDgAAADQAwCdASogABIAPwFusFCrJiSisBgIAWAgCWkAAC51nVvBkf+1ciAA/u50lHNQl9" +
-    "yWbGEXNAAAAA== scroll-fade-in:UklGRkwAAABXRUJQVlA4IEAAAACwAwCdASogABIAPwFwsFCrJiSisBgIAWAgCWkAAC50/YZ1ei3UAAD+5FXwsnLff7HuPF5gWrRIRsnoECFwAAAA scroll-" +
-    "marquee:UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASogABIAPwFwrlCrJiQisBgIAWAgCWkAAC5tO4K2G3qKgE+QAP7ww/x76WsQNApLLZfH/hy8FiXb0jAAEYwnzBiBtB8ujSWAVwoAAA== scrol" +
-    "l-progress:UklGRkIAAABXRUJQVlA4IDYAAADwAgCdASogABIAPwF2s1OrJySiqAgBYCAJaQAAP8h4AAD+8ACvO9+Gjbw35Fvz2D5dGkqgAAA= scroll-scrub:UklGRkoAAABXRUJQVlA4ID4AA" +
-    "ABQAwCdASogABIAPwFurlCrJiQisBgIAWAgCWkNsAABjNlUAAD+750sVTw7cMxrgtG3KxGWaG0YZk/opMEAAA== scroll-snap:UklGRkgAAABXRUJQVlA4IDwAAABQAwCdASogABIAPwF0sFIrJq" +
-    "SiqAqpYCAJaQAAQrSXGOunAAD+7nf8My031sgdGQegplGNwiYz1hdjgAA= scroll-spy:UklGRkwAAABXRUJQVlA4IEAAAADQAwCdASogABIAPwFwrlCrJiQiqA1RYCAJaQAAO7hQnANxOVMx3AAA" +
-    "/u6nvEu67VBXrgrHOQxTp/eFw2X3twAA scroll-zoom:UklGRowAAABXRUJQVlA4IIAAAACQBACdASogABIAPwFqq06rJiOiMAgBYCAJYzcAA9tghjM3UPE+nf0oiuHLUmQA/un3NmLyMSY5m1fjj" +
-    "Sal+tDRQbO2eeXRJDELcrE3k0wwzEUNxrqoPct8er6LwLMp66fi42jAim+96tZIC55Rk69YPUGNe9QMoSpzZNAcQ3gAAA== section-color-swap:UklGRlAAAABXRUJQVlA4IEQAAACwAwCdASo" +
-    "gABIAPv1orU6rJiQiMBgMAWAfiWkA0BgY8omZo/hjwAD+7dBGCyKDEupbWXLECx6EXj8xlbEoXYsQJFgAAA== shadow-pop:UklGRmQAAABXRUJQVlA4IFgAAADQAwCdASogABIAPwFqrU8rJiQiM" +
-    "AgBYCAJZQAAW+s2CBlcc99jigAA/vC987mq2/FOkppre4wSDmWiDjQgg0naFhRO8/Zn90RPPFYQW8yqJ9sOaDti1cAA shared-element:UklGRngAAABXRUJQVlA4IGwAAAAQBACdASogABIAPwF" +
-    "yrlCrJyQisBgIAWAgCWkAAI91li4y+N+84XD8AAD+9COGkK8Ayd1twyIMoYvYeUcef5PYH4Jcf297Aq25VnCQLVVQYRLO+xBpNHvTtzTTLEbBxN978WLiTzU/jb+AAAA= shutter-transition:U" +
-    "klGRnYAAABXRUJQVlA4IGoAAABwBACdASogABIAPwFwqE6rJqOiMBgMAWAgCWcAAI919iXa61yXGzlFqJV3IAD+9CUezGWSqP94StArPMFLPyhJwcWcLo/I/n0D397Sp0eAAaPYhDypxcz3CdgaVbv" +
-    "IkdH6DisHV9SnfQAA skeleton-shimmer:UklGRkoAAABXRUJQVlA4ID4AAADwAwCdASogABIAPwFqrE6rJiQiMAgBYCAJZwAAW+s9MP6oKyKGOXEAAP7udbC3RrlMwEYG9pkjqs37BwAAAA== sl" +
-    "iced-text:UklGRngAAABXRUJQVlA4IGwAAABwBACdASogABIAPwFqrE6rJiQiMAgBYCAJaQAD43oOABco0qh2Svrpg9ZYAAD+8L3a/wx+kKUiS30+0NoOs14KcknIWIyZodrODADzZJhAsH9pOMfr" +
-    "9pnToMostGM+AcvT/UAOdcY9IgAAAAA= smooth-scroll:UklGRkoAAABXRUJQVlA4ID4AAADwAwCdASogABIAPu1iqE6ppaQiN/qoATAdiWkAAHuIW+Q8krDkxNkAAP7wURGL7looJ9Dept79VTC" +
-    "19WAAAA== snowfall:UklGRkYAAABXRUJQVlA4IDoAAAAQAwCdASogABIAPwFytFGrJqUiqAqpYCAJZwDOOBgnd1AA/u5+VoS17cV3I//ChdkmW/ZOXMOYQAAA spinner-ring:UklGRkwAAABXR" +
-    "UJQVlA4IEAAAADwAwCdASogABIAPwFurU6rJqQiMAgBYCAJZwAD4AIN/AjRmu9Tg3RoAP7udH2VB3mLnBfvDEnKJsYDLhrDKAgA spiral-reveal:UklGRo4AAABXRUJQVlA4IIIAAAAwBACdASog" +
-    "ABIAPwFsrU8rJiQiMAgBYCAJZwDO7CFw1GxBfDd3fQaZAmAA/vDLjlrs5mbuuZn41BtTeYR3oi0h5Ydi6qvIao52qI0yKe01jFnYaBdhz2DpS6tZvDOWBv97Q86k50aBX90LOuUZD5vqxpc6ghNXFB" +
-    "0uCZlMdERgVAAA split-flap:UklGRlwAAABXRUJQVlA4IFAAAADQAwCdASogABIAPwFqrE6rJiQiMAgBYCAJaQAAW+uXRje5+6ayAAAA/vC9Nwxd5HaSp0kuIYpU8FIEuBZLMFFwGtuGSEYhQztz" +
-    "9/RHqAAAAA== split-screen:UklGRp4AAABXRUJQVlA4IJIAAACQBACdASogABIAPwFsrE6rJiQiMAgBYCAJQBge6/gJ/gfHnYJS3775Oolkw0AA/vDcLOi8WdrKfp8/jKY2maxy2SjDFJI83gJp" +
-    "/6JeTQADwMO3ULQjUa+avoQyrjRnA44dzjPjWlab4sJLj4rKjpzRrCeA/Pikldwp6IdnfURxJQnsyeOh5vJuwzEptCL54AAAAA== split-text-reveal:UklGRmoAAABXRUJQVlA4IF4AAADwAwC" +
-    "dASogABIAPvVmqU6qpaOiMAwBUB6JaQAAW+qyxV29Vx8pCNQAAP7ymD06IR9f7pB5BWSRpdf3JIqhQWSm4gXPxfk4FDpLM3TZLUL/9D+XvlGXZ2J0y9hKx4AA spotlight-hover:UklGRkwAAABX" +
-    "RUJQVlA4IEAAAADQAwCdASogABIAPwFoq06rJaOiMAgBYCAJaQAAW+vy+wsR5IZtTkAA/u6ArVXEw5/xwwFPnTpanadcDwUvkAAA spring-easing:UklGRlYAAABXRUJQVlA4IEoAAABwAwCdASo" +
-    "gABIAPwFwtFGrJiUiqAqpYCAJaQAALnXn/unELwAA/u53QMgTCJkJ1EsnP2N9ExAGGJmQToEgEvC8GYrvQtvLiAAAAA== sprite-sheet:UklGRmgAAABXRUJQVlA4IFwAAABQBACdASogABIAPvF" +
-    "oqE6ppqQiN/VYATAeCWcAALvrk1WUKIiRHXZQ64oAAP70IQeBqqsvagHWIgnEle+M1ynFMbB7kPZqVNE4dIicnm8rRZ1qSFi1TxfGmQAAAA== squash-stretch:UklGRlgAAABXRUJQVlA4IEwAA" +
-    "ADQAwCdASogABIAPwF0sFIrJqSiqAqpYCAJZwAALnVPN4hWxz75hAAA/vC9S0jheli3oDqKNtBV6KdbL3gVoZuDwSm9dDdBuci4UAAA stacking-cards:UklGRsIAAABXRUJQVlA4ILYAAAAQBQC" +
-    "dASogABIAPwFsrE8rJiQiMAgBYCAJZwDH8iAAKUdYV1dP7SFyPZVGjtGS7xAoAP7mkxlLFkTpaL6ZpWQy4a2L1f6cYH34Qgn1gxha4zgpoEKmPEXDqMvbO5pPVWMZhlBEbrhod1d2Ws7F66bfVOPS8" +
-    "Eq5wBsHYB9BbTEj2sITqPS/4MjGEm/aR2rCBz+mxzCG6CxvS6mfvn0LdahHf3j+xDOwUrQiJ8z3CaneoQ6W4QAAAA== stagger-grid:UklGRpYAAABXRUJQVlA4IIoAAAAwBACdASogABIAPwFsr" +
-    "E8rJiQiMAgBYCAJZwAAUqnxq+mVBlrta6D7uOgA/vDfsswd3Wg8hIt2c3Ez49cosuHFDLIuYKHoOZUn8O8mlYTa+cFWFwJG/igkfDr0WlhP2ThCiuZ2ks43YzLjGzSuJ0KCcq7Oz6iUVVsj6lhRoRf" +
-    "Y2f/d5fylfyHAAAA= stamp-in:UklGRlYAAABXRUJQVlA4IEoAAAAwBACdASogABIAPvFoq06ppiQiMAwBMB4JaQAAW+uDFatSJLjpwjuLP8AA/vC80LYMJpEJZu1Y3dbDFdBdxnU14QVISncWG98" +
-    "AAA== star-rating:UklGRlYAAABXRUJQVlA4IEoAAACQAwCdASogABIAPwFqrE8rJiQiMAgBYCAJZwAAW+s1ZvXORxwAAP7wuvGPRblBBKulcsqpKuLfmVmzxz5ToTWuq/wxQ//EIKAAAA== sta" +
-    "teful-button:UklGRlwAAABXRUJQVlA4IFAAAACwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJZQAAW+sqvPcBaKhhAAD+8Ly3tevbvWC/naa8P1hx55ArvFyET2x60NaKAp0J0eO/iaG6hI90AA== " +
-    "stepper:UklGRlIAAABXRUJQVlA4IEYAAACQAwCdASogABIAPwFqrE6rJiQiMAgBYCAJZwAAW+o3KhdisRQAAP7wvfxgnxzCItsHcgmTTLRMEe5uXSDVJo32cej8YgAA sticker-peel:UklGRnQA" +
-    "AABXRUJQVlA4IGgAAADwAwCdASogABIAPwFqrE8rJiQiMAgBYCAJQAALfYFNiyCQBcF6IYAAAP7wz2/OCZwr8uWs/xxPbya8fTl6/8YIad7QKPEthK9Tvt3vivAzm2MhraITVnuEZk1NYFEFLQP/4k" +
-    "+uFAAAAA== sticky-pin:UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASogABIAPwFusFCrJiSisBgIAWAgCWcAAC94QwxBxf39vvt4AP7l8JLEKe4RPg1dJ5nq8D0HC+BKKGto9jzPbFxxbeUA9Xcr" +
-    "jlAAAA== story-progress:UklGRkoAAABXRUJQVlA4ID4AAADQAwCdASogABIAPwFurk6rJqQiMAgBYCAJZwAAXAYYIBkrNxAMZAAA/u6Av8t2YdB61+9xdMSOZ/vfxwAAAA== swipe-dismiss" +
-    ":UklGRkgAAABXRUJQVlA4IDwAAADwAwCdASogABIAPwFurk8rJqQiMAgBYCAJaQAAW+uChQdJIuQ05XDAAP7udbSp+RfzLOI/VU12k0M3wAA= tab-indicator:UklGRkYAAABXRUJQVlA4IDoAAA" +
-    "CQAwCdASogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+tx8cTpkDkAAP7udRkDzG6Se5bOEqIVkLqngAAA text-flip:UklGRmAAAABXRUJQVlA4IFQAAADwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJa" +
-    "QAAW+tAlFGKGbQOIugAAP7wvK3QjMqJZsIt07ayVA3dTHwBHbPPXQafrS8VlM1K/Vko9lelabugAAA= text-highlight:UklGRkgAAABXRUJQVlA4IDwAAABQAwCdASogABIAPwFurU8rJqQiMAg" +
-    "BYCAJaQAAW+i4IYOGAAD+5GZSQPKURHxqtMwHGl8PMXO0GO3AAAA= text-on-path:UklGRlAAAABXRUJQVlA4IEQAAAAQAwCdASogABIAPwFqsFErJaSisBgIAWAgCWkAADtlSgAA/vAfrN5JplH" +
-    "drNksQtyz+JoUgvHcs6uS19MzYrozE9eAAA== text-scramble:UklGRlIAAABXRUJQVlA4IEYAAADQAwCdASogABIAPwFur1CrJiQisBgIAWAgCWkAAC51nVGM9qKs5AAA/vC6QUMwN2ZM+oaOSo" +
-    "xGEnd+zJOl4xBqPP5/AAAA text-slide-swap:UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASogABIAPv1qrU6rJiQiMBgMAWAfiWkAADpwZ9NF/gOqAAD+78fA/nemlNAnwmhs2kBhqsvVURp8DwS" +
-    "sEzcI8TTKYxBwYgNv1QEoAAAA theme-toggle-transition:UklGRnIAAABXRUJQVlA4IGYAAADQAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAUquewH9rfS7LbaAA/u6pf5PwuY6ZTSkp3sVn" +
-    "i9d+P2QZnN2khwtA/IZtEXpVyqq/XkK3Gh81y+ArLu637I9NHGlEkFlHmWGpCAA= tilt:UklGRj4AAABXRUJQVlA4IDIAAABQAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAW+s59lehAAD+7nGG" +
-    "0xMWFKgQiNGAAA== toast-slide:UklGRkwAAABXRUJQVlA4IEAAAACwAwCdASogABIAPwFwrlCrJqQiqA1RYCAJaQAA0WBwI7Z8Mcu0AAD+8uwe4XaL5E7huQbDFiXw+77qf1yIAAAA toggle-s" +
-    "witch:UklGRlIAAABXRUJQVlA4IEYAAADQAwCdASogABIAPwFwsFCrJiSisBgIAWAgCWcAAC51novETXIScOgA/vC7nSfrRZ8MdTp1FuFze79MY7s5boDfmf3YoCAA tooltip-pop:UklGRkoAAAB" +
-    "XRUJQVlA4ID4AAACwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+snb3j3PO8AAAD+7nUwZvs1m88Aj1EBZX0PTQALn5AAAA== tracking-in:UklGRlQAAABXRUJQVlA4IEgAAACwAwCdASog" +
-    "ABIAPwFqrE6rJiQiMAgBYCAJaQAAW+s/ig+FssqoAAD+8Lyt1cn/AnsmRV2kqXetRhbh1AcKdWws1GmO70UawAA= twinkle:UklGRlIAAABXRUJQVlA4IEYAAABQAwCdASogABIAPwFysVI2pqSiq" +
-    "Aqq0CAJZwDOOBXeFZSWAAD+7w1Fg12OnCSlx2u9OxcI13N/im44yMTmRp91x1gAAAAA typewriter:UklGRkQAAABXRUJQVlA4IDgAAAAQAwCdASogABIAPwFusFCrJiSisBgIAWAgCWkAADtlEQA" +
-    "A/vA8iTZvSvqK/7rF27Rof8mtfaoAAA== underline-reveal:UklGRkoAAABXRUJQVlA4ID4AAACwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+s1ZvpvlVfgAAD+8LoJoVu1eAQ7UUq2BHM" +
-    "FxCO/QAAAAA== velocity-skew:UklGRmYAAABXRUJQVlA4IFoAAAAQBACdASogABIAPwFyrlCrJyQisBgIAWAgCWkAAC6CfkJaWmrPJPBPgAD+6foy16QZuf2J7FMls8XtuwVU31x6FyQr7D50Fp" +
-    "TEJRSLpPdS5cJ02uSeKGAgAAA= wave-text:UklGRlYAAABXRUJQVlA4IEoAAADwAwCdASogABIAPwFqrU6rJiQiMAgBYCAJaQAD4ToN/CGc5EC1OxgAAP7wuk76/5TyDKVwYGxh/psEQo+wmtxOl" +
-    "Qm/OwZM6AAAAA== weight-morph:UklGRl4AAABXRUJQVlA4IFIAAADQAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAW+tJBx3XUuaZioAA/vC9Ts1TndwFmP7uYWOUdk297v8++cp6hN/Xa5xh0" +
-    "yyiumNe6AvwAAAA word-rotate:UklGRlIAAABXRUJQVlA4IEYAAACwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+s5yqjNIu4aAAD+8LpK5gacIrbRuKu/g9f2dMIjmBMzvJ2kFkwCs4AA x" +
-    "ray-lens:UklGRngAAABXRUJQVlA4IGwAAAAQBACdASogABIAPwFyr1CrJyQisBgIAWAgCWkAAC94QocSFCCqv8dcAAD+8M6KRYf/JgJUBT35fbnRr06ApsDq47/pfRknB0Da2hw2S2gFhe6oRNDW5" +
-    "7CZQhQG6u5wTrwDrtrYg06hkEYAAAA= zoom-through:UklGRpgAAABXRUJQVlA4IIwAAADQBACdASogABIAPwFyrlCrJyQisBgIAWAgCWkACBA4gC9EKJk0WoNaugkXu58oAAD+9CVTjG/kEvUKA" +
-    "1VdHNFPitKkOlIEDD4IbATFmmoxvK/EEZTAFi9bcuow4bRFgmPS3SVv95bzEg9uRTFAoooL3pAiazTTqdBO+winOrieFJxE1rIcpFH5mgKAAA=="
+    "accordion:UklGRiQBAABXRUJQVlA4IBgBAACwCACdASpgADYAPwF6tlIrKCUiqVtpaWAgCWkACwBHT7gKQQyst4bJJQiizqqDIpEKlHvYUwcJHQCvbM8SrcnR3wdi/suXjbwK6Us6xQAA/vDUvt+WD+j2EECSvL" +
+    "WuwV0G4FqP3BpTV5aYegLql4XrFaradei1snmcfSEzjfhAb31rKqQCLyfFO5cjqCoRw4nvNx6YV40Ckuk0er4mymr7NApeMvfPRsq21zENe1c1JgcfR0FZNC9bFEDK1IhxRtTj99O2Rs6f4yabBKvdiJoh8R/j/B" +
+    "sxIV2kPZQ5ut5BhsGiX0DmH4kbhOYqPBg/92SpRqDsveVSRV65OGAWuivjZ7atUe4HJAUxIwGpbfdwUm2ISY54YAAA ai-orb:UklGRroAAABXRUJQVlA4IK4AAAAwBwCdASpgADYAPwF+t1UrKCWjJrZoaWAgCW" +
+    "kAAFoD8kSszda92lUEPZ7uNJsq7KgLCihPci5TLe6dvxakZo2ETSAA/vEYZygmmV1KZwQavjitlSMOUty3rzRrDxKlez4A3FpSnRG6l5MnvBxwJcZ/esGrijsfTbtzto5i94yO8Hkgye30UePlv/A6StQPdaidYt" +
+    "AwVEbtcEJNlCYRSInhtxvu8NfKO/1mhcAAAAA= ambient-float:UklGRqwAAABXRUJQVlA4IKAAAAAwCQCdASpgADYAPwFos0+rJaUiLri6cWAgCWcA1JSqEKSw1/cnX99gjUmjzlyOV+nifTOiRXl5YFldgL8" +
+    "GKOyAmnmCHegsHh1u3bDdx6PLwLnmAP75sk+FNYLyZ0I8MrWBtJqYa8yT8QVvcohD8LwJlMYgJj1O+iCOST3ATXYGYIoLToL8ah+loGC7CR5QGBeXRg+Acj/+WHsu5cBqAAAA animated-beam:UklGRsQAAABX" +
+    "RUJQVlA4ILgAAABQBgCdASpgADYAPwF4tlQrJyUjJrzJQWAgCWUAUwAJRNnVOQTj5Y+A3qnR7t57ieGndNVyRdxzPxl8AAD+8UgbPi28W3uv3yOnTHTy6wbKP/E9cCy4COV6aJtm3ChnauNb9eJ8igh+Dk+VS2Xx" +
+    "/4ykBlvXLyBcPcTLDVQv3CdSroSOmdLdwtK2/NLoemJnzOyqrN44aQflFgneWS0SQhNTqCe4SSN6DtWxAxjtK5gj81OJ+NIAAAAA arrow-slide-through:UklGRsIAAABXRUJQVlA4ILYAAAAQCACdASpgADY" +
+    "APwF8tVKrKCUiprma8WAgCWkAAJRYxsB6qeFqkmbxDQmzVAOqi+oXHhdhWPTJkzKQ1B5NB9Ua/XfEZqzIoUAgAP7w+B4eLVJJ1lzAr5YtpxWhokShpBimYN+7fz3Bq1b/Okil7uBaIEIQSca8S7jP1m+SpvInakE" +
+    "QxPUHdl2DyqRMfrUucVGKDESZvtnDcpDod+XKgUHggW+/7CxusMt7IGIIAp2/QXhgAAAAAA== ascii-effect:UklGRmgBAABXRUJQVlA4IFwBAAAwDACdASpgADYAPwFssFCrJaSiqVkssWAgCWUAzW1/93IWt" +
+    "FMu6qgLWaoqXS7h/zmEXY+dEmHpsDg6eWgqDks+d5WhGV+wmomAaCHgmTw2wPyJS5+rV43eg1NnS2yhJbw6K/zgEAYdRXPgAP73co6lkev63T2+EmUnvnNjXaLpbZrsVHQcs8mDi5OQ7PiqwwMAGdLJBUGdqogfY" +
+    "pJgBY1TGepCb6nnkwHaCoZUE7ex3M/2nSVffhLngGbIlQpfqdVzqsUwq9fT4/taN2JOhJ0cbQsp4NioTYCDSVCKZB6jsJG1YgGJylpUO/UFpWUSr6sq5sRbBMALUTwwYud8Bp9NZtuYjeRoNy8ruSjpCJdBC2A8L" +
+    "3F1ZB8mu7g5Y1gR9G/lWPEapPtVwUXbVL5uQ4etUqrPLq3tL6egY1BHjCpW8V89U6nkp2pW8dxOS4LU0GRDjcKjpwr0nj++AAA= bar-chart-grow:UklGRjABAABXRUJQVlA4ICQBAACwCACdASpgADYAPwF2s" +
+    "1GrJ6SiqqkBYCAJYwBV6dFUEMp4OeCHSn1KfUCpIQaJJfiPCezTpmd1dw7kCNVRMg45g+4ZaV2xMSFhnF71KAAA/vJgB/YD2sWWJNTPdTLJ3REbcCARRHql2OOO7GwbqrLa89+GCL/fYahMnM/DD1N0gYAPIfiXZ" +
+    "lKnlWX8GQItVUpso2ZFVtJzS+kxzNzz6HbTnadSNiX8OmwgkS/FQDB1l7JtM5BHiU1Q+ioMNeBdIEOFFKW76R/AhzTTxVTl6d9My3mjCrAEbIzx9Piig+L0Oj5HltbB2Abeus0M28GU6Ldcw4qtqnOfAY0dHQFou" +
+    "ery9i0zpOWnzT2KYzDu6+w3Iny8HEzSVtvTuLyaz0Y8gA64QAAA barber-pole:UklGRggCAABXRUJQVlA4IPwBAACQDACdASpgADYAPwGAsVQrKSQjJXv7MWAgCUAahjAQavbAc+HZLWRiYOXgDLZYF6UVT7pv" +
+    "TdoEzYZEB97CvAKXtUoYhXJS9HSUongQFaiHgqpWoumKRNxrIlxtym7P8FYvtsACVb3eKthhWNgAAP7yvZboMnJWv3/86/1B+b7I1xgUWQLkXyX0PdhVDZQKyB+/A1z7Rr9q+0dua3VBxEYPHxmKwoEYRiRE+99O" +
+    "HiRcDl1OnyBDbU50QWJtxdS5AtX2jej0MeSxKM4SO+zKAXd8gk44WZRuDOi5q+Qmf5PqzlZIPHiMmtTLo1rE0R6yp8mlf4PvU0xEK6Sx62hHKZmPaMz4kWN2EBM3bi4iI5DAYtfdWeG3L0vWh02xLgcq6aqwG5S+" +
+    "qeIwzeBhJuWUvjYcyxNTqPDml/BOdlizCF/Mjn0s1HHYrLqv24DnKkgu879bD7rMslolDGcWUGDk3XT7FeHSvfxBVf2gllOf0UqYVOxGatpEKpQahPuanBjw5IvYTF9TpnRyou8PDgw8DgTLjns5joTsSsqTJQWj" +
+    "vchR0+xe2hZCWBqzmNE4VGl4Cqu70cW8ncH4SzHrmxS6y1gIPaQ0jYdr5gW3X+uqDmhDJEw2aFgL0Z7h5P3QcA2OrUWHrcyfV9MdhJHT98nKHsJZJh66v3sXjNosgAAA before-after:UklGRmoBAABXRUJQVl" +
+    "A4IF4BAAAwCgCdASpgADYAPwF2r1KrJyQiqrQLAWAgCWknYYASm73xSOMHxpfFxGz0c2whJE6blPwMmNVjirahlXhxoIFfkPThDen32Gr3jII0whb6Gy3Fqh+aO1I7VIAA/vOefbQfZRRTmQHXW0/YqCc2dBWD5J" +
+    "D9I9TMdK71TpCWxL0qGvf2bPOs/NEQckZtUs/6dG3n8E7xNSv9c7EiFfzNnROFPX5nvxYnxBFrN0cruFiu9x1poKXYh2Np4fnv94WYF3PQqmlPX7GpqM+9Jgye2oWp7j9nga8toVT36k8cHT+54ikb2d6sJbQrLm" +
+    "wKATtqYOCwXl32KQq3EXd1OxRGEYD0ThJ7gF+Ms8ySPwmD2QL/2XWIdrLrMUbiNnVWbEyZy/44ty/STAdioG3k9kXHXXoqTA8TiI9orcoH4UOawXnHWK1UXQj9HBc+qbA3DUC28Obvj8sayYaaRRUAAAAAAA== b" +
+    "lob-morph:UklGRr4AAABXRUJQVlA4ILIAAABQBwCdASpgADYAPwF8tlOrKCUiqAhxYCAJYwDVWaA2wAEJXFVBI7BxYDFZK4jckP5DZzScXCEmMP5Y7pYW9xhtEpMAAP7xRJeiODCNRsiskRPFCDWoSRVK62y8rI" +
+    "f+e7RYvOTbCuozrQ67qGTGJwblOjgtlx0ktxhMSBGLnSetMD0VdkLaRgeIckmkypU11/C5M1eJ8sC/qC22ajYzDLBD35d6cMBxMQmxeGjsZXSsAAAA block-reveal:UklGRtAAAABXRUJQVlA4IMQAAACQBgCd" +
+    "ASpgADYAPv1ysU6rJ6UiMB6oqWAfiUAaDev4GIe3aNJIaiP7Y6cb5X5MaD92duTsrDvmWbylSmFwAP7y4wADC8nv2tpXtsw2Fx4zERggKqGz9qcNPoTjeaO19/Qo10cQsN8a/X0ABTRac93V+l1sfPD214AxoHi6" +
+    "UEb7tpw7raTYpqyuNqDvq+/gqoHR/gbnJ1hzoGPlSe9UXiFf7BgmO2Jv1PjDkwuTvfsyN9oBnl59FtU5dWvrOCq5phheAAAA blur-load:UklGRtABAABXRUJQVlA4IMQBAABwDACdASpgADYAPwF0s1QrJiQjJ" +
+    "rM7WWAgCWcA1bszngfpm2oCjuuF/h7Mg9OXYnKx+/cdwlJFebv7WE/TwXpU6eT84uUteHOj8LpSDxwC4Fp4I314Czc0w1mL4I1DotSZWZL1ch1nDe5Mo0AA/vJeoOyd+I3ohJu6q8tl1y7MGdf4H5tQZT4NLZCJR" +
+    "wVbm0dJ9+z1mX7tkwUCpnBS2xHbhW4h6Tgkqcvi1jZJ0YN07nrgKhnJ2ZlOvK2FR3T4LM8DisJ0zkV6u/nv1yr6jy0Ojyib8diU9cG+w2gL1Osb8Z7hdxVcUlxB7lVUn3+RPyfypbJOm3W60pZGUwSK8ajdmSO4S" +
+    "rOZF7/BybNkZQ0LGJrE1rbjBg0qtf5jHvNXl2R2MK4HM4/rx57Fh9A8U/Bk0jgt51hVKPfnk+k3RLq1hOx3muF5U90ODJtRLHVt4+s35QOm28bSE2qLnZ6FWyfsXLTumNyuJI/PeCuynpAvRDIDEe1TJE0YkgXf/" +
+    "UDKx9ueVHr3l9hD2j6xbqPxpBLElj2PSxi9ZQHGcmyYAgsg0YS36AEFiXu3Ubh+S7oXe+BB5zZ4INjuG/l6JtV5/ilgAAAAAA== blur-reveal:UklGRjABAABXRUJQVlA4ICQBAAAwCACdASpgADYAPwGAt1Sr" +
+    "KKWjJXgJMWAgCWkABmgaQJncY7rZTKifPDDZWF926tpOOgceXXgTfPtmtXqJ2JojY9AvyEg9bKhhgAD+8RhDfyXNs1mQok8ej6Dw2JJT61URpeFGfPI9NkBBIElezNcybbqRl0c3Mz8347hGDhZjvjzN5sWQqkoJ" +
+    "iM2NYoiLxYtaJ78/BSocr7741a1WBDyQ+v/dE+6YmxL7tsMAbhBVKHIt05Sfnhv0OoZVzK5MK1FfUHdstNNV/tYz36UApJ5FJcT82Q28q+14AmOWRSnNwf3ylZ8aQGb76g2jE1SjyC7J0Tt99QlN5sp9iuniy9OD" +
+    "2nwBuewB5k4zdpcnqmU7A/j7qNBZBlda0j81VdhxgzFAAAAA boot-sequence:UklGRrYAAABXRUJQVlA4IKoAAABQBgCdASpgADYAPwF2tVQrJyUjJrzJQWAgCWkAAElMjHr9w3fuqBkai6V/DlEiM2d4NnHMF" +
+    "aRgYIRLIAD+8GmfCgvE8N9I5R2ypoU+vUcC6X0pPoNVrhD1YKicYd1Ary8UCcucb9CVYWQOjv8pMPWDGElkFn2xx2EcZCgG0BEshIzvCmgwtlqeHFYiG/sBRqsjIsNW8hWMOiSXWPwEe1p2jgc5n2fzAAAAAA== " +
+    "border-draw:UklGRoYAAABXRUJQVlA4IHoAAABQBgCdASpgADYAPwF6uFMrKCYiqBgJWWAgCWkAAFBISJCG6ywnXO+Nw5S2/zrOWTjFjBUajs+b1frHwAD+8DTBx2RvaNiW5bJHTUaKN/lVsEc4/MWx+aGNgj9S" +
+    "sjHJO4cCoQ9wUgCyk6tUWQulAtsTuREoS/swAAAAAA== bounce-in:UklGRpIAAABXRUJQVlA4IIYAAADQBQCdASpgADYAPwF4ulSrJyYjJrzIaWAgCWUAAFoCUE01fqYputajVNDzsEznZTHgH0HKCLCAAP7w1" +
+    "LI1EVPCMuesl33u/eVFz/+Ut8YDISbnn3eFMSLqht3tS0ya9AeYf8MRTBy0t1PDhe9fqw36TWkw1NnhdUuv5XaawTYvXMMlHgQAAA== breathing-glow:UklGRuYAAABXRUJQVlA4INoAAABwCACdASpgADYAP" +
+    "vlwq06qpyQiMVsZcVAfCWcA1OmNfdAVxI7m1t1u3Oijk5jcxD74/Wa5kheHBB/drhoMB1RmTQ874y3jf+3+EmegAP7xCUYNPCp22VV/q34uJ4dIdq/9wi146Lfs+sQDH+bqhJfFLaIWRRruaEmowjBh4sYvs2LDa" +
+    "0aQr/pFXL4dL3dAsOSMPbMrAWYE9WdGlqz5l2Pmw4+cM56AJBRtjtKObMCFqx/T/QK/JDPInmuVjLJwpvTXi6zviK5QQGau8X6xzshkd3gM93wNBWeAAA== card-shuffle:UklGRrQBAABXRUJQVlA4IKgBAAD" +
+    "QCwCdASpgADYAPwFytlQrJiUjJrmZsWAgCWMA1dl0OgEotMcbLgzhYR3+ZuYwBWZWjpkXtr7Y2iuDwRPLQAaRBRflokQ66cgk9hF/LffGBTnaHGdNAJLQ7qc30I4HTdXUtnaSBHkAAP72OuLomb9/t5GZohtz/n7" +
+    "c5peQmwrc5ucTxC3pZ3qZ7ZxUl7rWdJAPtkqi6X3PsxsNUg2SsMnf/JLN9JQOeT9GbWdFpk/xCyoNX5i2Wjq0hdQeuFtRgUWHgvtTwtFz3laJS01d1bi21c22Xmcj99qAUu/e0ESlHbsK4Md0cgGwverDz36oiO6" +
+    "Kz0XqXhi8TjXVoj5T3k9CG24UTc6eTf9j5RVW1TEzCAkOBnaRVACimAzrS1NLMYp6EeSjqRJ2t/dvPq3cb7hAbxIPubDQRuIg+bgf3iPnQWSgI5NsOFzThATszCfPwtkdyXHkmUgmMWA+8jF5ydqSdfhTxyJHR66" +
+    "ryF75aSClc9PHZ6XhGviA+iZqX4BXx6f04bsVbTjkNU3jSiqLry+AnD7Ti4RO6lvrmzzzN/UUh695iIAAAAAA carousel:UklGRroBAABXRUJQVlA4IK4BAABQCwCdASpgADYAPwF8tFIrKKUiqBgKqWAgCWIA0" +
+    "zX/54c3xioOc27yR29y3qFQ9y5l0pyZK0gKJO6hci9bocVPaWSNcMbWW2r4NPO6ulcJdgId1s+4XU6dppNKwYth0AgLkAAA/vfgtPz2vlSzqCf9tpxHubVWCk3rj56NOhoY96YqV6nXamg7wPRyROU2y1Bqfddba" +
+    "WF7zL1mFeqg3drSoqpUVJXmkKcnf/GepGUvkdUeTfbGXh0+6d0ux7zG0QN0r9D6528T5Jqhh2/HKXlzJcZ4iAh8LRE5v0EhGav8RpaEZIPV2cr9/XdmCHNpglGpd/RWpvRqVQJBoWiNExAdrl2b8w7hW11nCXquA" +
+    "6ssFKEBGnBBSzjhFI3NU/xaIQRi7LUKadV1r/PbHPtZQ/OW5g3TqgKBahDhN1ofEm/ovG4H/doUeWdE5mpoZRsi3eSzjIhntyDM+9dbX2103YyLC4lyXE3GbYFTv8x6VHVJ6zCQDjoOXVjwN3OHJAEiNeiiH5Hbr" +
+    "znHJRwYyzr2ecZgRbezJ0IjKF39V40TGJsgQ0wwyM6FL6niGoVG0AAA chat-sequence:UklGRtAAAABXRUJQVlA4IMQAAACwBwCdASpgADYAPwFysVMrJqSiqVbaWWAgCWcAAKGHtxIEZJQghUhR9FIdVbnqCV" +
+    "yKOms5FIOnk7O1XKVHPRNejovNHp2QAP7y5Pv31qlyitMQJ06TF/YZmkT3aVkCjfBmd+X7mEtEiDFi281iHopJ/iXu33l2LIoTN/7fQ/6kwK8F+ytTDvZCpivACxVnnBeLgdW8zU7edda+Q3QegPLd6n3H05+y/O" +
+    "JwfZEx3mTtls/WAKD/mwzCMzcbWLvIGrAAAAAA checkbox-check:UklGRuQAAABXRUJQVlA4INgAAACwBgCdASpgADYAPwF8t1UrJ6WjJXQJmWAgCWcABRJbPDqcLWQNqTmePXQxgTyW3ND1h/5CdFUT/lvzIP" +
+    "q8gAD+8RhUOkAZZHJ/vbJjIR3yXA83Co7ewEsrC9HbN4KU9d7nfXXD7zj6b5v89gQqE2LeBr+fpt1UhiHJu3/XeP+cYPybjVvJ1tPXcM7H34SZVR8JtsvCRC5kytTltkVOL33XwkYpfJrdEbqvGfm3Iyj9IuxCXx" +
+    "6zLmMrug9i8XxYUnt8/rZi/ZdNVlT5uCJqy+7Gv8BZQAAAAAA= circle-reveal:UklGRkACAABXRUJQVlA4IDQCAAAQDwCdASpgADYAPwFwrVOrJaOiqBqsAWAgCWYAyeWjSiCovzRzWTWztE0IXJpSAIjd4Uh" +
+    "xMalNXJ5phipB7FgPBn+sBbwj9BycUmjLyB2zDltSpQ98mX9V88DAIDZKRYvd2LoAJw6aruG4U00ggXwGpLUyqEnjAKa2yK1eK21dpoAA/vpbE+A3OQX7Ev9TsgFubFHIzcRaAWrrYMjE6vjYmZslBn8FZ459lS9" +
+    "opwK+F94jtNm5yCJdMm/FjpjuWmkZBjg6smKl4enMMXSEGTh/DFnYO3NKDP2u+G1/ZBB42YLm4nvQD7BksAxxzaAKBVTHv9ssi/rYn3jzRbw/Rgt/EXbSrXJ5GwaGa5bk5k8eDk0VvcsywOSAQa9TD8LN5H0A5Xb" +
+    "oW4MPDf0r7ut6AIn9wxuO4jwl7QpYi/koE4yn/yY9R4tYbcAwhAA4L3d0rDUYuZdcFZik1yqVboYN1E/9+lUrPd+txUuTt8CDH2XdMuW9M0n2a+w43Rodj2St+Z2vFX8Z7Uyk1ZiKYjG+TAct2LgljMAH3l0B7kK" +
+    "fgbaaMvo3yS1+38UeyRYbrkry/hBv2A5p71kxXXicKCYoQB9OUhmdhRufln0U3wU+ZE1WYNrbmfMeKtxD+Lfs02eQ63IYUr8ihJEDzFbqptdKCItaHG64jaHj8RT0HPXj5lxu8JAR8gTeH8PyZjEfj89rnnckthT" +
+    "YdiNpdpDttYZBxAUGVcl+deqojov2KLDbk9VrunYAAAA= circular-progress:UklGRsoAAABXRUJQVlA4IL4AAADwBgCdASpgADYAPwF6tVYrJySjpXQI0WAgCWcAA+bZ+c31ooodyOnWgkeCdBu7shFgHAbi" +
+    "/qLyKKl6+xTQBn+AAP7x05RdJCW7/Qbqn7UmjURxzzzQseTt2X8FneM1kAAOvG2E7Gwt4bTZKb6AZZ7IxVRA30iAlFKbhsP71SsVll5wIiqT2o5RgMWChTh8YFMFYs4Wr542lS8fyOIg55Hvk/zvjAYGc2+qWH6b" +
+    "MR3TjuyanJ03HFFNP1noAAAA clip-reveal:UklGRoABAABXRUJQVlA4IHQBAACQCgCdASpgADYAPwF+slSrKKQjJBqraWAgCWcADo8WTyxQeJpEi4C7P6dIOD7c3M6H9fKqsNk59IVkl/CX9gbmA1N98P1EZ85" +
+    "k3OtQmd+6YOo4zR6eMl2M0ojA1AAA/vJeRfQygb4futLLAQuVEkyLkl56hjdH7OyiUqmMrlphtp4cGpnjPmBWGYyQRN1E08w/VcBGb9eDYp+DftqFt8k8kTbEl5OtDKapj1Or2777EsqUyfnUBHsL2KzKjxN1hTP" +
+    "DnTJ+eHnexk37A9oVj5OoTryu52w2ngM872SsMn1ywztq5yuHnKK3zp3/7N7cp0qs9v5ILRmhYi5JZ89d40+DAZhyTwmfJn/OVXMKnOgjGjrgoRx7VHA8DjFpOYZsWwd7mEotvBkfmqk/kpuGeN3IelUry7yXIAl" +
+    "CsoJ5ErlNU0rkceF6dFXw0gpI+nNEhQ+nJoopdXCSCJMOr6WGO0CJdQdl2Ul3MYp2sXm3ThQEBMgQAAA= color-wave:UklGRjYBAABXRUJQVlA4ICoBAACQBwCdASpgADYAPwF8uFOrKCYiprmZsWAgCWkADO5" +
+    "DQVJ7x6q6RRWym/MfH8OYO6IHiMgWaxK6kWy7V44A6lKfSzfnDOAA/vEJnHSfiYIl8dUyb8JQKVEyTuglVdvpvK/t12uqwTA9NI7cPPSXqDBt9wGaZR5vSnzbr2vbJ4S/6bOmN+FdjcicNeMd+ZpBoEyZuL0/y0X" +
+    "Ezqtri7jlQN68NTwHfM77FINcLDH1/DsagCQSCqJjL+vAy1smObuNuySredXNy91BZOLTQL7S89wKGgnb06DEIVBHahF8njFimdd1Cnrpoana+8YrHDv0zv1ArZDIvdENOVn1yNdv/JLxGNy/j4bBgheH9y7jroq" +
+    "IHj6CNRywV+UkWKvtT0Kga7jUNAWFmAAAAAAA confetti-burst:UklGRq4AAABXRUJQVlA4IKIAAAAQBgCdASpgADYAPwF8uVYrJ6WjpBqowWAgCWcAA+WhlBO3TZRX7TCqrb2YrBgjWcEIwFKqQ2oVvAAA/vD" +
+    "oPdWCH57AGJdyEftkseaA8D09RufMxfHpide8dmDMVov4/pJAbjO9Yg0/a2Z2skjZS+zFaaqAWQ4U3S9R4eoZGXSdCY2aS3Mbujogxj6txQ8uecHMxIOWe5IPOno+OFy8djGAAAA= conic-sweep:UklGRsAAAA" +
+    "BXRUJQVlA4ILQAAACQBgCdASpgADYAPwF2tFIrJ6UirVgIAWAgCWcAAINei3vdwSjkec7IBDcEt5YSLCdbWj0xZJNBCZlurGAAAP7wwlPopFgvhiQpsXCqbZxl+2txUQG2iGH1lULLv7ph76oYQaijjvKTinafoL" +
+    "wHIBXt5GBH84X10L3bdwMfECfVsDEb2yc2gHwbMlo+5lRa9vWaWXfrzISPlIOtUq2X9JOS2tWqY2p/ihxSce1ZPeS0AAAAAAA= copy-to-clipboard:UklGRsIAAABXRUJQVlA4ILYAAABQBwCdASpgADYAPwF" +
+    "2tFErJ6WirBjpmWAgCWknAAAMNMz2HXXudtzEVAPCAGhJkqBWFVt1d510FaibP4VBEZ/oCCzAAP7waYnFGyc4ASAEYk6HrfMqmZvUl1cCJpX2yZzqgHLXawh8saVVO9WbhbE3NXapyoc+tdor01Dwszduj8pIE8a" +
+    "BeWq60CzYWfN0N0ePUAVaN0pD4rMrl0RvZk0OZgDKWaYq5ed1id28iaHIgp/vgAAAAA== corner-brackets:UklGRqIAAABXRUJQVlA4IJYAAAAwBwCdASpgADYAPwF8u1WrJ6ajJXgIaWAgCWkACBA4gBikfL" +
+    "mQ3gwtxna6vZUsIQlU/c5zSX6fdc5CJb1CEk23XAAA/vC5Q1YDV1nHFKEGfr/QvZez5Wug6x6cla4mLdEIgYyn5jvXwheqfZZe14FK5ALuAW8fUvQ1M7qgvY+g/LEOhO5FL0n9sTXYvvEMMDbKMAAAAAA= count" +
+    "er:UklGRi4BAABXRUJQVlA4ICIBAAAQCACdASpgADYAPwF8t1QrJ6WjJrM5sWAgCWkAEUe8wgwJUD3Jq6RRWztQOp7xZfwH70p6fFU+hC6HOa2fGgOppgjVltHwAj8AAP7xGEFZawc6zgpjh9scy6hVoezuRzx3N" +
+    "LLOkbuHiuR/leoctndRGcbY0RAokHU+l5zujGeNYXUOCuHXaRJ1+mxKnPLp+lejOcmCYgKGKxc7SmCEaE6lb4js/VVMkzUUPrKg+Sg6uQxWQ+DKcUnfKCaex0sH2FgFgDY2yOnowcQQ8Cm5akldFd8IRkwwizJQ6" +
+    "aVOp8ZO7/+D7rQkZ2Yn9PXdU9xdoDdl6136WPE6L1PHZyUzBU2o6R3vrO8/URHnKtKrgDC9TglTlFex5GRZcxVGdne7UqAAAA== counter-scale:UklGRp4AAABXRUJQVlA4IJIAAACwBwCdASpgADYAPwF+t1" +
+    "UrKCUjJBqpiWAgCWcAAFvWQShw7CldEznsbLNYqQKAOI3X3NjhMtKcpp7ld55okFSfA5p2ZCiAAP7xGEXC3s+JGFqSVbfJcD1LaHgdm266o1ZK4ad7OlIrLgUR4hJmGu8nTHudYkOHD4UcXK7ullU7Wrcrj+DlXT" +
+    "YNFoMe/orHAAAAAA== cover-flow:UklGRvAAAABXRUJQVlA4IOQAAABwCgCdASpgADYAPwFws1IrJiUirBVaIWAgCWkA1bhAfWbGLy2IJMw9jjjxdCx+6N0yoj+2ICdzPKshwR0K9AqfhRWwHKc0mOWcAD9Kfz" +
+    "+fYNWnxlq9F7DLVxUQcAD+9oDNqTKHBR0jO+uWnq+TfpIedNMvnXbbVbhe4NMYlBT6iIVyPcbj1QV3+NJC6+FdTUZOZ5gHWX+tecDBHizunNUX/iOVwVyWGzKHtAKeYY6ODm9DcjRZZPvwvm/qaYIF7P3XWFfJok" +
+    "RM6ADiTJY+1xVY1dbeYuhTLamv5pl9lJF5DAgAAAA= cover-transition:UklGRjoBAABXRUJQVlA4IC4BAADwCQCdASpgADYAPwF+t1WrKCUkoqlxYCAJZwDVRbglQj5U6YkAF/+EjR+qrogl7Y76c2UHrI1d" +
+    "bnNvNaI0OGL4NLxh0rxn3XQeE0wnkP/KPEtWrHXP/N2AAP71Uuz87B/ikQ/9cwfFBr/R+E3ujPMBbLu3AiJbm1QckGQLZK3SiyROAChmZapvN31XNnjDbn6PabzmAh5qc7OIIR120jKAxC5pzBbFGU5mzaDsDiYC" +
+    "7o4iXwge4KBhXyXamUk6RCCXMK0sYqvh6UTt0V5YwLeI+tbNZW02cjo/Pe3gLnov3fAe3kb573k7miDhflVIZ4Unwa8RrhvVNVAEAO4jokB6YmzJ28fiKatm2nH0JFbNQTa0qEBKZK2uP0StsHUKCcgiysfa7k+i" +
+    "4/ZowAAAAA== crossfade:UklGRjoBAABXRUJQVlA4IC4BAAAQCQCdASpgADYAPwF2slSrJqQjJBqraWAgCWcAFtoh2SLgLt2UoEZqkLpbE5aYcGs7wSN8NIQIdQi0GUEjpZueQ4vWGMwNyKNauQowWe6IowAA/" +
+    "vJikoqEh5OnltHDjyHUgr5T69rx/SJ/3ei92RuYwActr55dWQhDvTlRS15BV0/AjlouomJ2Iiq+0llSsvQ8aDIi4Tw8SZ6xzwayQmFz5/f+BPGfiPKGBcaAqbW2eOJQQMetnKi0UzHFs5ZjkoIHCFmXdsuURnYDN" +
+    "VJZd5Y9PJqJJVzBVzbbcc7huhFkrC0pehtIQatdPiWKxqCGYcZxKod7T2pBSSjHj4cm8Qm3Rr4JR3br53E9XW4qYPyvLW5cmVFIq3/DCGGwKFy8DU0MW2wZuvInvxgwB0AAAA== crt-power-off:UklGRhIBAA" +
+    "BXRUJQVlA4IAYBAADwCACdASpgADYAPwF2tFQrJyUjJXQLmWAgCWcA02A30+7CCN0y4WbddC8E/F+eLUpCvP5ecR1VI2epX/QIXup+LqOgpR6nMhashKww6leGIAD+8hncOqAHN/dJtmkCOqqUDjrr/XS+4pKhfb" +
+    "2HReKEfLbLFCi2U7P1H0OpD3z0G8Db7q31CviPpYX+kKkslgSjGCdvA5aOmL6vMtiZWhyxwuxIKsJHntQvZlyJpXwtav9Lyq8xaemDp3kKsVKgf2RuGdzFZlNg16jPw6vzyoN7AFYGC8DlMtz2xAcjPJU6ANy5kz" +
+    "18Pno8ufDRxRGByGM7cuYlvdafPUwkLirwIMLFsSUgAAAA cube-roll:UklGRoQAAABXRUJQVlA4IHgAAAAQBgCdASpgADYAPwF8tFGrKKUirBxoAWAgCWcAAIYg4j0bAynDSGUN+IKp9fqNrHW6syuuqYi3vAA" +
+    "A/vCCAfuVcHXGOA79b/DODBuk8fa+ASePFJ/yG90a6PXUk82rNTmD0qxUwvPGUFtg+mPS1PKcsB46/EgAAAA= curtain-wipe:UklGRo4AAABXRUJQVlA4IIIAAACQBgCdASpgADYAPwFwr0+rJqQiLqgBYCAJa" +
+    "QAAaAsKiOnUe3aMbzUtT+MN2dqtUVfFD0gKSVPP7dF0J3yAAP7wUOEv4K4WOJMT1IpOMzW+G6OF7ddbsQGCsdy+AXPC2qUEhJjxy+Y9TUKrZARocGeWzwG/u4xiWg9VIYGjpN4cAAAA custom-cursor:UklGRq" +
+    "AAAABXRUJQVlA4IJQAAADQBQCdASpgADYAPwGAuVWrKKWjIrgJcWAgCWkABRAe8A07SMtFo+rf4OIQS/CaWluB2HOPciH4AP7wmKyY3RTk1iSHdKGXkBr77XujzbTDdcSX1CxFafOpJ042FjY26XP6WPWn88P3P5" +
+    "Wzg5mFNiK3F6njILzfFRHjJ5sO4/CF7rPHBa09l4rMgcpoUXXbDzgAAAAA directional-hover:UklGRkoBAABXRUJQVlA4ID4BAACQCgCdASpgADYAPwF8slOrKCSipBVckWAgCWUA1bgz38Bk0uNAOJJu2PZ" +
+    "M0az1cVExnkWMS3JQJkNFAu8OQj3CMU1uSSkXFsKUPtkX8u/VxsZAa2HlAAUVgJAb4AAA/vaBpcpo71xFMNG7mUCzLGegliFkiXS3YDAUPhGl434+BuyjhcD5ZRaqE7KoaSyUrFfq1i770t6evRkKecl/XiYbqZO" +
+    "9U2vSq/EYEM1fIHB6yD/7tMW+BW4uo5v63lJWrE8CWPJ/qHy49fZOPnekBLum1zUOmWNSm65BTd4kYQ22zxC+Nid3Z7v6hSJyW8eZEGcMMTKa6Uwwuz+qAmFVRJ1eFuQ7DS9Z1yk0S75V1JGawXweLpQICu33Vp3" +
+    "1S6dCOe3Nb6h2VCRWaHA2U24WSoiMJ1Cxwhl+XRTB8QAAAAA= dither-dissolve:UklGRgYCAABXRUJQVlA4IPoBAADwDACdASpgADYAPwFyrFGrJqOiqrgM+WAgCWknAAGIPG8Ur7OhqLGCjYdrEBB8O7pqp8" +
+    "Kkwq0KmOPpRphXHm3Qn/tQdwCXw1uCe3iKRjE5xF/S226k79i8DocSXHnnDUnlJEK7a3DkTeNqRuvUiOE4AP75C1nzL9tX+tvL1TfA+ESQFsR7QdrXqSgNSnF1EKlEipl58TjjiQNG/lUy2/boyO2AJO7S2N51zo" +
+    "KKTTiNxJ6DsV1QUohXKTk64ecomWG6jrijZ/d3HYqBnO1C+f3FT3ygoYyW4RxnSEh5brZwCpOhDESc3/1tq9OTZ0TgVNpj7g04q3nw8NjJUJZFq8uQEApJaW5ZK7xFkJ2SAVq9spfCwxyUT3bO4ddAdDi38yTMEm" +
+    "kqBv1c8veK4BqhvN5YeIcRprz51PkyoDNrjOZExdmwfHe2gEHzQwZbEzf6C0XjVG/V1L98i6UOPpjGMmGZsiHNfGRkbI69kZULD0NUnX6u9tClXWjz6e7Sva8G6N119Avx3C2yuXlSx7A5neQsABxZNppgqLlVWm" +
+    "YdZ1lfvEYi5j0lGQTY+6xXPbldUwto0hz2DY/fwcjf0B/9nX36tTpAVngxFRVBbqv0N5ZmzItUviqEKq/lMqtmytvH05avm6fqmnoK7ip+W40eqIzvzPQRbDrKgAAAAA== dock-magnify:UklGRtgAAABXRUJQ" +
+    "VlA4IMwAAABwCACdASpgADYAPwFytVGrJqWirVM5uWAgCWkADpqHx7XPOL/YUslVYMlNaivrBOL+3XfwIZrFLCUJyokdXpZlbKHnmpcPcR/SsMwAAP7xCIFOEkR+0UnxgsPhuY0dbQHOZPIOj3C3oI6iTdi+mzoa" +
+    "ZPqiQ54DLSM/OggnTNz0/QAwAU2zP/xyd9/iJdIrNe++5ShMLVqYmHHkh36h6e32Uk8Gh50LBXDaRa6F0Z0ngID3KWtL3fjEBUSFwyq1mUkbQr4qa2z11DJgAAA= dot-pagination:UklGRrQAAABXRUJQVlA4" +
+    "IKgAAAAQBgCdASpgADYAPwGAt1YrKCUkpBqowWAgCWkNtgAbWYyjMDabkQgUU5eBbs+QipF+Tupog/U4KAAA/vDCnajxI6ZD+i4HvS9keNg8JnfIsvltf/s/ZfJwf9lSLpuHgi8NVEBoz+kk6ZR9Bu/je/5HLS7P" +
+    "6yLkO5ESKnTEK319BWDIv36K8oj5ZwjLcc5/+bwOOJlKIgYWB93QCXSB5dWJ6jiKuAAAAAA= dots-pulse:UklGRn4AAABXRUJQVlA4IHIAAAAQBQCdASpgADYAPwGAuVarKCWjoqhhYCAJZwAAK0PsTKq5zB2O" +
+    "36nxjUDGfuPEaJgAAP7w6D3UF1G5oTs2ZElcbBlr5T9ysYmnpt8SN9hbBwM95mZ7f5SOHXjPYiKMMyPUag5eBmkC6trX3py2gAAAAAA= drag-scroll:UklGRhYCAABXRUJQVlA4IAoCAABwDQCdASpgADYAPwF" +
+    "srVGrJaQirVTckWAgCUAaXd6OwnQ8iTOIuoiTCcolsjcRlX/A0zQsLrtJtn9Y3InQ9Zz5UtvMO2z1LLTeEX9shzLD8o8saqTSMGcIJRrfepa6+HTivdICXtjUAiSudp3jecuybtBjAAD++Eds7p1zZ4reHByF45U" +
+    "fr2B4pKTvu9xHMrQXMXIDTNNnT+kTFSOiuMljXN5s79TiHqYEF7Zjdw/XZNilaRQfqeouHJ90V7rY8qNrlrxma6QS4+yzagrS9kAU8g0uXkuCwWm7KLJYMVotmM1BSTNvRSTVt4WvxvseSvij7dfEjMhd3HhQvfU" +
+    "AGlfkSehAxLqJ9LBR5/ZwGRf4TrvZhew04x2cnXXvxqR2vTJG7TiVWZimI61V2qzFVvT2KOcHEpQUtm3HpmapxZCf4LPnaqenQGqHwahR5eqROltKx/T4NGyGABH88cMmDZU5Tjhijm4TLTC++7bHV8thlKvJ28Z" +
+    "0hlXjxd2X63r1GQe+Ws3hNt4zo2x/8B69NTFruYEjNrKDQ07aBqNl4BCXSyjDM4tqOHGmuNSaE8AQ8AEhwSu3YRNVBo43GeGqIBAcm/mYeWtX1dRbF6aCi+1j62UsLh9hY/yIQhF0ZKufN8SoIE2nUQEE//4Xia1" +
+    "+Nk1x5t4FZF/M/0ClkSmvT9LC58LrA4OD4AAAAAA= drawer-slide:UklGRpoAAABXRUJQVlA4II4AAADwBgCdASpgADYAPwF2qFArKCOirruZ2WAgCWkAAJ0Ubyw2PG4foc6t/C7tOfCCmT/ECl6SaouIBZap9" +
+    "oFt+iGQAP7wwjDxw8R5X3ucA7Eg1JJVil10jElF/CCdYRnpTEO87npCmSvpeNNKZbT3TxJBtOwrIlm7O8n/oQ7u+Ytxc0chwZWGrIAlgmcAAAAA drop-zone:UklGRqAAAABXRUJQVlA4IJQAAACwBgCdASpgAD" +
+    "YAPwF+uVYrJ6WjpBVYwWAgCWcAAEYbF265ASofGvKejGzxn+Nc7gyEgdl0F2D78fGTNoYqwAD+8Jik5hAGgUXAv56BWbkBMS55Tx8rH3hvtn6yGm9flFlZOPGwQk+zbkz0xRRcqlmqTL1cj6tjOlBUDe9iT1x137" +
+    "cZZe54wsktGYVxbhdnRATgoAAA dropdown-reveal:UklGRo4AAABXRUJQVlA4IIIAAACwBgCdASpgADYAPwF8t1KrKKWiqVSZaWAgCWkAFtuCybWMYV6uDMnKy1mE1DOdpaHHRhS0FvOOm3tn8CohQAD+8Bgnu" +
+    "sGaurUiUoSfNZRSw5ZmpazGPBOR2uPouEJ8J0ddWZ/dQl1+cdcBG8oOhXL5BQGqDM2ZAxqvdrtRd1hfYAAA duotone-hover:UklGRnABAABXRUJQVlA4IGQBAADQCQCdASpgADYAPwF+s1SrKCQjIquhYCAJZw" +
+    "ASBcxSeAq3cJQJSjE+13KEjKfpK+lpJxBsd0QLytNbJAe6nTcWseUVfVtZFC5DP8i6S3BVSz6Bq4lEzIAA/vJeRfQx4J1lIeA8Nu7xVKgbS4mJ5jP1Eze/z8Gut4FRfoLFAnavjmBJi0MZutWkCgHKT9Y1Y6MxwP" +
+    "j6n6t4cWygTGxt8KP1ZFp2UxzDge51tOfOi/shfAMhzQ79fpPWuaUGvtOGqo8Y81BuHhWLEtLMnuwArwxEEPc3ropIExPPT7aN5P33JBPTplS2s+WBaU8dYXnj4i+/UIDboKmnAxej1hljoyeVfbcepBwXs1DT3b" +
+    "bvljb/XrqAiZn1P7daxlcuHJXv2SNUZK9zWXc1PCixCVqT/RoukxnTGTmenN1t9xfNyoSiR9PTSSW3zTRFvAiAweMdlPV/Xj3cb3mgHVlTDMwNKgIAAAAAAA== dvd-bounce:UklGRlwAAABXRUJQVlA4IFAAAA" +
+    "BwBACdASpgADYAPwGAu1arKKYjoqgBYCAJaQAAE+4/LmZDzipp8IS/0KMMAAD+78GFmN0ti2Q6NeKcaK1xxa5v3uGzL1b9rZGiKAHFCAAAAA== equalizer-bars:UklGRoAAAABXRUJQVlA4IHQAAACQBQCdAS" +
+    "pgADYAPwF8uFWrJ6WjJrZoAWAgCWkAAD5nNsgb7Kprv6Xl1iop1IsBOiqxbwnsAAD+8Bggv0PjBUc6zIAAUlYUcSsDyNuilrOEAPDG+3GMVWBnV93tunZZMZOliyBPeKt+jfzmXFFsnIZjYAAAAA== error-sha" +
+    "ke:UklGRqoAAABXRUJQVlA4IJ4AAABwBwCdASpgADYAPwF6tlQrJ6UjJrZpsWAgCWkA1UAtWVXj7oUIF0UJv7lW73j5ei0zBFzj9qsBuSDnRtHVK1hJT+zTQAD+8ObApN/XaiFfc8BRTsiWKXP46SjEBJxZ7sZQ7" +
+    "tokg0K8EuBL+xLAjBXPhXhZdXe8/esrp0lypVdYdc33mwAWuCSjelG+74Lfh+HOr7rDoWMwrGBAAAAAAA== expanding-search:UklGRn4AAABXRUJQVlA4IHIAAACwBQCdASpgADYAPwF8tVMrKCUiqV24AWA" +
+    "gCWkAAGoDIO4Ce0U040NXErEj4YHZfY/G5GQf9AAA/vCCDbgfrLeyt/ubD2l7rtnddVtuODB7GtvsalaPWz33xTj5YG4FMHumMm1sy6JXQVD5Ih5RH6AgAAA= eye-blink:UklGRjIBAABXRUJQVlA4ICYBAADQ" +
+    "CACdASpgADYAPwF8slMrKCSiqVbZaWAgCWUABRMW4FmV/LNMHk6bF9PAXfdre68iA8+RYw5ZhSLubTRG9a5mhBAHpoUn8JWsOtejDnwAAP7yY9m40jCCs2haQz2XpogYu7L6YPaI2J8rCW90TwFDAI8KAXYX9gw+" +
+    "mIRyvpQJIWOp7JWkfExqKvKo8ecSAqqG7uVHqfvIVuLUk//s1vwD8QH+qM9PJbGPUnwsSPC5lWg9ZQLhwHXbzLCYqH0MnMVQKltpQM5g4Rj2kZLYxfbV2Btr3HEIkFiCpUCQTbyHPmFKNYSIi+OJsApKGMRlXi0K" +
+    "0xI9R0IvNRpu3gkSDtEYpp6YtuOOXXMkYtl1H96UBggqta9QesE803C1nszjgi+QE2oAAAA= fill-hover:UklGRpIAAABXRUJQVlA4IIYAAABQBgCdASpgADYAPwF0tlGrJyWiqqiBYCAJQArPOmfP/gXAq78p" +
+    "IvAwPQ7neesu1siHvt7/VC/GvxMDAAD+8USFhZq7xcx38U+UBJhxvpJAhMNjp0Ine3Jckih8ODx5A0MdW2rn059LBl9Hj7fsaKKb347GqECVvEbjT7Y9HObY6NLheQAAAA== flame-flicker:UklGRjgBAABXR" +
+    "UJQVlA4ICwBAACwCQCdASpgADYAPwF+tVUrKCSjIrgLQWAgCWkAA+XqoZ7qKbZs43/luTzTsmrv21wdeqpe4gEKvrnqBg19VmPITyTZchAPgv0c2e6J7Ze4pxoZCJlBAAD+8Pg3zHQBQeqXIzdYZgWGkwhSboYFO" +
+    "Om/SowZlrp7vsWFqY68Chb2sqWYCGEOhKLuJK5l6jBYN7ZsS6oV4hrX65P9TY5v0eawd6w+x+10vUw4GUdPN706DNpXA8Q3SUGOM/CIokA5WOpZfKHdp517CcAKpCptCKquNxeqS+RsnUkNtqTygrOQFwXkXOIYI" +
+    "l8O5y3F87AuZo0gs5b6z8sRcMwk1XsNKgTAO9Q05c1/Awi4wmbG3b1V3VZ18Is8E6Rvy9rbIEWJMNhbt1bWDwzqAZw4AAA= flicker-on:UklGRqIAAABXRUJQVlA4IJYAAABwBQCdASpgADYAPwF4tlWrJqSjJ" +
+    "XgI0WAgCWkAA+Q5OeX9uKxvXLq0dFBXXqBxYWPAD08YAP7wraQqUO3QaWbRX6kY4tJePZ6Ma/15hAMijPfTMSTAVUsfd79Is96D1wzUhCnLFRJJDjNu3Af6021NEhNu8EN4YBXgvFPNQp/eOcBKNRy9frxbSm9AI" +
+    "dQTF28t4agAAAA= flip-card:UklGRpIAAABXRUJQVlA4IIYAAACQBgCdASpgADYAPwF2rlGrJ6QirrLooWAgCWkAAH1chXYhYRV2d194hHe1nDNbzBeNF0mQ7W5z3jPUGj3AAP7wwcXM8xEez2ernwdjf4D+uK" +
+    "HmVZ6GBtlBQutUgPeT9f2YiTOCrjTcEbeEflDTbb+S/6TkuRJVn2ulaUlD8d4YFfeRHgAAAA== floating-label:UklGRn4AAABXRUJQVlA4IHIAAABQBgCdASpgADYAPwF8s1QrKCQjKBVZWWAgCWkAAEo+kH" +
+    "kU92GoyxvS7iwW5a3wiTpRZYneLDDV35v8AAD+8BgislabjiiQYlWp+WE7pJhKOI70VXaIuTPPHL9skOiHTXq6PMTobpUHvU7KtFdGAAAAAAA= floating-reactions:UklGRsoAAABXRUJQVlA4IL4AAAAwBw" +
+    "CdASpgADYAPwF8tVSrJ6SjJrZo2WAgCWcALv/FsCPbHkWkQJoRgqEGpMHvfCGdIdZD9LncJwvXhBMx2VWVbAAA/vHTsEwITEoPIgnFjJ0gHQbwieQQti48wyQPOPJ9BXL8zQ2AIJvVXYyFclMyj4t8gn4ZuRHyCr" +
+    "BPSDh9m/UHJQC2fKOI01rQk9cGmSl83yEjOv8LBCfxPEQXZhDV7B5PmOJ9IhKopS93Wu2HBjXzBkaIylY4PafnNQAA fly-to-cart:UklGRuQAAABXRUJQVlA4INgAAACwBgCdASpgADYAPwGAuVYrKKWjpBVYw" +
+    "WAgCWcAA+ZIu+s/52eGta7qH2Gd3JG2sGC4b9hcSkfnSLmJ8PeKwAD+8L3y6SsVI8nV0kXjpvyxxMHHQY8JBR+0NcPOytewtAGeUdIyvc2kqZjZ1zHvOTQmVrSRVugALVqFZyjM3k5LFSOdsNx5nkWVDsAPutQoy" +
+    "k+Du1X+bvRXNvW3O38W9xF1Hv/AlMLfHVlYM+NvpQUuDkRnDhouI7kSGoI21S+gGTDt1KMKBsTt5htVtbUkOenlBcImECAAAAA= focus-dim:UklGRgIBAABXRUJQVlA4IPYAAAAwCACdASpgADYAPwF2slMrJy" +
+    "SiprZrWWAgCWkACwBHM7gJVBmcxjJ4KsW90gRXw+Pp7zlmkTnJ1jbzXB0xVewHAJE2fE5sOhsGAAD+8dWj0YfUJwTXUaM/aOQ0oJ4tjRvbwOoWhAL9o7toNqhbcWOJIWn0sBzd6huEuEpCvuey61aNx9YWyJ2IFZ" +
+    "1F91mVQQ8lfagpwScjoPa6zjvOh0tjl7okWJNj3nHObjpA8R0T0RJxPUS0M1HX4bEFLJlKJbHC0PkbvczH7/plqiVI+DhNNqiOyxv2jUGusdL8/G/Rpi+69ownXQTrVmfI3kPVtHRK0Wg4AAA= fog-drift:Ukl" +
+    "GRuIAAABXRUJQVlA4INYAAAAwCgCdASpgADYAPwF0sk+rJ6UiMBaoqWAgCWcA1IxKm4cKar9T6/ClmSpmarDkHXDJkjLv4UeRbHnUtggeB1d9dm0EZZ3SSI8KL4nVGeReRAHUHNcAbZ3vaAAA/vJfj8KETeFiB9G" +
+    "OvBQAceNNmFuHw5xFQP+fQLGmugl6d+hoIW4g06pAuNJktx5eGxvyZ4aHGFLjKqApYnh9qGa2uQDAnJRVtYV7PspvRMGP+tT8kIqTbCIXRsO0FKA6A+/bRvKtrFWGt9T61wAOVwdHuXgoGgAAAAAA footer-rev" +
+    "eal:UklGRuIAAABXRUJQVlA4INYAAADQBgCdASpgADYAPwF2s1QrJqSjKrQIgWAgCWMA02d4BslmOr4B2aKMasrU4Olnbi3UiZZasWqLo9KkT3Zr9gAA/vEIgAOvr0v4jH/jLykZrlpy7W6nlnhg58tWUcRZhFdZ" +
+    "fZx/vZFLjHCGOZg0iaIoWNX+sDYBVfQNEvCS/sixOWsYZvbVRhEW2LjXX26X0YJgAHG4IzbexCIqkSM/CX2lBC51RFHwxAGij4uZ6tgLSrdibwcV1vli07MErUUTLOqfPrXErcnMsRVNk7FBFsLd1lhUSAAA fro" +
+    "sted-glass:UklGRn4BAABXRUJQVlA4IHIBAADQCgCdASpgADYAPwFys1KrJqSiprzK8WAgCUAaRzeIrJoUoT0djHq/MlT38k9TN/0Fx1txFmHZItDzZbgm1UukFpud5fYiQ7SQHrT+ZK0Jb7CXQi6yFZYj5qhlp" +
+    "QnQAAD+93n4Fw4XaDAEnB2Y1pG2qKKbeoj8PNOKV3hct6/B9v70m4t+CYKban3cCiqfU63SICPqI4/xwwvbazwhe43WwasCKHhOs/eoSNE0fheFI9pzRb0MakIhRC6wzqZ1eOJjmJSGZJv2Ms/P5GErVQYOz3aIg" +
+    "VdnR7q9R/IR6W+EDha5fgrjMOy3OnquZP5ZTjxtNl5vyR5TWyJbOSQQG18ySHaEl2/+UFWTwInkCLGtggFw26/bph7ItK9ims8iwzYJ9d7ynH62HJ13vKfPnPZRPElKVfKcXlLIYQr2WuTEWinf8ek3Vo3t4sZSb" +
+    "3eie3JU6IpqSLQDVLJvJzaFEsCKjaeQkTO/xn9PAyMgAACXwAAA gauge-meter:UklGRvQAAABXRUJQVlA4IOgAAADwBgCdASpgADYAPwF4tFUrJqSjJrZpQWAgCWkAAG5ycJSF3jvqfhLakfQbuUwbKMdyqxsC" +
+    "cUveDV4bjxmZoVYAAP7xRLwZRii6ictXhzCOwOdjmi9Wxn06oADKN3av+oDt36kVuYIZcFpUlh8a1klbjelQv7DmhMiwTdB3uCzDhmz9gHcpExjWBqvuF6ZZf7pAgiEF5ryVwtiyt595J/1mTQCuJypvJ1Va1FSj" +
+    "0m99ribyAmEctVadxXA3Yat8UAxmwW29Zu1dWtJzJaRKq6RUffQqzUC6PW3JsPO3Egk0VAdb9YAAAAAA gesture-hint:UklGRqYAAABXRUJQVlA4IJoAAACwBgCdASpgADYAPwF8s1UrJ6QjIWwpYCAJaSeWAA" +
+    "36RLrcTyM33qDDQHh2c4xbRIIM0cAWAzWCFImEM9tjQAD+8US/MOfoup5VkjgZJhSYQtoJoExeLe23dO0mEdRrGmg3kKGFsjJY8gvlATD+I9vGyjZmDUR5SLAyLizHCuHTdpu7oEztpgyy4/uB0/tgwPtjsaHzBp" +
+    "Y+wAAA gift-box-reveal:UklGRggBAABXRUJQVlA4IPwAAADwBwCdASpgADYAPwF4tFYrJqSjpXQJMWAgCWUAA+ZKKwES2tPWta3Auk2EALEH6Vj5FmQWhLhp1Kkg8Yn1sar5GpEadQ0uo8AA/vIatBBNbG2ik" +
+    "weJrV4BX2JtqnlI2sqcvaIw/a3Gneqj+mNOQJz5RgReSDNddwnexIc46LbeR0qv/T16v/YLjsTO7lqmkhYys2fgKwkEPiMWk6uzWC35ivexJKxILKTIFtS0d1RDVqLYJG/MnuI4sY5BqYiMInZ33OHdDKafpy2D8" +
+    "am/5Jj/ounE3Jv/XfqOrrXuvnCFPQIVSZtNtPC6BIMMpzNoyqXIHPbC4EsBEgAAAAA= glitch-hover:UklGRvgAAABXRUJQVlA4IOwAAACwBgCdASpgADYAPwGAu1YrKKYjoqkZYCAJZwAIEF4A/2CDLRuMnCk" +
+    "2U9BkOlW0Wdz+DTJ5Hvlgv7qTl52sAAD+8MGhJI+Hf9zJAh4CUMdLkufrEoMGAIWyqLUjQkb14Uob5VwA1X7nEzDM6uO2+KlzIMQ6/y7dVh3JHDxlIe3djjJysv6WhEpUsFoqwqCrKUs+sbRbBpuD8IfzTMRhHZv" +
+    "r/z+/4o/kNeRO+/oUebO4a/bttViT5ZNYFvDjLwzJbG0yMSgCSEF+CGvwQUEeZK6WpJmANm1EqAIPPA5xP4qY8MnsTsElZ4EAAAAAAA== god-rays:UklGRtoAAABXRUJQVlA4IM4AAABQCACdASpgADYAPvVoq" +
+    "k6qsCQiMrSdmgAeiWkA1BQ0bXL5shfo5G6L4kd+T8i3f0fr6YHiQfldww+ULJJ9i7zZRJKyLTwuzoYbzNgA/vQabFZbecdX4w/6GTYnZ+AxvHBB4b6Pl5QzGqHtuA0jUsl9gVaQXgpn4Kalm+mKv++RjMlNgHUEj" +
+    "H3wTZCSv7dXyYeeV0iOtcPcpuYhJCztylcA53qrICdPlyov/tWmQMuLLXK3lxZ782kWNvsL3vav3LACPXq7FKEI4HBu+MAAAA== gooey-effect:UklGRnYAAABXRUJQVlA4IGoAAADwBACdASpgADYAPwGAvFa" +
+    "rKKYjoqhhYCAJZwAAK0PsR6SCBRrw8niKGPqdgfYmiYAA/vCtoYzZ2S2+eGIZFxZwxufU4Xe7xbE20OJexWRBeyGGU/93NFxLUFWhy7ghos1yNNNUeYAAAAAA gradient-border:UklGRrIAAABXRUJQVlA4IK" +
+    "YAAABQBgCdASpgADYAPwF4slQrJyQjKVSY8WAgCWkAAFNUTB7UBWq8fVhZr5ecmeYWp+mgjbIih/G/PBJaQAD+8K9YPWZsVvBog4HWIhIdef1jQZGvYNgXpq/Sj0RQAkFHm++hT4sjOArV+sm509djbGcdD/DtTM" +
+    "JeivhwUgy9y8bwiIgERY3biEmXCR4hBF7ZanS2rz4ACvQcC8BqZLviAECNdALY4AAA gradient-morph:UklGRsIAAABXRUJQVlA4ILYAAACwCQCdASpgADYAPv1ssU6/piUiMAir8B+JQBp7CVGwm5v/3wQWSN" +
+    "qMVEYEOU+Zt3gyDl/pS2WZl+jvkFPuDH8QBRRpAvuvQJfzyTMBxLQULcf4eVKKUAD+8uOp33YhfoVAXPx3ygmMIAeiioAidV35A+9P+SyZnjyEGUevMYSvqGVv7e1DOwZvg9t9X2KT6UODPb7pJptye+tOWb62wj" +
+    "nnuDD/NMaDpyaJaM/avo+Kc6Z4AAAAAA== gradient-shine:UklGRtYAAABXRUJQVlA4IMoAAAAQBwCdASpgADYAPwF8uFQrJ6WjJrM5sWAgCWcACwAsNd4nDbn6CUO5OC4hThKjgMNfjWDurIY6WsoUHx9S7c" +
+    "/swAD+8QmccOacxloR0AudadR/UDCJUe/mGjZg0z8ehTVUi+hL1ENcjs4uaAG9sCKoDLToc9Zimzmfwb3//Xs8dL+lo+zPtMZIMEQ5s3EoxOihatIofw32Kzc9+AkQ2NMPgYYVWgERAV/iKiw/+fk02ECZ74xdpF" +
+    "WIeiCxk1eF+5K7jRY/FeAAAAAA gradient-wipe:UklGRjIBAABXRUJQVlA4ICYBAACwCQCdASpgADYAPwF0s1OrJqSiprZrWWAgCWMA1Y3/4GeAX2RH20REhwClspYx5va8uZKacz1Lw5Z+SOTQfhINrZfQout" +
+    "TQ7rqynq90Q2It4W3vHicHAD+8l5r74X6323z0PUtvCHggRZ8tulAKMdmju24G9qpAEQwkX6l4VoJNxH/Q3didb9FPraUsOSmxsS5vUKqPYRoNPynq+7MvzcVmP3ongr/g/NNIsz98eOna7DUCH5jYX+5YnvAgVC" +
+    "n7URQQazXmj0JML17mHG2VNXSlpecrdpMHVYkUejUZ7O6JjJXqDGqhLZYxMeEDM53lQPSV3ibWfFqLC9DzOQG8TdNtUYdI3GOUENplVabtmh0ZYXOvX3kIBmjufIvrLvkyZ4CL6QAAAA= grain-overlay:UklG" +
+    "Rr4BAABXRUJQVlA4ILIBAACwDACdASpgADYAPwFurlCrJiQiqrYNeWAgCWUA0BhOTW5p0hNUf2sPnPQSGn7SpHbjSxYYkPMDyHUn+x004MJTTdbunYh1/NxrlAHhWaSXvELKcnqkTF5KZNggqFFIyuJmLCc8vyvc" +
+    "p0gMnskG0AD++EzvKj0S+DpgEKZqNBLWsBXCnSRk0DIGpVeiNFBg2L4DDPF06khJFSSXDnckDTMZFXnniY41AlgmYcqH23ZFra/BYq49ltJ63IbBToe59B49SE6/iEFnBZDZYRpQUmPNkuV16YRiiPbtnh4ROgm9" +
+    "tvnbAal5yI5cloyJMikRKSiHgFpyLt+NbcKTjrw9sAc/MiqPmM3RkOtJNlDj9BXtwN9tyZqHw00eGtnulpqJhYkcwc5cZN82wjb2+z0HjyNC6MJf0d/DxYil5Ow6vEL1nWzYaHuXLNjPi6XQQrb3YuwwHImqu17f" +
+    "kWIScRxOSzDsyebRsUQRycMJ7t8bQJV1Nm2dlDY+H1xso0vAMNhoS/gcnNf+4F0/drLEfSVARF61l3+BBAWnqldyttFkX4N69cDao6sxpC3RrQS1EtAMK1nAAA== halftone:UklGRuABAABXRUJQVlA4INQBAA" +
+    "CwCwCdASpgADYAPwF2tlUrJqUjJXv5MWAgCWkADpLWUyz2BGkCmhePehu9gH6q+xytcgG48IMdrR8hPDqmU7PX9/Unp3kp0I7qKUK8ohdszXBxUNb1Y83Zl/GG/ph8mgmgNqcmdAAA/vXhAPuvogTSo4o7PwVzfw" +
+    "69YHkyXL6XEHqttV07bfuz72skQf2a7+ro2+yZBgy0vXeADYaMiEqG4PONLDTZ6dPGI+YGWlf+BNUzzhSxfBqvqbikwhkJfeQXthE37IKB8qG/MZ0bRKRvc7lhoveZWxZS3cAuX3Lnfbt3AhbPk1udpkxwzKbpCV" +
+    "XoId8Xi7AExJ2DEcHo68WDfG2dm+0lKLcPkjm0OV8uW4uPdp2TEcFE2VG5emZPsl7H/nmSYT3efQn8fby5Gy5UgSdQntn8RTU7D0y23GpApq85mhDloYnPGd6uqBR7ACaGc4Ql2KBvT8cW2ILjZGCAjW3d2fdexz" +
+    "KUQLxANUUwFYBm4aefQ8lTORyo47UPDSkVdvkxzdl/tC16rz/RCttqdgmQ0SHivfdFxf44VuoUPUWLxhqjp5uAefTTTwy0ydI8xEF219D1Ugq7PejSO7s4wevP29ULxS97XjXuneL8AAAAAAA= header-hide-o" +
+    "n-scroll:UklGRiABAABXRUJQVlA4IBQBAAAQCgCdASpgADYAPwF2s1QrJySkJrZqiWAgCWkAFtZAhk1i8BqR7iQPDVkKOb0XTppWWDtjrcL+z//4mBUBiPwBNvNhtfJgWxh51D6Jm1aDhvJ9A1W9exAigAD+93+" +
+    "1mInwRBf3trInWcojkLJaktj0Yc6Stsg3wDEkM8DSz21hQax2ZZE2IxBy7jPlxdgY9uImy+Ui4ajYSMi54MOvGrxjjZsX1O1vl71XPYZVrhSfoTUPpT3Ew7YnVxWG/+BKhr0i2h+0aBbWgsblBCjkffav6QhYkK2" +
+    "l80uuaQlGjlvI2uDrGg93mS9t1MmQWhuWneJUYEtxlMViWfkcuwCakBQ+DiH90J6x44b8G8zL5nSWct+AAAA= header-invert:UklGRqAAAABXRUJQVlA4IJQAAACQBwCdASpgADYAPwF6s1MrKCSkLBOYAWAg" +
+    "CWkcAA740GwTUFrF61Tbjxzlud/VsPPmK+x3P8nukFRBhU5DXUO0NohPZSAA/ufuUsQJQ+vSOPZNb3sdSyTTz4G5W2E+q9H7E6jdIay83BmYupys8RPkmXLdGAZz2U8FYpwB5C5sX3u51BSV1CvAeflFIGgYi1UA" +
+    "AAAA header-shrink:UklGRuYAAABXRUJQVlA4INoAAACwCQCdASpgADYAPwF0sVSrJi8kKrIJgeAgCWkfQAAAVHmOmSwsHtZnDMehfC7Fv0WRU1XNFUytzzgA0ObMAAa71f5X1QXHDbAG1wiCdqn1II3+zBZcY" +
+    "AD+7n7FfHg0CSFTYYpMkf3NqZvE5eBBmq9Cp3uyO+J1P8vzjZlL0v0LKEPlD/XARSnB39GalrT+a/Lrmh6+nwve8tAXVXyyuqt4u67Kfc1RRi4qVlFQDorhTzCYxZh6Z+mf6q9QXcm5thaxJfICh7jtlAMW0aSUG" +
+    "ndSvnXLxFMGtQAAAA== hint-nudge:UklGRoYAAABXRUJQVlA4IHoAAAAQBwCdASpgADYAPwF2slKrJyUiqrQKgWAgCWkAAF+KAg7rmDOQkCXknqT8JTtHxdarx5eXTqXGrn00s24zuX2uAAD+8GmPz05rcTMZz" +
+    "wEJX4W4KDGjNB5aX0ZwHWpNwVwTm69hUKez/XbOtML0YgUgXYoQ3uHl6AAAAA== holo-sheen:UklGRpwAAABXRUJQVlA4IJAAAACwBwCdASpgADYAPwF8uFSrJ6WjKBVYcWAgCWcA1bgnzCG4mEc0ZlNs1TU4m" +
+    "c04jXiEkGqyrRZS7w1OzQCBfdf5Imam2JAAAP7xCUaji4RAyGlWolEK7zYpQcBwolGYv8xndq6MlGNYFakRwsB0buM23NtyPOC7BhQNrxwwVdOLbybrIwBig7Bqnm8WwF3wAAA= horizontal-scroll:UklGRh" +
+    "YCAABXRUJQVlA4IAoCAAAQDgCdASpgADYAPwF2tlSrJqUjKVJI8WAgCUAaYTHX8IaYbQ+BYDa3WDTef48ZTWxGSeUo4J4P24DPACkqJxnx09INLyqIdgcV5KhopbHJCbttwwJ1YJK5QaY8lzwS8miSbkPt9nNt6Q" +
+    "Az+xFzAYlwy9FqPC9vgcqAAP74jn7h9/pysu/kMcPfUl+qfgjnlToYaxlhjqzfcbwicYANZuo2+Ujyxo7vMphT9Q7/kX4lUioAh7uTG1sgOh+GEvYXizseVfm8WEL1tqHkCPjg0kuy+8plTv7uOQwNsWfLVW+4Kc" +
+    "ODcs4VsxDTBqNL38bL610KiK6K9QNrdzQ0D7Q1eRCp9ZQbDz4cI5V5X37FBL44f12+DYWLZ1OAWswNMtZUDT/3xOLWxH7l0jAeiAk42JWw5Kl0avDI2fpAhPSChPvC6RdC7PIeflnmVrtRy3ysIP+pyrRsIWaftD" +
+    "C3lEvEXcp3LkjTBdhuS+LqGvPnpzik5V/D/2WpQR+xVO0/qrvAfuVNikpMiBubttabWAzE3YR9ZGE9kQzacZs8AmT0HFIBtgRpSydgXGjqmcVn0sX8tHveSqt6A2/uRBu47f95YKguwnWRYmXLiO0J/Mi55a9RsI" +
+    "pkrV4DFHeaKbHLT08s57UeBfpp1o/JivLBiwf8cHWDrxYGijw1xMLzHc6mp4O64rcNu+LpG0++wAA= hover-preview:UklGRkoBAABXRUJQVlA4ID4BAACwCACdASpgADYAPwF8tVWrJ6SjIrgKiWAgCWcAEgP" +
+    "shveMlnvzBoGZKy3SiuLw9UgJdUqv/8yDQJx80/RYYn16YIxGkdHQ73mpeT72ZSAA/vHTi2h/bOTdDZG9lxrDUvQGthHNV9indTkM2fkKsoR4Y5V7rxj4/A4NwRrnaouEGZ2JL3o/jLHkuSvNv4CcA7WDqoC2413" +
+    "BznYDbd/dFZkWhPNNVulzW0PidmcHRuWfndaszl3Mvv45Ew0nU31HwrimEkysWSNH2HwoajW8wIV5cHyBUoOxcCU8SlzV1cW3Ton48jnZTGZIuUc0O+VtjAHadFxkyjNa+r4CmZDmlTRTtx+b70bdn/CdLRd9tLo" +
+    "XIZSAbi8ydC6dAcvG3qP+rZORXvgHQj5WSZ8tDZIyMPz8aF9nb1qih+T4gYAAAAA= hover-wave:UklGRq4AAABXRUJQVlA4IKIAAACQBQCdASpgADYAPwF+t1SrKCUjKBVYAWAgCWkAAEn2cbGzqshyIOg/NGa" +
+    "3OM5oKDdZxyImgAD+8GmAxNNyom3ij/gcc1WjuDiC871KeP9d9Pc69u1r4+eUmjXlJK0iv7/4/KqWoP0oYsjhvtfooMivR0SJ/yF0sLFsXQdFRPxqHjy9c36vUG55DbS2ih7quKmwYz+pt3hZY5UT2QmJNEAAAAA" +
+    "= image-parallax-hover:UklGRpwBAABXRUJQVlA4IJABAABQCwCdASpgADYAPwF2s1KrJySiqBgLGWAgCUAarzXMUhTFT/gbMaoZxY/ly9LKUj4XGBO+zlZwmomhq+lCJGXGdKgsSO3O6Hx2OuIHWYg9WrB8o" +
+    "6UVDSb1r7QdzIwaT0zt6AAA/vJelfu2RBuWGeOSGjSctaIEa0t3ciamDzv1L2hqPou41R72s+OcnBTn4qizFpA+Gz2ohM1xNZtPupAEV6VuvOb+FSbCYlFR7ZETDABq3VmMcMJVKyBqPjd6ZsA2MYo53AMuMgaoV" +
+    "l1/Xv9X3xNC6/A1CYpOJvARSrE7nMHFuSBIsgPE/yyB8fgPY9/O5tgWTceOBfW8kAMdkg2zl/NwmUUK39BjWcjQ62uq4iMpUAnpUpdoaH6zgwp5UB0pCXkd23KetFUcIKQ5Dc+jxxH32VThxjQUbk3a1Nd26tDqo" +
+    "quvvPCSnPmVlj3xw1kk9tNspvBZFzTLc6Iphd38Lbjotpf5YY6iUA/FuRnmc06e3gfSNb/HWvA+1bHZyyXHzgWJxMYYjb80tVAAAAAA image-swap-hover:UklGRqQBAABXRUJQVlA4IJgBAABQCgCdASpgADY" +
+    "APwF0sVQrJiQjJBqsMWAgCWcAFtgGH5ItbO37F4hxIWA5p5wkb1kvUO27TwxA3ldK/DUBQnS7GlmwKXTh9vNK6/JizrzRSII22o4y0DVphDmAAP7y54oOyHjyRz/MDaP1HPAvBT5j04oxaJLfVDu+DufcnWGpwZk" +
+    "1IEHDmP57RRmg33VoyjwdIyQRPA4C5TiRJitM+9ZN4qva2UAjXLXmeTJBJNsep8SFzy2Z1HuBuMGPT3kXYSkoEUyDGqDFHhhBxHaK1HbqaGoTMAK6eoIQFP2nW4SLI3fGz7QT3Yd/w2nVTU2fQU+itUztOXua991" +
+    "NoQNH7m7TSLPu6SGxTWZYlUMztyI5uoQTzOI79Pj5nkpZVi058S0dGsjTKjOlOkhv0mq2lbX+1ap4WsZ4A6uW9c7k6v4d1IIt6lQw261dR+IdrZJseH7dK9UbZAgEjHOUkT4s2oMmGDNJ0BbcEquHNp5nXqEpOkX" +
+    "LKPfvZMbCOlZTGtJGiz3yCTs9eTNyaRn/+1UTntoLnkqlbsMAAAA= image-trail:UklGRloBAABXRUJQVlA4IE4BAADwCgCdASpgADYAPwF4slQrJyQjJXQMAWAgCWcA1fysdTQQagTt57pUIpF7PXcl9X1YK/" +
+    "v2/TfCbV1pbMqQ9MjDXGwXrQEdj0GdMHD2WxsZjZI3ODHBINB5Utrs6t09egAA/vJglK6rf0XeOD8MAR9PfuEV0idSgzcZsJUdW9k/iwNrbeHi0Dn09enjUNY3IDbEB/3fgOwCkTfsXfnsOGR1H+iHM/CjrJf+kZ" +
+    "5Kr38iyQ0sM0dZh8+l7FthOPhVgqsvOfkcBkEdjQAiBWC7o6Y1ydzIKG7fsSa4WvoE6dl/ovd64p63pbSj4wRJttV4upT/dLnXvKF3LlJGOD0jzj4qMBmly34DMwCPTOUSHfzAJtvD7iMYG30OaiYM4G6M+Fmwjm" +
+    "1dU2RuLQ5CtGzJpkeMRxyWQpjq2RNPHmo/5FshKbMBhi50r7CNvxA1KgAA image-zoom-hover:UklGRo4BAABXRUJQVlA4IIIBAAAwDACdASpgADYAPwFysVOrJiQiqBK8AWAgCUAal32SqT9vt6W/++o2QlsA" +
+    "bI4Dx6QkheoIbKAaJDdx7bmin6QDcmgq6p84w3e4fwdcSCRWOhHYLA9jjuer2NIet7XE6eL3hyFesN7E2oAAAP7y5V/LV7zyZK7/L1L+dRYoibRTxlTTj5UqrS5zEF/P9fNyhi22dl4VYjrLorHMNw8eJdruZHmk" +
+    "kjGW/wOD4F2Lsr/eIhBvKtlViFvOgvApkdB6b/ZUzByZDRoIt4n/bm8M5mZyu0qHSTPRJpeF+ouFMkwJJdRMF7+hgs9RwILQG3JosL1d7y6oGBc3MtBrhASUFksUQ9I5iNiDTuH+8Hs0pSxasSfkyWz3YbRGl/EC" +
+    "hevRgYd7EXo4x6v07fz8vS6BcDaTdkiIEeZDmMcZ8gZLBiTT6PYVtGtYACNXY/oLpfKhRZZfnX63oUT8NcEqXbOPsMDlKBN89DFiFP3aFA7sLfTOZzPbU3HZFFJPE82LEd999iAAAA== ken-burns:UklGRjABA" +
+    "ABXRUJQVlA4ICQBAABwCQCdASpgADYAPwF+tFQrKKUjIqwBYCAJQBqsHWEA24nPJPrjGO5flu3qn4P2Vo2D/kreMjyvr2LLm6Ib3SAWOZi0rFomXU3yjjUfo/XWOW24qgAA/vIdSXGjWvB31XtpzvRxgQI5xGZx6" +
+    "3wYLcC+5AboAqnZPS6RrYuCEosNCbdT+2Juqlg0PF6/i2WN1l/S6wPZWu6ChPtzuqPcBYWhItgp6bSqm3Wqp41CnRMJ1iUY3Z+8h204lA9G4JgXNVu5nO5GEMXBgP76HUx08gaC/HeA9TjmC8c75cd/+EK7EYGih" +
+    "72mHfPjq9dluOErQ6Xy20puY+RTgOollHkSTN3yfualDFPtzzRIYS39GOuObaxpkO7viUtjTMzk0UtsLjOQAAAA letter-spacing-hover:UklGRoYAAABXRUJQVlA4IHoAAACwBQCdASpgADYAPwGAsVSrKKQ" +
+    "jJrmZQWAgCWkAAERBsxMBrIakEZ5ahVOdiRSs0J71ZEREOQAA/u/aSLcHPSi/B88CDrFjteg13rPk4+UymxzjnSDCCLmokmUAs/mcy8cd+SHAAVO74RgjehG0qUoGllUkex+uwgAAAA== lift-hover:UklGRpI" +
+    "AAABXRUJQVlA4IIYAAABwBgCdASpgADYAPvlmqk6qpaOiMUlxUB8JaQAAe5F10nCjUr4mEtWmgGefcPmOmKXLW+cK/UkiKjfRYQAA/vCCF/ZihXoAPhvZnEDxGD7xbW8ENcl5piBp/oamuOuWf9j1D73fLJ/W7iu" +
+    "C9fCmAUDFQYsFCbW3QyS/3bmLED8eRlQhe3oAAA== lightbox:UklGRqYBAABXRUJQVlA4IJoBAAAQCwCdASpgADYAPwF2s1SrJqQjJBqraWAgCWcA1bwNOgc7yWCT22jwtKJCCs5SDrFmfxqmVMi/8FxPsG9ZH" +
+    "mfRamhGktjy9a9D3lR6BM57rdkl3zywum932xmZwlzZm//QAP7yXjbOuVUseSOSan4T/9YnXBiUNfucFd8t7bMEgc820cPg+yyPvA9JxPgbP/fSF9tTktmEisvN0DWq9KCa3LoY6fvTdb1uufUAlC/vDnXaIqqve" +
+    "5nkVKT3iIeE81mNwQT/onsho1d2ifvyIMSkYklL7Gz41iNnYa+V4ZBBYSGHWz1sTsY9uYNwT+jd1fupn9yPXnoat2EnqYW4Xh4lqeO0QoE5Quwal0hj2m4ZD5PuATEM3BUe4+dS6PrQNpx139RZc5ht/q2OMGvf6" +
+    "szXKlY8s+9rbVliBKK+8ceG8R2W/rSERqFeY+l5f4wd6/Kgqn7zXnUcsamDUuXx0i5+ySgsxF45Uam22vsJI0RtJLG+RaM3C6zYOvWee3s9TDwb334ssZhLfUm2Pd+ZBsyH2bPXpDWhCoYAAA== like-burst:U" +
+    "klGRoQAAABXRUJQVlA4IHgAAACwBQCdASpgADYAPwGAuVarJ6WjorgIYWAgCWkAA+Pw/IUTRMkOu+aQkLnhlkGmhNAJHBD+GPAA/vCYoQ+Sdg39vliPzWlO1Fm3TstSCT7CdxKOUr8LXYqWWf90zyG5vJQYA++x1" +
+    "QSyB4L71gWeCrGDXLbVdoAAAAA= line-boil:UklGRsAAAABXRUJQVlA4ILQAAABQBwCdASpgADYAPwFwslIrJiSirrXYAWAgCWkAAIkzXNNjtvaInJFVCWtQoGZDjPNC4eywGC32vc/0SYhmTRgOW7iQAP7xCZ" +
+    "1jqqjORgDujLvEZDzkLT0GU+w+2YBwcpMgayma66aQ9n1kH0KBleIIscjVoceHs00EbCA87amUJ8P7BOe8YP9xjZu/KhYw5vXsYaBAZX8c3MlRIrRP8GyF4zU67x9N7N0Bq4jAFOUL3sMAAAA= line-draw:Ukl" +
+    "GRt4AAABXRUJQVlA4INIAAAAwBwCdASpgADYAPwF8t1QrJ6WjIqrpYCAJaQAIFo5louxJuYW7XbugO940G3nzjCTUTubGASgYDO6irMNburc9/CAA/vDDQ3oZoLe/SF3VtVSjfDKdlVs/dn6yIl+iZbYFriAPfO3" +
+    "2hO9GirTXuf+P3pYHmf7ifw87UbTgxTVFed/UFSY0GANcG70nKUnUOC2mNcjy/DYMlvW1qBUPO5teov9BY4iUmqGjJoZ4JD4kG1bcQ5TVX3BKhV5S3IIG4fo88JncP6nHW2IGjIE9WCAAAAA= liquid-distort" +
+    "ion:UklGRuoBAABXRUJQVlA4IN4BAABQDACdASpgADYAPwF2slKrJySipXgMYWAgCWcA1ktf0WV9rGNozH8J2tJXCStuIgwr2Xw2ZpfpiuTfxON2RJkzcytTs2SeUvs8eQzu1W3XPoplfaOYETxIiRnBanUWr/Vp" +
+    "ctPNEsn1GYFAAAD+8UUw5akITNUi2/ieKIbBAdej+WgHB0NEGqcBHganZshWFgqTBU5eR17gVSvvPkgy2fwQyPHbSFGOdv5ghn4k9QwRiwfn41KIM7t5up08NN3s3opkx8SAWfAX+7P0YaYWXKA7QrgaoKB4i5R8" +
+    "Fi/rA+ejTxSEjdK0n8B8NcMXRsc4d0h5wzRKKSnjrCTMIJ33iaM9vZ8VbP1eSeipxZBInTMQZsZC1gZ0Uo4weD/2mK95jWPuLN2+E8h9V+2OiPG+k1zsbe73tAD8Hbn48K/O7aQMvSrAZLYdASLXOILOzS2TM4ge" +
+    "GyMj9wNK/nzOFdnF6uz9HoorXtSNCXsP20ZgMb3RP3w/Rz5osUMgxSx8d/OwH8huIr/Udncmcb7dBEJ4qQD+jOKKUJ2omAI6jWX3jjS9qCOzkmnUhKRSuDAR6odP40KGXDn+tCuvE5CyMYej2OmI6Cfa4aC2lRgS" +
+    "YYthb9h+4KENkRF7Zy6gEYEQe0AA liquid-fill:UklGRroAAABXRUJQVlA4IK4AAADwBgCdASpgADYAPwF+tlUrKCSjJWhpYCAJZQAATVHGOiwucisuskK/1pevQpZsGnc/8en4jD9fqeBTfwbYu6IAAP7xRLz" +
+    "BaYw4rUZvUokSTfFXTbvVWit9HdehyQ2xOvQTtPbdoq3+oH89n0UywuoliWZsr54rZJ2L9XwUzp5+wAXxS87l2AP87HJzJ1F7ApRAkX9611p3hm+f2Q8aDl2IfzxXHUw+rxq0gQAAAAA= list-add-remove:Uk" +
+    "lGRkIBAABXRUJQVlA4IDYBAABwCQCdASpgADYAPwF0s1QrJiSjKVJKWWAgCWcA1bst+GCaWKTYqgQa44BUniKmYZdhK0SyNZ39EmS8ByE3Z9ySo3+S8lsYo17MPydWp7Us/RRQjIAA/vFGNNBiYo2fU7BZ4p6+WB" +
+    "Wl+/sj8uecitnneNaLnVvhY9hbC8xaih7f/D2xBdWkrt3M4N3sBqeMPUG3MNw0eWM1zgKzYkFxV7ojZfu69r/6Zhr7ahinNEhxWY8AVLKiXnQTsQbZr9MnkemIIe2YY+ozoUrhW6/r6GW/aLCVJCCywN/n6jK3e8" +
+    "wOVYY6FX26dUcy3uNtFdx63WcYu5wezdgUDOSLENKjDL4x22TCWiN36MsF+DzXJJ1D5/LMwHApHqzBtuHYhbVHU3aB7uYXt/OgRQKoL+R/xFc21dkAAAAA loading-bar:UklGRpIAAABXRUJQVlA4IIYAAABQB" +
+    "gCdASpgADYAPwF4sVIrJ6SirBqoAWAgCWkvvcACxx7weyBA9bGQXMz86h2igGMx1IxvEYQ86EK/gAD+79qrTpCInoAnAAO5dAA34AJakt7r4HpWmPx/Bj9sYIXukydTR2ipsJ3fH4/gkU6APehKtyXnEhi9fMJiA" +
+    "60+ebeV7p70AAAAAA== logo-marquee:UklGRpQAAABXRUJQVlA4IIgAAADwBQCdASpgADYAPwGAtlOrKSUiqVbYAWAgCWkAAFhqYZlp/3ebqcTO+jQH6MrKvnvL6CVkOylfoAD+79pCo2aj18DWsDI1aM7aPTp" +
+    "TkRkSkriCodEY1vsp7yYuAJz4hm0+lctynBzfnXdwdLt49M98VIkD/wcz6AXbT6vm1AMDqpOfBkAAAAAA magnetic-hover:UklGRmgAAABXRUJQVlA4IFwAAAAwBQCdASpgADYAPwGAtFUrKKSjJWjRYCAJaQA" +
+    "AKXbpI/WWk8rm06e7gtgNglUWuHI8AAD+79pDYKDTrgkxem4W9DvZMkkfoxg2w6/Pycru4hC6qLyZJOyBnIAAAA== marching-ants:UklGRh4BAABXRUJQVlA4IBIBAABwCACdASpgADYAPwF4tFMrJyUiprZq" +
+    "8WAgCWkcAACR8iQa2FtYUzGikFNhs80DUSLpClq8nVQdyLk6gi+BvzDq41fYnLHREiS7YVOAAP7xCejTA7fuARf6HGIdL+jMn3WT8Xg7x1SYfh0J/CPHZHLpu/7nyxbsruNfoEct+UOeoaB8x+RrXQeuobhAOobB" +
+    "0pKOAybymThuw4fB6HJrEnxJtZoA/4TnBzcEi+XN1enXlpVFfoXBNmekVkmwC67YZqDGJdbxNjezerPNoyXC99u6tWVaNl4VaXwcGNTwAtIwc9YZFpslJPsZ9aV/cuOTU9wKPSfcT7naqynXOvA81t1rsnJJfGyc" +
+    "5p3bbn/SZMAAAAAA marker-line:UklGRjgBAABXRUJQVlA4ICwBAAAQCACdASpgADYAPwF0r1IrJqQirBcZEWAgCWkACBBIASoHuEUxbHd8nOjZJUp1/suRBGEdikybzoAWZy/W0wR2BkwYXYmL7WgAAP7w1KU" +
+    "D/zPmxVJwLnb0EUpItrVkkO0cd5UVkky2QgpQaltnD9YytjuBZqxidV5nw8P1l28IZgTR4Lzumn3f19kwDyx776acb2Xr3dAlgaqggUmAEdUHrD4Xo7gdKrcdVarmTfsMdJh7lSoe9dkjHdNraf2sTFXC2Q3sAwP" +
+    "kT4Z7gs08pTV5MRViPyTJFNr+DOvAPGA5iZE34ZlAtOmp6jxq8lpBWXOSXI44h3/D52U55FdbSsdzW4nnWUYHrIwlg/+8q1LKAdCQphOuJwNMQVesbnK1i2VdBKpu1yPglggAAAA= marquee:UklGRhQBAABXRU" +
+    "JQVlA4IAgBAABQCACdASpgADYAPwF0sVMrJqSiqV24eWAgCWkAFGBfxxgVoMsDia73y+vAZEQ661sgss65Zpz+JZjBzi7BZYztqjAzzRibuqyIhyAA/vDUoi+gUvvd/mTrMUca/SMSPsqk7LGx/u3biANAsOndSJ" +
+    "N63K5TS5FKCeoie/0IN5m5hH2+eTB4HcjkIMFsBcDYCNS/iXkeGgS91wO/qeR6tVSsb46lGY81ZiT7UIir3o6GHVWMayqT9vgrsdwGkMRosyKYpO2cjbmK5s/SOOWvaVYOLBJz9IbikGo16QBzs612qLRCmgCdiT" +
+    "PAyLNSB1LkaeMo/YjGMHix0t1X33ID/icpsxuOAAAAAAA= menu-reveal:UklGRn4AAABXRUJQVlA4IHIAAADwBgCdASpgADYAPwF2r0+rKCQiMBlYAWAgCWkAAKAoNHjxeCvbefBhy2FAW7ETMrP/MTImUbaem" +
+    "5dUVwGfujgAAP7wwkaQPQ/pBJ1wCGva2rdTgUi20iUzNkMLeBeXOpAqeJKI0HnVpA/G9j2SAAAAAAA= menu-toggle:UklGRmYAAABXRUJQVlA4IFoAAADQBACdASpgADYAPwGAuVYrKKWjpBqoAWAgCWkAACvO" +
+    "SH0iYBevgVySuYs/pW9sAAD+79pAwuk7VPVNIbToCGZKhJoXLsbkE/qev6j53OQq4mCBqS6coQAAAAA= modal-pop:UklGRpgAAABXRUJQVlA4IIwAAAAQBwCdASpgADYAPv12sE6uqKUiMBv4qdAfiWkAAK0ui" +
+    "EA+gMgk0dMozL4H0c8GIgkNwm2o/N2AOPlEMMMPEfBaAAD+8MHLzgwJkTRT7sMTYll4NolgZJwohe7rIj+UcuZnRpax2SIYUM7TXQAtssNnoYNBZOklzwUMm8B0t3DQZ94rdSQVNN9JAAAAAA== moire-drift:" +
+    "UklGRuwAAABXRUJQVlA4IOAAAADQBwCdASpgADYAPwF0sVKrJqSiqVSbSWAgCWdtlpZufN/3ImN/gAbHIUjwQIioMc5FvFAgiHKb+Xh5ZHGH304+yxMhlaamoAD+8ZFJO/tUtYH09YKNY5JgzjjD+D3iPXGmpAm/" +
+    "hn8OMSLyudUkRr3wLCIh825RIEtIVCF5OECcHFmXZnS4oxadm3LlSXCfFsPWfzWCzLuRGj5RCymIie6cc5Np9pDVdI9lt1T+2UGGaKFKANLsy0a4V6MrtiOMYH3TDMOKJXd4g8e4Pa+kw/d00WFPap6/Ac6lue+x" +
+    "wAAAAA== morphing-dropdown:UklGRpAAAABXRUJQVlA4IIQAAACQBgCdASpgADYAPwGAtFYrKCSjoqnRYCAJZwAAU5C2W03HIv9fdCrW2MAjIbmJx+sw2QwZKcJSORvwVHWAAP7yGg3YF0Q3ffRVEpTAUcbrZ" +
+    "tGsCi/h7s6QbCLgbu867LW/cg7yWGENJcw0E8rvF3UrsnNHY6GIaDg0tTTcKDQo2AAAAAA= mosaic-reveal:UklGRtQAAABXRUJQVlA4IMgAAACQBgCdASpgADYAPwGAtlYrKCSjoqlxYCAJZQB34UgACaRE0e" +
+    "kX49fEqRuPieq4MzrDIQNt3HK1f0HjGQ1gAP7xRI6c0w3D207h4Gcnbqf8zgd0gumskgTiQtqWcfjBlGgz8pAqH1V/sLTaPD3b9pSBpwBTn+1W15IHGdKpvyKHN4Zv5IZeOXIc3SD5X1yJqDf7gqFIKvfEGymWnh" +
+    "eTNtzdMszX8aSLqRktFld4mjWaS31YBzF4/kLmnY36Sy70dinjwnUrakAAAA== motion-path:UklGRtgAAABXRUJQVlA4IMwAAAAwBgCdASpgADYAPwF+uFYrKCUjpBqowWAgCWUA1fQZmbZf7VR/IdBHEKrb0" +
+    "ptqVn60W3qH55hmqTEgAP7xCUwyE3gQ4LI0YnXZN2fa6o/rHC4eXZkhputwGWoHm7XA86AB+fCast8sWNaT7/0xYgJ28PgzKCXmx5z9A9CG8ZK7HFasSS2zvFwS/OcF1SWehZvQalyMd9laq+jrlpSo8z9D7yqWK" +
+    "7HrSj9atSoeM+cxG1FUaAiVK8ycg2Z6+8sk1+TmLGbJf7OYRtIgAAA= mouse-parallax:UklGRpAAAABXRUJQVlA4IIQAAADwBQCdASpgADYAPwF0uVSrJiYjJrzIaWAgCWUAAFlIS3jECIn6OV6r8i/1GRw2J" +
+    "4cibZtPfOxgAAD+8ObuY5C9cJ3e7Rjq9qbEWOaL/0Ox5cl8z7h1gdM682X2o9xP+OkdJVLexAJLNMgABmAO0/uASVgceNnzehUEeZVbREgiOTQAAAA= notched-corner:UklGRsoAAABXRUJQVlA4IL4AAABwC" +
+    "ACdASpgADYAPwFwtFCrJqWirVmZuWAgCWMAd98fVlU1z18inemM/FriE1wlWl4w1q2mj3ZKA0h1HYrC1kUEL4u9SeCSAkIS3tMAAP7yGaH7v+d0BlZbsEmmFv/eMNQCvtcMmMXSetXg4bRY2I7v3a8JCmOI2+56u" +
+    "ra4uL5cKQGvwuqk045sJFvrCbZaiZW3NHEvSSE76e6z66gBeHjHZqB5gFZQ4uGAMTs9/C9DqW+SoZa5FHGkMlyoEAAA notification-badge:UklGRpAAAABXRUJQVlA4IIQAAACwBQCdASpgADYAPwF+tlUrK" +
+    "CUjJrmYaWAgCWkAAEQkYjkicoQ8bkd0XDcOl7nRBE+VovUxmAAA/u/55+6xMZZ62sEebyQ7qCE35KUUjH+Dmn7P+y/PU+VBcJOT1yQ7FKfV4h+EIQiSyhUx3FBoUq0mMrTZEozsTbeTsUXnrdfP8dAAAAA= numb" +
+    "er-roll:UklGRjwBAABXRUJQVlA4IDABAAAQCACdASpgADYAPwF4tlQrJyUjKrIIgWAgCWkADOxKwNne+lfYEJltww0BWLvT9V/AfspzGiVry5l54V5LE6VwnnuvS3q+Qa6gAP7xRIY58BNysuYmdBPd2DuFGhb8" +
+    "CGD8msGIR6zosGz/n4G869+PvW/f5QiUND7ncG6GB5AmrQxnjPurxEVc11KO0/qfbn9J6YtmfTlppr8+n4j5G61+Rlf/1T4T/IkE/3doVUGcO087ThWpcRF6v+6ESFUO+dXxxyudC496HUk4I/unnWxPocYJiuaB" +
+    "5T6DnXkPsqOoW9RRaip02jydOTh3jmruPkUT7QKUGt9PvEeVxzqasC+JCJJCzyIUQ5ODvOfFgLTQBXE3R0oDIwPVFCXIvB5sONOgqJwNbiGEpsydK7gAAAAA opening-crawl:UklGRvIAAABXRUJQVlA4IOYAA" +
+    "AAQBwCdASpgADYAPwFusFKrJaSiqrgKAWAgCWcABRAFRyXubC4nyKVGQX9ROwFNeKkEzYHuYHLPMuzjHRPXM9BRgAD+8qP1YI3viuErYwsUPK2VdimIDirBHoDCcY5Vy36ZCStrhKpE5i3VVmqsD2EM5Iknv6nmx" +
+    "u8f8afrlr47QLCm4gned0dd5RWZtLCHt/aAcdnVkAsmdGQ4Fk2ZhitV1Uakz+cWLuB3VMmp57FXAFkCa8R51BwRhUltGYHxxvBxX7SGjc/TwXAQhpGRV9BXMtbyBfumJdqkM5ZgopA1TwUNoyAAAA== orbit:Uk" +
+    "lGRpwAAABXRUJQVlA4IJAAAAAQBQCdASpgADYAPwF6tlUrJyUkJXQJmWAgCWkAAGqDadArwXbjWdrieTI+Y5lX3FngAP7w52K4/UjycQGuwiIYAK2FVyyn75V1cp2jBTrJb+v6jgDL7ZTGeVQs12/PESr2LUOZc+" +
+    "YbNMX/KI3/rrILptVfVy3bnKWFPU1q+44eHRxX3/y3bAIwo6Q+a4/AAAA= outline-fill:UklGRpIBAABXRUJQVlA4IIYBAADwCQCdASpgADYAPwF8sFMrKCQiqrQIgWAgCUAK4BoBdgH6Z8DIvwVrssvSlNFk" +
+    "i24YZzsdBP6DFxVvRwEaW0n+FDP2nZooj/yQCnqByym+y2NOYOhyrhCAAP7zYgfwUXozbM/skRRqqqSf227ZfBFY6CkDAhgKoCu/KwU5dHVjY71L/8+v+NAwVJcUZwvfg2xVMa75bNHuODcON25CEPSMI7mNMIqE" +
+    "r0BrbwugAvVJ+0ThNpoeD7tsqpNNr664rQD0RHlYk1r97mWOImVazrexHfTaEsUW5qEanp04CrOylpJh0/6My0sP8R4/92r9kNQXCKObKiO/fJWVret3ImIlbLdSffRel939NQ4GT9Y2UswcZgxnRQQFL5Bp72HD" +
+    "Q1nr2s5E41obHl2cJqedjcZnVJwite1xtN26nhgpQbISyUCQoZ5wsFP0xGtakQN0B+zPoyn7bJlN4D2faxdbkdYZ4h7a1qDDv2k/qYhNwhV/Si6wdKUr/33jYM0MDOeCwkIX+cCAAAA= page-turn:UklGRuQAA" +
+    "ABXRUJQVlA4INgAAADwCACdASpgADYAPwFwr1ErJiQirrdJOWAgCWkAAIj+p/M2EccEMpgExtyF/miX82HQzSRw/XbbLCkYDZLfePVFYgtmzOBPj7tEUSRG4eLbEAD+8K3ds7lLsamIa0/rHBAXe1FL+hs+rLLn0" +
+    "+pHAIsOVXU7oK7UxjNKXp9C2DXCBHHsJ2z8Hkh63ZRXxU7FExVy9IeO3Izo0zEu3n8pBbz1V+rHYR6cfx02tX/z9qHaboZ2hX+WWIei8FX6DeSPo0bsKvA3oMUF4jX8JbUaz2ZR8lIqb+EAAAA= paper-crumpl" +
+    "e:UklGRrIAAABXRUJQVlA4IKYAAADQBgCdASpgADYAPwF4uVSrJqYjKVJIeWAgCWkAAHprSAacMWHB+lKO/nDGEq2BZRZFYyetJhkF7MQ1AzcCVQAA/vDm0d7b9kCvPvNp0LOX+nOg4lXO6/7mDr/X/GEQDSZJed" +
+    "4falYJ+FHQmWDeWAVfY1XWaX/O0CKL44VkI/+U38ehUB4BNb2icWi+IgqmLG3SSMPJ1rfDiKu2ZWf7b0BNaj43AAAA parallax:UklGRuABAABXRUJQVlA4INQBAACQDQCdASpgADYAPulgoE6pJaMiOrZsASAd" +
+    "CWcAzYQWbWnGWGgoQ+9tu41wJIlfyREgWQTzpkXGPR1FB2VcAScx/dnptsibEAju2mgWD0F9SKQKxrD90fgfgwKcHj32DynY4pW8CEtrFEB3unObCIRot9/CpTAA/vKxYQalApo0BC8aYgmcGu3UqlYQHumhhwFA" +
+    "LI35X9VppDLyaOMetxQgJ/1WEufsVjqA0/Btz0fpgK4iwmv2T9jDEbfCJ3u0+6pB+L+sHkGHE6sh+WlQzUIOePPU2aE760NW8bMt0i9YIngoHdL7A+6eP+1WxZ4f41DhJfrmhTtrXrOxR7Pz6jma6FoyWpQF11uK" +
+    "jqwsr4uG6s/9+7ZmnwmLq9gQKgcZtYnPzLvv4zB5ZT4FWciw54l03kjlEh7qMLAfoXeNKIuCgS/ruK8UILZRh6nm3CA0iqMd93/rN4+L8781VhdxJJgxdMITHn15eTD6T9X1zB2WzPbzmb2uB07hVsp/ULWcbe6W" +
+    "txeoGUqvu6GgmG0HzyCmrUfxXti8EMQy/IpzdIqGEidi22UmByrAMPCKuD6aRvrKbaYRqtetixWlfgdjouZySK2pRFnXc3jaCryd+/bP1QYAAAA= password-strength:UklGRqIAAABXRUJQVlA4IJYAAADwB" +
+    "gCdASpgADYAPwF2sVSrJqQjKBVZWWAgCWkAAEdyM20a5ht/oq0OKUCnY7zKiC1BWGInlXojRNwzCfCbAUIAAP7wwe6skujAxhghRyZ33gqNdVcL7FKFXQJzNvQsKQkY6It/eZPlZuro6P4m7h/++b6xBUknQvKDR" +
+    "fnK7+7JkabEbcTo9hJ9Gb/h5Hsqz+91JGAAAAA= pendulum-swing:UklGRtAAAABXRUJQVlA4IMQAAADQBwCdASpgADYAPwGAs1QrKKSjJrmZsWAgCWUAI8AHK0VUGAerIAK4KKfVZfZgN1Eh55/yGvh3yQhDp" +
+    "n4p6aB3cSTTzfm/wAD+8l7gtUzUUlqNgW7EaYUOcO/FRJREmRoeQuR5Kpb5W1+7qOJhaVdJugZPXx29DkLkhtvWF3wzI9z30P02Ev1o/zqYtqmSx/u1uUROWoOYf18v59jMy+EAeNqymIR6pp3YYNAyyOVG6Y4oc" +
+    "hi18kzdvjlSZAXo8LuAAAAA perspective-reveal:UklGRqIAAABXRUJQVlA4IJYAAADwBwCdASpgADYAPwF4sVQrJyUkIrgNcWAgCWkAAAerJClR+wfyx6HxZYgxFdCxLcZTkg3HFeNgQup6L9d9XDRvMbPfB" +
+    "7/6NogA/uynbJWclzjVE6CHddFghRgQakkqxS7k5vjTrnVEXBaFzRdrZYlLXs7wBWu+8Yosx/G4Jn7aRgDcBE/FdTnb5/KmlBTfAQAHEKjgAAA= pill-expand:UklGRn4AAABXRUJQVlA4IHIAAADwBQCdASpg" +
+    "ADYAPwGAuFUrKKWjIqnRYCAJaQAAT/e3pbjWpbFSzFxdcHSyFBK23BxYhYR3LBUXYAD+8K3BKdq91nirI5+DUzSOtfLAGrAFYAVlqPX0j1z9DeCWpdzIQWNfjNKBzDLWXFQ6eXZznoQAAAA= preloader-count" +
+    "er:UklGRoIAAABXRUJQVlA4IHYAAADwBQCdASpgADYAPwGAtFMrKSUkKV24AWAgCWkABYABzQXrR7z3UirsPDtaGYEydN5CgdzUTJmIAAD+79qGAXaZ+yje5OC7FbeHp8I5WglkOZHiMMUSanAAFlpUfmxKPlOJQ" +
+    "P1ieweC/fzOfTeGuDYK2WNFcAAA press-feedback:UklGRnoAAABXRUJQVlA4IG4AAADwBQCdASpgADYAPwGAs1UrKCQjJBqqSWAgCWkAACv1+nfsppQnHuCPefpA9gXNB9kIdPDcmG3PgAD+79pCJr3PksnsN" +
+    "BZ30PDtvcDhdpBeLCWCWMULeaB8dvKtx5vXrusQqlSI/FnY0FcAAAAAAA== prize-wheel:UklGRtQBAABXRUJQVlA4IMgBAABQDACdASpgADYAPwF8sVOrKCQiqBgJyWAgCUAafjQG2au2Dec0azuWVd/f+wuM" +
+    "CCfjlFUyOIJdbLYUCZ5Crx8UYj0kXUSojmbeJHxtsgR3vqvWNJxu4WnSZJGzRA8ObI5U9/s6DAsJr/z6gAD+8uNUbCN/aDXebXUD+li7NNXPsgP4YpemNEddfTynNy55z7dbdfElPR2g5GaeseefssYAQEx3syp3" +
+    "wAoWDHRivUNSKB7FK2ZsIo5VmHjU9k4xBO+tqpyd3zXOs9ev7gVHmLOoj8yIIRgRDyJa9uQCs77um9vnv9FWyCal00SD2AU5CLEkRn12/hIpu04cfOVbPwB0vwsjqnxqkJvvWuZEhASfHkyGTfbXrmp8nbOet6so" +
+    "+tfElIEtFqpnpS87WwO3KnbKUu5Jpjy8XDHFeP93xTr1aqsLty/Or/mbq6z//452VTWiHNTaSbwaOHpRgZ4Xbi6hv5+0vsv3KQ1qFL8DB9T56GezxJLvk6YDLUNMi/JlXyxgroixdjG1BAX8Bb0BLtZCxeu6Ti4Q" +
+    "pEgpJ00QkY9eFUTRqgxOAgy32b/6OblQ8DQrU/foDBduf4f4Qsa8p3TM9DSY3YAAAAA= progressive-blur:UklGRrYAAABXRUJQVlA4IKoAAAAwCACdASpgADYAPwF2uFOrJyWiprzJQWAgCWkACCAhSV2MSr" +
+    "6ywTfX6o3mbgP/7p9Ja2bD1roJqe07ovhVbW9hQD3ImPxmcQKY0AD+7seUy+4BXjHohnCFOWJxYdhLsa4eSY6DCwR9Oz9CVRMlacdIgsNbQ7nHJUdUkNfbqIt/CiZkXUHiyuVWl8meY9qHYyoZuUtQn5+mydgrr+" +
+    "+HXhgXDDoy/O2PiAAAAA== pulse-ring:UklGRnQAAABXRUJQVlA4IGgAAABQBQCdASpgADYAPwGAulYrKKYjoqkZYCAJZwAAP5aNzRc+7fJc19pmmNy7DBaRD42zp4AA/vCCAsLIZG/D9RBpJiUBr8fguSm30/" +
+    "84kfKUGUuCIgM0T5mKV+AN5GqOpTMQvFXHQAAAAA== quadtree-reveal:UklGRtgBAABXRUJQVlA4IMwBAACQCwCdASpgADYAPwF4s1IrJ6SiqVkqWWAgCWIAdnTAkDjR1XHszYY1EQk5eZhhHmBNTRi4jhUkT" +
+    "LXp/LebRrNrbEnAvkmgvUreb5Mu/M+u3NCKCDQIridtB991+I6gba714u1LcAD+9+G+NEUZsnmvVuvNwwm+8o4f+cqqHWUnf+8U7HGqV2TIkPtacxG4sKJk2rLyirzJUAc9CXIIlPnMuhRrGlHFd6K/QkPUW8Q4r" +
+    "0Ry8kW1YZ9uz48oxFQrtHv0vGAYxk9c3UrfOpswloLaotUpZpLKHhYr3gImqs6PzEfjl2q5igjexDsTI68yJ79RKWURaMGcm8k5NwG4AiKXeXBml6STB+q2N346jty1BoCsrqqJpDsHYCNtguB75rGODp/qcggyj" +
+    "WkTKN9poOhcLl6Wn9iXicqYGU7WMFWOQC337i2JUUfN+D7T7SFHRy23r3RGXuxW5Np3p3nJHxnjhFtJlKvH530mLQO/gFXHkhhjsfIvoMmTELObeILyPtgD6+ohoZzGltGoM6eRcaLvXzNqBy9jJvWpU+Py4xEZA" +
+    "GjB06R0ypl2XGX5ODWvOBu18kEFohSLEtohLpnstgPtlCgmgBhjcvXAAAAA rack-focus:UklGRp4BAABXRUJQVlA4IJIBAAAwDACdASpgADYAPwFusVCrJiSiqBgNUWAgCWUA1I83G9gS6MSH74NlJlm/vnxhD" +
+    "kE0x20u406XPmP04DHt/aYkWaz9WCui30YD7CZ4z+bjTOWZf9Bd6GKlvwdEuZ4QJnz4uI1Ex8/bW3gAAP7yu3x4YQ/LVGwVmIG3U31hzS3kAnnrHfidjRSIeLxcdEFR5gdj1YaYBi4pGI12+pzBZaNyusydV7Nsk" +
+    "BYtjFKNp7D6DWDLTPwMaA5fWYsKvNA2VsEky2+D6aaofVixWlNd4uyuslCkp18pThVPaaeCz62R5ODWL+BKCCVYfpX9LikbzRwnzLbppC/1dHH5vvl6Mw9UEDqIQ50ssamzU4nuHTE7+8VZWhD2p+Okfq5HQhNj0" +
+    "YmctTyuQTD94Z/qfBfTm0FkCwMCFn3Ki6gRkGH+HbjxsQRD7VP+22WMAv262eUWZhUZH2HFCKZIKy4KvfG+IIZj80u7qZ3KZ63UMbAgK0xAfJwOuHbhlGaZiR7AM2Rt1w4rI1SRagtKtKU4egIE84AAAAA= radi" +
+    "al-carousel:UklGRooAAABXRUJQVlA4IH4AAACQBQCdASpgADYAPwF8u1YrJ6ajpBqoYWAgCWcAUwAE3rqwy7HM3x2MCystoRUY1FdwiXWJEAD+8MGg6fkZI2UoWg5zYfP7HJjOx4eQH4xttdx5ja87A4nEGy3E" +
+    "g/Ou5pd04UV6GtnaFiIFMTh6cFbOc2HzLSK/63eEcAAAAAA= ripple-tap:UklGRrAAAABXRUJQVlA4IKQAAAAQCQCdASpgADYAPwFytFMrJrWiqrIKgrAgCWcA1IxBP73D/PhhYrTa3VdCwLwMY8m3ctwJ4igj" +
+    "xsQIdduYvTH0jTvpSsJjRX0Ln+VZmIM36kgA/vEIjEiAVYQVu4OrIGPirdx1nORhKQt5643J7jOQPerBNG/a6Eohge15X6PYQ0uJf7E7DcEsRpXhyCiGonI7DwedQeZyYa0jIQVbetNcoAAAAA== rotating-ba" +
+    "dge:UklGRuIAAABXRUJQVlA4INYAAABQBwCdASpgADYAPwF6tFIrKCUiqrn5AWAgCWkABRTO6hqnh1IvAL8UDWbqDxH/1UN/qqeVMtLm7Fdi3AErMePylAuAAP7xRMW3SJo/XACTKmHsGWOlPZoKk5uvZPx/K6QL" +
+    "C4HKWLs7/MUO4Y33BdY1f08SYctt/H2ax+46/KcczRhI2eP7OXrJi0dd1A/wggfLXBXbBHSOG8RclRRYL81TdcdwO5XwjdD7KxfZ5n3dnz8f+lUNbUhJb3oKHTWF9Ch5F5AIm8djl/zuj/WH2AYRIAAAAAAA row" +
+    "-expand:UklGRuYAAABXRUJQVlA4INoAAADwCACdASpgADYAPwF2slIrJ6SirrLoAWAgCWkAAHbTnKafg/gaxrnWMJTE1CCsZHsFAhAEbAQCT9+17DbCvx92hucT0w6Sk7/sI/PSZW9IgAD+8MHw0T+ruKwLz5Ji" +
+    "QMDZTisJ8FPlKNaUc23WtLIDSTbaSO3nfbELN1kLywSsqToZLxCeQaxlTAjjoomP93HLQDxx2Rka7Ayk6pgtvlpKmRYZC1oYLl5w5CMFhF9AI7KjGAHNkd195h0nQZ2Gt6fGAts2/w0BfeFbCNxoZb/JCEA7s/4J" +
+    "nAAAAA== rubber-band:UklGRpwAAABXRUJQVlA4IJAAAADwBQCdASpgADYAPwFutFGrJiUiqrv5gWAgCWknAAAGFi3zea+fU1jP6w8Sm68+vO+UmGEu9OiNAAD+79pOAmSX9dEnQg9aPF+mk8KhVIOeYHO3Qni" +
+    "PfdozjkDsUq2uT6Yl/CuzqH57T9+lbIB21hs3ggZXaJ/Oan76+Hyo8AZWUGNmydCn3I3mE3NBg2gAAAA= ruler-scrubber:UklGRr4AAABXRUJQVlA4ILIAAABQBgCdASpgADYAPwF8t1WrJ6UkpXgI0WAgCWk" +
+    "AA+MB+eX9qqxnz5pmpZJm1Luqk4+7vFfBGu9i2JrnwAD+8MNE84Ba5FF7CzLznn6JMe9WjPK9DFoXIQjphWT0/HX6S87dwBlzHAcKW7r1O4xQdb3lbtsrK8otSPdBU2ElqPVPZ8D9rRSiuEFESWcMDMbjKvIqCuj" +
+    "GRYIOPAe393WMjOocSaabX2SATZt697bzIUMAAAAA scanlines:UklGRtwAAABXRUJQVlA4INAAAACQBwCdASpgADYAPwF0sFErJyUiqVksOWAgCWkA1FAhZQVFXleiYcSvWJD893TsmMHNCHoOL5IuQGiEAaY5" +
+    "f5efPfCKhhAA/vCDA8qFra0QZEbq1qQv9FQnkYK7rOUgIGIk1WUG924Dq0OGESnornXpOa3FAS8iqx51t3pj1GWCEh8D9K2PCdWdOLnXyOfzGyezAQvY4p+4V2ScdfEFVDb3+Gn4RdxxXEMh9iEddAoBcYqeUWw/" +
+    "pbLlojI4Vu8j5030sPybGsGC/RfS5skB5EAA scratch-card:UklGRjgBAABXRUJQVlA4ICwBAADwCACdASpgADYAPwF0rVArJyQisBaoqWAgCWIA0fmMgewaIlVE2U4RSX24YtHXkkrG/TB41IKu73K8JRnfUw" +
+    "MAxDKfmxsjGdhZPiGYFuBboAD+9IM8h/HlaoR5nBXghArcVA7hvWqXYST3ujsejQ89HgNjuKQszKPn1E9i9bKaFTJGpL12NbM3tWs3L4bFoj1W5F6vkwVuME8tB/Fs9NUYfip5VKhh6CI1IdCVUhKrWY5ZYdlwbH" +
+    "u5rX8LKheURc92iAEGKjDJG55vguSwU4xyktjtBatgzftL6DoxPpqc0ODImwARqA8qHnRKIrM5mgITwvq5LwV94+EJmTfJ0Gpt+/luyOG2Q041+zq492gJaFfbbjEYg/bKivgKaIc1jg40nj7i4+Xaq6AAAAA= s" +
+    "croll-cue:UklGRowAAABXRUJQVlA4IIAAAAAQBgCdASpgADYAPwF8slSrJ6QjJrmY2WAgCWkAAEQcwt4CDpIxqXJAv4VZvBPmhzFNaEKrhBnJ5kAA/vAYLbOn+3Mazinwx/IIsaMlDdP1m5l45lBMmZlu6flhd5" +
+    "b731Op7iksZhdcd6fYbs2cnZ2Fsz9LCT5LhmfbKrKjR/AAAA== scroll-fade-in:UklGRrIAAABXRUJQVlA4IKYAAABwCACdASpgADYAPwF0sFIrJySjqr35AWAgCWkAADYAIHGQI38lVOK800Lk4IYOQ3QU8n" +
+    "k/MDjG0l87o1X31YTeUTdmuvsPgSe+aFAUAP4nvfxpGM75YKGA2Lhb3s8KCwjqA0IYDuKBLJ4EEsEnCJfj3M09Il2wFqtOLptzcVhetfU8FguwrBafaP6+j7djsEoTGA9QYZxb8BYmteSNx+y3YEBJwAAA scrol" +
+    "l-marquee:UklGRpABAABXRUJQVlA4IIQBAABwCgCdASpgADYAPwF2rlErJ6QiqAzhYCAJZw24pbttlJkD3PwQgF98A5y4EqYXLnrfRuYlJOHlhRAPuDD1ATfkjTPZtanju2/3sWcX1Uh3kcTHanduFrkZh4GMwA" +
+    "D++EdhIivwVgUf5gbtgVpMkxhyCnl21Qp9eVtVOTdwcqYK9V3lsZCZwrAFiJRhMGdnfs9GozpgOLhzDD97+MQ6c9mOqKCS/slqUL3EZqpAsvuHYdmiD7AqxscUn5L/ZN90//66f+h71U0bbWl3BGY96aTtEk6alm" +
+    "HJZ53KIhi4/XxbfrS8l4k2kEpdJLnZOVEoyNRHxvgCmL3TaelnWbs7KJCR/iXzJJFVNPkSIh/U5AT3v1ddFGTTo8W/k8EsSt1lREQNEOYyFpemONQZPH2rsIb+snz2f1LpWiOFp5GCpU3OAfW0H6W3eVwUE5hr3Y" +
+    "vmxGcTJRvcV5uYlXZy332iM1mXBtCRSGkXi2Ux8CSnA5B7f3CnatjpFmFjH5manrHjmi7AAAAA scroll-progress:UklGRowAAABXRUJQVlA4IIAAAADQBwCdASpgADYAPwFurVGrJiQjrBxpEWAgCWkAADYAC" +
+    "Uyk6gIkeOTZz2ue9kpKyFsF4MWNF4rOyBqdLCwE1nZlJEkVzmXGaAD+8L3RQvrtJXlb9VCFAHQgMaVBX/rGMRNnsDRb0OkhPmpjYENIh/tp4DZkp2cHnvGQNqLD96oAAA== scroll-scrub:UklGRsoAAABXRUJ" +
+    "QVlA4IL4AAADwBgCdASpgADYAPwFyr1GrJqQiqrv6AWAgCWkAFtQhqAwAHoUlaL6ODDQA4AAAAduFmm6Ndkom2Zn0C9HHLziAAP75X9Is5f7YILQZPIa6OiWoMdvM+pNR2SzTH0JwMuL7RCGxEr4Ck4P9qrAW4i5" +
+    "15x6L2X6Njp6Iv6kp6kbPwpdAh8iKNDt8pTBwqJ+C3iyHRBhela4hM7+kKbdu8b+ScJTTUffWAxkqTJ9zbxp0Fx2p+85cqZD2FGpAAAAA scroll-snap:UklGRqAAAABXRUJQVlA4IJQAAABwBwCdASpgADYAPw" +
+    "GAsFWrKKQjJBqqSWAgCWkYnyAAjo/G0I+r9ri6njJjRsNiSwmUsBd5h8J/8Mc+Sv6Ha3cQWuBGAAD+7K1lI2Etg9+IUI6ZS+Eu/VqZUIHFhqCKS3kV5L8KbidTCjDnSKwYqnpyxoG5QIEPSOieMwQUoiR9cAPwKW" +
+    "jdy7eRiXRAkxzOOwAAAAAA scroll-spy:UklGRp4AAABXRUJQVlA4IJIAAABQBwCdASpgADYAPwFsrlGrJaSiqrYNeWAgCWkAABd8MEpOw6+zWGeUN2J254RG8dTRQCXxK1887XADXDN3JewN7GgAAP7sLX5+7C" +
+    "KC0oYA/et09a4DeqY3kjnlB5ZH9drrFaKJKELsb3MtEy4qaRl1wXylEv93VjVAwaPOLiFy1qtA0uGCJ7qJzl7XD757KwYAAA== scroll-zoom:UklGRrABAABXRUJQVlA4IKQBAAAQDQCdASpgADYAPwF4tFIrJ" +
+    "6UiqBqqqWAgCWMAz0GmlUREZs4Io8CI3pvRZJNym9HkaDA3v+SHwf6tPBTf/U2jBqm4fd/9Lgk0typ1NyfrlzjtHvFkYCnH09wmk66mUJoyWc5SWZ8mrOUgNe+vDbMRAAD+9oFo7W5i/FUCwo/G5/ZxEzlOJyjvg" +
+    "fjPyVkxkWTtEqq3iMXEm2ewucDMZwiPoklhRE+c8af5eNk29QDWtIcAK6wyYTI/SrVo7UkYu4ADTwIkKXMLjnc3wRIzA5nOF/6AzcxLXIVHgvdxN4mZaejr61SxPY61LjIhugG1r9smEawr1y27UD4wVFXp4n5DK" +
+    "l/Sm5Xwgkt/2D2o8fl0oXgAVOxQbeafo0QauKPvJGb273nEu7OXVVZr+Znb1LRPiKWPTnCrOa/OgyaqDvLoQpQYZ3ednq05hX3a7pVju8dQF5s0aQISkC8nB8eTqko2UrXDEbgVNpR/q86QNZMwvT4Suw2nAgso0" +
+    "DpRyoHaOyL89i8aLhS/GqURPHRTCKEMNNl9ZKQJsEldDe02ZTqDFpgAAAA= section-color-swap:UklGRsoAAABXRUJQVlA4IL4AAAAQCQCdASpgADYAPwF4slOrJyQiqVko8WAgCWkflYnfZUSHO2BSlRFZg" +
+    "yRhb6NKv5fqSkGSrYDZx9QMubhXYXfDZ1p6U6J0NOo+mpuA+UZzCAAA/u3grCZsC6qqndHnCvhABe8zqj+5CuonKuX0qhs7oszQj/JGaX0ik/B1qrhuaiWAfwEc4NI/O96gJaap0l+rRR17wT5KYIKm9Waqdqb1a" +
+    "LPzSWbecxrWroeKEKQ0CGPqSFUaPP3KT9YWAAAA shadow-pop:UklGRsAAAABXRUJQVlA4ILQAAADwBgCdASpgADYAPwF8uFIrKKYiqrv4gWAgCWcAAI1twwz+A2DMgrwOiz6iFPIJoKqT37TOrhFc6g7DK6FIJ" +
+    "AwAAP7xCZyNe5fqvXM39zMof7eHwP5O9OKxgdGtwiF2VyeEq279cz5/mTum7jjGKJHgd881MVuzu+xQ0gmOlOErq3bUwYzYs0MzJLIBaRQfsGri5PkQtqAobRTee8e3oLgdVFXa/8JGRN9G9OLYu9OHEIAAAAA= " +
+    "shared-element:UklGRrQBAABXRUJQVlA4IKgBAADQCgCdASpgADYAPwF4s1QrJySjJBqryWAgCWcACwpXHNNa0QSq9ujKco/C7rzPbG8J46Fkgm+++ZBAju+2fI8gH2JyKwPe2WED85XfTVD6h3HH97OT8SdYX" +
+    "Wk84D9BAAD+8l6dk8l8epIQoNsSioR2OxffztE6sT4WYec7cgix0NhYI+xUW7hzPzsgW6YT7JfhHbrpY2tM3AdZcPGS0P9KCQAxm/5enh6q8Nl19EXG4iS+wh+PqPPn1ICZjLzz/qHMXT24xQ7zYEEPJVxgJEZt6" +
+    "S+dBou1Ah/UjQM2TI0tclW72iVIm0ofrT730/ab9o02PcHWtBX0cgRZlhKva1m+vcqw0MoqnTsN/d4XJnhic4j++EqeXBl9Eur1JAQXV8+hI09SfzNliaKKqi5aNab7+Z11CPMv1p11jH80+DSQNRJQ3tmybI5DW" +
+    "wKj8lT7NthM6IMMp3FqRkXO8QSifduJZZxzy/snQJ9WB1ZTEdGKbNsG/MVqrAmUrw8tUANB4QsYglsRNmjhMDJv5BT0hACj8LLzmZac3vVT/EPdwNNFYNy3r8cAAAAA shutter-transition:UklGRpABAABXR" +
+    "UJQVlA4IIQBAAAQCwCdASpgADYAPwF2s1MrJySiprZrWWAgCWMA1WD0eO6xc0cpM73VgPZlIBNvM2yBYCfdufpx5zDQFkSmcx0JhexfhHbAWDbdx5BFoDSmPk/YZbVVF/kaECatOxfbm0KAAP7yXnX3Pv5HtRaDf" +
+    "3DmzGD8Yc+8CP6FQEyfHD/xV3SRd7rr6AR5zagyAHP2CSU26xxC9njHoHgjNAo546BYaz2VST/+cIF2dCelLGx+JKY6hFG5v9nQPTMoWXtkvHv4MTIOWAukBvz3Ba4n26GQ440cxrj4Fagkyug8tLtfgn3H7eMxk" +
+    "4G3c90Lp0xx1YRjVqGDpGIsgOpl8eBZBVWvwqN90tLmsHQOg6pf+YAkY43GqOTDKvJ/i4fURxxImK2ojxnXsJ1ClLZLurwoDCHduBe+iqYffqnr0pR7laBz+UthFJJW/JbeMvSzUz/kOOk6hepenymS+B3hM+FqB" +
+    "JEJESpE4So+Wyqmctc9dxMo/+kavKf3WbQFxJ6a3xgbdA+AAAAA skeleton-shimmer:UklGRroAAABXRUJQVlA4IK4AAAAwCACdASpgADYAPwFytFKrJqUiqrQKAWAgCWcAAFvMY3PS26PZi5PNFO+ErmY2Sdd" +
+    "OACaXp6A4aZcEBY7SfWxOEyoApV3ks+xqAAD+8Ji1UV2mbSvXfYm6ie32RTRiJrx+GCwJH34VrUk8KfcBA0rxkDnP6JfM1B6PEZDo0+7t6O1msKcrJ6xwqZR0Qj0/FmbTiOWfcHVWzEdW9PmuLgVTwB+DEhRaKhR" +
+    "ECAAAAAA= sliced-text:UklGRmgBAABXRUJQVlA4IFwBAADQCACdASpgADYAPwF4tVMrJyUiqrYIgWAgCWkACBBWD/blwn1Ge/L/4STxWRACaLUIgx3abLYY0iNG3grj/35ftp3KJSU0MOySnoiwEVQAAP7x04" +
+    "oGQZ6W+nhXx5kCaEONoeiJIkEUrPe4gTEu2Y6dmtztcVR2rSzJ1f8GJYBzdQuWeh+7s5pN4si/X1L0/19ZfOvt8OV7mXalzempuqzxpVmqBO+IyFoKoxj9mQ9swwdjPNxU+9sNVPm4k3r1BV9yeQwyZ18jX0WxHU" +
+    "cg5r35AwXY/J1i/HD6D3uWLvfGbAPtLviaO8v+hWVXfscoimQ07dvKYm2ojsY3CJzAyOePRww4sJutbUJSjpbcM96ER/qwQvUsXzctb4T81Jz26P3XUOhvpit0nHBM2GNPMCFp3//q4p8/GhG+bFOVgBgtYb1+VP" +
+    "n3FQLav1Tn2OddSC8P1+JBAlfOnwAAAAA= smooth-scroll:UklGRswAAABXRUJQVlA4IMAAAABwCACdASpgADYAPwF4r1ErKCQjrBVaIWAgCWltaOaHNABiRIhSfvp/NKDSCkX+/1tPLX3RpUAKWiC5TWyK/ln" +
+    "PEBZfMypCfhVngcCgAP7v4GA3DIZuMw5OnHbKzn/+J5SZc3wDuLyvNEsHDzJJ3JLeEGh/sa6bCP6upvwzPbyRRPHMZXtDr5FO8elsBao0lrQ3Zr+/cHn9DQp0PCholHFuitSGCqKW5D4lX29SsoDYCgNLaj9h32c" +
+    "O/i0MjYIAAAA= snowfall:UklGRoIAAABXRUJQVlA4IHYAAADwBQCdASpgADYAPwFytFSrJiUkJBVbaWAgCWkA0BgEPnWMtS/hPjkwzdlwM2NuCvEbYt4/ir2lQAD+7ZcQQg8OWD5ddcsJFGFogVdzJ+HBBKQpx" +
+    "TpefjsrWXF0rHy7QedFJBNG6cDyT4AgPvcWtU2vi0Az2ZAA spinner-ring:UklGRrQAAABXRUJQVlA4IKgAAABwBgCdASpgADYAPwF+uFUrKCWjJrmYAWAgCWkAVSPwAuDFTZbNsd4EdeN0bHBaAIIyIJbulLx" +
+    "eyU54hgAA/u/548fyqXzmQrNmV0q33X5NZcFK/6rEk3aONnZoBuVJN/hKIBuOCRJ/dYFcp786YfxOaJypJO30RFw2xLq9BFRbV9RkuMi4l4vR/GwINiKewgaZZXI/fIKeYvju1QcMeOQA8DXb0AAAAAA= spiral" +
+    "-reveal:UklGRgYCAABXRUJQVlA4IPoBAABwDACdASpgADYAPwFyslErJqSiqrv6gWAgCWMA1K1tpsvFZzIgmFbWITYZjTgGuN6dX06/cTfawRHVLZ0rlZCaYJxsoZFZAenZEWMpfMIC7a+xj2XkLmxX89IYL6hn" +
+    "kwgAwnIdhYLH7ZaOyIAA/vJfF/eUNRndBamtMaRd/SYYQO6ZPbsi8/wCnz3TyzukGlVn8vWEdanOrknhMB30yDtcEA19k7GJ2ME79RPHrJYqIqHrQ+rJZG3hmOuL3SlqmqsGYZQi1TU0fIizwRbhHEBgvNNK1l4i" +
+    "WbbO63sBAN+MscxmeM7lb3jZCmzZ3J5jZQDhZluPFg6/WK5NFPcJ4k/8Dx1VcQlXesvEfh4bqjkChxEu7FwBoFagua7yx+0EIAUpCp9GFj4aEArvla8ga6zSWRiXpu3R8YTdlmEb5bhbiPJEC0knMxRXXBkQ7qWQ" +
+    "l7P59p53MD4iI/nVErpRN9ANlz3wCmKgtdGGISmf+OWJzixRd5rm+i4jPjoAoL1EQXyEskFffLts/4Jwnxd7RlVkNxlvPkhMTiVa7R3utqTZrPKhAM5X5EljzCSRJVv0UZp8Wgou/wpYiuSJExUDKuq+mENuRexe" +
+    "ipkVWCkXv7uACp2wqTB45vS587WAHB11VaFlVvAdl25xXWENTWsJD1/V4D59gUeMAAAAAA== split-flap:UklGRmoBAABXRUJQVlA4IF4BAAAQCgCdASpgADYAPwFys1GrJqSiqrgKgWAgCWkAFtjmq94LYf7A" +
+    "uA7bI8bdcR432GBMTyH+2gu9K9XaD6E8AIt8DI0+HurDNcuSwV5JVm6S6JHuKCjcFuQ2AAD+8mPe/55sqPc7XcGGwJOYMnuLbwGt+boPSNqjcDoQMr3qJGpOfQNtzUHKeeuLEXuk+TMJsOPQ4eCg4v9r0SIv6ye7" +
+    "sYXSoj6R8qEBhXoiLb/tbbpSqLZ5MPX6tAL+56FAkvUM2oGprYEWl3aedRDSXIrlFvzFFXE3/lWwXAFRK6NZlX8bzt6tmr9zwJ6BQSrUdnDomHAiv21HqRTSlyaO+7kmxuCi0GCtu8LKzWLTr1ZrNb/i8rz5wzu5" +
+    "YxPh7/MVGx7ptUnWlZylhhhr7Ss+i0QvFc94WIUeVVgfS7hVsTluhJdZoUwPoFbfuwM1KwoTaZ1mH/QwAUctGFzQDm0HAAAAAA== split-screen:UklGRjgCAABXRUJQVlA4ICwCAACwDQCdASpgADYAPwF0s1" +
+    "MrJqSiqrn4AWAgCUAZ8LXrkGffOd1bzhTaWvgQVMMtzfIRHzCM325uRlw0wUzv+5fDlCDzSkqXfV8a0oNho9Cwgl47cR8Kd8KJMu0VwpkTdUA0L//69c3JMIYPov/Wdoz9pqirQs2wAP765u0LMUc+zg2YugJwNz" +
+    "rji6i+jQryYWHMPNQLqBQqJ/3UjQBwY/2eOkH+kxsrL/Vc7O4G7/rrzjUFcBBLvu/4udazRUnLAPwJAKE19bIRvziu4QlpMOCyWr4JS1QKNiHXHdDHeuX0pnHJtO7s9ilfC7aXpYmZG1FDubahcoVasdhf11DSpw" +
+    "3y6EfTZvri4ywdcOw1QoZUeMPH5I5C3a4knvPcpz7AKRL5QymT4JMV/Ds5X5FLrmymtFNHfJMtEbssn+58tpAfLAB2dA509iY3kR4vLLQFV8LRr5S6eK7fNZAcj37DqGaJAFvkteMQ83+/0wuRfadqDNuKEZ/F+u" +
+    "t0wnHN8ZWYfwHI/uzdGEPuyrgjQ+8mdEHfzeK0BQDLxzcdkNy9A/bpDehCsDc61PKFUsbtrta/yj0CvEtIGQ+DDCBmpo2g+CQHP6ZJzrtFltXrGppTWiUZk0kX6/sDyiYF0hoJY2dIzIWw8sJQR9SZ2O9jZ0QWbf" +
+    "QtfNK8BGmggoSBQprNGFC6mdG3XlV/sQEz5bTRcOlUVmh4DgAnviHLsDFDMWYj6/0hbaz0mAEHQkvydYAA split-text-reveal:UklGRkYBAABXRUJQVlA4IDoBAACQCACdASpgADYAPwF2tFErJ6UirBqpEWA" +
+    "gCWkAFthsOq4K0H1SzSOA7JvkpbMf2jJkXIdRFYjcRdR0uKdtAQxeccMPRec3Xxwd2ndkAAD+8hmUO+H30oqIxl7dJMm+re7lnncR5JwltMgG8Hgl4SKXCWOCR+o+gjGua7Jq9OcqcySG4QGeBwrmvwAEXnFk3iT" +
+    "G2KTWEm9Ds9OKqWCZ198AZnoCCmiTon3L/eT6IN3m+5s5ffgydaaZ9kXlREAO+DnVXXNVYTfo4ECZ72nE2gCuUEqw2Rofki7W/jerfnlu8tEzPnyWsqQ6O2hYOlQIOFf9aiuBBSbhwIW17SfP3c+6dKydoEntiFF" +
+    "14+5m8eNjYgOzhBWPBjtANQ9+LIfH16QGUljzJj0shMChYFcgYpRKMNihwZ6WH+AAAA== spotlight-hover:UklGRpQAAABXRUJQVlA4IIgAAADwBgCdASpgADYAPwF2slIrOiUiqrYKg0AgCWkAAGJUY5Othh" +
+    "pYqAYVgirRUN7IyrIaTryLrLswBNjXuh5QNtQAAP7waaryZkZeuD0sVLHrxJo/Cf1jWR6c+avT3LYYrGqe4BMrQOmvfp4v+jjUeCW1mHbeJdXdzOK0m6KkiVflofmUJdlJAAAA spring-easing:UklGRqoAAAB" +
+    "XRUJQVlA4IJ4AAAAQBgCdASpgADYAPwGAuFcrKCUjoWkJYCAJaQAAMFUtKvsjZqbFOQGFcYQvuedIAjp55VvjSmAHqaAA/vCtqeS4pmX40bym3cZOAwGeH6SQRwZDtt73mkPV8to2cF3e8gMxMtncvu6JRlpsb0y" +
+    "fMgfmySj4cUeZyBAPGLwLtsK0yMx1YtL8sR9T03TL7tON6sExSpLeVuc6Nae6AAAAAA== sprite-sheet:UklGRtYAAABXRUJQVlA4IMoAAABwBwCdASpgADYAPwF2tlErLSWiqrYKgaAgCWcABEhfdsgRnzGfU" +
+    "3vBi9hLKdj1cFHiweAi8+t1xEJgTvDnqX0z7PGNAAD+8ObVY6a6J81ArUf/y0pt910lq5bB9Rwx+VgDP41f/40SjQ7wpkAh2uE+o0doAAOBV66dKUFlRe4Of56FZXX4rcNKYsQWlqnI3A+0Mq8/ez9F+sxh7GUPg" +
+    "dOtDLWz9aV9gNTV+eacTEt1T/AAB+2y46U7brEg60kkJdwYB9UXELyhAAAA squash-stretch:UklGRrYAAABXRUJQVlA4IKoAAACQBgCdASpgADYAPwF+uVWrKCWjIqlxYCAJZwAASEzhSHBRHGEqEknNn2xsG" +
+    "FSxx0af0XQYFR6n+64AsAwAAP7w6D35HnKC/zDngOh23YNNd5bCsyGXvI7o9/iNrV8zt63moW9dexGp+X6N2ZR6xaDcLkxxuKkJAN4wyjfwCUxB3tn/Ivc/c3iIMAmlob8xQjrXT2N3dollD7nXd1Y3ovsKRS2u6" +
+    "XAAAAAAAA== stacking-cards:UklGRvYCAABXRUJQVlA4IOoCAADQEQCdASpgADYAPvlorE6qpiSiKrn++VAfCWUAzcb1djb3iAeG4QeinHqYoekLT/5onUTEgMjMaGY+k9bWOrye4zpztOX8VLs+QgHLHc7X3" +
+    "Wj30hmCUExwalj400s7qi5LkMj5uQWU0ZJ4gvGLgdBkOkJiqejG5YOQMDtBzAdioShzhjRffJH6U5Ts2mDGdN43tIJnCxAAAP75D+NP9beasKu13w+XKoQmsukVFAV72yGMmTw1DJO9XPh2okGIpjFOkQ1Gw+lgv" +
+    "N4n/81RhoBiLNNWzhD7ntLuH4JyjfWFWhujxacbRj69orvC2DOCn83tfre7IR98er+JvuWMq6dscL5TQ2L+CRTsGeCzYD/Q0B5zJnhSykAkGQ/VyjAVHm32ZQDtdzfL49ykPqH2KIbY6Xn9HvoiRG4EZVAmu+E93" +
+    "uzLJP6Yr7Unn36i7/cZf4Tymnd1g+eiUS2cqOqtQOlbK/NpkNotOnyeqR5or0b5brQ0N8XFIGrOQUSR0U891xdQUV8bmFRq+dCk5o0RzvBEjeuMTZHdCf1AwYLKyWy5w1F+4ubWZ6buP9qvshuUOxkuVDQ7bQA6T" +
+    "r7HH4iaybMaxBcxcEeFcEAvkRCnmXiVckH174nmE5ev5zviOF0yS60CTXddDwK684PS39VvdR5Z7IlT8T3yOG8f0iMWQYq/Y/CHkNSeeE/GXpULNXaQw9CN6LFW6w+MvqcFgqxe5HIMf5Dpa7wtZKKUzMizcfK8T" +
+    "GNK3SR6dmwQ5S8NR5ootJUHQOVfiuY3UcHsMqp6AN3FZfSvjVQg6V+6zSIyH0R3mmo3I8MeWvfMCKR5S5nql+6ARFeoXcGLywGVAF1dbEtN+k2FsBdGm7h8LogcjnoYmMq9HuQHkTC8XfwC3f4v+VWKy59v6J0ER" +
+    "Vo76Ithp/bTsVOvyIs5wUYE0eH6FhBrqcIgiqGQ0bQQnxGUnE5ZCpyYfJ/7SQZvu07IqxTP/qYd3DnD7Kps8I7AAA== stagger-grid:UklGRj4CAABXRUJQVlA4IDICAADQDACdASpgADYAPwF2s1IrJySirBO" +
+    "ZmWAgCUAadiJ63RtZimsBHa84J8YbvboTMq2NNon1Y2uPRwC/ggL9v1yuO+p+HxNfSFUtouiKAG6cTvg6FKv+4pt7GXEAU0wrD01NwuNeIF9ufAtiSdDgLQAA/vfhEo8uf0rMj78/tBypcmXP1SmYEa5SbXndKQu" +
+    "tXM5QTc0E3iJFlXbU8ChEOyqFvPbmGso1aM95mrVHwZ8fuLsvaHuZpd5wnqVmkNNfj3AfY6yq9E+/vKeMT8s0ir55WPdDTI5GFzXXUJ/Jb/VPDHO05Z4qNi/SQkbP0jx51jXZWapd5Fr4FuP5cmfwBXWCu8GPZWQ" +
+    "Sr+6Nuscb0p7uilTypJ0yzK4koRYliQRmkHunOff0pSN3auM+d+9jHBciFGsFCI7b2EdhYJbicg19CwOQPqLSa4hW3H00hmEDTEp8mP8QPABYkn/q9NLJkSBAsC4dZFQ2rjFpfydrYE/Pjy92VBZsSBTat+rJ+GQ" +
+    "aAsIvCOwsGtUlg0oSv9KWBq5XO73rkHt6BQQhFloP0pGubQpe5Z86a4o0n5wfLH6G5xBnBrjYpkva+MqmN8EGeLSlEpPxjeHDZCXjY7NNeg/yPygyR7tv2o74f2ER4u3hVUA1ctPQftswI9Kz/QYBpMVUQv7uVOW" +
+    "tOuvD+3t3o5tL91A7thMLymsV91NhIghzSfDxPNY/N/nn2i5q7SUvs3ZE5i5XZsxwYkxe2CAhzAAAAAAA stamp-in:UklGRvQAAABXRUJQVlA4IOgAAABwCACdASpgADYAPwGAtVQrKKUjJBqqqWAgCWcAAHkJl" +
+    "RmQ+1XieVlqB+AYMMz0vwpc4qL4CrkwKsFLCjHwVhg6gBKtPtsvUE/h2qIAAP7xCJTrIEa6VuDP8vOeldu8tCXRSVumqnAgjC0SwB+brVkGqLHOW4sIq7HbBxKo7ehzcRe3VQ8/TuTGQ4WRbWI6DGsEpysahJO9E" +
+    "RX4EQKDNZ/dYyA6f11QxDhLKiwSaAJnMpokD3tdEW+Tdmfu2LWCfzBG1oKrfeVKf4XcbiexFGUmbIaB4BO1QgEQIxCH1Bsx23//ohq4UAAA star-rating:UklGRuQAAABXRUJQVlA4INgAAABwBwCdASpgADYA" +
+    "PwGAs1WrKSQjJBqpIWAgCWcAI8AOwGsC38GCkzoV2Hp/BH0fTZneAiebSdC0tBd7y66R0k8GhJASIAD+8mPfNHfkWyLK3fiGCsYyEP96dhnKoZY15craM/fDV9bovSp2OILi2nd/Wji5FYwsm6tFS90RWQvfa5y6" +
+    "5UCqScvEvKUfgZqfs8Ek4A8MIjz/p0Fdx2KywXwvZEkkt67+5vI4WAk+GMitlIE6za2Ept0C9KWptmLBxNtJ7ccmGwR6eTWb4EJfPWllGSQhBuAAAAA= stateful-button:UklGRp4AAABXRUJQVlA4IJIAAAB" +
+    "QBwCdASpgADYAPwGAuVWrKKWjJXgIaWAgCWcAA+GZvMBb8BEzEq3PCjB8GsnawIzkgMYam9V2Mtraust3jnFz5lQAAP7w6Ghh/VjPwLR/Fwu1/j2DQ2AzF9eU3AYC+f6nC2eAPkCm7ILtH1HjIsTegdxlnLHQX7h" +
+    "96eMAaMTM3MsxMnT+qjwpYWDzWN/nmHAAAA== stepper:UklGRhIBAABXRUJQVlA4IAYBAACwCACdASpgADYAPwFyslQrJiSjKBgJyWAgCWUA1gIgAj0neAwaC3u0mZ+L+BLw0qSaJQg6yj1d8H7IWAQk9KK55z" +
+    "wYhDc7BkBOJzua5YAA/vKhT3NEKLTNE2uANA90y8mQMhHLkJmcUueVaC/O4ofJcEf8JtaM7n6abQ/7eJTgWSznvirKVMNhXAUnaNIQIFllRfkDEVLzbeinlMXPQ2I9WVmxNtFwvkv3+0ynBg/+mwDhSKZXRfSv+Y" +
+    "PXSTJ8+HrwkDYNRMQAPKBQ+TbI9o2k5iFPZXysx7M4Hlebv5A0Oj1NkT7AaPBVzNDciOVZ1onBQ/vQPZHpdViVdUs7AouxQK5IAAAA sticker-peel:UklGRggBAABXRUJQVlA4IPwAAACwCQCdASpgADYAPwFy" +
+    "tFIrJqUirVZokWAgCWUAVSOOEbagw/JRoMVbu0jVRkCdg1JYWAp6BPsvp8Jgy7v4whgogjaD0vGMhFvgLg0ouQ6V52+8IO40AAD+8a4Y/2NSnhnobzp4FCf7P/PrY3gwPMBfR2Qm2mI0+srlVLSlboc6YkjucBn8" +
+    "RDgrajBhNaE504F8Hv6cm+HoQuvvU2uCl99At4wYz6IfrHZ223gabfSGT6PjAauBLjyBnP9cLcBfAPI+o4UJJ6WZUwHi5q325CmzI1Qwd1dZSoElkskS2IHFMifEHJ5H/aboYSVgNMPHBM4F01iPhD5EhHigAAA=" +
+    " sticky-pin:UklGRuIAAABXRUJQVlA4INYAAABwCACdASpgADYAPwFysFKrJqQirBHLuWAgCWcswAOGAAyECUGmeul0CfxhkRZhVl/ikHUiK4IBlSgGkBuo+9VHjOEnanWaL6t4xdg4AP7vPnDz/32W5S9iX5M3" +
+    "Y/lsm6+4m2FE3ulp+5dY0WLMameoZ8vSH+dd7Dx7qow7bOVTgyDaUdlPtbUQ7NM8+ZpcMAvIVbok4Z0vdkp0uiaDxpz2pVHIlNlHLLcTXuTS3ox9Vv6w/wxaX2ik4km/VFSAjKmLCABeZHd6mi7oTRBxGCSaNTig" +
+    "AAAA story-progress:UklGRoIAAABXRUJQVlA4IHYAAACQBQCdASpgADYAPwF6ulUrJyYjJrM42WAgCWkAADgtK4S9ACorCoCJvBNVxgFy+I6ApNzAAAD+8DTmL302ed/6s4NUicNKkdr8HwP9eTJIJatkVbqR" +
+    "v0j08lzIcJVm0rvOc1JRwBTHE5KyaRaexXKZYNo/4AAA swipe-dismiss:UklGRpAAAABXRUJQVlA4IIQAAABwBwCdASpgADYAPwGAtFSrKKSjJBqqSWAgCWkADnyEhMNufjRXW1h23IT3dz64KGvGS9OSOypbz" +
+    "SDQSEvdzKeaagBWgAD+8Qnm2fzJ2nbCCg+HTpfktz401zcHLdniZTSgjimBKV7fs5OJNJ+VZHKbrefwuoP5JaYTYYchOlaXAAAAAAA= tab-indicator:UklGRpQAAABXRUJQVlA4IIgAAAAQBgCdASpgADYAPw" +
+    "F+tFOrKKUkKB1YcWAgCWkAC+ABd1D+aebpEJAUQFp1hzaV1Vn65p92kbNY1IAA/u/71gPZ4RkhPV2cRsL7otsYKhzGCUBDsu38scK8odowSsjOED9NnCUke6lpxV43tEpbXzj9hgb8YcwkCDGQxnwNqDYGTqZZo/" +
+    "3oAAAA text-flip:UklGRoYBAABXRUJQVlA4IHoBAACwCACdASpgADYAPwGAtVUrKKSjIqqJYCAJaQALADpUiwOUn0CX7TBthR+VgEz9qofFwLDd2Jht9wBqr/lxyjEoEFa4yWc+QkREu/zIfwAA/vHTiyGVQiO" +
+    "eZY/9P+YHeP7kOrx24mPnH9JKUnbFBNB/yh23J3YZ7C/NY+wrSv12H5TJptf24whC6/L+YJ+QNg/Kt8PNOe/7yt+8tOlc47TFqqzDYsLifh7GQAsa2yg7KboFYTs57IfejrQdtD8BYdmmeI/7JxsWruhukbPfUR2" +
+    "pT7vhIKiUG0cFWYsUd/cttcZtZb9eBbU1s3W9ju9ieWr/m/aBc+n9XS/87f00FEnt8rVdZfG9ubwkusiqDdvgz/h0A7idjftRThr1sHwgrel6NKpdmduH5rYzvZTwO8xEf0HSjoHk6SufIFPNbFSxEOuxnVFIBst" +
+    "IOnSqYA6Mepc14BP6zprs+6UN7h22N4tA9+vHWjh4xbX32H39IVYp50g8doi5iAAAAAA= text-highlight:UklGRogAAABXRUJQVlA4IHwAAADQBgCdASpgADYAPwF4tVMrJyUirBOYiWAgCWkAFtiC3tcvZMW" +
+    "/4NTaOfFR8axH4DqvQSbFimJdTye0h+aFaLAA/iv+QWHgIw46mGOFSLvSCG/5vRk3L+fJbR/7CUqQuusWB5d2YfWBC2E9QsgCN6AJmfAmU9ZHsv/QAAAA text-on-path:UklGRu4AAABXRUJQVlA4IOIAAABQB" +
+    "wCdASpgADYAPwF0sFGrJqSirBqpEWAgCWkAFtWhuyBv21Wk86Qi1Drw1bpWnca4gRc4CacjcxqSIBRNPR9JYEgAAP7w1aYxuvtiTRkF4RH8lUO/+8ml6VPILvI+T02zPmrHdcUlwxsG8/aAoR9SQjPxA2OuBS2gG" +
+    "Io57NJLxo2v52StZiSHwQ2ze5dKw1DXYfye8zv6eInSXKPdpkLNFwBQxIis++H9HoA7eNSLtP5M8ZUoi0w8teTo2J0sMEKEfVtW/m27fiP6ZTOfgrBwsdLBOb7LQG5umbmxtcAAAAAA text-scramble:UklGRh" +
+    "YBAABXRUJQVlA4IAoBAADQBwCdASpgADYAPwGAtVUrKSSjJXv4aWAgCWkADnsWAypXD9ECp+lyy8bNlRUH859dJ2Dw/RvP6OrwXPeH/d7H1bfaqIBtgAD+8dOH8csnsrybgZnLDkCswzeyexgdCX1WfZEkYU+6Nx" +
+    "S+dLTsA/AiSOGFVujtaYsAg9DsIHE1J2cWc2sDRETNs+zmi52ifH0+m5joRyK9cvLYq//gBuGQGFbgLYpCj18JNHnLhQfXvZTWf18D8D6t7wk6CV3HLrO6pDO1ceao+elMqbtfkHjMju+K0Fg5tfN4KvroSgiZ2Z" +
+    "5WWc+/b+b4a1/e0q7UH/ZwfJo3DzZjvgi4nMoc2+iQv6Ynx/6yAAAAAA== text-slide-swap:UklGRqYAAABXRUJQVlA4IJoAAACQBwCdASpgADYAPwF2tlSrJqUjJXgKAWAgCWkABRAe8MnV8BIQlEmJ2dhar" +
+    "/E3vtDth/PKe4P59K0v76lUiL6gB4CR1AAA/vBroPzUVP0DnFKD8mC3l6ENTGav5dE9LOLmj5F+YMYQwWeUigu/rKtpmV4giaYgkQ7lKyGYKUR5oGG0IHc4UUk606NsHNYyG3bP17dYKoAAAAAA theme-toggle" +
+    "-transition:UklGRogBAABXRUJQVlA4IHwBAACwCgCdASpgADYAPwFuslErJiSiprZtCWAgCWkA1jiqHkXPd/B7Ueu3tL1Nassx1PJE0XZj9WxxbaoetAfOzzE49eyyuwK02j/lLyGSiSvU4A0XAFVdulbwLMdG" +
+    "nKAAAP78kzzkv/AIi2z5j51KfcYUyjqmGBNrQurkTOJT/sGqRUkW8rOI6mQUGDbVFGVcIrESqHy8DzOxXyf6NL6Bkf6fvZ/VWVRVSOgmjuQeRa/3EhSV+HozwY+vvf8jpISuGgkaT127BFIrLjyI3HFGpth4kcvu" +
+    "hN/MGaeqQ8o/Wzu2p4jWM2z3z+w0dOMmtfq8Lx017rNrv0UEdORrlsd2P/DEHLGt4djKZSCbEEYhfn2jw3kSMLHPIHWHir57iX1n1V2cootltVHN2uSA5QV1Yy4rWTMyW/uh0TXu6EZS9tQ2R198Bk5nhscXUzck" +
+    "u53umed+jmaisaDxmoSCop5AwTb/f3ExxkPO5Cf8gQfHVgMXuNVgAPhsDX87yAAAAA== tilt:UklGRooAAABXRUJQVlA4IH4AAACwBgCdASpgADYAPwF8uVWrJ6WjJXgIaWAgCWkAADWu+KxalF0Z9VMAbk4dbo" +
+    "5GI2YpXHJd7XyVMzMBMR0gAAD+8Bhkk4d4WuDAZLg50UjAKu4P6VNkcMQgnyTgqlqsg/I9LAltLCPedRLLGlhKlMZV2RaFFT7pVTbNygAAAAA= toast-slide:UklGRqwAAABXRUJQVlA4IKAAAACQBwCdASpgA" +
+    "DYAPwF4tVKrJ6UipXgLmWAgCWkAAJ5L1ntlALCOYQOWRiP5kne+LX+9+s6oJC49ula3yhaMOlFhBpHeHgAA/vD4ALhgLqMCi6RQgMyhWhAJQpxUAOEhcYv4WSmWN9Zcjqs0q7FoUpNKvq10L0ORRF0KlCpKaM/jU" +
+    "zTRDipMn6fYwf3CgkSQaZ5xhtLc7BJfrV5rtLEAAAAA toggle-switch:UklGRpoAAABXRUJQVlA4II4AAACQBQCdASpgADYAPwF8uFYrJyUjpBVYwWAgCWUAAEYbafsZx7Fag2ji7/k4DWzVaQbqNzacAAD+8Q" +
+    "mcar8pnreguOj/Y/9XNrCQn5ZiYrVZlysR0bMnvdtx9Bj5O3J3e+S4I6PbwDIePGNj81lRvJtFZkPaPJsP47BAZVEXe/JfbNPZ8YcLU79nAAAAAAAA tooltip-pop:UklGRugAAABXRUJQVlA4INwAAABwBwCdA" +
+    "SpgADYAPwGAtVWrKCSjIrgKiWAgCWkAA+W6Ve9zSMxJio9Ksx+dKe5zgPxxh4/hQqX/4uHYE9JDhrxnwOHQQAD+8QiM0CX5hL4GM3oOvqpLUltvawdfexgQbYAWPyUxhPE4OAqvS04QLuqsP2r+pIb0lrArPrxXl" +
+    "60WrJdwz7XU79iqURYPNJgvF8mKMP+fXCHwoc69HyGwEIYxkvF+AklWhAkpT1aI6BoK0xHCSc29Hdc+AN5e4g/qJB38UxwDgYssvE8yNp+Ak+PlzERGCUOlyVAAAAAA tracking-in:UklGRgYBAABXRUJQVlA4" +
+    "IPoAAADwBgCdASpgADYAPwGAtlWrKKSjIqnRYCAJaQAFECGT+Tc8Mtpc3wRCr97kdwNtm5hjMb/h6WlMIMUFgBqYrgjoAP7xRITv1BAUQ76j2zlptdCgjOXYV7GnIJo8SfmUqc/IKtnYeAyyGdjXvxg+dpJXLPMj" +
+    "kgIkKE0zPYxl/DTmO1W9vUWy134b3yxl3ApIydu5D6eifDjuVsXK/unzwI5ID6BwOLU+aasWfYlrJMZAEzhpJb2DFR1gOYKX2gnrhsoI/uErDK+8Qkl6dFnswT3vCYqSWSSZ6x1jB+NPHmCo4ASfcebMEULwd2sj" +
+    "YUCH1vmVLRhzuUsAAAAA twinkle:UklGRuAAAABXRUJQVlA4INQAAAAwBwCdASpgADYAPwF6s1WrJyQjJXgJmWAgCWlsc9CZADIxAdY5ByHmH69SSXIVvP3JxD6XhRnuAw+rS8RdCFSWIygA/u6i6Fs3dijSP/w" +
+    "atqMADwygyGCa7LwRkixC4U8IRLgetGdFTuw69n0cTeu9sOVY7bwKYs/HubTKpxrWVhFvDJ2iqLx24bARzLzDxZflFUYmU8B3f2O/BtGGmcU7BCDQHDw428TTckE59ED3AhLK0a/lZmsoO63YE27sZiYEB/zJy8p" +
+    "JJ1k18lJVhx+uAAAAAA== typewriter:UklGRsQAAABXRUJQVlA4ILgAAADwBgCdASpgADYAPwF+tlQrKKUjKVbYAWAgCWkACwAsJFYamGZaVOEzHu1IIU5x/4V8KwnPfqVzhZphb0EOymAAAP7waYId3dIHR1Y" +
+    "nPG7w+bCyr38W/oXhjeoHIafAVJWcTJl64HzN+dW+Hb/kgFlPBbu6dfRmjCKhpVSga+m9henvpsjFijcuXMI2KJ4llp0jbrosIuzTk2GiOHatR4p7mi9g+9YYLMyJn3Tn7hKl35tgjAAAAAAA underline-reve" +
+    "al:UklGRvYAAABXRUJQVlA4IOoAAADwBwCdASpgADYAPwF+tlQrKKUjJXgKAWAgCWkACBXoAOvsqMFe/Lf9KGcjLClttUgdPi0EJX92PGPJO2oehELRb/1sqmLVwgAA/vFEhuYC7FJj2OjcMC6vXhbg6wDrH8oB4" +
+    "zwb1MLW5Urx7bXv4h9ixMUb1Ph2xGRkDDV93GUyJHyqNn/iQh7teb1sjUg51dJeJuaO0RyO2BnqRb2XORLKYjxtQv19IqZNC9EItElZILbq8vqa5QMKHWgEFnDPc3iNwrSOSDdztqFxI56VqzI4yuM6g5GRTzIZz" +
+    "ceOE+gE/vlKQu77MQAAAAA= velocity-skew:UklGRmoBAABXRUJQVlA4IF4BAAAwCQCdASpgADYAPwF4slErJ6Uiqrv6AWAgCWcALv/Uz+ozcA00jQQX+tGPQNSUrTVjW+aovjMibnqR5oO7Wyn7edylPKFW23" +
+    "wYqjFlNr2v+HSAAP7pXcUjIP7Eli87VT/vD6U4+6pdy3XmNKOGSmkj1FFnW0Tm52xC2+CLsTGnzveKQQ3H6k9K1OlfD3f8P848YipVGhLd2oKQXeyhbj7PfxkGgQfI+FytsSGQL/bWNvtbw7qHk01Gi4AMAmsj8H" +
+    "pCMrlNJJ1W2gEMbLyf8ao77Bpf+pAgguQtTH1LVABlQxk6VBhj/ySXw+iU8zyDuu1K/Eqj9ejyN2cBj3A1Gu5M5H6AenojPwLV4aFlyewc6dgFS8xrgOTMITptAKJlAv9mClM0KZJ9Y76N32LjHj3WGPfHsvU7Wv" +
+    "OU3AnqBTtc00XYlXyTfy0XzVTXKV8ed4gkLLp3bmr/ujQDRIIAAA== wave-text:UklGRjQBAABXRUJQVlA4ICgBAADwBwCdASpgADYAPwFytVIrJqUirVZokWAgCWkAFt1FguQLUB88WgJL7SVS3+l7yiJ01cN" +
+    "PHD97cHxeiTn/WOfWWfm2YN9Z+AAA/vDoPe/7mHnUfQ/0B1oSgmbqh2dWF3veOlz8p4z6oOWWXYr2cjh8svL2luRFHfy1+6ef2jd3YrAhbtEzNrzHK684ilJQCEmWkHrgOYvyqUZmFdTgF9yVvtFt55iSF+CcAYS" +
+    "nuCghZY6H4zsrTtpwcsj5m7L6BOg4sYxYdj/6KjSSNZgd0Jf/b1A/yhw2PTgJFc2iEppFFTA61YJMbPtlSzKsrXtI5ftD+L4mqi5d3n1+a8WFvMb45Uf3UXfe2ravdAT/W26XeJBrs+bEEdFYG1k7XaviQdkKx4+" +
+    "AAAAAAA== weight-morph:UklGRioBAABXRUJQVlA4IB4BAAAQBwCdASpgADYAPwGAt1WrKKUjJXgIaWAgCWkADOg+ALh3XLLxs75epwTouFKcgYtfPg8aeIKRXzrCZvPpVH8XgAD+8RhD5J3p9KYAEtHoIfHY0" +
+    "PlfAmuZwmdIwsRyejskVaEj3Zh80Ow8CxVeq+SG95efisg/6E2q91e5kImdEe3i33bmh9r6bYz+0ujKL81aTOIVTrWo4EshC5jvXClZOx5vL54yIxDUWbZ5y3SXIfPqM0fILOvzn1wSQ4bDU0hheXn4lWA5SLkDp" +
+    "4JJgmEo48W4J/aEsN2/5fwCiDCrGFbiHDBxUTy1QHNwnY0NkPlbDflWfrlyadEIn9V2wqlM2fQVzVWhOLLC5CmGPA40Wal8ITh0LTQv8VAAAAAA word-rotate:UklGRvQAAABXRUJQVlA4IOgAAABQBgCdASpg" +
+    "ADYAPwGAuVUrKKYjJXv4aWAgCWkACBBIASoHtLN5m2XhFjZHYUceAs9CQxXOlw23xcACAAD+8Og92k9L4LPm2tYGmsaiBw7xI3wYUrxsFfE/ZK7+2L6NQuCT2ZLVekZCKyn+gE52ds9l7Uf7nJQxfFKT7iChc7JK" +
+    "SU2SzwV2o4q5Y1XWnDlZflxGSYvck+My/VmyoBJYPglvchTvxa0cSZHcNrOmPsASYzkY9D1OTTuzTr/P/AlrMcQkmbfMXRuTvUpDh/lWt+Ww+nVS8d++KomvZyklHRIO9R2KgAAAAAAA xray-lens:UklGRhQBA" +
+    "ABXRUJQVlA4IAgBAABQCQCdASpgADYAPwF0tVErJyWirrLpOWAgCWks5kADOJXysIOrmixT4FKtdSiN49eoDLN1dVwYoHTG/3keI8hzOuXax9H/7+ZlAMwIiGlYEB52AAD+8dRx6Z77KBzpmMiOYMXeqc3SxBZr5" +
+    "MRIm+voP7z+f38gwjFKnJ6Z7iPuqgDeEjJxVovbnozvJybl2zIjr3l7Q+CsI/uQv4VJm5myhyroNCpgX/kccFDs9N/u6WxpS8Io8H5Hff0bdfi0naI3lFXfIu+nzlt8TCi60xy3uD57umvpv3SZXQ450Xr6Nbxzy" +
+    "lb5+k36vEPpbOfXMSYcciEKqnKOrrQissEtyXyPmSEbxQAAAAA= zoom-through:UklGRvoBAABXRUJQVlA4IO4BAABwDQCdASpgADYAPwF0slKrJqSiqVba0WAgCWcA1fuCeNPG0HZoXDgi829xQfG1mqdXX4A" +
+    "DrYtjxRHBlmKZE6hEpN8uAmWcN83MuEd6iutQV+a0P936yFxcRmBqKAc7MxGqj819G+SUhC5WjQKg0/M2ZW+mAAD+8l6mmyHVg9ZhycnQGbw5asLTgO73PsKp5zl+KrGlp3+zjvwxB3TOnVoH7coD82aC/g/k3Z8" +
+    "JFZHhuDWsKo1IM+/3SwdaaEm5wwRm/B5UvMbNQrvvFbHjI8cbQLTuLShX5Gn3VlfpI5Oo/FrK4Cz9n4XxmP36ekexEwWjQ2Lx20QSC2CZJqHqEvKzJZABM69cryFghVuswQmjQQGlLwGCS95adF3JQ3p40egc7sI" +
+    "swQIxw/dMK8jjnLRnKUl3+x0thgaCM1lQWhngHxtyD1wCtwtnOs/9weoN/RY2vVyTKIJtN3kNc6eHJCalymi/p4kRpNo8XK+7WT4fe+xuHE6p13KORQs1/oqZNl+DXFrG5L/rO6YRdybRsHJDTJNQZGy2TG0L3z5" +
+    "ISmgZ21VChYtpeLaHzv+nCZHyhxQ43P9flU0VyVG4L22nPwjo6PLOLHuSUBRTHY/ZNK5AAba+tAwWbOoDPlYPOjeicGKw2+8fGFoVniMAAAAAAA=="
 
 /* ================================================================== */
 /* 演技の部品（EntryTitle.tsx の写し・2026-10-25。Framer のコードファイル間 import が型チェックで解決できないため同じファイルに置く。
