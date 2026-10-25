@@ -24,6 +24,13 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 //  ・REC→ライブはクロスフェードをやめて一瞬で切る（重なって文字が二重に見えた）。ライブが描けてから切る
 //  ・SP はデモ枠を上に貼り付け、スライダーだけが流れる（動かした結果が画面外にあった）
 //  ・固定バーを Made in Framer バッジ（右下・約150×40）と重ならない位置へ
+//
+// 2026-10-25（Awwwards 2周目）
+//  ・見出し（EntryTitle）が、この項目の動きを今の値で演じる。値は window の "md:lab" で渡す：
+//    値が変わるたび reason:"sync"（見出しの値の表示だけ更新）／スライダーを離した・選んだ・初期値に戻した reason:"release"
+//    （見出しが演じ直す）。動かしている最中は演じさせない
+//  ・浮くバーは「02 Prompt の節を画面の上へ通り過ぎた後」だけ出す。旧版は Copy が見えていない間ずっと出ていて、
+//    1画面目でデモの Next ボタン・スライダーの説明文（PC）、デモ本体（SP）に重なっていた（レビュー2人の指摘）
 
 interface Param {
     key: string
@@ -149,9 +156,8 @@ export default function EntryLab(props: Props) {
     const rootRef = useRef<HTMLDivElement>(null)
     const stageRef = useRef<HTMLDivElement>(null)
     const demoRef = useRef<HTMLDivElement>(null)
-    const promptCopyRef = useRef<HTMLButtonElement>(null)
-    const [labInView, setLabInView] = useState(false)
-    const [promptHeadBelow, setPromptHeadBelow] = useState(false)
+    const promptRef = useRef<HTMLDivElement>(null)
+    const [promptPassed, setPromptPassed] = useState(false)
     const urlRead = useRef(false)
     // 触る前は録画のループを重ねて見せる（ライブデモは触るまで止まっていて、何の動きか伝わらなかった）。
     // ステージに触れる／スライダーを動かした瞬間にライブへ切り替え、以後は戻さない。
@@ -269,23 +275,26 @@ export default function EntryLab(props: Props) {
         }
     }, [slug, isStatic, base])
 
-    // ラボが画面にあり、かつプロンプトの Copy ボタンがまだ「まるごと見える位置」に来ていない間だけ、下に「変えた値＋Copy」を貼る。
-    // 画面下端64pxの帯（Made in Framer バッジ＝下から約20〜58px）にかかっている間も「まだ下」とみなす
-    // ＝バッジに隠れた Copy しか無い瞬間を作らない（旧版はプロンプトが1pxでも見えたらバーを消していた）。
-    // 見出し行ではなくボタンそのものを見る（SPは見出し行が折り返してボタンが下にずれる）
+    // 浮くバー（変えた値＋Copy）は「02 Prompt の節が画面の上へ抜けた後」だけ出す。
+    // プロンプト欄が画面に見えているうち・まだ下にあるうちは出さない（値を変えていても）＝1画面目でデモや説明文に重ならない。
+    // ページの終わり（フッターの CTA）に近づいたら引っ込める
     useEffect(() => {
-        if (isStatic || typeof IntersectionObserver === "undefined") return
-        const a = rootRef.current, b = promptCopyRef.current
-        if (!a || !b) return
-        const ioA = new IntersectionObserver((es) => {
-            for (const e of es) setLabInView(e.isIntersecting)
-        }, { threshold: 0 })
-        const ioB = new IntersectionObserver((es) => {
-            for (const e of es) setPromptHeadBelow(e.intersectionRatio < 1 && e.boundingClientRect.top > 0)
-        }, { threshold: [0, 1], rootMargin: "0px 0px -64px 0px" })
-        ioA.observe(a)
-        ioB.observe(b)
-        return () => { ioA.disconnect(); ioB.disconnect() }
+        if (isStatic || typeof window === "undefined") return
+        let raf = 0
+        const check = () => {
+            raf = 0
+            const el = promptRef.current
+            if (!el) return
+            const r = el.getBoundingClientRect()
+            const vh = window.innerHeight
+            const nearEnd = document.documentElement.scrollHeight - (window.scrollY + vh) < vh * 0.5
+            setPromptPassed(r.height > 0 && r.bottom < 0 && !nearEnd)
+        }
+        const on = () => { if (!raf) raf = requestAnimationFrame(check) }
+        check()
+        window.addEventListener("scroll", on, { passive: true })
+        window.addEventListener("resize", on)
+        return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on); if (raf) cancelAnimationFrame(raf) }
     }, [isStatic, template])
 
     // 決めた値をURLに持つ（?strength=0.2）＝共有・再現できる。初回はURLから読む
@@ -328,6 +337,20 @@ export default function EntryLab(props: Props) {
         return () => window.removeEventListener("message", onMsg)
     }, [isStatic])
 
+    // 見出し（EntryTitle）へ今の値を渡す。sync＝表示だけ／release＝その値で演じ直す
+    const valuesRef = useRef(values)
+    valuesRef.current = values
+    const announce = useCallback((reason: "sync" | "release", v?: Record<string, number>) => {
+        if (typeof window === "undefined" || !slug || !params.length) return
+        const detail = { slug, values: v || valuesRef.current, params, reason }
+        ;(window as any).__mdLab = detail
+        window.dispatchEvent(new CustomEvent("md:lab", { detail }))
+    }, [slug, params])
+    useEffect(() => {
+        if (!isStatic) announce("sync")
+    }, [values, announce, isStatic])
+    const release = () => requestAnimationFrame(() => announce("release"))
+
     const send = useCallback((v: Record<string, number>, replay = false) => {
         const w = frameRef.current?.contentWindow
         if (w) w.postMessage({ type: "md:params", values: v, replay }, "*")
@@ -356,6 +379,7 @@ export default function EntryLab(props: Props) {
         const d = Object.fromEntries(params.map((p) => [p.key, p.default]))
         setValues(d)
         send(d, true)
+        announce("release", d)
     }
     const dirty = params.some((p) => values[p.key] !== p.default)
 
@@ -535,7 +559,7 @@ export default function EntryLab(props: Props) {
                                             className="mdlab-opt"
                                             role="radio"
                                             aria-checked={sel}
-                                            onClick={() => setOne(p.key, i)}
+                                            onClick={() => { setOne(p.key, i); announce("release", { ...valuesRef.current, [p.key]: i }) }}
                                             style={{
                                                 fontFamily: MONO, fontSize: 13, minHeight: 40, padding: "0 14px", borderRadius: 100,
                                                 border: `1px solid ${sel ? ink : "rgba(10,10,10,.18)"}`,
@@ -557,6 +581,8 @@ export default function EntryLab(props: Props) {
                                 step={p.step}
                                 value={v}
                                 onChange={(e) => setOne(p.key, parseFloat(e.target.value))}
+                                onPointerUp={release}
+                                onKeyUp={(e) => { if (e.key.startsWith("Arrow") || e.key === "Home" || e.key === "End" || e.key.startsWith("Page")) release() }}
                                 style={{ ["--fill" as any]: `${fill}%` }}
                             />
                         )}
@@ -568,7 +594,7 @@ export default function EntryLab(props: Props) {
     ) : null
 
     const prompt = (
-        <div className="mdlab-prompt" style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
+        <div ref={promptRef} className="mdlab-prompt" style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
             <h2 style={{ ...label, margin: 0, fontWeight: 400 }}>
                 <span style={num}>02</span>
                 <span>Prompt</span>
@@ -588,7 +614,7 @@ export default function EntryLab(props: Props) {
                         {changed.length ? (
                             <button className="mdlab-btn" onClick={reset} style={btn(false)}>初期値に戻す</button>
                         ) : null}
-                        <button ref={promptCopyRef} className="mdlab-btn" onClick={copy} style={btn(true)} aria-live="polite">{copyLabel}</button>
+                        <button className="mdlab-btn" onClick={copy} style={btn(true)} aria-live="polite">{copyLabel}</button>
                     </span>
                 </div>
                 <div
@@ -620,7 +646,7 @@ export default function EntryLab(props: Props) {
     )
 
     // プロンプトの Copy が見えていない間は、下に「変えた値＋Copy」を出す（PCでも1画面目にCopyが無かった）
-    const showBar = !isStatic && labInView && promptHeadBelow && template !== ""
+    const showBar = !isStatic && promptPassed && template !== ""
 
     return (
         <div ref={rootRef} style={{ width: "100%", color: ink, fontFamily: JP, ...props.style }}>

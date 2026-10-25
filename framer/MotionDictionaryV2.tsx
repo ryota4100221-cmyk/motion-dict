@@ -91,8 +91,12 @@ interface Chapter {
     minH: number // 扉の高さ（PC）
     minHSp: number
     // 並び：pc=列数（≥1100）、sp=列数（<640）、bigs=大判の位置（R=右寄せ）、row=横長カード、size=カードの格
+    // bigs の i は「強い1枚」を除いた並びでの位置
     grid: { pc: number; sp: number; bigs?: { i: number; side: "L" | "R" }[]; row?: "sp" | "all"; size: "s" | "m" | "l" }
     after: number // 章の末尾の余白（PC）
+    // 強い1枚（2026-10-25 Awwwards 2周目）：扉の直後に全幅に近い大判で置く章の代表。
+    // at = 録画の位置（full＝全幅・L/R＝版面の2/3を左右どちらに）。扉の動きの項目とは別のものを選ぶ（同じ動きを2度見せない）
+    feat: { slug: string; at: "full" | "L" | "R" }
 }
 
 const CHAPTERS: Record<string, Chapter> = {
@@ -100,49 +104,61 @@ const CHAPTERS: Record<string, Chapter> = {
         tone: "dark", kind: "magnetic", align: "left", fs: 260, fsSp: 76, minH: 620, minHSp: 300, after: 120,
         line: "カーソルを乗せたときの返事。押す前に「押せる」と伝える動き。",
         demo: { slug: "magnetic-hover", ja: "マグネティックホバー", params: "strength 0.35 · lerp 0.12" },
-        grid: { pc: 3, sp: 2, bigs: [{ i: 0, side: "L" }, { i: 15, side: "R" }], size: "m" },
+        grid: { pc: 3, sp: 2, bigs: [{ i: 8, side: "R" }, { i: 19, side: "L" }], size: "m" },
+        // 写真がカーソルの跡に次々と湧く＝画面いっぱいに絵が動く。ホバー章で唯一「面」で見せられる項目
+        feat: { slug: "image-trail", at: "R" },
     },
     scroll: {
         tone: "light", kind: "skew", align: "left", fs: 230, fsSp: 72, minH: 440, minHSp: 240, after: 96,
         line: "読み進める指の速さと位置に、画面が付いてくる動き。",
         demo: { slug: "velocity-skew", ja: "速度スキュー", params: "factor 0.5 · max 8°" },
         grid: { pc: 4, sp: 2, size: "m" },
+        // 写真のカードが積み上がる＝枠の全面が動く。この章は暗いUIの枠が多いので、写真が主役の1本を頭に
+        feat: { slug: "stacking-cards", at: "full" },
     },
     text: {
         tone: "light", kind: "split", align: "center", fs: 300, fsSp: 96, minH: 560, minHSp: 280, after: 136,
         line: "文字そのものが出方で語る。読ませる順番をつくる動き。",
         demo: { slug: "split-text-reveal", ja: "分割テキストリビール", params: "stagger 30ms · 0.6s" },
         grid: { pc: 2, sp: 1, row: "all", size: "l" },
+        // 文字盤が横一杯にパタパタ返る＝大判にしたとき一番「文字が動く」が遠目で読める
+        feat: { slug: "split-flap", at: "L" },
     },
     transition: {
         tone: "dark", kind: "wipe", align: "right", fs: 190, fsSp: 54, minH: 500, minHSp: 260, after: 104,
         line: "ページとページの継ぎ目。どこからどこへ移ったかを見せる動き。",
         demo: { slug: "curtain-wipe", ja: "カーテンワイプ", params: "0.8s × 2 · in-out" },
         grid: { pc: 3, sp: 2, bigs: [{ i: 4, side: "R" }], size: "m" },
+        // 写真の上を円が広がって次の画面が出る＝「継ぎ目」が1コマで分かる
+        feat: { slug: "circle-reveal", at: "full" },
     },
     media: {
         tone: "dark", kind: "clip", align: "left", fs: 340, fsSp: 96, minH: 660, minHSp: 320, after: 128,
         line: "写真と映像の見せ方。額縁と現れ方で、同じ1枚の温度を変える動き。",
         demo: { slug: "clip-reveal", ja: "クリップリビール", params: "0.9s · expo-out" },
-        grid: { pc: 4, sp: 2, bigs: [{ i: 0, side: "L" }, { i: 7, side: "R" }, { i: 20, side: "L" }, { i: 27, side: "R" }], size: "m" },
+        grid: { pc: 4, sp: 2, bigs: [{ i: 5, side: "R" }, { i: 14, side: "L" }, { i: 23, side: "R" }, { i: 30, side: "L" }], size: "m" },
+        // 風景写真が1bitの粒に溶けて戻る＝写真の「温度を変える」をいちばん大きな差で見せる
+        feat: { slug: "dither-dissolve", at: "R" },
     },
     ui: {
         tone: "light", kind: "press", align: "right", fs: 200, fsSp: 64, minH: 460, minHSp: 240, after: 96,
         line: "押す・開く・閉じる。部品が操作に答える動き。",
         demo: { slug: "press-feedback", ja: "プレスフィードバック", params: "scale 0.97 · 0.05s / 0.2s" },
-        grid: { pc: 5, sp: 2, bigs: [{ i: 11, side: "R" }, { i: 30, side: "L" }, { i: 52, side: "R" }], size: "s" },
+        // 5列（1枚 256px）では中身が読めなかった（独立レビュー2人）→ 4列（1440で約320px）
+        grid: { pc: 4, sp: 2, bigs: [{ i: 8, side: "R" }, { i: 20, side: "L" }, { i: 33, side: "R" }, { i: 46, side: "L" }, { i: 57, side: "R" }], size: "s" },
+        // ライムの面が枠の大半を占め、擦った跡が残る＝暗い部品の章の中で最も遠くから効く
+        feat: { slug: "scratch-card", at: "L" },
     },
     loading: {
         tone: "dark", kind: "count", align: "left", fs: 150, fsSp: 52, minH: 300, minHSp: 200, after: 72,
         line: "待ち時間を「進んでいる」に変える動き。",
         demo: { slug: "preloader-counter", ja: "プリローダーカウンター", params: "1.8s · expo-out" },
-        grid: { pc: 5, sp: 2, size: "s" },
+        grid: { pc: 3, sp: 2, size: "m" },
+        // 写真のタイルが時間差で点く＝「読み込み」の章で唯一、絵が枠いっぱいに出る
+        feat: { slug: "stagger-grid", at: "full" },
     },
 }
 
-// 列数ごとの格子の分割数（最終行の端数を割り直せるよう、列数の倍数にしておく）。
-// 60分割にすると column-gap が59本入って溢れるので、必要最小の倍数にとどめる
-const BASE: Record<number, number> = { 1: 1, 2: 2, 3: 6, 4: 12, 5: 5 }
 
 const SR: CSSProperties = { position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }
 
@@ -179,6 +195,8 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
     bgRef.current = dark ? ink : paper
 
     const avail = Math.min(w, 1680) - gutter * 2
+    // 章名は欧文なので Geist Mono（2026-10-25 2周目。Noto Sans JP の欧文＝既定書体の顔だった）。
+    // 等幅の送りは 0.6em／字。字間 -0.06em で 0.54em。はみ出さないよう 0.6 で割る
     const per = ch.kind === "press" ? 0.62 + 0.9 / c.label.length : 0.6
     const fs = Math.max(36, Math.round(Math.min(sp ? ch.fsSp : ch.fs, avail / (c.label.length * per))))
     const letters = ch.kind === "magnetic" || ch.kind === "split"
@@ -280,6 +298,11 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
             // magnetic-hover：半径内でカーソルへ (差分×0.35) ずらす。追従 lerp 0.12、戻り 0.12×0.7
             // 半径 140px はボタン基準。章名の1文字は200px級なので、文字の大きさ×0.9 を下限にする
             const radius = Math.max(140, fs * 0.9)
+            // タッチの自動の横切りでは、横の移動を字間（0.06em）の半分未満に抑える。
+            // 抑えないと左右の字がカーソルへ寄り合って重なり「Hbver」と読めるコマが出た（独立レビュー）。縦の浮きで磁力を見せる
+            const maxX = hoverable ? Infinity : fs * 0.02
+            const maxY = hoverable ? Infinity : fs * 0.14
+            const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v))
             const pos = ls.map(() => ({ x: 0, y: 0 }))
             let px = 0, py = 0, has = false, running = false
             const loop = () => {
@@ -290,7 +313,7 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                     const cy = r.top + r.height / 2 - pos[i].y
                     const dx = px - cx, dy = py - cy
                     const inR = has && Math.hypot(dx, dy) < radius
-                    const tx = inR ? dx * 0.35 : 0, ty = inR ? dy * 0.35 : 0
+                    const tx = inR ? clamp(dx * 0.35, maxX) : 0, ty = inR ? clamp(dy * 0.35, maxY) : 0
                     const k = inR ? 0.12 : 0.084
                     pos[i].x += (tx - pos[i].x) * k
                     pos[i].y += (ty - pos[i].y) * k
@@ -319,7 +342,8 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                         const k = Math.min(1, (now - t0) / 1600)
                         const rr = t.getBoundingClientRect()
                         px = rr.left - 40 + (r.width + 80) * k
-                        py = rr.top + rr.height * 0.55
+                        // 字の上端すれすれを通す＝字が順に上へ吸われる（横は字間を割らない量に抑えてある）
+                        py = rr.top + rr.height * 0.02
                         has = k < 1
                         kick()
                         if (k < 1 && inView) requestAnimationFrame(sweep)
@@ -395,11 +419,12 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                 margin: 0,
                 display: "flex",
                 justifyContent: justify,
-                fontFamily: JP,
-                fontWeight: 700,
+                fontFamily: MONO,
+                fontWeight: 500,
                 fontSize: fs,
                 lineHeight: 0.92,
-                letterSpacing: "-0.045em",
+                // 等幅は字の両脇の余白が広く、大きいサイズでは字間が開いて見える＝-0.06em で詰める
+                letterSpacing: "-0.06em",
                 color: fg,
                 scrollMarginTop: sp ? 112 : 72,
                 // split のマスク（章名 Text に descender は無いので余白は取らない＝下に待機中の字の頭が覗かない）
@@ -713,58 +738,65 @@ export default function MotionDictionaryV2(props: Props) {
     })
 
     // 章ごとの並び。chapter を渡さない（検索結果）ときは従来どおり均一の3列／2列
+    // 4列は 1240 未満で3列に落とす（1100〜1240 で4列だと1枚が260pxを割り、録画の中身が読めない）
     const layoutFor = (key?: string) => {
         const g = key ? CHAPTERS[key]?.grid : undefined
         if (!g) return { n: cols, bigs: [] as { i: number; side: "L" | "R" }[], row: false, size: "m" as const, wide: false }
-        const n = sp ? g.sp : w < 900 ? Math.min(g.pc, 2) : w < 1100 ? Math.min(g.pc, 3) : g.pc
+        const n = sp ? g.sp : w < 900 ? Math.min(g.pc, 2) : w < 1240 ? Math.min(g.pc, 3) : g.pc
         return { n, bigs: g.bigs || [], row: g.row === "all" || (g.row === "sp" && n === 1), size: g.size, wide: g.row === "all" }
     }
 
     const Grid = ({ items, chapter }: { items: Entry[]; chapter?: string }) => {
         const L = layoutFor(chapter)
-        const base = BASE[L.n] || L.n
-        const U = base / L.n
-        // 大判：3列以上は2列×2行、2列では全幅1行、1列では無し
+        const n = L.n
+        // 大判：3列以上は2列×2行、2列では全幅1行、1列・横長カードの章では無し
         const bigAt = new Map<number, "L" | "R">()
-        if (L.n >= 2 && !L.row) for (const b of L.bigs) if (b.i < items.length) bigAt.set(b.i, b.side)
-        const extra = L.n >= 3 ? 3 : 1
-        const slots = items.length + bigAt.size * extra
-        // 最終行が1〜2枚だけ残ると右が空いて見えるので、残りの枚数で幅を割り直す（独立レビュー3）
-        const r = slots % L.n
+        if (n >= 2 && !L.row) for (const b of L.bigs) if (b.i < items.length) bigAt.set(b.i, b.side)
+        // 位置は全部こちらで決める（grid の dense 任せだと、大判の右寄せで段の途中に穴が残り、章末の1枚が段に孤立した）
+        const P = pack(items.length, n, bigAt)
         const small = L.size === "s"
+        const colGap = sp ? 12 : small ? 20 : n === 2 ? 40 : 28
+        const rowGap = sp ? (L.row ? 20 : 28) : small ? 32 : n === 2 ? 64 : 44
+        const one = (e: Entry, o: { big?: boolean; row?: boolean; wide?: boolean }) => (
+            <Card e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} big={o.big} row={o.row} wide={o.wide} size={L.size} />
+        )
         return (
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: `repeat(${base}, minmax(0, 1fr))`,
-                    gridAutoFlow: "row dense",
-                    columnGap: sp ? 12 : small ? 20 : L.n === 2 ? 40 : 28,
-                    rowGap: sp ? (L.row ? 20 : 28) : small ? 32 : L.n === 2 ? 64 : 44,
-                    padding: `${sp ? 20 : 40}px ${gutter}px 8px`,
-                    maxWidth: 1680,
-                    margin: "0 auto",
-                    boxSizing: "border-box",
-                    width: "100%",
-                    alignItems: "start",
-                }}
-            >
-                {items.map((e, k) => {
-                    const side = bigAt.get(k)
-                    const big = side !== undefined
-                    const tail = r && !big && k >= items.length - r && base % r === 0 ? r : 0
-                    let span = big ? (L.n >= 3 ? U * 2 : base) : U
-                    if (tail) span = base / tail
-                    const wideRow = (tail === 1 && L.n > 1) || L.row
-                    const start = big && side === "R" && L.n >= 3 ? `${base - U * 2 + 1} / span ${span}` : `span ${span}`
-                    return (
-                        <div key={e.slug} style={{ gridColumn: start, gridRow: big && L.n >= 3 ? "span 2" : undefined, minWidth: 0 }}>
-                            <Card e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} big={big && L.n >= 3} row={wideRow} wide={L.wide && !tail} size={L.size} />
-                        </div>
-                    )
-                })}
+            <div style={{ padding: `${sp ? 20 : 40}px ${gutter}px 8px`, maxWidth: 1680, margin: "0 auto", boxSizing: "border-box", width: "100%" }}>
+                {P.places.length ? (
+                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))`, columnGap: colGap, rowGap, alignItems: "start" }}>
+                        {P.places.map((p) => (
+                            <div key={items[p.k].slug} style={{ gridColumn: `${p.c + 1} / span ${p.w}`, gridRow: `${p.r + 1} / span ${p.h}`, minWidth: 0 }}>
+                                {one(items[p.k], { big: p.big && n >= 3, row: L.row, wide: L.wide })}
+                            </div>
+                        ))}
+                    </div>
+                ) : null}
+                {/* 最後の段に残った分：残りの枚数で幅を割り直す。1枚だけなら横長カード（録画＋説明）で段を埋める */}
+                {P.tail.length ? (
+                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${P.tail.length}, minmax(0, 1fr))`, columnGap: colGap, marginTop: P.places.length ? rowGap : 0, alignItems: "start" }}>
+                        {P.tail.map((k) => (
+                            <div key={items[k].slug} style={{ minWidth: 0 }}>
+                                {one(items[k], { row: P.tail.length === 1 || L.row, wide: L.wide && P.tail.length > 1 })}
+                            </div>
+                        ))}
+                    </div>
+                ) : null}
             </div>
         )
     }
+
+    // 章の強い1枚（扉の直後・全幅に近い大判）。絞り込み（1カテゴリ）でも出す。検索中は出さない
+    const split = (key: string, items: Entry[]) => {
+        const f = CHAPTERS[key]?.feat
+        const feat = (f && items.find((e) => e.slug === f.slug)) || null
+        return { feat, at: f?.at || "full", rest: feat ? items.filter((e) => e !== feat) : items }
+    }
+    // 関数として呼ぶ（要素にすると親の再描画のたびに作り直され、再生中の録画が頭に戻る）
+    const Lead = ({ e, at, n, chapter }: { e: Entry; at: "full" | "L" | "R"; n: number; chapter: string }) => (
+        <div style={{ padding: `${sp ? 24 : 56}px ${gutter}px ${sp ? 4 : 16}px`, maxWidth: 1680, margin: "0 auto", boxSizing: "border-box", width: "100%" }}>
+            <Feature e={e} at={sp ? "full" : at} n={n} chapter={chapter} ink={ink} muted={muted} accent={accent} hoverable={hoverable} isStatic={isStatic} sp={sp} />
+        </div>
+    )
 
     return (
         <div ref={rootRef} style={{ position: "relative", width: "100%", background: paper, color: ink, fontFamily: JP, ...props.style }}>
@@ -796,6 +828,22 @@ export default function MotionDictionaryV2(props: Props) {
 .mdx-card:hover .lf{transform:translateY(-8px)}
 .mdx-card:hover .lf::after,.mdx-card:focus-visible .lf::after{opacity:1}
 .mdx-card:hover .tx{transform:translateY(-4px)}
+}
+.mdx-feat{display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
+.mdx-feat .ph{border-radius:10px}
+.mdx-feat .ph::after{border-radius:10px}
+.mdx-feat .ft{display:flex;flex-direction:column;gap:28px;min-width:0}
+.mdx-feat .fh{display:flex;flex-direction:column;gap:10px;min-width:0}
+.mdx-feat .fb{display:flex;flex-direction:column;gap:18px;max-width:560px}
+@media (min-width: 900px){
+.mdx-feat.L,.mdx-feat.R{grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:48px;align-items:end}
+.mdx-feat.R{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.mdx-feat.R .ft{order:-1}
+.mdx-feat.L .ft,.mdx-feat.R .ft{justify-content:space-between;align-self:stretch;padding:4px 0}
+.mdx-feat.full{gap:32px}
+/* 全幅は 2:1（16:9 のままだと 1440 幅で 765px＝名前と一言が画面の外に落ちる）。録画は中央に寄っているので上下5%ずつの切り落としで済む */
+.mdx-feat.full .ph{aspect-ratio:2/1}
+.mdx-feat.full .ft{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);column-gap:48px;align-items:end}
 }
 .mdx-credit{transition:opacity .2s}
 .mdx-credit:hover{opacity:.72}
@@ -888,7 +936,19 @@ export default function MotionDictionaryV2(props: Props) {
                     </div>
                     {filtered.length ? (
                         // 1カテゴリの絞り込み（検索なし）はその章の並びを使う。検索中は均一の並び
-                        Grid({ items: filtered, chapter: !searching && activeCat !== "all" ? activeCat : undefined })
+                        !searching && activeCat !== "all" ? (
+                            (() => {
+                                const S = split(activeCat, filtered)
+                                return (
+                                    <>
+                                        {S.feat ? Lead({ e: S.feat, at: S.at, n: filtered.length, chapter: activeCat }) : null}
+                                        {Grid({ items: S.rest, chapter: activeCat })}
+                                    </>
+                                )
+                            })()
+                        ) : (
+                            Grid({ items: filtered })
+                        )
                     ) : (
                         <div style={{ padding: `48px ${gutter}px 80px`, display: "flex", flexDirection: "column", gap: 16, alignItems: "flex-start" }}>
                             <p style={{ margin: 0, fontSize: 15, lineHeight: 1.8 }}>
@@ -912,13 +972,240 @@ export default function MotionDictionaryV2(props: Props) {
                                 c={c} n={items.length} idx={i} ink={ink} paper={paper} muted={muted} accent={accent} w={w} sp={sp} gutter={gutter}
                                 reduced={reduced} hoverable={hoverable} isStatic={isStatic}
                             />
-                            {Grid({ items, chapter: c.key })}
+                            {(() => {
+                                const S = split(c.key, items)
+                                return (
+                                    <>
+                                        {S.feat ? Lead({ e: S.feat, at: S.at, n: items.length, chapter: c.key }) : null}
+                                        {Grid({ items: S.rest, chapter: c.key })}
+                                    </>
+                                )
+                            })()}
                         </section>
                     )
                 })
             )}
             <div style={{ height: sp ? 48 : 80 }} />
         </div>
+    )
+}
+
+// ─── 並びの割り付け（2026-10-25 Awwwards 2周目）────────────────────────
+// 全カードの位置をここで決める。grid の dense 任せでは、右寄せの大判が段を飛ばして穴を残し、
+// 章の最後の1枚が段に孤立していた（独立レビュー：炎のゆらめき・グラデーションボーダーの右に大きな穴）。
+// 最後の段が埋まらないときは、その段の分を places から外して tail に回す（呼び出し側で幅を割り直す）。
+// 大判が最後の段にかかって穴が残る場合は、いちばん後ろの大判を普通のカードに戻して組み直す。
+type Place = { k: number; r: number; c: number; w: number; h: number; big: boolean }
+function pack(count: number, n: number, bigs: Map<number, "L" | "R">): { places: Place[]; tail: number[] } {
+    const B = new Map(bigs)
+    for (;;) {
+        const occ: boolean[][] = []
+        const row = (r: number) => (occ[r] ||= new Array(n).fill(false))
+        const fits = (r: number, c: number, w: number, h: number) => {
+            for (let y = r; y < r + h; y++) for (let x = c; x < c + w; x++) if (row(y)[x]) return false
+            return true
+        }
+        const mark = (r: number, c: number, w: number, h: number) => {
+            for (let y = r; y < r + h; y++) for (let x = c; x < c + w; x++) row(y)[x] = true
+        }
+        const places: Place[] = []
+        let first = 0
+        for (let k = 0; k < count; k++) {
+            while (row(first).every(Boolean)) first++
+            const side = B.get(k)
+            if (side !== undefined && n >= 2) {
+                const w = n >= 3 ? 2 : n
+                const h = n >= 3 ? 2 : 1
+                const c = side === "R" ? n - w : 0
+                let r = first
+                while (!fits(r, c, w, h)) r++
+                mark(r, c, w, h)
+                places.push({ k, r, c, w, h, big: true })
+            } else {
+                let r = first
+                let c = row(r).indexOf(false)
+                while (c < 0) c = row(++r).indexOf(false)
+                mark(r, c, 1, 1)
+                places.push({ k, r, c, w: 1, h: 1, big: false })
+            }
+        }
+        if (!places.length || n <= 1) return { places, tail: [] }
+        const R = Math.max(...places.map((p) => p.r + p.h - 1))
+        let holeAbove = false
+        for (let y = 0; y < R; y++) if (row(y).some((x) => !x)) holeAbove = true
+        const last = row(R)
+        if (!holeAbove && last.every(Boolean)) return { places, tail: [] }
+        const bigInLast = places.some((p) => p.big && p.r + p.h - 1 === R && p.r !== R)
+        if (!holeAbove && !bigInLast && !places.some((p) => p.big && p.r === R)) {
+            const tail = places.filter((p) => p.r === R).map((p) => p.k)
+            return { places: places.filter((p) => p.r !== R), tail }
+        }
+        if (!B.size) return { places, tail: [] }
+        B.delete(Math.max(...B.keys()))
+    }
+}
+
+// ─── 自動再生の割り当て（2026-10-25 Awwwards 2周目）────────────────────
+// 旧：ホバーした1本だけが動き、196枚は「黒い箱の中央に小さな白文字」の静止画の壁だった（独立レビュー2人）。
+// 新：画面に入っているカードのうち、画面の中央に近い数枚だけ録画を回す（PC 最大6・SP 最大2）。
+//  ・ホバー／フォーカス中の1本は最優先（上限に含める）。reduced-motion では自動再生しない（ホバーは本人の操作なので回す）
+//  ・判定は スクロールが止まって120ms後＋スクロール中でも600msごと。速く流している間に録画を取りに行かない
+//  ・選ばれたカードにだけ <video>（preload="none"）を載せ、外れたら src を外して要素ごと消す＝帯域とデコードを使わない
+//  ・枠の6割以上が画面に入っているものだけを候補にする（端で切れている枠は回しても見えない）
+//  ・強い1枚は中央からの距離を 1/3 に見る＝画面に入っていればほぼ必ず回る
+interface APSlot { el: HTMLElement; prio: number; set: (on: boolean) => void; on: boolean; seen: boolean }
+const AP: { slots: Map<string, APSlot>; byEl: Map<Element, string>; hover: string; io: IntersectionObserver | null; idle: number; last: number; off: null | (() => void) } = {
+    slots: new Map(),
+    byEl: new Map(),
+    hover: "",
+    io: null,
+    idle: 0,
+    last: 0,
+    off: null,
+}
+function apPick() {
+    if (typeof window === "undefined") return
+    AP.last = performance.now()
+    const vh = window.innerHeight
+    const cap = window.innerWidth < 640 ? 2 : 6
+    const auto = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    const hov = AP.slots.has(AP.hover) ? AP.hover : ""
+    const cand: [number, string][] = []
+    if (auto)
+        AP.slots.forEach((s, k) => {
+            if (k === hov || !s.seen) return
+            const r = s.el.getBoundingClientRect()
+            if (r.height < 1) return
+            const vis = Math.min(r.bottom, vh) - Math.max(r.top, 0)
+            if (vis < Math.min(r.height, vh) * 0.6) return
+            cand.push([Math.abs(r.top + r.height / 2 - vh / 2) / s.prio, k])
+        })
+    cand.sort((a, b) => a[0] - b[0])
+    const keep = new Set(cand.slice(0, cap - (hov ? 1 : 0)).map((x) => x[1]))
+    if (hov) keep.add(hov)
+    AP.slots.forEach((s, k) => {
+        const on = keep.has(k)
+        if (on !== s.on) {
+            s.on = on
+            s.set(on)
+        }
+    })
+}
+function apKick() {
+    if (typeof window === "undefined") return
+    window.clearTimeout(AP.idle)
+    if (performance.now() - AP.last > 600) apPick()
+    AP.idle = window.setTimeout(apPick, 120)
+}
+function apRegister(key: string, el: HTMLElement, prio: number, set: (on: boolean) => void): () => void {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) return () => {}
+    if (!AP.io) {
+        AP.io = new IntersectionObserver(
+            (es) => {
+                for (const en of es) {
+                    const k = AP.byEl.get(en.target)
+                    const s = k ? AP.slots.get(k) : undefined
+                    if (s && s.el === en.target) s.seen = en.isIntersecting
+                }
+                apKick()
+            },
+            { threshold: [0, 0.6] }
+        )
+        const on = () => apKick()
+        window.addEventListener("scroll", on, { passive: true })
+        window.addEventListener("resize", on)
+        AP.off = () => {
+            window.removeEventListener("scroll", on)
+            window.removeEventListener("resize", on)
+            window.clearTimeout(AP.idle)
+            AP.io?.disconnect()
+            AP.io = null
+            AP.off = null
+        }
+    }
+    const s: APSlot = { el, prio, set, on: false, seen: false }
+    AP.slots.set(key, s)
+    AP.byEl.set(el, key)
+    AP.io.observe(el)
+    apKick()
+    return () => {
+        AP.io?.unobserve(el)
+        AP.byEl.delete(el)
+        if (AP.slots.get(key) === s) AP.slots.delete(key)
+        if (AP.hover === key) AP.hover = ""
+        if (!AP.slots.size) AP.off?.()
+        else apKick()
+    }
+}
+function apHover(key: string, on: boolean) {
+    if (on) AP.hover = key
+    else if (AP.hover === key) AP.hover = ""
+    apPick()
+}
+
+/** カード1枚の録画の出し入れ（一覧のカード・強い1枚で共通） */
+function usePlay(slug: string, prio: number, hoverable: boolean, isStatic: boolean) {
+    const [active, setActive] = useState(false)
+    const [ready, setReady] = useState(false)
+    const vRef = useRef<HTMLVideoElement>(null)
+    const phRef = useRef<HTMLSpanElement>(null)
+
+    useEffect(() => {
+        if (isStatic || typeof window === "undefined") return
+        const el = phRef.current
+        if (!el) return
+        const off = apRegister(slug, el, prio, (on) => setActive(on))
+        return () => {
+            off()
+            setActive(false)
+        }
+    }, [slug, prio, isStatic])
+
+    useEffect(() => {
+        const v = vRef.current
+        if (!active || !v) {
+            setReady(false)
+            return
+        }
+        const p = v.play()
+        if (p && p.catch) p.catch(() => {})
+        // 外れたら取得も止める（要素を消すだけでは読み込みが続くことがある）
+        return () => {
+            try {
+                v.pause()
+                v.removeAttribute("src")
+                v.load()
+            } catch {}
+        }
+    }, [active])
+
+    const hov = !isStatic && hoverable
+        ? { onMouseEnter: () => apHover(slug, true), onMouseLeave: () => apHover(slug, false), onFocus: () => apHover(slug, true), onBlur: () => apHover(slug, false) }
+        : {}
+    return { active, ready, setReady, vRef, phRef, hov }
+}
+
+function Media({ e, isStatic, P }: { e: Entry; isStatic: boolean; P: ReturnType<typeof usePlay> }) {
+    return (
+        <span className="ph" ref={P.phRef}>
+            <img src={e.poster} alt="" loading="lazy" decoding="async" />
+            {!isStatic && P.active ? (
+                <video
+                    ref={P.vRef}
+                    className={P.ready ? "on" : ""}
+                    src={e.video}
+                    muted
+                    loop
+                    playsInline
+                    autoPlay
+                    preload="none"
+                    // 再生は動きの頭から（ポスター＝見せ場の時刻から始めると途中から見せることになる）。
+                    // ポスターからの切り替えは 0.18s のフェードで繋ぐ
+                    onPlaying={() => P.setReady(true)}
+                    aria-hidden
+                />
+            ) : null}
+        </span>
     )
 }
 
@@ -937,73 +1224,13 @@ interface CardProps {
     size?: "s" | "m" | "l"
 }
 
-function Card({ e, ink, muted, hoverable, reduced, isStatic, sp, big, row, wide, size = "m" }: CardProps) {
-    const [active, setActive] = useState(false)
-    const [ready, setReady] = useState(false)
-    const vRef = useRef<HTMLVideoElement>(null)
-    const boxRef = useRef<HTMLAnchorElement>(null)
-
-    useEffect(() => {
-        const v = vRef.current
-        if (!v) return
-        if (active) {
-            const p = v.play()
-            if (p && p.catch) p.catch(() => {})
-        } else {
-            v.pause()
-            setReady(false)
-        }
-    }, [active])
-
-    // 同時に再生するのは1枚だけ（タッチで2列が同時に帯に入ると2〜5本が回っていた）
-    useEffect(() => {
-        if (!active || typeof window === "undefined") return
-        window.dispatchEvent(new CustomEvent("mdx-play", { detail: e.slug }))
-        const off = (ev: Event) => { if ((ev as CustomEvent).detail !== e.slug) setActive(false) }
-        window.addEventListener("mdx-play", off)
-        return () => window.removeEventListener("mdx-play", off)
-    }, [active, e.slug])
-
-    // タッチ端末：画面中央の帯に入った1枚だけ再生（reduced-motion 時は再生しない）
-    useEffect(() => {
-        if (isStatic || hoverable || reduced) return
-        if (typeof window === "undefined" || !("IntersectionObserver" in window)) return
-        const el = boxRef.current
-        if (!el) return
-        const io = new IntersectionObserver(
-            (es) => {
-                for (const en of es) setActive(en.isIntersecting)
-            },
-            { rootMargin: "-42% 0px -42% 0px", threshold: 0 }
-        )
-        io.observe(el)
-        return () => io.disconnect()
-    }, [isStatic, hoverable, reduced])
-
-    const hov = !isStatic && hoverable ? { onMouseEnter: () => setActive(true), onMouseLeave: () => setActive(false), onFocus: () => setActive(true), onBlur: () => setActive(false) } : {}
+function Card({ e, ink, muted, hoverable, isStatic, sp, big, row, wide, size = "m" }: CardProps) {
+    const P = usePlay(e.slug, big ? 1.5 : 1, hoverable, isStatic)
 
     return (
-        <a ref={boxRef} className={"mdx-card" + (row ? " row" : "") + (wide ? " wide" : "")} data-slug={e.slug} href={"/entries/" + e.slug} title={`${e.nameJa} — ${sentence(e.nameEn)}`} {...hov}>
+        <a className={"mdx-card" + (row ? " row" : "") + (wide ? " wide" : "")} data-slug={e.slug} href={"/entries/" + e.slug} title={`${e.nameJa} — ${sentence(e.nameEn)}`} {...P.hov}>
             <span className="lf">
-            <span className="ph">
-                <img src={e.poster} alt="" loading="lazy" decoding="async" />
-                {!isStatic && active ? (
-                    <video
-                        ref={vRef}
-                        className={ready ? "on" : ""}
-                        src={e.video}
-                        muted
-                        loop
-                        playsInline
-                        autoPlay
-                        preload="auto"
-                        // 再生は動きの頭から（ポスター＝見せ場の時刻から始めると途中から見せることになる）。
-                        // ポスターからの切り替えは 0.18s のフェードで繋ぐ
-                        onPlaying={() => setReady(true)}
-                        aria-hidden
-                    />
-                ) : null}
-            </span>
+                <Media e={e} isStatic={isStatic} P={P} />
             </span>
             <span className="tx" style={{ display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
                 <span
@@ -1032,6 +1259,78 @@ function Card({ e, ink, muted, hoverable, reduced, isStatic, sp, big, row, wide,
                         {e.lede}
                     </span>
                 ) : null}
+            </span>
+        </a>
+    )
+}
+
+// ─── 章の強い1枚（2026-10-25 Awwwards 2周目）─────────────────────────
+// 196枚が同じ大きさ・同じ顔で並び、ホームが「灰色の地に黒タイルの壁」に見えた（独立レビュー2人）。
+// 各章の頭に1枚だけ、録画を版面いっぱい（full）か2/3（L/R）で置き、名前と要の一言を大きく組む＝OFFF型の大小差。
+// 構造は一覧のカードと同じ（a.mdx-card > .lf > .ph > img/video）＝カード→詳細の遷移と戻りの位置復元がそのまま効く
+interface FeatureProps {
+    e: Entry
+    at: "full" | "L" | "R"
+    n: number
+    chapter: string
+    ink: string
+    muted: string
+    accent: string
+    hoverable: boolean
+    isStatic: boolean
+    sp: boolean
+}
+
+function Feature({ e, at, n, chapter, ink, muted, hoverable, isStatic, sp }: FeatureProps) {
+    const P = usePlay(e.slug, 3, hoverable, isStatic)
+    // 見出しの言い換え（括弧）は小さく分ける：「ディザディゾルブ（1bitの粒で溶ける）」
+    const m = e.nameJa.match(/^(.+?)[（(](.+)[）)]$/)
+    const main = m ? m[1] : e.nameJa
+    const alt = m ? m[2] : ""
+    // 要の一言＝lede の最初の文
+    const head = (e.lede.split("。")[0] || e.lede).trim() + "。"
+    const full = at === "full"
+    const cat = CATS.find((c) => c.key === chapter)
+    return (
+        <a
+            className={"mdx-card mdx-feat " + at}
+            data-slug={e.slug}
+            href={"/entries/" + e.slug}
+            title={`${e.nameJa} — ${sentence(e.nameEn)}`}
+            {...P.hov}
+        >
+            <span className="lf">
+                <Media e={e} isStatic={isStatic} P={P} />
+            </span>
+            <span className="ft">
+                <span className="fh">
+                    <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.04em", color: muted, fontVariantNumeric: "tabular-nums" }}>
+                        {cat ? cat.label : ""} · 01 / {String(n).padStart(2, "0")} · この章の1本
+                    </span>
+                    <span
+                        className="nm"
+                        style={{
+                            alignSelf: "flex-start",
+                            fontFamily: JP,
+                            fontWeight: 700,
+                            fontSize: sp ? 30 : full ? 72 : 52,
+                            lineHeight: 1.12,
+                            // 大きい和文は詰める（-5〜-8%）
+                            letterSpacing: "-0.05em",
+                            color: ink,
+                        }}
+                    >
+                        {main}
+                    </span>
+                    {alt ? <span style={{ fontFamily: JP, fontSize: sp ? 13 : 15, lineHeight: 1.6, letterSpacing: "0.03em", color: muted }}>{alt}</span> : null}
+                    <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 13, letterSpacing: "0.01em", color: muted }}>{sentence(e.nameEn)}</span>
+                </span>
+                <span className="fb">
+                    <span style={{ fontFamily: JP, fontWeight: 400, fontSize: sp ? 15 : full ? 22 : 20, lineHeight: 1.7, letterSpacing: "0.02em", color: ink }}>{head}</span>
+                    <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.04em", color: ink }}>
+                        Open {e.slug} <span aria-hidden>→</span>
+                    </span>
+                </span>
             </span>
         </a>
     )
