@@ -422,6 +422,7 @@ function initValues() {
     WORDS.forEach((w) => (o[w.slug] = defaults(w)))
     return o
 }
+// 8周目（演技全般）：ループ・常時の演技は止める → 読み込み時に1回だけ演じ、巡回（Auto）は押したときだけ。SSR とクライアント初回で同じ値
 const INIT: HS = { words: WORDS, idx: 0, values: initValues(), auto: true, tick: 0, playAt: 0, flash: "", playing: false, interval: 4600 }
 let S: HS = INIT
 const SUBS = new Set<() => void>()
@@ -969,7 +970,7 @@ export function HeroConsole(props: ConsoleProps) {
                     <button className="mdh-auto" aria-pressed={st.auto} onClick={(e) => { e.stopPropagation(); if (st.auto) stopAuto(); else startAuto() }}
                         onPointerDown={(e) => e.stopPropagation()}>
                         <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 6, background: st.auto ? accent : muted }} />
-                        {st.auto ? "Auto" : "Paused"}
+                        {st.auto ? "Auto" : "Auto off"}
                     </button>
                 ) : null}
                 </span>

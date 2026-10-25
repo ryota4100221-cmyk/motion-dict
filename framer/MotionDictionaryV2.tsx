@@ -212,6 +212,28 @@ interface DoorProps {
     isStatic: boolean
 }
 
+// ─── スクロールの速さ（8周目・指摘9）──────────────────────────────────
+// 速く流している間は、章の題・索引・格子を「出る前」に戻さない（戻すと、出る途中の空の画面や薄い索引が写った）。
+// 速さは直近のスクロールイベント間の px/秒 を 0.5 で均したもの。止まって 140ms たてば 0
+const SV = { y: 0, t: 0, v: 0, on: false }
+function scrollFast(): boolean {
+    if (typeof window === "undefined") return false
+    if (!SV.on) {
+        SV.on = true
+        SV.y = window.scrollY
+        SV.t = performance.now()
+        window.addEventListener("scroll", () => {
+            const now = performance.now(), y = window.scrollY
+            const dt = Math.max(8, now - SV.t)
+            SV.v = SV.v * 0.5 + (Math.abs(y - SV.y) / dt) * 1000 * 0.5
+            SV.y = y
+            SV.t = now
+        }, { passive: true })
+    }
+    if (performance.now() - SV.t > 140) SV.v = 0
+    return SV.v > 2400
+}
+
 /** 演技が走った瞬間の合図：下線が左から走って消える（0.9s）。連打で途切れないよう、走っている間は撃ち直さない */
 function fireSig(el: HTMLElement | null) {
     if (!el || typeof window === "undefined") return
@@ -282,24 +304,27 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
             sig()
             if (ch.kind === "split") {
                 // split-text-reveal の既定値：stagger 30ms・0.6s・cubic-bezier(0.22,1,0.36,1)。移動量 30px は本文サイズの値なので、章名では 115%（マスクの外から）に読み替え
+                // 8周目：着地を 0.6 秒以内に（0.4s ＋ 字ごと 25ms。章名は最長 10 字＝0.625s → 字数で詰める）
+                const st = Math.min(25, Math.floor(200 / Math.max(1, ls.length)))
                 ls.forEach((l, i) => {
-                    l.style.transition = `transform .6s cubic-bezier(.22,1,.36,1) ${i * 30}ms, opacity .6s ease ${i * 30}ms`
+                    l.style.transition = `transform .4s cubic-bezier(.22,1,.36,1) ${i * st}ms, opacity .4s ease ${i * st}ms`
                     l.style.transform = "none"; l.style.opacity = "1"
                 })
             } else if (ch.kind === "wipe") {
-                // curtain-wipe：覆う0.8s → 覆いきった60ms後に中身を差し替え → 反対の辺へ0.8sで引く
+                // curtain-wipe：覆う → 覆いきった直後に中身を差し替え → 反対の辺へ引く。
+                // 8周目：辞典の値（0.8s × 2）は扉では 0.26s × 2 に縮める＝0.6 秒以内に章名が着地する（ライムの面で覆われたコマが写っていた）
                 const p = fxRef.current!
                 requestAnimationFrame(() => {
-                    p.style.transition = "transform .8s cubic-bezier(.76,0,.24,1)"; p.style.transform = "scaleX(1)"
+                    p.style.transition = "transform .26s cubic-bezier(.76,0,.24,1)"; p.style.transform = "scaleX(1)"
                 })
                 later(() => {
                     t.style.opacity = "1"
                     p.style.transformOrigin = "right center"; p.style.transform = "scaleX(0)"
-                }, 860)
+                }, 300)
             } else if (ch.kind === "clip") {
                 // clip-reveal：inset で左から開く 0.9s・easeOutExpo
                 requestAnimationFrame(() => {
-                    t.style.transition = "clip-path .9s cubic-bezier(.16,1,.3,1)"; t.style.clipPath = "inset(0 0% 0 0)"
+                    t.style.transition = "clip-path .5s cubic-bezier(.16,1,.3,1)"; t.style.clipPath = "inset(0 0% 0 0)"
                 })
             } else if (ch.kind === "press") {
                 // press-feedback：入り0.05s で沈む → 戻り0.2s ease-out（非対称）。沈み 2px は16pxのボタン基準なので 0.125em に読み替え
@@ -307,15 +332,15 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                 // 形（沈み）だけを補間し、色は押している間だけライムに即座に切り替える
                 later(() => {
                     t.style.transition = "transform .05s ease-out"; t.style.transform = "translateY(.125em) scale(.97)"; t.style.background = accentRef.current; t.style.color = inkRef.current
-                    later(() => { t.style.transition = "transform .2s ease-out"; t.style.transform = "none"; t.style.background = ""; t.style.color = "" }, 220)
-                }, 380)
+                    later(() => { t.style.transition = "transform .2s ease-out"; t.style.transform = "none"; t.style.background = ""; t.style.color = "" }, 160)
+                }, 120)
             } else if (ch.kind === "count") {
                 // preloader-counter：1.8s・表示値 = round(N × (1 − 2^(−10t)))
                 const num = fxRef.current!
                 const bar = barRef.current!
                 const t0 = performance.now()
                 const step = (now: number) => {
-                    const k = Math.min(1, (now - t0) / 1800)
+                    const k = Math.min(1, (now - t0) / 600)
                     const e = k === 1 ? 1 : 1 - Math.pow(2, -10 * k)
                     num.textContent = String(Math.round(n * e)).padStart(2, "0")
                     bar.style.transform = `scaleX(${e})`
@@ -392,7 +417,7 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                     const r = t.getBoundingClientRect()
                     const t0 = performance.now()
                     const sweep = (now: number) => {
-                        const k = Math.min(1, (now - t0) / 1600)
+                        const k = Math.min(1, (now - t0) / 600)
                         const rr = t.getBoundingClientRect()
                         px = rr.left - 40 + (r.width + 80) * k
                         // 字の上端すれすれを通す＝字が順に上へ吸われる（横は字間を割らない量に抑えてある）
@@ -410,12 +435,22 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
         const replay = ch.kind === "split" || ch.kind === "wipe" || ch.kind === "clip" || ch.kind === "press" || ch.kind === "count"
         // 初期表示は「完成形」（SSR・JSなしでも空にならない）。画面外にある間にだけ「出る前」の状態へ戻す
         // 見えているか（ループの開始停止・「出る前」へ戻すのは完全に画面外のときだけ）
+        // 8周目（指摘9）：速く流して入ってきたときは演じずに完成形へ戻す（章の題を先に確定）
+        const settle = () => {
+            if (!armed) return
+            armed = false
+            t.style.transition = "none"; t.style.opacity = ""; t.style.clipPath = ""; t.style.transform = ""
+            ls.forEach((l) => { l.style.transition = "none"; l.style.transform = ""; l.style.opacity = "" })
+            if (fxRef.current && ch.kind === "wipe") { fxRef.current.style.transition = "none"; fxRef.current.style.transform = "scaleX(0)" }
+            if (ch.kind === "count") { fxRef.current!.textContent = String(n).padStart(2, "0"); barRef.current!.style.transform = "scaleX(1)" }
+        }
         const vis = new IntersectionObserver(
             (es) => {
                 for (const en of es) {
                     inView = en.isIntersecting
                     if (inView) {
                         if (ch.kind === "skew") (root as any)._start?.()
+                        if (replay && armed && scrollFast()) settle()
                     } else {
                         cancelAnimationFrame(raf)
                         if (replay) arm()
@@ -424,23 +459,36 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
             },
             { threshold: 0 }
         )
+        // 止まったとき、章名が画面に入っているのに出る前のまま（下の 10% にいる等）なら、その場で演じる
+        let idle = 0
+        const onScroll = () => {
+            window.clearTimeout(idle)
+            idle = window.setTimeout(() => {
+                if (!armed || !inView) return
+                const r = t.getBoundingClientRect()
+                if (r.bottom > 0 && r.top < window.innerHeight) play()
+            }, 160)
+        }
+        if (replay) window.addEventListener("scroll", onScroll, { passive: true })
         // 再生の合図（画面の下18%を除いた帯に入ったら＝ちゃんと目に入る位置で再生する）
         const go = new IntersectionObserver(
             (es) => {
                 for (const en of es) {
                     if (!en.isIntersecting) continue
                     inView = true
-                    if (replay && armed) play()
+                    if (replay && armed) { if (scrollFast()) settle(); else play() }
                     if (ch.kind === "magnetic") (root as any)._start?.()
                 }
             },
-            { threshold: 0, rootMargin: "0px 0px -18% 0px" }
+            { threshold: 0, rootMargin: "0px 0px -10% 0px" }
         )
         vis.observe(root)
-        go.observe(root)
+        go.observe(t)
         return () => {
             vis.disconnect()
             go.disconnect()
+            window.removeEventListener("scroll", onScroll)
+            window.clearTimeout(idle)
             cancelAnimationFrame(raf)
             timers.forEach((x) => clearTimeout(x))
             cleanup()
@@ -786,11 +834,12 @@ export default function MotionDictionaryV2(props: Props) {
     }
     const pick = (k: string) => {
         setActiveCat(k)
-        // 絞り込んだら一覧の頭へ（バーの位置まで）
+        // 絞り込んだら一覧の頭へ（バーが画面の上端に来る位置まで）。
+        // 8周目（指摘10）：FV（バーより上）で押しても、旧版は下へは送らなかった＝押しても画面の中で何も変わらなかった。上からでも下からでも送る
         const bar = barRef.current
         if (bar && typeof window !== "undefined") {
             const top = bar.getBoundingClientRect().top + window.scrollY - stickyTop
-            if (window.scrollY > top) window.scrollTo({ top, behavior: reduced ? "auto" : "smooth" })
+            if (Math.abs(window.scrollY - top) > 2) window.scrollTo({ top, behavior: reduced ? "auto" : "smooth" })
         }
     }
 
@@ -1005,27 +1054,26 @@ export default function MotionDictionaryV2(props: Props) {
 .st-R.sp .sn,.st-R.sp .sb,.st-R.sp .sm{align-self:flex-end;text-align:right}
 .st-C.sp .sn,.st-C.sp .sb,.st-C.sp .sm{align-self:center;text-align:center}
 @media (prefers-reduced-motion: reduce){.mdx-card:hover .nm{box-shadow:inset 0 -0.42em 0 ${accent}}}
-/* フッター（SiteFooterCTA）の「monaka design. / X」が右下の Made in Framer バッジ（約150×40・右下12px）に切られていた。
-   バッジ分の余白を右と下に取る（ホームにだけ効く。詳細ページは SiteFooterCTA 側で直す） */
+/* フッター（SiteFooterCTA）の「monaka design. / X」は Made in Framer バッジ（約150×40・右下12px）の上に逃がす＝下にだけ余白。
+   8周目（指摘8）：右の 184px の余白で右端が 1255 に止まり版面の右端 1400 に揃っていなかった → 右の余白は取らない */
 .mdf-base{padding-bottom:72px!important}
-@media (min-width: 810px){.mdf-base{padding-right:184px!important}}
 /* 一覧の振る舞い（GridFx）。transform / opacity / clip-path だけ */
 .mdx-gi{position:relative}
 .gx-split .mdx-gi.gx-sa,.gx-split .mdx-gi.gx-sg{clip-path:inset(-24px -24px 0 -24px)}
-.gx-split .mdx-gi.gx-sa>*{transform:translateY(100%);opacity:0}
-.gx-split .mdx-gi.gx-sg>*{transition:transform .6s cubic-bezier(.22,1,.36,1) var(--gd,0ms),opacity .6s ease var(--gd,0ms)}
+.gx-split .mdx-gi.gx-sa>*{transform:translateY(100%)}
+.gx-split .mdx-gi.gx-sg>*{transition:transform var(--gt,.4s) cubic-bezier(.22,1,.36,1) var(--gd,0ms),opacity var(--gt,.4s) ease var(--gd,0ms)}
 .gx-clip .mdx-gi .ph>img,.gx-clip .mdx-gi .ph>video{clip-path:inset(0 0 0 0)}
 .gx-clip .mdx-gi.gx-ca .ph>img,.gx-clip .mdx-gi.gx-ca .ph>video{clip-path:inset(0 100% 0 0)}
-.gx-clip .mdx-gi.gx-cg .ph>img,.gx-clip .mdx-gi.gx-cg .ph>video{transition:clip-path .9s cubic-bezier(.16,1,.3,1) var(--gd,0ms)}
-.gx-wipe .mdx-gi .lf::before{content:"";position:absolute;inset:0;z-index:3;background:${ink};border-radius:8px;transform:scaleX(0);transform-origin:left center;pointer-events:none}
-.gx-wipe .mdx-gi.gx-cw .lf::before{animation:gx-cw 1.66s var(--gd,0ms) both}
+.gx-clip .mdx-gi.gx-cg .ph>img,.gx-clip .mdx-gi.gx-cg .ph>video{transition:clip-path var(--gt,.5s) cubic-bezier(.16,1,.3,1) var(--gd,0ms)}
+.gx-wipe .mdx-gi .lf::before{content:"";position:absolute;inset:0;z-index:3;background:${paper};border-radius:8px;transform:scaleX(0);transform-origin:left center;pointer-events:none}
+.gx-wipe .mdx-gi.gx-cw .lf::before{animation:gx-cw var(--gt,.56s) var(--gd,0ms) both}
 @keyframes gx-cw{0%{transform:scaleX(0);transform-origin:left center;animation-timing-function:cubic-bezier(.76,0,.24,1)}48.2%{transform:scaleX(1);transform-origin:left center}51.8%{transform:scaleX(1);transform-origin:right center;animation-timing-function:cubic-bezier(.76,0,.24,1)}100%{transform:scaleX(0);transform-origin:right center}}
 .gx-press .mdx-gi{transition:transform .2s ease-out}
-.gx-press .mdx-gi.gx-pd{transform:translateY(6px) scale(.94);transition:transform .05s ease-out}
-.gx-press .mdx-gi.gx-pw{animation:gx-pw .51s var(--gd,0ms) both}
-@keyframes gx-pw{0%{transform:none;animation-timing-function:ease-out}9.8%{transform:translateY(6px) scale(.94)}60.8%{transform:translateY(6px) scale(.94);animation-timing-function:ease-out}100%{transform:none}}
-/* 暗い章（6周目）：幕は近黒の地では見えないので生成り（ライムで面を塗ると「印だけ」の約束を破る） */
-.gx-wipe.dk .mdx-gi .lf::before{background:${paper}}
+.gx-press .mdx-gi.gx-pd{transform:translateY(6px) scale(var(--gs,.94));transition:transform .05s ease-out}
+.gx-press .mdx-gi.gx-pw{animation:gx-pw .42s var(--gd,0ms) both}
+@keyframes gx-pw{0%{transform:none;animation-timing-function:ease-out}12%{transform:translateY(6px) scale(var(--gs,.94))}52%{transform:translateY(6px) scale(var(--gs,.94));animation-timing-function:ease-out}100%{transform:none}}
+/* 8周目（指摘3）：幕は地と同じ色（暗い章は近黒・明るい章は生成り）。旧：暗い章で生成りの幕が途中で止まり「空の生成りの箱」に写った */
+.gx-wipe.dk .mdx-gi .lf::before{background:${ink}}
 /* 演技が走った合図（扉と一覧の帯の項目名の下線） */
 .mdx-sig{position:absolute;left:0;right:0;bottom:-5px;height:2px;transform:scaleX(0);transform-origin:left center;pointer-events:none;opacity:0}
 .mdx-sig.on{animation:mdx-sig .9s cubic-bezier(.22,1,.36,1) both}
@@ -1046,6 +1094,21 @@ export default function MotionDictionaryV2(props: Props) {
 .mdx-card.mdx-ix:hover .tx{transform:translateX(6px)}
 }
 @media (max-width: 639px){.mdx-card.mdx-ix{column-gap:14px;padding:12px 0}}
+/* 索引の行のホバー（8周目 A2）：見出しが下端を軸に大きくなり、デモの絵が行の右から上へ立ち上がる。どちらも重ねる層＝行の高さは変えない */
+.mdx-card.mdx-ix{position:relative}
+.mdx-ix.on{z-index:3}
+/* 横は列の幅で切る（clip-path は見た目だけで、はみ出した分が横スクロールを生む＝overflow-x:clip も併せる） */
+.mdx-card .tx{overflow-x:clip}
+.mdx-ix .tx{clip-path:inset(-30px 0 -6px -6px)}
+.mdx-ix .nm{transform-origin:0 100%;transition:transform .32s cubic-bezier(.22,1,.36,1)}
+.mdx-ix.on .nm{transform:scale(var(--nz,1.45))}
+.mdx-ix .pv{position:absolute;right:40px;bottom:calc(100% - 1px);width:min(500px,48%);aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#121211;pointer-events:none;clip-path:inset(100% 0 0 0 round 6px);transform:translateY(18px);transition:clip-path .36s cubic-bezier(.22,1,.36,1),transform .36s cubic-bezier(.22,1,.36,1)}
+.mdx-ix.on .pv{clip-path:inset(0 0 0 0 round 6px);transform:none}
+.mdx-ix .pv img,.mdx-ix .pv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.mdx-ix .pv::after{content:"";position:absolute;inset:0;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(10,10,10,.22);pointer-events:none}
+.mdx-ixl.dk .mdx-ix .pv::after{box-shadow:inset 0 0 0 1px rgba(244,244,241,.24)}
+@media (max-width: 639px){.mdx-ix .pv{right:30px;width:58%}}
+@media (prefers-reduced-motion: reduce){.mdx-ix .nm,.mdx-ix .pv{transition:none}}
 .gx-count .mdx-gi{transition:opacity .18s ease-out}
 .gx-count .mdx-gi.gx-dim{opacity:.28}
 @media (prefers-reduced-motion: reduce){.gx-wipe .mdx-gi .lf::before{display:none}.mdx-gi{transition:none!important;animation:none!important;opacity:1!important;transform:none!important}}
@@ -1207,7 +1270,7 @@ export default function MotionDictionaryV2(props: Props) {
                     )
                 })
             )}
-            <div style={{ height: sp ? 48 : 80 }} />
+            {/* 8周目（指摘7）：最後の章（暗い）とフッター（暗い）の間に生成りの帯 80px が残っていた＝意味のない帯。置かない */}
         </div>
     )
 }
@@ -1224,14 +1287,54 @@ export default function MotionDictionaryV2(props: Props) {
 // 6周目（指摘2）：pull 0.06・最大12px、skew 最大2.5° では撮影で一度も見えなかった（独立レビュー B）。
 // 体感できる大きさへ引き上げ、章の一覧の頭に貼り付く帯に「いまの一覧の動き＝◯◯ 値」をライブで出す（値が動くと数字も動く）。
 // 読みやすさの線：skew は止まれば 0°（読むのは止まってから）、磁石は最大 28px（カードの余白 28〜40px を越えない）。
-const GRID_FX: Record<Kind, { params: string; idle: string }> = {
-    magnetic: { params: "pull 0.18 · max 28px · lerp 0.12", idle: "offset 0.0px" },
-    skew: { params: "factor 0.35 · max 7°", idle: "skewY +0.0°" },
-    split: { params: "stagger 80ms · 0.6s · rise 100%", idle: "translateY 0%" },
-    wipe: { params: "0.8s × 2 · in-out", idle: "scaleX 0.00" },
-    clip: { params: "0.9s · expo-out", idle: "inset(0 0% 0 0)" },
-    press: { params: "scale 0.94 · 6px · 0.05s / 0.2s", idle: "scale 1.000" },
-    count: { params: "1.8s · expo-out", idle: "" },
+// 8周目（指摘 B1）：帯は「実況が小声」だった → 実況の数値を大きく、その章の代表パラメータのスライダーを1本置く。
+// 動かすと、画面に見えている章の一覧全体が新しい値で1回演じ直す。値は辞典の項目そのもののキー（strength / maxSkew …）で持ち、
+// 帯のリンクは ?キー=値 付き（詳細ページ EntryLab が URL の値を読む＝その値の入ったプロンプトが出る）。
+// 一覧で使う値は、辞典の値から一覧の大きさに読み替える（gxv）。既定値は 7周目までの一覧の値と同じになるように比を取った。
+// 8周目（演技全般）：入る型は 0.6 秒以内に着地。速く流している間は「出る前」へ戻さない（指摘9）。タッチの磁石はスクロールで常に動いていた→止めた
+const GRID_FX: Record<Kind, { idle: string }> = {
+    magnetic: { idle: "offset 0.0px" },
+    skew: { idle: "skewY +0.0°" },
+    split: { idle: "translateY 0%" },
+    wipe: { idle: "scaleX 0.00" },
+    clip: { idle: "inset(0 0% 0 0)" },
+    press: { idle: "scale 1.000" },
+    count: { idle: "" },
+}
+interface GxParam { key: string; min: number; max: number; step: number; def: number; unit: string; dp: number }
+const GX_PARAM: Record<Kind, GxParam> = {
+    magnetic: { key: "strength", min: 0.05, max: 1, step: 0.05, def: 0.35, unit: "", dp: 2 },
+    skew: { key: "maxSkew", min: 2, max: 20, step: 1, def: 8, unit: "°", dp: 0 },
+    split: { key: "stagger", min: 10, max: 120, step: 5, def: 30, unit: "ms", dp: 0 },
+    wipe: { key: "duration", min: 0.3, max: 1.5, step: 0.05, def: 0.8, unit: "s", dp: 2 },
+    clip: { key: "duration", min: 0.3, max: 2, step: 0.05, def: 0.9, unit: "s", dp: 2 },
+    press: { key: "scale", min: 0.9, max: 1, step: 0.01, def: 0.97, unit: "", dp: 2 },
+    count: { key: "duration", min: 0.5, max: 4, step: 0.1, def: 1.8, unit: "s", dp: 1 },
+}
+/** 辞典の値 → 一覧での値（既定値で 7周目までの一覧と同じ、かつ入る型は 0.6 秒以内） */
+function gxv(kind: Kind, v: number) {
+    return {
+        // magnetic：0.35 → pull 0.18・最大 28px（実際に寄る量は段・列の間の半分で止める＝下の loop）
+        pull: v * 0.5, max: Math.round(Math.min(32, v * 80)),
+        skew: (v * 7) / 8, // skew：8° → 7°
+        col: v * 2, // split：列ごとの遅れ 30 → 60ms（1枚 0.36s）
+        wipe: v * 700, // wipe：片道 0.8s → 往復 0.56s
+        clip: v * 555, // clip：0.9s → 0.5s
+        scale: 1 - (1 - v) * 2, // press：0.97 → 0.94
+        count: (v * 1000) / 3, // count：1.8s → 0.6s
+    }
+}
+function gxLabel(kind: Kind, v: number): string {
+    const g = gxv(kind, v)
+    switch (kind) {
+        case "magnetic": return `pull ${g.pull.toFixed(2)} · max ${g.max}px`
+        case "skew": return `factor 0.35 · max ${g.skew.toFixed(1)}°`
+        case "split": return `stagger ${Math.round(g.col)}ms · 0.36s · rise 100%`
+        case "wipe": return `${(g.wipe / 1000).toFixed(2)}s · in-out`
+        case "clip": return `${(g.clip / 1000).toFixed(2)}s · expo-out`
+        case "press": return `scale ${g.scale.toFixed(2)} · 6px · 0.05s / 0.2s`
+        case "count": return `${(g.count / 1000).toFixed(2)}s · expo-out`
+    }
 }
 
 interface GridFxProps {
@@ -1259,13 +1362,21 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
     const cntRef = useRef<HTMLSpanElement>(null)
     const readRef = useRef<HTMLSpanElement>(null) // いまの値（ライブ）
     const sigRef = useRef<HTMLSpanElement>(null) // 演技が走った合図
+    const PRM = GX_PARAM[kind]
+    const [val, setVal] = useState(PRM.def)
+    const valRef = useRef(val)
+    valRef.current = val
+    const replayRef = useRef<(() => void) | null>(null)
+    const rpT = useRef(0)
 
     useEffect(() => {
         if (isStatic || reduced || typeof window === "undefined" || !("IntersectionObserver" in window)) return
         const root = rootRef.current
         const wrap = wrapRef.current
         if (!root || !wrap) return
+        const G = () => gxv(kind, valRef.current)
         const cells = () => Array.from(wrap.querySelectorAll<HTMLElement>(".mdx-gi"))
+        const inScreen = () => cells().filter((el) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight })
         const col = (el: HTMLElement) => parseInt(el.dataset.c || "0", 10) || 0
         const timers: number[] = []
         const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms))
@@ -1281,6 +1392,7 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
         offs.push(() => vis.disconnect())
         const say = (s: string) => { const r = readRef.current; if (r && r.textContent !== s) r.textContent = s }
         const sig = () => fireSig(sigRef.current)
+        scrollFast()
 
         // ── 入る型（split / clip / wipe / press）の読み値：最後に動き出したセルの今の値を、動いている間だけ毎フレーム読む
         let mEl: HTMLElement | null = null
@@ -1328,19 +1440,18 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
         offs.push(() => { cancelAnimationFrame(mRaf); mRaf = 0 })
 
         // ── 入る直前に「出る前」へ、目に入る帯で「出る」。完全に画面外へ出たら完成形に戻す（次の入場で再び）
-        // arm/play/reset はセルごと。帯：画面の下 1.5画面ぶんに入ったら arm（まだ見えていないものだけ）
+        // 速く流しているときは「出る前」にしない／出る帯に来たときも速ければ完成形のまま（指摘9）。止まったときに出る前のまま画面にあれば、その場で出す
         const entry = (arm: ((el: HTMLElement) => void) | null, play: (el: HTMLElement) => void, reset: (el: HTMLElement) => void) => {
-            const st = new WeakMap<HTMLElement, "armed" | "played">()
+            const st = new Map<HTMLElement, "armed" | "played">()
             const near = new IntersectionObserver((es) => {
                 for (const en of es) {
                     const el = en.target as HTMLElement
                     if (en.isIntersecting) {
-                        if (!st.get(el) && en.boundingClientRect.top > window.innerHeight) {
+                        if (!st.get(el) && en.boundingClientRect.top > window.innerHeight && !scrollFast()) {
                             if (arm) arm(el)
                             st.set(el, "armed")
                         }
                     } else {
-                        // 帯の外（遠く下・上に抜けた）：完成形へ戻して、次に近づいたらまた
                         reset(el)
                         st.delete(el)
                     }
@@ -1351,24 +1462,38 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
                     const el = en.target as HTMLElement
                     if (en.isIntersecting && st.get(el) === "armed") {
                         st.set(el, "played")
-                        play(el)
+                        if (scrollFast()) reset(el)
+                        else play(el)
                     }
                 }
             }, { threshold: 0, rootMargin: "0px 0px -12% 0px" })
-            const watch = () => cells().forEach((el) => { near.observe(el); go.observe(el) })
-            watch()
+            let idle = 0
+            on(window, "scroll", () => {
+                window.clearTimeout(idle)
+                idle = window.setTimeout(() => {
+                    st.forEach((v, el) => {
+                        if (v !== "armed") return
+                        const r = el.getBoundingClientRect()
+                        if (r.bottom > 0 && r.top < window.innerHeight) { st.set(el, "played"); play(el) }
+                    })
+                }, 160)
+            }, { passive: true })
+            offs.push(() => window.clearTimeout(idle))
+            cells().forEach((el) => { near.observe(el); go.observe(el) })
             offs.push(() => { near.disconnect(); go.disconnect(); cells().forEach(reset) })
         }
+        const restart = (el: HTMLElement, ...cls: string[]) => { el.classList.remove(...cls); void el.offsetWidth }
 
         if (kind === "skew") {
-            // velocity-skew：速度(px/フレーム)×0.35 → ±7° → lerp 0.1。扉（×0.5・±8°）と同じ式
-            let last = window.scrollY, cur = 0, running = false
+            // velocity-skew：速度(px/フレーム)×0.35 → ±max → lerp 0.1。扉（×0.5・±8°）と同じ式。スクロールしている間だけ（本人の操作に付いてくる）
+            let last = window.scrollY, cur = 0, running = false, kick = 0
             const loop = () => {
                 const y = window.scrollY
-                const target = Math.max(-7, Math.min(7, (y - last) * 0.35))
+                const M = G().skew
+                const target = Math.max(-M, Math.min(M, (y - last) * 0.35))
                 last = y
                 const was = Math.abs(cur)
-                cur += (target - cur) * 0.1
+                if (kick) { cur = kick; kick = 0 } else cur += (target - cur) * 0.1
                 if (was < 1 && Math.abs(cur) >= 1) sig()
                 if (Math.abs(cur) < 0.01 && Math.abs(target) < 0.01) {
                     cur = 0
@@ -1385,49 +1510,48 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
                 say(`skewY ${cur < 0 ? "−" : "+"}${Math.abs(cur).toFixed(1)}°`)
                 raf = requestAnimationFrame(loop)
             }
+            const start = () => { if (running) return; running = true; wrap.style.willChange = "transform"; raf = requestAnimationFrame(loop) }
             on(window, "scroll", () => {
-                // 止まっている間も直前の位置だけは覚える（動き出しの1フレーム目の速度を正しく取る）
                 if (!inView) { last = window.scrollY; return }
-                if (running) return
-                running = true
-                wrap.style.willChange = "transform"
-                raf = requestAnimationFrame(loop)
+                start()
             }, { passive: true })
+            // 演じ直し：いまの最大角まで一度振って、lerp で戻す
+            replayRef.current = () => { last = window.scrollY; kick = G().skew; sig(); start() }
             offs.push(() => { wrap.style.transform = ""; wrap.style.willChange = ""; wrap.style.transformOrigin = "" })
         }
 
         if (kind === "magnetic") {
-            // magnetic-hover：半径480内でカーソルへ寄る（差分×0.18×近さ・最大28px）。追従 lerp 0.12、戻り 0.084
-            // タッチ：画面の中央の横線が磁石。スクロールで通り過ぎるカードが中央へ最大16px寄る
-            let list: { el: HTMLElement; x: number; y: number; ox: number; oy: number }[] = []
+            // magnetic-hover：半径480内でカーソルへ寄る（差分×pull×近さ・最大 max px）。追従 lerp 0.12、戻り 0.084
+            // 8周目（指摘2）：寄るのは版面（一覧の箱）の内側まで。右端の列は内へだけ、左端の列も内へだけ寄る（旧：右列が版面の外 1427px まで出た）
+            let list: { el: HTMLElement; x: number; y: number; ox: number; oy: number; lo: number; hi: number }[] = []
             let px = 0, py = 0, has = false, running = false
-            const R = 480, MAX = hoverable ? 28 : 16
+            const R = 480
             const measure = () => {
+                const wr = wrap.getBoundingClientRect()
                 list = cells().map((el) => {
                     const prev = list.find((q) => q.el === el)
                     const r = el.getBoundingClientRect()
                     const ox = prev ? prev.ox : 0, oy = prev ? prev.oy : 0
-                    return { el, x: r.left + r.width / 2 - ox + window.scrollX, y: r.top + r.height / 2 - oy + window.scrollY, ox, oy }
+                    const left = r.left - ox, right = r.right - ox
+                    return { el, x: left + r.width / 2 + window.scrollX, y: r.top + r.height / 2 - oy + window.scrollY, ox, oy, lo: Math.min(0, wr.left - left), hi: Math.max(0, wr.right - right) }
                 })
             }
             const loop = () => {
                 let moving = false
                 let peak = 0
                 const sy = window.scrollY, sx = window.scrollX, vh = window.innerHeight
+                const g = G()
                 for (const q of list) {
                     const cx = q.x - sx, cy = q.y - sy
                     if (cy < -400 || cy > vh + 400) { if (q.ox || q.oy) { q.ox = 0; q.oy = 0; q.el.style.transform = "" } continue }
                     let tx = 0, ty = 0
-                    if (hoverable) {
-                        const dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy)
-                        if (has && d < R) {
-                            const k = 0.18 * (1 - d / R) * 2
-                            tx = Math.max(-MAX, Math.min(MAX, dx * k))
-                            ty = Math.max(-MAX, Math.min(MAX, dy * k))
-                        }
-                    } else {
-                        const dy = vh / 2 - cy
-                        if (Math.abs(dy) < vh * 0.6) ty = Math.max(-MAX, Math.min(MAX, dy * 0.06 * (1 - Math.abs(dy) / (vh * 0.6)) * 2))
+                    const dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy)
+                    if (has && d < R) {
+                        const k = g.pull * (1 - d / R) * 2
+                        // 隣のカードと寄り合っても重ならないよう、段の間・列の間の半分で止める（列の間 SP 12・PC 28〜40／段の間 SP 28・PC 44〜64）
+                        const mx = Math.min(g.max, sp ? 5 : 14), my = Math.min(g.max, sp ? 12 : 22)
+                        tx = Math.max(q.lo, Math.min(q.hi, Math.max(-mx, Math.min(mx, dx * k))))
+                        ty = Math.max(-my, Math.min(my, dy * k))
                     }
                     const kk = tx || ty ? 0.12 : 0.084
                     q.ox += (tx - q.ox) * kk
@@ -1437,8 +1561,8 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
                     q.el.style.transform = Math.abs(q.ox) < 0.05 && Math.abs(q.oy) < 0.05 && !tx && !ty ? "" : `translate3d(${q.ox.toFixed(2)}px,${q.oy.toFixed(2)}px,0)`
                 }
                 say(`offset ${peak.toFixed(1)}px`)
-                if (moving && inView) raf = requestAnimationFrame(loop)
-                else running = false
+                if ((moving || has) && inView) raf = requestAnimationFrame(loop)
+                else { running = false; if (!has) say(GRID_FX.magnetic.idle) }
             }
             const kick = () => { if (!running) { running = true; raf = requestAnimationFrame(loop) } }
             if (hoverable) {
@@ -1446,79 +1570,96 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
                 on(root, "pointermove", (e: PointerEvent) => { if (e.pointerType !== "mouse") return; if (!list.length) measure(); px = e.clientX; py = e.clientY; has = true; kick() })
                 on(root, "pointerleave", () => { has = false; kick() })
                 on(window, "scroll", () => { if (has) kick() }, { passive: true })
-            } else {
-                on(window, "scroll", () => { if (!inView) return; if (!list.length) measure(); kick() }, { passive: true })
+            }
+            // 演じ直し：見えない手が、画面の中ほどを左から右へ 0.45 秒で横切る（タッチでも同じ）
+            replayRef.current = () => {
+                measure()
+                const wr = wrap.getBoundingClientRect()
+                const t0 = performance.now()
+                sig()
+                const sweep = (now: number) => {
+                    const k = Math.min(1, (now - t0) / 450)
+                    px = wr.left - 60 + (wr.width + 120) * k
+                    py = window.innerHeight * 0.55
+                    has = k < 1
+                    kick()
+                    if (k < 1) requestAnimationFrame(sweep)
+                }
+                requestAnimationFrame(sweep)
             }
             on(window, "resize", () => { list.forEach((q) => { q.ox = 0; q.oy = 0; q.el.style.transform = "" }); list = [] })
             offs.push(() => cells().forEach((el) => (el.style.transform = "")))
         }
 
         if (kind === "split") {
-            // split-text-reveal：字がマスクの下から昇るのと同じ形で、カードがセルの下端から昇る（0.6s・(0.22,1,0.36,1)）。列ごとに 80ms ずらす
-            entry(
-                (el) => el.classList.add("gx-sa"),
-                (el) => {
-                    el.style.setProperty("--gd", col(el) * 80 + "ms")
-                    el.classList.add("gx-sg")
-                    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("gx-sa")))
-                    meter(el, 720 + col(el) * 80)
-                    later(() => el.classList.remove("gx-sg"), 700 + col(el) * 80)
-                },
-                (el) => el.classList.remove("gx-sa", "gx-sg"),
-            )
+            // split-text-reveal：字がマスクの下から昇るのと同じ形で、カードがセルの下端から昇る（0.36s・(0.22,1,0.36,1)）。列ごとに stagger×2 ずらす
+            const play = (el: HTMLElement) => {
+                const d = Math.round(col(el) * G().col)
+                el.style.setProperty("--gd", d + "ms")
+                el.style.setProperty("--gt", ".36s")
+                el.classList.add("gx-sg")
+                requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("gx-sa")))
+                meter(el, 420 + d)
+                later(() => el.classList.remove("gx-sg"), 400 + d)
+            }
+            entry((el) => el.classList.add("gx-sa"), play, (el) => el.classList.remove("gx-sa", "gx-sg"))
+            replayRef.current = () => inScreen().forEach((el) => { restart(el, "gx-sg"); el.classList.add("gx-sa"); void el.offsetWidth; play(el) })
         }
 
         if (kind === "clip") {
-            // clip-reveal：絵（ポスター／録画）が左から開く 0.9s・expo-out。額（黒い枠）と名前は最初から見えている
-            entry(
-                (el) => el.classList.add("gx-ca"),
-                (el) => {
-                    el.style.setProperty("--gd", col(el) * 70 + "ms")
-                    el.classList.add("gx-cg")
-                    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("gx-ca")))
-                    meter(el, 1000 + col(el) * 70)
-                    later(() => el.classList.remove("gx-cg"), 1000 + col(el) * 70)
-                },
-                (el) => el.classList.remove("gx-ca", "gx-cg"),
-            )
+            // clip-reveal：絵（ポスター／録画）が左から開く・expo-out。額（黒い枠）と名前は最初から見えている
+            const play = (el: HTMLElement) => {
+                const D = G().clip, d = col(el) * 40
+                el.style.setProperty("--gd", d + "ms")
+                el.style.setProperty("--gt", Math.round(D) + "ms")
+                el.classList.add("gx-cg")
+                requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("gx-ca")))
+                meter(el, D + d + 60)
+                later(() => el.classList.remove("gx-cg"), D + d + 40)
+            }
+            entry((el) => el.classList.add("gx-ca"), play, (el) => el.classList.remove("gx-ca", "gx-cg"))
+            replayRef.current = () => inScreen().forEach((el) => { restart(el, "gx-cg"); el.classList.add("gx-ca"); void el.offsetWidth; play(el) })
         }
 
         if (kind === "wipe") {
-            // curtain-wipe：覆う 0.8s → 60ms → 反対の辺へ 0.8s で引く。見えているカードの絵の上を1回横切る（隠す状態を持たない・名前は覆わない）
-            entry(
-                null,
-                (el) => {
-                    el.style.setProperty("--gd", col(el) * 90 + "ms")
-                    el.classList.add("gx-cw")
-                    meter(el, 1700 + col(el) * 90)
-                    later(() => el.classList.remove("gx-cw"), 1700 + col(el) * 90)
-                },
-                (el) => el.classList.remove("gx-cw"),
-            )
+            // curtain-wipe：覆う → 反対の辺へ引く。見えているカードの絵の上を1回横切る（隠す状態を持たない・名前は覆わない）。幕は地の色
+            const play = (el: HTMLElement) => {
+                const D = G().wipe, d = col(el) * 40
+                restart(el, "gx-cw")
+                el.style.setProperty("--gd", d + "ms")
+                el.style.setProperty("--gt", Math.round(D) + "ms")
+                el.classList.add("gx-cw")
+                meter(el, D + d + 60)
+                later(() => el.classList.remove("gx-cw"), D + d + 40)
+            }
+            entry(null, play, (el) => el.classList.remove("gx-cw"))
+            replayRef.current = () => inScreen().forEach(play)
         }
 
         if (kind === "press") {
-            // press-feedback：入ると1回押されて沈む（0.05s で scale 0.94・6px → 0.2s で戻す）。列ごとに 70ms＝鍵盤を順に叩く
-            entry(
-                null,
-                (el) => {
-                    el.style.setProperty("--gd", col(el) * 70 + "ms")
-                    el.classList.add("gx-pw")
-                    meter(el, 640 + col(el) * 70)
-                    later(() => el.classList.remove("gx-pw"), 620 + col(el) * 70)
-                },
-                (el) => el.classList.remove("gx-pw"),
-            )
+            // press-feedback：入ると1回押されて沈む（0.05s で沈む → 0.2s で戻す・合計 0.42s）。列ごとに 40ms＝鍵盤を順に叩く
+            const play = (el: HTMLElement) => {
+                const d = col(el) * 40
+                restart(el, "gx-pw")
+                el.style.setProperty("--gd", d + "ms")
+                el.style.setProperty("--gs", G().scale.toFixed(3))
+                el.classList.add("gx-pw")
+                meter(el, 480 + d)
+                later(() => el.classList.remove("gx-pw"), 460 + d)
+            }
+            entry(null, play, (el) => el.classList.remove("gx-pw"))
+            replayRef.current = () => inScreen().forEach(play)
             // 押している間は沈む（タッチもマウスも）
             const up = (e: Event) => { const g = (e.target as HTMLElement)?.closest?.(".mdx-gi"); wrap.querySelectorAll(".gx-pd").forEach((x) => { if (x !== g || e.type !== "pointerdown") x.classList.remove("gx-pd") }) }
-            on(wrap, "pointerdown", (e: PointerEvent) => { const g = (e.target as HTMLElement)?.closest?.(".mdx-gi") as HTMLElement | null; if (g) { g.classList.remove("gx-pw"); g.classList.add("gx-pd"); meter(g, 400) } })
+            on(wrap, "pointerdown", (e: PointerEvent) => { const g = (e.target as HTMLElement)?.closest?.(".mdx-gi") as HTMLElement | null; if (g) { g.style.setProperty("--gs", G().scale.toFixed(3)); g.classList.remove("gx-pw"); g.classList.add("gx-pd"); meter(g, 400) } })
             on(window, "pointerup", up)
             on(window, "pointercancel", up)
             on(wrap, "pointerleave", up)
         }
 
         if (kind === "count") {
-            // preloader-counter：1.8s・点いた数 = round(N × (1 − 2^(−10t)))。まだ見ていない一覧だけ、暗くしてから順に点ける（消しはしない＝28%）
+            // preloader-counter：点いた数 = round(N × (1 − 2^(−10t)))。0.6 秒。まだ見ていない一覧だけ、暗くしてから順に点ける（消しはしない＝28%）
+            // 8周目：1.8s → 0.6s（薄い索引が写っていた）。速く流しているときは暗くしない
             let armed = false
             let sequencing = false
             const cnt = cntRef.current
@@ -1527,41 +1668,41 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
             const arm = () => { armed = true; cells().forEach((el) => el.classList.add("gx-dim")); label(0) }
             const reset = () => { armed = false; sequencing = false; cancelAnimationFrame(raf); cells().forEach((el) => el.classList.remove("gx-dim")); label(total()) }
             let lit = 0
-            // 画面に見えているセルを 1.8s の expo-out で順に点ける（全部を1本の曲線にすると、見えている数枚が最初の0.1秒で点き終わって順番が見えなかった）。
-            // その下のセルは、画面に入ったときに列の順で点く。カウンターは点いた数
             const inBand = new Set<HTMLElement>()
             const lightLater = (el: HTMLElement) => {
                 if (el.dataset.gq || !el.classList.contains("gx-dim")) return
                 el.dataset.gq = "1"
-                later(() => { delete el.dataset.gq; if (el.classList.contains("gx-dim")) { el.classList.remove("gx-dim"); label(++lit) } }, col(el) * 90)
+                later(() => { delete el.dataset.gq; if (el.classList.contains("gx-dim")) { el.classList.remove("gx-dim"); label(++lit) } }, col(el) * 60)
             }
             const cellGo = new IntersectionObserver((es) => {
                 for (const en of es) {
                     const el = en.target as HTMLElement
                     if (en.isIntersecting) inBand.add(el)
                     else inBand.delete(el)
-                    if (en.isIntersecting && !armed && !sequencing) lightLater(el)
+                    if (en.isIntersecting && !armed && !sequencing) { if (scrollFast()) { el.classList.remove("gx-dim") } else lightLater(el) }
                 }
             }, { threshold: 0, rootMargin: "0px 0px -12% 0px" })
-            const play = () => {
+            const play = (only?: HTMLElement[]) => {
                 armed = false
-                lit = 0
+                lit = only ? total() - only.length : 0
                 sig()
                 const vh = window.innerHeight
-                const list = cells().filter((el) => { const r = el.getBoundingClientRect(); return r.top < vh * 0.88 && r.bottom > 0 })
+                const list = only || cells().filter((el) => { const r = el.getBoundingClientRect(); return r.top < vh * 0.88 && r.bottom > 0 })
                 const N = list.length
+                const D = G().count
                 const t0 = performance.now()
                 let k0 = 0
                 sequencing = true
+                cancelAnimationFrame(raf)
                 const step = (now: number) => {
-                    const k = Math.min(1, (now - t0) / 1800)
+                    const k = Math.min(1, (now - t0) / D)
                     const e = k === 1 ? 1 : 1 - Math.pow(2, -10 * k)
                     const want = Math.round(N * e)
                     while (k0 < want) { const el = list[k0++]; if (el.classList.contains("gx-dim")) { el.classList.remove("gx-dim"); lit++ } }
                     label(lit)
                     if (k < 1 && k0 < N) raf = requestAnimationFrame(step)
                     else {
-                        // 数え終わり：その間に画面へ入ってきたセルを列の順で
+                        list.forEach((el) => el.classList.remove("gx-dim"))
                         sequencing = false
                         inBand.forEach(lightLater)
                     }
@@ -1570,12 +1711,22 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
             }
             const near = new IntersectionObserver((es) => {
                 for (const en of es) {
-                    if (en.isIntersecting) { if (!armed && en.boundingClientRect.top > window.innerHeight) arm() }
+                    if (en.isIntersecting) { if (!armed && en.boundingClientRect.top > window.innerHeight && !scrollFast()) arm() }
                     else if (en.boundingClientRect.top > 0) reset()
                 }
             }, { threshold: 0, rootMargin: "0px 0px 150% 0px" })
-            // 一覧の頭が画面の中ほど（下45%を除いた帯）に来たら＝最初の1〜2段が見えている
-            const go = new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting && armed) play() }, { threshold: 0, rootMargin: "0px 0px -45% 0px" })
+            const go = new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting && armed) { if (scrollFast()) reset(); else play() } }, { threshold: 0, rootMargin: "0px 0px -10% 0px" })
+            let idle = 0
+            on(window, "scroll", () => {
+                window.clearTimeout(idle)
+                idle = window.setTimeout(() => {
+                    // 止まったときに暗いまま画面にあるセルは、その場で点ける
+                    const dimIn = cells().filter((el) => { if (!el.classList.contains("gx-dim")) return false; const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight })
+                    if (dimIn.length && !sequencing) play(dimIn)
+                }, 160)
+            }, { passive: true })
+            offs.push(() => window.clearTimeout(idle))
+            replayRef.current = () => { const v = inScreen(); v.forEach((el) => el.classList.add("gx-dim")); play(v) }
             cells().forEach((el) => cellGo.observe(el))
             offs.push(() => cellGo.disconnect())
             near.observe(root)
@@ -1587,9 +1738,19 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
             cancelAnimationFrame(raf)
             timers.forEach((t) => clearTimeout(t))
             offs.forEach((f) => f())
+            replayRef.current = null
             say(GRID_FX[kind].idle)
         }
-    }, [kind, hoverable, reduced, isStatic])
+    }, [kind, hoverable, reduced, isStatic, sp])
+
+    // スライダー：動かしている間は値だけ替え、止まって 140ms で一覧を演じ直す
+    const onSlide = (v: number) => {
+        setVal(v)
+        valRef.current = v
+        if (typeof window === "undefined") return
+        window.clearTimeout(rpT.current)
+        rpT.current = window.setTimeout(() => replayRef.current?.(), 140)
+    }
 
     const fg = dark ? paper : ink
     const sub = dark ? "rgba(244,244,241,.62)" : muted
@@ -1600,23 +1761,45 @@ function GridFx({ kind, demo, n, frame, ink, paper, muted, accent, sp, hoverable
         ? { color: accent, background: "rgba(165,224,46,.14)" }
         : { color: ink, background: "rgba(165,224,46,.38)" }
     const live = kind === "count" ? `lit ${String(n).padStart(2, "0")} / ${String(n).padStart(2, "0")}` : GRID_FX[kind].idle
+    const vs = val.toFixed(PRM.dp)
+    const href = "/entries/" + demo.slug + (Math.abs(val - PRM.def) > 1e-9 ? `?${PRM.key}=${vs}` : "")
+    const slider = (
+        <label className="mdx-gxs" style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0, ...meta, color: fg, flex: sp ? "1 1 auto" : "none" }}>
+            <span style={{ color: sub, whiteSpace: "nowrap" }}>{PRM.key}</span>
+            <input
+                type="range"
+                min={PRM.min}
+                max={PRM.max}
+                step={PRM.step}
+                value={val}
+                disabled={isStatic}
+                onChange={(ev) => onSlide(parseFloat(ev.target.value))}
+                aria-label={`${demo.ja} の ${PRM.key}（動かすと、この章の一覧がその値で演じ直す）`}
+                style={{ width: sp ? "100%" : 150, minWidth: 0, flex: sp ? "1 1 auto" : "none", accentColor: dark ? accent : ink, margin: 0, height: 24, cursor: "pointer" }}
+            />
+            <span style={{ minWidth: "5ch", textAlign: "right", whiteSpace: "nowrap", fontWeight: 600 }}>{vs}{PRM.unit}</span>
+        </label>
+    )
+    const reading = (
+        <span aria-hidden style={{ ...meta, color: fg, display: "inline-flex", alignItems: "center", gap: 10, flex: "none" }}>
+            {!sp ? <span style={{ color: sub }}>いま</span> : null}
+            <span ref={kind === "count" ? cntRef : readRef} style={{ ...chipCss, fontFamily: MONO, fontWeight: 600, fontSize: sp ? 17 : 24, lineHeight: 1.25, letterSpacing: "-0.01em", borderRadius: 4, padding: sp ? "1px 8px" : "2px 12px", whiteSpace: "nowrap", display: "inline-block", minWidth: sp ? "11ch" : "13ch", textAlign: "center" }}>{live}</span>
+        </span>
+    )
     return (
         <div ref={rootRef} className={"mdx-gx gx-" + kind + (dark ? " dk" : "")} style={frame}>
             {/* 扉と同じ自己言及：この一覧の振る舞い自体が辞典の1項目。帯は検索バーの直下に貼り付き、章の一覧を読んでいる間ずっと値が見える */}
-            <div className="mdx-gxbar" style={{ position: "sticky", top, zIndex: 4, background: bg, margin: `0 -${gutter}px ${sp ? 14 : 22}px`, padding: `${sp ? 8 : 10}px ${gutter}px`, borderBottom: `1px solid ${dark ? "rgba(244,244,241,.14)" : "rgba(10,10,10,.12)"}`, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, minHeight: sp ? 36 : 40, boxSizing: "border-box" }}>
-                <a className="mdx-credit" href={"/entries/" + demo.slug} style={{ ...meta, color: fg, textDecoration: "none", display: "inline-flex", gap: sp ? 8 : 12, alignItems: "baseline", minWidth: 0, overflow: "hidden", whiteSpace: "nowrap" }}>
+            <div className="mdx-gxbar" style={{ position: "sticky", top, zIndex: 4, background: bg, margin: `0 -${gutter}px ${sp ? 14 : 22}px`, padding: `${sp ? 8 : 10}px ${gutter}px`, borderBottom: `1px solid ${dark ? "rgba(244,244,241,.14)" : "rgba(10,10,10,.12)"}`, display: "flex", flexWrap: sp ? "wrap" : "nowrap", justifyContent: "space-between", alignItems: "center", columnGap: sp ? 12 : 28, rowGap: 6, minHeight: sp ? 36 : 52, boxSizing: "border-box" }}>
+                <a className="mdx-credit" href={href} style={{ ...meta, color: fg, textDecoration: "none", display: "inline-flex", gap: sp ? 8 : 12, alignItems: "baseline", minWidth: 0, overflow: "hidden", whiteSpace: "nowrap", flex: "0 1 auto" }}>
                     <span style={{ color: sub }}>{sp ? "一覧の動き" : "この一覧の動き"}</span>
                     <span style={{ position: "relative", fontFamily: JP, fontWeight: 700, fontSize: sp ? 15 : 16, letterSpacing: "0.02em" }}>
                         {demo.ja}{sp ? <span aria-hidden> ↗</span> : null}
                         <span ref={sigRef} aria-hidden className="mdx-sig" style={{ background: dark ? accent : ink }} />
                     </span>
-                    {!sp ? <span>{demo.slug}</span> : null}
-                    {!sp ? <span style={{ color: sub, overflow: "hidden", textOverflow: "ellipsis" }}>{GRID_FX[kind].params}<span aria-hidden style={{ color: fg }}> ↗</span></span> : null}
+                    {!sp ? <span style={{ color: sub, overflow: "hidden", textOverflow: "ellipsis" }}>{gxLabel(kind, val)}<span aria-hidden style={{ color: fg }}> ↗</span></span> : null}
                 </a>
-                <span aria-hidden style={{ ...meta, color: fg, display: "inline-flex", alignItems: "baseline", gap: 10, flex: "none" }}>
-                    {!sp ? <span style={{ color: sub }}>いま</span> : null}
-                    <span ref={kind === "count" ? cntRef : readRef} style={{ ...chipCss, fontFamily: MONO, fontSize: sp ? 13 : 15, borderRadius: 3, padding: "1px 7px", whiteSpace: "nowrap", display: "inline-block", minWidth: sp ? "11ch" : "13ch", textAlign: "center" }}>{live}</span>
-                </span>
+                {sp ? reading : null}
+                {sp ? <div style={{ flex: "1 0 100%", display: "flex", minWidth: 0 }}>{slider}</div> : <span style={{ display: "inline-flex", alignItems: "center", gap: 28, flex: "none", marginLeft: "auto" }}>{slider}{reading}</span>}
             </div>
             <div ref={wrapRef} className="mdx-gw">{children}</div>
         </div>
@@ -1967,18 +2150,76 @@ interface IndexRowProps {
     tw: number
     wide: boolean
 }
+// ─── 索引の行のホバー（8周目 A2・Signal-A 型）──────────────────────────────
+// 中盤の索引に「絵」が無かった（独立レビュー A）。行にホバー（SP は画面の中央に来た行）すると、
+//  ・見出しが 1.45 倍（SP 1.3 倍）に大きくなって、その項目の動きで演じる（下端を軸に上へ伸びる＝英名に重ならない）
+//  ・デモの絵（ポスター → 録画）が、行の右から上へ大きく立ち上がる（行の上の罫線に立つ。版面の内側・行の右端の番号の手前）
+// どちらも重ねる層（transform / position:absolute）＝総高さは増えない。絵は初めて開いたときに読む（帯域を使わない）
+const IXC: { rows: Map<HTMLElement, (on: boolean) => void>; cur: HTMLElement | null; raf: number; t: number; on: boolean } = { rows: new Map(), cur: null, raf: 0, t: 0, on: false }
+function ixPick() {
+    IXC.raf = 0
+    const vh = window.innerHeight
+    let best: HTMLElement | null = null, bd = vh * 0.16
+    IXC.rows.forEach((_, el) => {
+        const r = el.getBoundingClientRect()
+        if (r.height < 1 || r.bottom < 0 || r.top > vh) return
+        const d = Math.abs(r.top + r.height / 2 - vh * 0.52)
+        if (d < bd) { bd = d; best = el }
+    })
+    if (best === IXC.cur) return
+    if (IXC.cur) IXC.rows.get(IXC.cur)?.(false)
+    IXC.cur = null
+    window.clearTimeout(IXC.t)
+    // 中央に 0.15 秒とどまった行だけ開く（流し読みで次々に開かない）
+    const b = best as HTMLElement | null
+    if (b) IXC.t = window.setTimeout(() => { if (scrollFast()) return; IXC.cur = b; IXC.rows.get(b)?.(true) }, 150)
+}
+function ixRegister(el: HTMLElement, set: (on: boolean) => void): () => void {
+    if (typeof window === "undefined") return () => {}
+    IXC.rows.set(el, set)
+    if (!IXC.on) {
+        IXC.on = true
+        const kick = () => { if (!IXC.raf) IXC.raf = requestAnimationFrame(ixPick) }
+        window.addEventListener("scroll", kick, { passive: true })
+        window.addEventListener("resize", kick)
+    }
+    return () => { IXC.rows.delete(el); if (IXC.cur === el) IXC.cur = null }
+}
+
 function IndexRow({ e, no, ink, paper, muted, accent, hoverable, reduced, isStatic, sp, dark, tw, wide }: IndexRowProps) {
     const P = usePlay(e.slug, 0.5, hoverable, isStatic)
     const nameRef = useRef<HTMLSpanElement>(null)
+    const aRef = useRef<HTMLAnchorElement>(null)
+    const playRef = useRef<(() => void) | null>(null)
     const fg = dark ? paper : ink
     const sub = dark ? DIM_ON_INK : muted
-    const pf = useCardPerform(nameRef, e, { hoverable, reduced, isStatic, cap: CARD_CAP, colors: dark ? { ink: paper, paper: ink, muted: DIM_ON_INK, accent } : { ink, paper, muted, accent } })
+    const pf = useCardPerform(nameRef, e, { hoverable, reduced, isStatic, cap: CARD_CAP, colors: dark ? { ink: paper, paper: ink, muted: DIM_ON_INK, accent } : { ink, paper, muted, accent } }, playRef)
     const [main, alt] = splitName(e.nameJa)
     const fs = wide ? 22 : sp ? 15 : 16
+    // 開いているか（ホバー／SP の中央）と、絵を一度でも開いたか（開いたら以後は要素を残す＝閉じるときも絵が沈んで見える）
+    const [pv, setPv] = useState(false)
+    const [seen, setSeen] = useState(false)
+    useEffect(() => {
+        if (isStatic || hoverable || typeof window === "undefined") return
+        const el = aRef.current
+        if (!el) return
+        return ixRegister(el, (on) => {
+            setPv(on)
+            if (on) { setSeen(true); playRef.current?.() }
+        })
+    }, [isStatic, hoverable])
+    const open = !isStatic && hoverable
+        ? {
+              onMouseEnter: () => { (P.hov as any).onMouseEnter?.(); setSeen(true); setPv(true) },
+              onMouseLeave: () => { (P.hov as any).onMouseLeave?.(); setPv(false) },
+          }
+        : {}
+    // 開いている間は録画を右の大きな絵で回す（小さなサムネでは回さない＝同じ録画を2本取らない）
+    const Pt = pv ? { ...P, active: false } : P
     return (
-        <a className="mdx-card mdx-ix" data-slug={e.slug} href={"/entries/" + e.slug} title={`${e.nameJa} — ${sentence(e.nameEn)}`} style={{ ["--tw" as string]: tw + "px", color: fg } as CSSProperties} {...P.hov} {...pf}>
+        <a ref={aRef} className={"mdx-card mdx-ix" + (pv ? " on" : "")} data-slug={e.slug} href={"/entries/" + e.slug} title={`${e.nameJa} — ${sentence(e.nameEn)}`} style={{ ["--tw" as string]: tw + "px", ["--nz" as string]: sp ? "1.3" : wide ? "1.4" : "1.45", color: fg } as CSSProperties} {...P.hov} {...pf} {...open}>
             <span className="lf">
-                <Media e={e} isStatic={isStatic} P={P} />
+                <Media e={e} isStatic={isStatic} P={Pt} />
             </span>
             <span className="tx" style={{ display: "flex", flexDirection: "column", gap: wide ? 4 : 2, minWidth: 0 }}>
                 {/* SP は省略記号で切らずに折り返す（5周目のカードと同じ） */}
@@ -1998,6 +2239,12 @@ function IndexRow({ e, no, ink, paper, muted, accent, hoverable, reduced, isStat
                 ) : null}
             </span>
             <span className="no" aria-hidden style={{ color: sub }}>{String(no).padStart(2, "0")}</span>
+            {seen && !isStatic ? (
+                <span className="pv" aria-hidden>
+                    <img src={e.poster} alt="" decoding="async" style={dimOf(e.slug) ? { filter: `brightness(${dimOf(e.slug)})` } : undefined} />
+                    {pv && !reduced ? <video src={e.video} muted loop playsInline autoPlay preload="auto" /> : null}
+                </span>
+            ) : null}
         </a>
     )
 }
@@ -2005,7 +2252,7 @@ function IndexRow({ e, no, ink, paper, muted, accent, hoverable, reduced, isStat
 // ─── 章の実演面（2026-10-25 Awwwards 3周目）────────────────────────────
 // 2周目の「強い1枚」（版面の2/3〜全幅の大判カード）でも、30,000px の8割が同じ密度の黒タイルだった（独立レビュー2人）。
 // 各章に1回だけ「溜めと解放」を置く：章の代表1本を、高さ約100vh（SP 80vh）の面に昇格させ、録画を大きく流し、
-// 和名を大判で置いて、その和名がその項目の動きで演じる（一覧のカードと同じ演技。実演面は 2.0s まで）。
+// 和名を大判で置いて、その和名がその項目の動きで演じる（一覧のカードと同じ演技。8周目：実演面も 0.6s で着地＝旧 2.0s は途中の姿が写った）。
 // 構図は章ごとに変える：L＝全面の録画・左下に名前／R＝全面の録画・右下に名前／C＝上に名前・中央に録画／S＝上に録画・下に名前と一言
 // 構造は一覧のカードと同じ（a.mdx-card > .lf > .ph > img/video）＝カード→詳細の遷移と戻りの位置復元がそのまま効く。
 // 録画は usePlay（画面に6割入ったものだけ回す）＝画面に入ったときだけ再生
@@ -2044,7 +2291,7 @@ function Stage({ e, at, n, chapter, ink, paper, accent, hoverable, reduced, isSt
         const el = nameRef.current
         if (!el || live.current) return
         live.current = pfPlay(el, {
-            slug: e.slug, cat: e.category, en: sentence(e.nameEn).split(" / ")[0] || e.nameEn, cap: 2000, hold: false, card: false,
+            slug: e.slug, cat: e.category, en: sentence(e.nameEn).split(" / ")[0] || e.nameEn, cap: CARD_CAP, hold: false, card: false,
             // 暗い面の上なので、演技の「地」と「字」を入れ替える
             colors: { ink: paper, paper: ink, muted: dim, accent },
             onEnd: () => { live.current = null },
@@ -2618,6 +2865,8 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
     // ── 舞台を組む（EntryTitle.tsx の build と同じ。素の名前を実測し、同じ位置に1文字ずつ絶対配置した複製を重ねる）
     const bx = new Map<HTMLElement, Box>()
     const rr = root.getBoundingClientRect()
+    // 祖先に拡大がかかっていても（索引の行のホバーで名前を大きくする＝8周目 A2）、舞台は名前の箱の中の座標で組む
+    const sc = root.offsetWidth > 0 ? rr.width / root.offsetWidth || 1 : 1
     const LH = parseFloat(getComputedStyle(root).lineHeight) || parseFloat(getComputedStyle(root).fontSize) * 1.3
     const stage = document.createElement("span")
     stage.className = "mdt-t mdt-fx mdt-stage"
@@ -2628,7 +2877,8 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
     txt.querySelectorAll<HTMLElement>(".mdt-p").forEach((rp) => {
         const cs = Array.from(rp.querySelectorAll<HTMLElement>(".mdt-c")).map((rc) => {
             const r = rc.getBoundingClientRect()
-            return { t: rc.textContent || "", x: r.left - rr.left, y: r.top - rr.top - (LH - r.height) / 2, w: r.width, h: LH, cy: r.top - rr.top, ch: r.height }
+            const rw = r.width / sc, rh = r.height / sc, rx = (r.left - rr.left) / sc, ry = (r.top - rr.top) / sc
+            return { t: rc.textContent || "", x: rx, y: ry - (LH - rh) / 2, w: rw, h: LH, cy: ry, ch: rh }
         })
         if (!cs.length) return
         const wx = Math.min(...cs.map((q) => q.x)), wy = Math.min(...cs.map((q) => q.y))
@@ -2667,6 +2917,10 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
     }
     bx.set(stage, { x: 0, y: 0, w: root.clientWidth, h: root.clientHeight })
     txt.style.visibility = "hidden"
+    // 8周目（指摘1・2・5）：演技の間も、字と飾りは名前の箱の外へ出さない。
+    // 上だけ 0.45em の逃げ（跳ねる・浮く）を残し、横と下は箱で切る＝英名・隣のカード・版面の端に重ならない。
+    // 演技の側が自分で切り抜き（rootStyle の clipPath）を持つときはそちらが勝つ（どれも箱の内側を切る）
+    root.style.clipPath = "inset(-0.45em 0px 0px 0px)"
     const box = (el: HTMLElement): Box => {
         let b = bx.get(el)
         if (!b) {
@@ -2699,6 +2953,15 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         box,
         a: (el, kf, op) => {
             if (isText(el)) kf = kf.map(capScale)
+            else if (isPlate(el) && kf.some((q) => q.opacity !== undefined) && kf.some((q) => q.transform !== undefined || q.clipPath !== undefined)) {
+                // 形も動く塗り（下から昇る面など）は、溶かさずに出したまま動かす（名前の箱で切れるので、入り・出は形の動きで見える）
+                kf = kf.map((q) => (q.opacity !== undefined ? { ...q, opacity: 1 } : q))
+            } else if (isPlate(el) && kf.some((q) => q.opacity !== undefined)) {
+                // 8周目（指摘6）：塗りのある飾り（押した札・面・幕）を opacity で溶かすと、途中が「灰色の板」に写る。
+                // 塗りの出入りは段で切り替える（形の動きは補間のまま）。章扉の press と同じ考え方
+                // 半透明の塗り（影・暗幕の 0.4 など）も灰色の板に写るので、塗りは「全部見える／見えない」の2値にする
+                kf = kf.map((q) => (q.opacity !== undefined ? { ...q, opacity: Number(q.opacity) >= 0.999 ? 1 : 0, easing: "steps(1, jump-end)" } : q))
+            }
             const an = el.animate(kf, { fill: "backwards", ...op })
             if (k !== 1) an.playbackRate = k
             anims.push(an)
@@ -2802,11 +3065,12 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         timers.push(window.setTimeout(() => h.stop(), res / k + 80))
     } else if ((res as Hold).hold) {
         const ms = (res as Hold).ms
-        k = Math.max(1, ms / o.cap, readK)
+        // ホバー中は保つ（離れたら release）。
+        // 8周目：画面に入ったときの1回は「出て・戻る」までを cap（0.6秒）に収める（旧：保って 450ms 待ってから戻す＝撮ると途中の姿が写った）
+        k = o.hold ? Math.max(1, ms / o.cap, readK) : Math.max(1, (ms * 2) / o.cap, readK)
         flush()
         h.held = true
-        // ホバー中は保つ（離れたら release）。それ以外は保ってから戻す
-        if (!o.hold) timers.push(window.setTimeout(() => h.release(), ms / k + 450))
+        if (!o.hold) timers.push(window.setTimeout(() => h.release(), ms / k))
     } else if ((res as Follow).kind === "f") {
         // ポインタの代わりに、名前の上を左から右へ cap の時間で横切る
         k = 1
@@ -2815,7 +3079,8 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         const f = follow
         const t0 = performance.now()
         held = true
-        const D = Math.min(o.cap, 1400)
+        // 8周目：横切りは cap の 0.7、離れてからの戻りを含めて cap で止める（旧：最大 1.4s ＋ 1.6s 残った＝レンズが名前の上に残って写った）
+        const D = Math.min(o.cap, 1400) * 0.7
         const step = (now: number) => {
             if (dead) return
             const q = Math.min(1, (now - t0) / D)
@@ -2826,7 +3091,7 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         }
         rafs.push(requestAnimationFrame(step))
         tickLoop()
-        timers.push(window.setTimeout(() => h.stop(), D + 1600))
+        timers.push(window.setTimeout(() => h.stop(), Math.min(o.cap, 1400)))
     } else if ((res as Scroll).kind === "s") {
         k = 1
         flush()
@@ -2834,7 +3099,7 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         const s = scroller
         const t0 = performance.now()
         held = true
-        const D = Math.min(o.cap, 1400)
+        const D = Math.min(o.cap, 1400) * 0.7
         let last = 0
         const step = (now: number) => {
             if (dead) return
@@ -2847,7 +3112,7 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         }
         rafs.push(requestAnimationFrame(step))
         tickLoop()
-        timers.push(window.setTimeout(() => h.stop(), D + 1600))
+        timers.push(window.setTimeout(() => h.stop(), Math.min(o.cap, 1400)))
     } else {
         pending = null
         h.stop()
@@ -2884,7 +3149,7 @@ function pfPump() {
 }
 
 /** カードの名前の演技。名前が画面に入ったら1回（PC・SP とも。5周目に PC も）＋ PC はホバーでも（enter/leave をカードに付ける） */
-function useCardPerform(ref: { current: HTMLElement | null }, e: Entry, o: { hoverable: boolean; reduced: boolean; isStatic: boolean; colors: PfColors; cap: number }) {
+function useCardPerform(ref: { current: HTMLElement | null }, e: Entry, o: { hoverable: boolean; reduced: boolean; isStatic: boolean; colors: PfColors; cap: number }, ext?: { current: (() => void) | null }) {
     const live = useRef<PfHandle | null>(null)
     const flags = (SPEC[e.slug] ? (SPEC[e.slug][2] as string) : "") || ""
     const isH = flags.includes("h")
@@ -2923,6 +3188,8 @@ function useCardPerform(ref: { current: HTMLElement | null }, e: Entry, o: { hov
     }, [e.slug, o.isStatic, o.reduced, o.hoverable])
 
     useEffect(() => () => live.current?.stop(), [])
+    // 外から1回演じさせる口（SP の索引：画面の中央に来た行＝8周目 A2）
+    if (ext) ext.current = o.isStatic || o.reduced ? null : () => { if (ref.current && !live.current) live.current = pfPlay(ref.current, opts(false)) }
 
     if (o.isStatic || o.reduced || !o.hoverable) return {}
     return {
@@ -3870,6 +4137,11 @@ const K = (c: Ctx, px: number, base = 40) => (px * c.fs) / base
 // ・字の変位は 0.15em まで（磁石・ポインタを追う系）。字の拡大は 1.04 まで（切れない余白は pfPlay が演技中だけ取る）
 // ・消える系は「見えている状態から始めて一度だけ崩し、戻す」順
 // 0.8 秒以内に読めるかは、項目ごとに実演面の大きさで撮って機械で確かめた（輪郭の再現率 0.8 以上を「読める」）
+function isPlate(el: Element) {
+    if (!(el instanceof HTMLElement) || !/\bmdt-fx\b/.test(el.className)) return false
+    const b = el.style.background || el.style.backgroundColor || el.style.backgroundImage
+    return !!b && b !== "transparent" && b !== "none"
+}
 const isText = (el: Element) => el instanceof HTMLElement && /\bmdt-(c|p|t|stage|ghost)\b/.test(el.className)
 function capScale(k: Keyframe): Keyframe {
     const t = k.transform
@@ -4273,7 +4545,8 @@ const ACT = {
         for (let k = 0; k < n; k++) {
             const bh = p.barH ? B.h * p.barH : B.h
             const box = vert ? { x: B.x + (B.w / n) * k, y: B.y, w: B.w / n + 1, h: B.h } : { x: B.x, y: B.y + (B.h / n) * k + (B.h / n - bh / n) / 2, w: B.w, h: bh / n + 1 }
-            const el = c.fx(at(box) + `background:${p.color || c.ink};`)
+            // 8周目（指摘3）：一覧の名前では幕は地の色（明るい地＝生成り・暗い地＝近黒）。名前が地に拭われて消え、拭われて戻る＝見出しの後ろに面が写らない
+            const el = c.fx(at(box) + `background:${p.color || c.paper};`)
             const o1 = p.dir === 1 ? "right" : "left", o2 = p.dir === 1 ? "left" : "right"
             const sc = vert ? "scaleY" : "scaleX"
             const org1 = vert ? "50% 100%" : `${o1} center`, org2 = vert ? "50% 0%" : `${o2} center`
@@ -4524,8 +4797,8 @@ function pressAct(c: Ctx, v: { depth: number; scale: number; release: number }) 
     const R = S(v.release)
     const T = 50 + 260 + R
     const B = pad(c.tb, c, 0.14)
-    const panel = c.fx(at(B) + `background:${c.ink};border-radius:${B.h}px;`)
-    const g = c.ghost(c.paper)
+    // 8周目：一覧では押した札を塗らない（近黒の面が見出しの後ろの「板」に写った）。札の輪郭 1px と沈みで「押した」を見せる
+    const panel = c.fx(at(B) + `border:1px solid ${c.ink};box-sizing:border-box;border-radius:${B.h}px;`)
     const o = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`
     const kf: Keyframe[] = [
         { offset: 0, transform: "translateY(0px) scale(1)", easing: "ease-out" },
@@ -4534,11 +4807,9 @@ function pressAct(c: Ctx, v: { depth: number; scale: number; release: number }) 
         { offset: 1, transform: "translateY(0px) scale(1)" },
     ]
     const op: Keyframe[] = [{ offset: 0, opacity: 0, easing: "ease-out" }, { offset: 50 / T, opacity: 1 }, { offset: 310 / T, opacity: 1, easing: "ease-out" }, { offset: 1, opacity: 0 }]
-    ;[c.txt, g, panel].forEach((el) => { el.style.transformOrigin = o })
+    ;[c.txt, panel].forEach((el) => { el.style.transformOrigin = o })
     panel.style.transformOrigin = "50% 50%"
     c.a(c.txt, kf, { duration: T, delay: 120 })
-    c.a(g, kf, { duration: T, delay: 120, fill: "both" })
-    c.a(g, op, { duration: T, delay: 120, fill: "both" })
     c.a(panel, kf, { duration: T, delay: 120, fill: "both" })
     c.a(panel, op, { duration: T, delay: 120, fill: "both" })
     return T + 140
@@ -4638,7 +4909,7 @@ const SPEC: Record<string, Spec> = {
 
     /* ── text ── */
     "split-text-reveal": ["A", (c, v) => ACT.rise(c, { dur: S(v.duration), st: v.stagger, y: Math.min(140, (v.yOffset / 30) * 115), op: true }), "", "stagger,duration"],
-    "block-reveal": ["A", (c, v) => ACT.curtain(c, { dur: S(v.duration) * 0.6, pivot: v.pivot / 100, barH: v.barHeight / 100 }), "", "duration,pivot"],
+    "block-reveal": ["A", (c, v) => ACT.curtain(c, { dur: S(v.duration) * 0.6, pivot: v.pivot / 100, barH: v.barHeight / 100, color: c.ink }), "", "duration,pivot"],
     "typewriter": ["A", (c, v) => ACT.typewriter(c, { speed: v.speed, blink: v.blink }), "", "speed,blink"],
     "counter": ["A", (c, v) => { const D = S(v.duration); const n = c.chars.length; const e = [(t: number) => t, (t: number) => 1 - (1 - t) * (1 - t), (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t))][Math.round(v.ease)] || ((t: number) => t); const inv = (y: number) => { let lo = 0, hi = 1; for (let k = 0; k < 24; k++) { const m = (lo + hi) / 2; if (e(m) < y) lo = m; else hi = m } return hi }; return ACT.scramble(c, { cs: "0123456789", tick: 40, lockAt: (i) => D * inv((i + 1) / n) }) }, "", "duration,ease"],
     "marquee": ["A", (c, v) => marquee(c, { speed: K(c, v.speed, 24), gap: K(c, v.gap, 24), dir: v.direction === 1 ? -1 : 1 }), "", "speed,direction"],
@@ -5050,7 +5321,8 @@ function stackAct(c: Ctx, v: V) {
 function coverAct(c: Ctx, v: V) {
     const D = S(v.duration)
     const B = pad(c.tb, c)
-    const panel = c.fx(at(B) + `background:${c.ink};border-radius:${c.fs * 0.06}px;`)
+    // 8周目：一覧では覆う面は地の色（近黒／生成りの面が見出しの後ろの板に写った）
+    const panel = c.fx(at(B) + `background:${c.paper};border-radius:${c.fs * 0.06}px;`)
     c.a(panel, [
         { offset: 0, transform: `translateY(${B.h * (1 + v.rise / 100)}px) scale(${v.scaleFrom})`, opacity: 0, easing: OUT },
         { offset: 0.45, transform: "translateY(0px) scale(1)", opacity: 1, easing: "linear" },
@@ -5578,7 +5850,8 @@ function pageTurn(c: Ctx, v: V) {
     const pr = v.perspective * (c.tb.w / 240)
     const B = pad(c.tb, c)
     // 下のページ（素の見出し）は綴じ目の影から明るむ。めくる紙より先に置く（重なり順＝下）
-    const under = c.fx(at(B) + `background:linear-gradient(90deg, rgba(10,10,10,${(v.shade / 100) * 0.6}), rgba(10,10,10,0) 60%);`)
+    // 8周目（指摘6）：一覧では下のページの影（左から暗むグラデーションの面）を置かない＝見出しの後ろに灰色の板が写っていた。
+    // 影はめくる紙の上の shade だけで見せる
     const g = c.ghost()
     g.style.background = c.paper
     g.style.transformOrigin = `${B.x}px 50%`
@@ -5590,7 +5863,6 @@ function pageTurn(c: Ctx, v: V) {
     const ease = "cubic-bezier(0.45, 0, 0.25, 1)"
     c.a(g, [{ transform: `perspective(${pr}px) rotateY(0deg)` }, { transform: `perspective(${pr}px) rotateY(-180deg)` }], { duration: D, easing: ease, fill: "both" })
     c.a(shade, [{ opacity: 0 }, { opacity: v.shade / 100 }, { opacity: 0 }], { duration: D, easing: ease, fill: "both" })
-    c.a(under, [{ opacity: 1 }, { opacity: 0 }], { duration: D, easing: ease, fill: "both" })
     return D + 40
 }
 function peel(c: Ctx, v: V) {

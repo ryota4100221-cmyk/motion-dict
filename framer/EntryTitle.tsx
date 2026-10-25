@@ -53,6 +53,18 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 //  ・scratch-card の膜をデモと同じ銀箔グラデーション＋点線にし、膜の寿命を 520ms に（旧版はベタの muted で約1.1秒）
 //  ・字を隠して通る帯・板（curtain / shutter / cover）もベタの近黒1色から、近黒→濃い無彩色の傾きに
 //    （196件の機械判定 aww/r6/detail/test/judge6.cjs の plate＝「見出しの面の3割以上が1色の平たい面」の時間で探した）
+//
+// 2026-10-25（Awwwards 8周目・A の一番の1手「着地を静止画基準で」）
+//  ・着地（画面に入ったときの1回）は 0.6秒以内に素の見出しへ戻る（LAND_MS）。lead 100ms＋演技を 520ms に収まる速さで再生、
+//    追う系・スクロール系の擬似の動きも同じ長さ、最後に LAND_MS で必ず打ち切る。スライダー・ホバー・タップは従来どおり
+//  ・演技の枠（.mdt-safe）：舞台と重ねる層はすべてこの中。上＝右上のラベルの下端／下＝言い換え・英名の上端／左右＝版面の内側。
+//    途中のコマで字や板がラベル・英名・本文に重なる／版面の外へ出る、をどの演技でも作らない（混色の演技だけ枠を外し、円を字の範囲に収める）
+//  ・灰色の板を出さない：page-turn（板をやめて字だけでめくる）・press（反転をやめ 1px の縁）・ripple（塗りをやめ 1px の輪）・
+//    footer-reveal（箱をやめ字の濃さ）・cover / curtain（板の上の字を生成りで抜く）・scratch（膜は字の範囲・8割）・fill / shutter（板は字の範囲まで）
+//  ・rubber-band（下へ引いて英名に重なった）→ 右の空きの中で横に伸びて戻る／tooltip（チップに重なった）→ 見出しの範囲の中／
+//    floating-label・stamp・zoom の拡大は枠に収まる量まで
+//  ・止めた後に追う系がもう回らない不具合（打ち切りで ticking が立ったまま）を直した
+//  機械の判定＝aww/r8/detail/test/judge8.cjs（196件×PC/SP×着地とスライダー解放・0.1秒刻みのコマで 重なり／はみ出し／面を覆う板／見出しより大きい板）
 
 interface Param {
     key: string
@@ -408,6 +420,14 @@ function pad(b: Box, c: Ctx, k = 0.08): Box {
     const e = c.fs * k
     return { x: b.x - e * 1.6, y: b.y - e, w: b.w + e * 3.2, h: b.h + e * 2 }
 }
+// 8周目：拡大して入る・抜ける演技の倍率の上限。拡大した字の範囲が演技の枠（字の範囲＋上下の数px・左右は版面の内側）に収まる倍率まで。
+// 2倍の判子・5倍のズームは枠で切れて「巨大な灰色の字の切れ端」がコマに残った
+function capScale(c: Ctx, s: number) {
+    if (s <= 1) return s
+    const rx = Math.min(c.tb.x, c.W - c.tb.x - c.tb.w) * 2 + c.tb.w
+    const sy = (c.tb.h + c.fs * 0.2) / c.tb.h
+    return Math.max(1, Math.min(s, rx / c.tb.w, sy))
+}
 const at = (b: Box) => `left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px;`
 // 6周目（指摘6）：字を隠して通り過ぎる帯・板の素材。ベタの近黒1色だと「平たい板が乗っている」＝止めて撮ると不具合に見えた
 // （scratch-card の膜と同じ型。デモ側の帯は写真＋暗い重ね）。近黒から無彩色の濃いグレーへの面の傾きを付け、進む向きの先端を少し明るくする
@@ -719,7 +739,8 @@ const ACT = {
     // 帯で覆って、覆いきったら反対の辺へ引く（curtain-wipe / block-reveal）
     curtain(c: Ctx, p: { dur: number; n?: number; dir?: number; pivot?: number; color?: string; hide?: boolean; barH?: number }) {
         const n = Math.max(1, Math.round(p.n || 1))
-        const B = pad(c.tb, c)
+        // 8周目：帯は字の範囲（行の箱）まで。余白を足すと「見出しより大きい板」に見えた
+        const B = { ...c.tb }
         const vert = p.dir === 2
         const T = p.dur * 2 + 60
         const pv = p.pivot ?? 0.5
@@ -736,6 +757,20 @@ const ACT = {
                 { offset: (pv * (T - 60) + 60) / T, transform: `${sc}(1)`, transformOrigin: org2, easing: INOUT },
                 { offset: 1, transform: `${sc}(0)`, transformOrigin: org2 },
             ], { duration: T, delay: k * 70, fill: "both" })
+            // 8周目：帯が覆っている所の字は生成りで抜く（止めて撮っても「黒帯で見出しが隠れたまま」にならない）。帯と同じ区間・同じ緩急で切り抜く
+            if (!vert && !p.color) {
+                const g = c.ghost(c.paper)
+                const top = box.y, bot = c.H - box.y - box.h, L = box.x, Rr = c.W - box.x - box.w
+                const cl = (l: number, r: number) => `inset(${top}px ${r}px ${bot}px ${l}px)`
+                const grow = p.dir === 1 ? [cl(L + box.w, Rr), cl(L, Rr)] : [cl(L, Rr + box.w), cl(L, Rr)]
+                const shrink = p.dir === 1 ? [cl(L, Rr), cl(L, Rr + box.w)] : [cl(L, Rr), cl(L + box.w, Rr)]
+                c.a(g, [
+                    { offset: 0, clipPath: grow[0], easing: INOUT },
+                    { offset: pv * (T - 60) / T, clipPath: grow[1] },
+                    { offset: (pv * (T - 60) + 60) / T, clipPath: shrink[0], easing: INOUT },
+                    { offset: 1, clipPath: shrink[1] },
+                ], { duration: T, delay: k * 70, fill: "both" })
+            }
         }
         // 4周目：字は消さない（旧版は帯が伸び始める前から字を透明にしていた＝1コマ目から見出しが無く、帯が引くまで約1.2秒消えていた）。
         // 帯が字の上を通り過ぎるだけ。隠れるのは帯が覆っている間だけ
@@ -744,7 +779,7 @@ const ACT = {
     },
     // 細い羽根が順に閉じて開く（shutter）
     shutter(c: Ctx, p: { n: number; st: number; horiz?: boolean; dur: number }) {
-        const B = pad(c.tb, c)
+        const B = { ...c.tb } // 8周目：羽根は字の範囲まで（余白を足すと見出しより大きい板に見えた）
         const n = Math.round(p.n)
         for (let k = 0; k < n; k++) {
             const box = p.horiz ? { x: B.x, y: B.y + (B.h / n) * k, w: B.w, h: B.h / n + 1 } : { x: B.x + (B.w / n) * k, y: B.y, w: B.w / n + 1, h: B.h }
@@ -757,7 +792,8 @@ const ACT = {
     },
     // 墨の面が満ち、その上の字は生成りで読める（fill-hover / section-color-swap / theme-toggle …）。ホールド可
     fill(c: Ctx, p: { dur: number; from: "left" | "right" | "bottom" | "top" | "center" | "circle"; ox?: number; oy?: number; ease?: string; blend?: boolean }): Hold {
-        const B = pad(c.tb, c)
+        // 8周目：墨の面は字の範囲（行の箱）まで。余白を足した面・円で root 全体（780px）まで開く面は「見出しより大きい板」に見えた
+        const B = { ...c.tb }
         const panel = c.fx(at(B) + `background:${c.ink};`)
         const g = c.ghost(c.paper)
         const ox = p.ox ?? 0, oy = p.oy ?? 0
@@ -768,9 +804,9 @@ const ACT = {
         const gClosed = p.from === "circle" ? `circle(0px at ${ox}px ${oy}px)` : closed
         const gOpen = p.from === "circle" ? `circle(${Math.hypot(c.W, c.H) * 1.2}px at ${ox}px ${oy}px)` : open
         if (p.from === "circle") {
-            // 円は面の座標で開く（面と字で同じ円になるよう、面も root 座標で切る）
-            panel.style.cssText += `left:0;top:0;width:${c.W}px;height:${c.H}px;`
-            c.a(panel, [{ clipPath: gClosed }, { clipPath: gOpen }], { duration: p.dur, easing: p.ease || EIO, fill: "both" })
+            // 円は面と字で同じ円（面は B の座標に直す）。面は B の外へ出ない
+            const pc = (r: number) => `circle(${r}px at ${ox - B.x}px ${oy - B.y}px)`
+            c.a(panel, [{ clipPath: pc(0) }, { clipPath: pc(Math.hypot(c.W, c.H) * 1.2) }], { duration: p.dur, easing: p.ease || EIO, fill: "both" })
             c.a(g, [{ clipPath: gClosed }, { clipPath: gOpen }], { duration: p.dur, easing: p.ease || EIO, fill: "both" })
         } else {
             c.a(panel, [{ clipPath: closed }, { clipPath: open }], { duration: p.dur, easing: p.ease || EIO, fill: "both" })
@@ -899,15 +935,22 @@ const ACT = {
             g = c.ghost("transparent")
             g.style.setProperty("-webkit-text-stroke", `${Math.max(1, c.fs / 70)}px ${c.ink}`)
         } else {
+            // 8周目：混色の円は演技の枠（safe）で切り抜けない（切り抜くと地と混ざらない）。円そのものを字の範囲の内側に収める：
+            // 半径は行の高さの半分まで、中心は円が見出しの箱からはみ出さない所まで（英名・章のチップ・版面の外に掛かっていた）
+            p = { ...p, r: Math.min(p.r, c.tb.h * 0.5) }
             disc = c.fx(`left:0;top:0;width:${p.r * 2}px;height:${p.r * 2}px;border-radius:50%;background:${p.blend === "normal" ? c.ink : c.paper};mix-blend-mode:${p.blend || "difference"};`)
         }
+        const inBox = p.mode === "cursor"
+        const clampX = (x: number) => (inBox ? Math.max(p.r, Math.min(c.W - p.r, x)) : x)
+        const clampY = (y: number) => (inBox ? Math.max(c.tb.y + p.r, Math.min(c.tb.y + c.tb.h - p.r, y)) : y)
+        cx = clampX(cx); cy = clampY(cy)
         return {
             kind: "f",
             move(x, y) { px = x; py = y; has = true },
             leave() { has = false },
             tick() {
-                cx += (px - cx) * p.lerp
-                cy += (py - cy) * p.lerp
+                cx += (clampX(px) - cx) * p.lerp
+                cy += (clampY(py) - cy) * p.lerp
                 o += ((has ? 1 : 0) - o) * 0.12
                 const mask = `radial-gradient(circle ${p.r}px at ${cx}px ${cy}px, #000 ${Math.round((1 - p.soft) * 100)}%, transparent 100%)`
                 if (g) {
@@ -975,13 +1018,14 @@ function skewAct(c: Ctx, v: { factor: number; maxSkew: number; lerp: number }): 
     }
 }
 function pressAct(c: Ctx, v: { depth: number; scale: number; release: number }) {
-    // press-feedback：入り 0.05s で沈む → 押している間 → 戻り release（非対称）。章扉と同じく、押している間だけ地と字が反転する
+    // press-feedback：入り 0.05s で沈む → 押している間 → 戻り release（非対称）。
+    // 8周目：押している間に地と字を反転していた（近黒の丸い板＋生成りの字を opacity で出し入れ）→ 出入りの途中が「灰色の板に灰色の字」で、
+    // 止めて撮ると読めなかった（A の指摘「灰色の板」）。板を塗らず、ボタンの縁＝1px の線だけを出す。字は沈んで縮むだけで、ずっと近黒
     const d = (v.depth / 16) * c.fs * 0.5
     const R = S(v.release)
     const T = 50 + 260 + R
     const B = pad(c.tb, c, 0.14)
-    const panel = c.fx(at(B) + `background:${c.ink};border-radius:${B.h}px;`)
-    const g = c.ghost(c.paper)
+    const panel = c.fx(at(B) + `border:1px solid ${c.ink};box-sizing:border-box;border-radius:${B.h}px;`)
     const o = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`
     const kf: Keyframe[] = [
         { offset: 0, transform: "translateY(0px) scale(1)", easing: "ease-out" },
@@ -990,11 +1034,9 @@ function pressAct(c: Ctx, v: { depth: number; scale: number; release: number }) 
         { offset: 1, transform: "translateY(0px) scale(1)" },
     ]
     const op: Keyframe[] = [{ offset: 0, opacity: 0, easing: "ease-out" }, { offset: 50 / T, opacity: 1 }, { offset: 310 / T, opacity: 1, easing: "ease-out" }, { offset: 1, opacity: 0 }]
-    ;[c.txt, g, panel].forEach((el) => { el.style.transformOrigin = o })
+    c.txt.style.transformOrigin = o
     panel.style.transformOrigin = "50% 50%"
     c.a(c.txt, kf, { duration: T, delay: 120 })
-    c.a(g, kf, { duration: T, delay: 120, fill: "both" })
-    c.a(g, op, { duration: T, delay: 120, fill: "both" })
     c.a(panel, kf, { duration: T, delay: 120, fill: "both" })
     c.a(panel, op, { duration: T, delay: 120, fill: "both" })
     return T + 140
@@ -1090,10 +1132,13 @@ const SPEC: Record<string, Spec> = {
     "header-shrink": ["B", (c, v) => whole(c, [{ transform: "scale(1)", easing: "ease" }, { offset: 0.4, transform: `scale(${v.ratio})` }, { offset: 0.65, transform: `scale(${v.ratio})`, easing: "ease" }, { transform: "scale(1)" }], S(v.duration) * 4, "linear", `${c.tb.x}px ${c.tb.y}px`), "", "ratio,duration"],
     "header-hide-on-scroll": ["B", (c, v) => whole(c, [{ transform: "translateY(0%)", easing: "ease-in" }, { offset: 0.4, transform: "translateY(-120%)" }, { offset: 0.55, transform: "translateY(-120%)", easing: OUT }, { transform: "translateY(0%)" }], S(v.duration) * 3.4, "linear", undefined, "inset(-0.05em -0.1em -0.25em -0.1em)"), "", "duration,tolerance"],
     "header-invert": ["B", (c, v) => ACT.fill(c, { dur: S(v.duration), from: "top" }), "", "duration,mode"],
-    "footer-reveal": ["B", (c, v) => { const sh = c.fx(at(pad(c.tb, c)) + `background:${c.ink};`); c.a(sh, [{ opacity: v.dim }, { opacity: 0 }], { duration: 900, easing: "ease-out", fill: "both" }); return whole(c, [{ transform: `translateY(${K(c, v.lift, 24)}px)` }, { transform: "translateY(0px)" }], 900, OUT) }, "", "lift,dim"],
+    // 8周目：見出しの上に近黒の箱を dim の濃さで置いて消していた＝止めると灰色の板。箱をやめ、字そのものを沈んだ濃さから戻す
+    "footer-reveal": ["B", (c, v) => { c.a(c.txt, [{ opacity: Math.max(0.25, 1 - v.dim) }, { opacity: 1 }], { duration: 900, easing: "ease-out" }); return whole(c, [{ transform: `translateY(${K(c, v.lift, 24)}px)` }, { transform: "translateY(0px)" }], 900, OUT) }, "", "lift,dim"],
     "scroll-marquee": ["B", (c, v) => marquee(c, { speed: K(c, v.speed * (1 + v.factor * 0.5), 24), gap: c.fs, dir: 1 }), "", "speed,factor"],
     "progressive-blur": ["B", (c, v) => each(c, { dur: 1600, ease: EIO, kf: (_i, _n, el) => { const b = c.box(el); const t = v.edge === 1 ? 1 - (b.x - c.tb.x) / c.tb.w : (b.x - c.tb.x) / c.tb.w; const bl = Math.pow(Math.max(0, (t - (1 - v.height / 100)) / (v.height / 100)), 1.5) * v.maxBlur * (c.fs / 80); return [{ filter: "blur(0px)", opacity: 1 }, { offset: 0.45, filter: `blur(${bl.toFixed(1)}px)`, opacity: 1 - (bl / (v.maxBlur * (c.fs / 80) + 0.01)) * 0.6 }, { offset: 0.6, filter: `blur(${bl.toFixed(1)}px)`, opacity: 1 - (bl / (v.maxBlur * (c.fs / 80) + 0.01)) * 0.6 }, { filter: "blur(0px)", opacity: 1 }] } }), "", "maxBlur,height"],
-    "rubber-band": ["B", (c, v) => { const d = Math.min(K(c, v.maxOverscroll, 24) * 0.5, c.fs * v.pull * 4); return whole(c, [{ transform: "translateY(0px) scaleY(1)", easing: "cubic-bezier(.2,.8,.3,1)" }, { offset: 0.4, transform: `translateY(${d}px) scaleY(${1 + v.pull * 0.3})` }, { offset: 0.5, transform: `translateY(${d}px) scaleY(${1 + v.pull * 0.3})`, easing: "cubic-bezier(.2,1.3,.4,1)" }, { transform: "translateY(0px) scaleY(1)" }], 700 + S(v.snapBack) * 1.5, "linear", `50% 0%`) }, "", "pull,snapBack"],
+    // 8周目（A pc_search_gunya）：下へ 72px 引いて英名・本文に重なっていた。字の箱の外へ出さず、右の空きの中で横に引き伸ばして戻す
+    //  （空きが無い長い見出しは、左を留めて縮めてから戻す＝箱の内側だけで動く）。戻りの揺れも箱の内側
+    "rubber-band": ["B", (c, v) => { const room = Math.max(0, c.W - (c.tb.x + c.tb.w)); const want = Math.min(K(c, v.maxOverscroll, 24) * 0.5, c.fs * v.pull * 4); const st = room >= c.fs * 0.3; const k = st ? Math.min(want, room * 0.9) / c.tb.w : -Math.min(0.14, want / c.tb.w); const sx = (q: number) => `scaleX(${(1 + q).toFixed(4)})`; const back = st ? -Math.abs(k) * 0.22 : 0; return whole(c, [{ transform: sx(0), easing: "cubic-bezier(.2,.8,.3,1)" }, { offset: 0.4, transform: sx(k) }, { offset: 0.5, transform: sx(k), easing: "cubic-bezier(.3,0,.3,1)" }, { offset: 0.74, transform: sx(back), easing: "cubic-bezier(.3,0,.3,1)" }, { offset: 0.88, transform: sx(st ? Math.abs(k) * 0.05 : k * 0.12) }, { transform: sx(0) }], 700 + S(v.snapBack) * 1.5, "linear", `${c.tb.x}px 50%`) }, "", "pull,snapBack"],
 
     /* ── text ── */
     "split-text-reveal": ["A", (c, v) => ACT.rise(c, { dur: S(v.duration), st: v.stagger, y: Math.min(140, (v.yOffset / 30) * 115), op: true }), "", "stagger,duration"],
@@ -1128,7 +1173,7 @@ const SPEC: Record<string, Spec> = {
     "menu-reveal": ["B", (c, v) => ACT.rise(c, { u: "w", dur: S(v.duration), st: S(v.stagger), op: true }), "", "duration,stagger"],
     "shutter-transition": ["A", (c, v) => ACT.shutter(c, { n: v.panels, st: v.stagger, horiz: v.orientation === 1, dur: 900 }), "", "panels,stagger"],
     "crt-power-off": ["A", (c, v) => crt(c, v), "", "duration,line"],
-    "zoom-through": ["A", (c, v) => { const o = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`; return whole(c, [{ offset: 0, transform: "scale(1)", opacity: 1, easing: "cubic-bezier(.7,0,.84,0)" }, { offset: 0.5, transform: `scale(${v.zoom})`, opacity: 0 }, { offset: 0.5, transform: `scale(${1 / Math.sqrt(v.zoom)})`, opacity: 0, easing: EXPO }, { offset: 1, transform: "scale(1)", opacity: 1 }], S(v.duration) * 2, "linear", o) }, "", "duration,zoom"],
+    "zoom-through": ["A", (c, v) => { const o = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`; return whole(c, [{ offset: 0, transform: "scale(1)", opacity: 1, easing: "cubic-bezier(.7,0,.84,0)" }, { offset: 0.5, transform: `scale(${capScale(c, v.zoom)})`, opacity: 0 }, { offset: 0.5, transform: `scale(${1 / Math.sqrt(v.zoom)})`, opacity: 0, easing: EXPO }, { offset: 1, transform: "scale(1)", opacity: 1 }], S(v.duration) * 2, "linear", o) }, "", "duration,zoom"],
     "split-screen": ["A", (c, v) => splitScreen(c, v), "", "duration,axis"],
     "shared-element": ["B", (c, v) => { const dy = c.H + c.fs * 0.3; return each(c, { dur: S(v.duration) * 1.3, st: 14, ease: [OUT, EIO, BACK][Math.round(v.easing)] || OUT, kf: (_i, _n, el) => { const b = c.box(el); return [{ transform: `translate(${(c.tb.x + (b.x - c.tb.x) * 0.22) - b.x}px, ${dy - b.y + c.tb.y}px) scale(0.22)`, opacity: 0.0 }, { offset: 0.15, opacity: 1 }, { transform: "translate(0px,0px) scale(1)", opacity: 1 }] }, origin: "0 0" }) }, "", "duration,easing"],
 
@@ -1202,7 +1247,7 @@ const SPEC: Record<string, Spec> = {
     "press-feedback": ["A", (c, v) => pressAct(c, { depth: v.depth, scale: v.scale, release: v.release }), "", "scale,release"],
     "stateful-button": ["C", "ui"],
     "copy-to-clipboard": ["B", (c, v) => copied(c, v), "", "rise,hold"],
-    "stamp-in": ["A", (c, v) => whole(c, [{ transform: `scale(${v.scale}) rotate(${v.angle}deg)`, opacity: 0, easing: "cubic-bezier(.5,0,.75,0)" }, { offset: 0.55, transform: `scale(0.96) rotate(${v.rest * 0.4}deg)`, opacity: 1, easing: OUT }, { offset: 0.7, transform: `scale(1) rotate(${v.rest * 0.4}deg)`, opacity: 1, easing: EIO }, { transform: "scale(1) rotate(0deg)", opacity: 1 }], S(v.duration) * 2.6, "linear", `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`), "", "scale,angle"],
+    "stamp-in": ["A", (c, v) => whole(c, [{ transform: `scale(${capScale(c, v.scale)}) rotate(${v.angle * Math.min(1, (capScale(c, v.scale) - 1) / Math.max(0.01, v.scale - 1))}deg)`, opacity: 0, easing: "cubic-bezier(.5,0,.75,0)" }, { offset: 0.55, transform: `scale(0.96) rotate(${v.rest * 0.4}deg)`, opacity: 1, easing: OUT }, { offset: 0.7, transform: `scale(1) rotate(${v.rest * 0.4}deg)`, opacity: 1, easing: EIO }, { transform: "scale(1) rotate(0deg)", opacity: 1 }], S(v.duration) * 2.6, "linear", `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`), "", "scale,angle"],
     "confetti-burst": ["B", (c, v) => burst(c, v), "", "spread,gravity"],
     "like-burst": ["B", (c, v) => likeBurst(c, v), "", "count,startScale"],
     "prize-wheel": ["B", (c, v) => whole(c, [{ transform: "rotate(0deg)" }, { transform: `rotate(${360 * Math.round(v.turns)}deg)` }], Math.min(S(v.duration), 4000), "cubic-bezier(.17,.67,.12,.99)", `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`), "", "turns,duration"],
@@ -1219,7 +1264,9 @@ const SPEC: Record<string, Spec> = {
     "flip-card": ["B", (c, v) => ACT.swapOut(c, { mode: "flip", dur: S(v.duration), hold: 700, persp: v.perspective * (c.tb.w / 320) }), "", "duration,perspective"],
     "page-turn": ["B", (c, v) => pageTurn(c, v), "", "duration,shade"],
     "sticker-peel": ["B", (c, v) => peel(c, v), "", "depth,angle"],
-    "floating-label": ["B", (c, v) => whole(c, [{ transform: "translateY(0px) scale(1)", easing: OUT }, { offset: 0.3, transform: `translateY(${-K(c, v.rise, 24) * 0.8}px) scale(${v.scale})` }, { offset: 0.7, transform: `translateY(${-K(c, v.rise, 24) * 0.8}px) scale(${v.scale})`, easing: OUT }, { transform: "translateY(0px) scale(1)" }], S(v.duration) * 8, "linear", `${c.tb.x}px ${c.tb.y + c.tb.h}px`), "", "rise,scale"],
+    // 8周目：縮んだ見出しを K(rise) だけ上へ送っていて、右上のラベル・章のチップの側へ出ていた（演技の枠で切れて半分消えた）。
+    // 上がる量は「縮んで空いた分」まで＝縮んだ見出しの頭が元の見出しの頭に揃う所で止める（ラベルとして上に浮いて見える）
+    "floating-label": ["B", (c, v) => { const dy = Math.min(K(c, v.rise, 24) * 0.8, (1 - Math.min(1, v.scale)) * c.tb.h); return whole(c, [{ transform: "translateY(0px) scale(1)", easing: OUT }, { offset: 0.3, transform: `translateY(${-dy}px) scale(${v.scale})` }, { offset: 0.7, transform: `translateY(${-dy}px) scale(${v.scale})`, easing: OUT }, { transform: "translateY(0px) scale(1)" }], S(v.duration) * 8, "linear", `${c.tb.x}px ${c.tb.y + c.tb.h}px`) }, "", "rise,scale"],
     "password-strength": ["C", "ui"],
     "expanding-search": ["B", (c, v) => { const w = K(c, v.startWidth, 16); const L = v.anchor === 1; return ACT.clip(c, { from: L ? `inset(-20% ${c.W - c.tb.x - w}px -20% -5%)` : `inset(-20% ${c.W - c.tb.x - c.tb.w}px -20% ${c.tb.x + c.tb.w - w}px)`, to: "inset(-20% -5% -20% -5%)", dur: S(v.duration) * 2.4, ease: OUT }) }, "", "duration,startWidth"],
     "dropdown-reveal": ["B", (c, v) => whole(c, [{ transform: `translateY(${-K(c, v.offset, 16)}px)`, opacity: 0, clipPath: "inset(-20% -5% 100% -5%)" }, { transform: "translateY(0px)", opacity: 1, clipPath: "inset(-20% -5% -20% -5%)" }], S(v.duration) * 3, OUT), "", "duration,offset"],
@@ -1267,6 +1314,13 @@ const SPEC: Record<string, Spec> = {
 //    現れる演技は約0.7秒、往復の演技は「隠れている割合」（4周目の実測の最大値）から 0.44秒 ÷ 割合
 //  表に無い項目は枠なし（実測で規則を満たしている）。右上の数値表示は本来の値のまま
 const LEAD = 180
+// 8周目（A の一番の1手）：着地の演技は 0.6秒以内に素の見出しへ戻る。審査はスクショ＝演技の途中のコマが「バグ」に見えるので、
+// 画面に入ったときの1回は短く収める。lead を 100ms に詰め、演技を LAND_ACT に収まる速さで再生し、
+// 追う系・スクロール系の擬似の動きも同じ長さにする。最後に LAND_MS で必ず素の見出しに戻す（物理で尾を引く演技の保険）。
+// ホールドの演技は「出て→戻る」を往復で収める。スライダーを離した時・ホバー・タップは従来の枠（0.8秒以内に読める）のまま
+const LAND_MS = 600
+const LAND_LEAD = 100
+const LAND_ACT = 520
 const FIT: Record<string, [0 | 1, number]> = {
     "header-hide-on-scroll": [1, 1000],
     "drawer-slide": [0, 620],
@@ -1596,13 +1650,25 @@ function stackAct(c: Ctx, v: V) {
 }
 function coverAct(c: Ctx, v: V) {
     const D = S(v.duration)
-    const B = pad(c.tb, c)
+    // 8周目：板が見出しを覆い切るコマで、字が板の下に隠れて「黒い帯だけ」に見えた。板の上の字は生成りで抜く（板と同じ動きで切り抜く）。
+    // 板は字の範囲まで（余白を足すと見出しより大きい板）
+    const B = { ...c.tb }
     const panel = c.fx(at(B) + panelBg(c, 0) + `border-radius:${c.fs * 0.06}px;`)
+    const y0 = B.h * (1 + v.rise / 100), y1 = -B.h * 1.1
     c.a(panel, [
-        { offset: 0, transform: `translateY(${B.h * (1 + v.rise / 100)}px) scale(${v.scaleFrom})`, opacity: 0, easing: OUT },
-        { offset: 0.45, transform: "translateY(0px) scale(1)", opacity: 1, easing: "linear" },
-        { offset: 0.55, transform: "translateY(0px) scale(1)", opacity: 1, easing: INOUT },
-        { offset: 1, transform: `translateY(${-B.h * 1.1}px) scale(1)`, opacity: 1 },
+        // 板は薄くせず（半透明の板＝灰色の板）、字の範囲の下から切り抜きの中へ入ってくる。拡大（scaleFrom）は字の抜きとずれるので使わない
+        { offset: 0, transform: `translateY(${y0}px)`, easing: OUT },
+        { offset: 0.45, transform: "translateY(0px)", easing: "linear" },
+        { offset: 0.55, transform: "translateY(0px)", easing: INOUT },
+        { offset: 1, transform: `translateY(${y1}px)` },
+    ], { duration: D * 2, fill: "both" })
+    const ko = c.ghost(c.paper)
+    const cl = (dy: number) => `inset(${Math.max(0, B.y + dy)}px ${c.W - B.x - B.w}px ${Math.max(0, c.H - B.y - B.h - dy)}px ${B.x}px)`
+    c.a(ko, [
+        { offset: 0, clipPath: cl(y0), easing: OUT },
+        { offset: 0.45, clipPath: cl(0), easing: "linear" },
+        { offset: 0.55, clipPath: cl(0), easing: INOUT },
+        { offset: 1, clipPath: cl(y1) },
     ], { duration: D * 2, fill: "both" })
     c.rootStyle({ clipPath: `inset(${B.y}px ${c.W - B.x - B.w}px ${c.H - B.y - B.h}px ${B.x}px)` })
     c.txt.style.transformOrigin = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`
@@ -1947,8 +2013,23 @@ function tabAct(c: Ctx, v: V) {
     return T
 }
 function tipAct(c: Ctx, v: V) {
-    const tip = c.fx(`left:${c.tb.x}px;top:${c.tb.y - c.fs * 0.42}px;padding:${Math.max(4, c.fs * 0.06)}px ${Math.max(8, c.fs * 0.12)}px;background:${c.ink};color:${c.paper};font:400 ${Math.max(11, c.fs * 0.16)}px/1.3 ${MONO};white-space:nowrap;border-radius:6px;transform-origin:0 100%;`)
+    // 8周目：吹き出しを見出しの左上（＝章のチップの上）に出していて、止めると「UI」のチップに重なっていた。
+    // 見出しの字の範囲の中に置く：最後の行の右に空きがあればその右（行の高さの中央）、無ければ見出しの右上の角の内側
+    const tip = c.fx(`left:0;top:0;padding:${Math.max(4, c.fs * 0.06)}px ${Math.max(8, c.fs * 0.12)}px;background:${c.ink};color:${c.paper};font:400 ${Math.max(11, c.fs * 0.16)}px/1.3 ${MONO};white-space:nowrap;border-radius:6px;`)
     tip.textContent = c.en
+    {
+        const lb = lineBoxes(c), last = lb[lb.length - 1] || c.tb
+        const tw = tip.offsetWidth, th = tip.offsetHeight, gap = c.fs * 0.18
+        if (last.x + last.w + gap + tw <= c.W) {
+            tip.style.left = `${last.x + last.w + gap}px`
+            tip.style.top = `${last.y + (last.h - th) / 2}px`
+            tip.style.transformOrigin = "0 50%"
+        } else {
+            tip.style.left = `${Math.max(c.tb.x, c.tb.x + c.tb.w - tw)}px`
+            tip.style.top = `${c.tb.y + 2}px`
+            tip.style.transformOrigin = "100% 0"
+        }
+    }
     const D = S(v.duration)
     const T = S(v.delay) + D + 1200 + D
     c.a(tip, [
@@ -1977,11 +2058,19 @@ function pill(c: Ctx, v: V) {
 function ripple(c: Ctx, v: V) {
     const sz = K(c, v.size, 40)
     const x = c.tb.x + c.tb.w * 0.3, y = c.tb.y + c.tb.h / 2
-    const B = pad(c.tb, c)
+    // 8周目：波紋を薄い灰色の塗り（rgba .16）で広げていた＝止めると見出しの後ろに灰色の板。塗らず、1px の輪だけが広がる（拡大しても線は 1px）
+    const B = { ...c.tb }
     const box = c.fx(at(B) + "overflow:hidden;")
-    const dot = document.createElement("div")
-    dot.style.cssText = `position:absolute;left:${x - B.x - sz / 2}px;top:${y - B.y - sz / 2}px;width:${sz}px;height:${sz}px;border-radius:50%;background:rgba(10,10,10,.16);`
-    box.appendChild(dot)
+    const NS = "http://www.w3.org/2000/svg"
+    const svg = document.createElementNS(NS, "svg")
+    svg.setAttribute("width", String(B.w)); svg.setAttribute("height", String(B.h))
+    svg.style.cssText = "position:absolute;left:0;top:0;overflow:visible"
+    const dot = document.createElementNS(NS, "circle") as unknown as HTMLElement
+    dot.setAttribute("cx", String(x - B.x)); dot.setAttribute("cy", String(y - B.y)); dot.setAttribute("r", String(sz / 2))
+    dot.setAttribute("fill", "none"); dot.setAttribute("stroke", c.ink); dot.setAttribute("stroke-width", "1"); dot.setAttribute("vector-effect", "non-scaling-stroke")
+    dot.style.cssText = "transform-box:fill-box;transform-origin:50% 50%"
+    svg.appendChild(dot)
+    box.appendChild(svg)
     c.a(dot, [{ transform: "scale(0)", opacity: 1 }, { transform: `scale(${(B.w / sz) * 2.2})`, opacity: 0 }], { duration: S(v.duration) * 1.6, easing: "cubic-bezier(.2,.6,.3,1)", fill: "both" })
     return S(v.duration) * 1.6
 }
@@ -2039,8 +2128,10 @@ function scratch(c: Ctx, v: V) {
     //  ・膜はデモ（demos/ScratchCard.tsx の paintFoil）と同じ5段の銀箔グラデーション＋点線（＝見出しの上に同じカードが降りる）
     //  ・膜が見えている時間は全部で 600ms 以内：降りる 80 → 削る 440−fade → 残りを消す fade（＝520ms）。fade は値の0.3倍（40〜160ms）
     //  ・太い brush で行が2本になると下の行が最後まで残っていた → 行は3本以上・線の太さは行の間隔の1.3倍以上
-    const B = pad(c.tb, c, 0.1)
+    // 8周目：膜（銀箔）が見出しを全部覆うコマは「灰色の板」に見えた。膜は字の範囲まで・8割の濃さ（膜の下の字が透けて読める）
+    const B = { ...c.tb }
     const { g } = overlayCanvas(c)
+    g.canvas.style.opacity = "0.8"
     const fg = g.createLinearGradient(B.x, B.y, B.x + B.w, B.y + B.h)
     fg.addColorStop(0, "#e9e9e9")
     fg.addColorStop(0.35, "#bdbdbd")
@@ -2067,7 +2158,7 @@ function scratch(c: Ctx, v: V) {
     const IN = 80
     const fade = Math.min(160, Math.max(40, S(v.fade) * 0.3))
     const D = 440 - fade
-    c.a(g.canvas, [{ opacity: 0 }, { opacity: 1 }], { duration: IN, easing: "ease-out" })
+    c.a(g.canvas, [{ opacity: 0 }, { opacity: 0.8 }], { duration: IN, easing: "ease-out" })
     const pts: [number, number][] = []
     for (let r = 0; r < rows; r++) {
         const y = B.y + (B.h * (r + 0.5)) / rows
@@ -2163,24 +2254,39 @@ function chat(c: Ctx, v: V) {
     return T
 }
 function pageTurn(c: Ctx, v: V) {
+    // 8周目（A r7 crop_pageturn_title）：めくる紙を「生成りの板＋黒い陰りの板」で描いていたので、止めて撮ると見出しの後ろに灰色の板が出た
+    // （綴じ目の影の箱・紙の陰り・紙の地の色の差）。板を一切使わず、字だけでめくる：
+    //  ・めくる紙＝見出しの写し（字だけ・地なし）。綴じ目（字の左端）を軸に rotateY 0 → -90°（紙が垂直に立つまで。裏は見せない）
+    //  ・下のページ＝素の見出し。めくる紙の縁（画面に投影した右端）より右だけを、紙が立ち上がってから見せる＝二重に見えない
+    //  ・陰り＝めくる紙の字の濃さ（shade%）と、紙の縁の 1px の線（罫線と同じ太さ）だけ
+    //  ・見出しの字の範囲（B）の外には何も描かない（手前に迫る字が英名・ラベルに掛からない）
     const D = S(v.duration)
     const pr = v.perspective * (c.tb.w / 240)
     const B = pad(c.tb, c)
-    // 下のページ（素の見出し）は綴じ目の影から明るむ。めくる紙より先に置く（重なり順＝下）
-    const under = c.fx(at(B) + `background:linear-gradient(90deg, rgba(10,10,10,${(v.shade / 100) * 0.6}), rgba(10,10,10,0) 60%);`)
+    c.rootStyle({ clipPath: `inset(${B.y}px ${c.W - B.x - B.w}px ${c.H - B.y - B.h}px ${B.x}px)` })
     const g = c.ghost()
-    g.style.background = c.paper
     g.style.transformOrigin = `${B.x}px 50%`
     g.style.backfaceVisibility = "hidden"
-    g.style.clipPath = `inset(${B.y}px ${c.W - B.x - B.w}px ${c.H - B.y - B.h}px ${B.x}px)`
-    const shade = document.createElement("div")
-    shade.style.cssText = `position:absolute;left:${B.x}px;top:${B.y}px;width:${B.w}px;height:${B.h}px;background:linear-gradient(90deg, rgba(10,10,10,1), rgba(10,10,10,0));pointer-events:none;`
-    g.appendChild(shade)
+    const edge = document.createElement("span")
+    edge.style.cssText = `position:absolute;left:${B.x + B.w - 1}px;top:${B.y}px;width:1px;height:${B.h}px;background:${c.ink};opacity:0;pointer-events:none;`
+    g.appendChild(edge)
     const ease = "cubic-bezier(0.45, 0, 0.25, 1)"
-    c.a(g, [{ transform: `perspective(${pr}px) rotateY(0deg)` }, { transform: `perspective(${pr}px) rotateY(-180deg)` }], { duration: D, easing: ease, fill: "both" })
-    c.a(shade, [{ opacity: 0 }, { opacity: v.shade / 100 }, { opacity: 0 }], { duration: D, easing: ease, fill: "both" })
-    // 4周目：綴じ目の影は紙がめくれ始めてから濃くなる（旧版は1コマ目から影の箱が見出しに掛かっていた）
-    c.a(under, [{ opacity: 0 }, { offset: 0.25, opacity: 1 }, { opacity: 0 }], { duration: D, easing: ease, fill: "both" })
+    const N = 12, kfG: Keyframe[] = [], kfU: Keyframe[] = [], kfE: Keyframe[] = []
+    const sh = Math.max(0, Math.min(70, v.shade)) / 100
+    for (let k = 0; k <= N; k++) {
+        const t = k / N, th = (t * 92 * Math.PI) / 180
+        const z = B.w * Math.sin(th)
+        const xs = Math.max(0, (B.w * Math.cos(th) * pr) / Math.max(1, pr - z))
+        kfG.push({ offset: t, transform: `perspective(${pr}px) rotateY(${(-t * 92).toFixed(2)}deg)`, opacity: (1 - sh * Math.sin(th)) * Math.min(1, (92 - t * 92) / 26) }) // 立ち切る手前（細く潰れた字の塊）は見せない
+        // 下のページは、めくる紙の縁より右だけ（縁が綴じ目まで来たら全部）
+        const cut = k === N ? 0 : Math.round(B.x + xs)
+        // 下のページの字は、めくる紙が立ち上がってから現れる（同じ語が横に2つ並んで「ページめくりめくり」と読める姿を作らない）
+        kfU.push({ offset: t, clipPath: `inset(-20% -5% -20% ${cut}px)`, opacity: t < 0.8 ? 0 : Math.min(1, (t - 0.8) / 0.2) })
+        kfE.push({ offset: t, opacity: k === 0 || k === N ? 0 : Math.min(1, sh * 1.6) * 0.6 })
+    }
+    c.a(g, kfG, { duration: D, easing: ease, fill: "both" })
+    c.a(c.txt, kfU, { duration: D, easing: ease })
+    c.a(edge, kfE, { duration: D, easing: ease, fill: "both" })
     return D + 40
 }
 function peel(c: Ctx, v: V) {
@@ -2379,6 +2485,9 @@ export default function EntryTitle(props: Props) {
         const flags = (chap ? chap.flags : (spec[2] as string)) || ""
         const isF = flags.includes("f"), isH = flags.includes("h"), isS = flags.includes("s")
 
+        // 8周目：いま演じているのが着地（画面に入ったときの1回）か
+        let landing = false
+        let curSafe: HTMLElement | null = null
         let anims: Animation[] = []
         let fxs: HTMLElement[] = []
         let timers: number[] = []
@@ -2392,6 +2501,7 @@ export default function EntryTitle(props: Props) {
         let inView = false
         let gen = 0
         let sweeping = false
+        let ticking = false
         // 4周目：読める演技の枠（下の FIT）。tempo＝再生の速さ（長い演技を上限の長さに縮める）、lead＝素の姿で止まっている時間（ms）
         let tempo = 1
         let lead = 0
@@ -2401,6 +2511,11 @@ export default function EntryTitle(props: Props) {
         const allEls = () => [txt]
         const stop = () => {
             gen++
+            landing = false
+            // 8周目：回している途中で止めると（着地の 0.6秒の打ち切り）、rAF が消されて ticking が立ったまま残り、
+            // 次の演技（スライダーを離した時）の追う系が一度も回らず、舞台が残り続けていた
+            ticking = false
+            sweeping = false
             anims.forEach((a) => { try { a.cancel() } catch {} })
             anims = []
             fxs.forEach((f) => f.remove())
@@ -2463,7 +2578,30 @@ export default function EntryTitle(props: Props) {
                 stage.appendChild(wp)
                 wordsEl.push(wp)
             })
-            root.appendChild(stage)
+            // 8周目：演技の枠（safe）。舞台と重ねる層はすべてこの中に置き、枠の外には描かない。
+            //  上＝右上のラベルの下端まで／下＝言い換え・英名の上端まで／左右＝版面（PC 40・SP 16）の内側、右は「いまの値」との間の半分まで。
+            //  審査はスクショ＝演技の途中のコマで、字や板がラベル・英名・本文に重なる／版面の外へ出る姿を、どの演技でも作らない
+            //  （字が枠に掛かる間は切れて見えるが、重なって見えるよりは組版として正しい）。混色（mix-blend-mode）を使う演技だけは枠を外す（下の play）
+            const safe = document.createElement("span")
+            safe.className = "mdt-fx mdt-safe"
+            safe.setAttribute("aria-hidden", "true")
+            {
+                const vw = document.documentElement.clientWidth
+                const mg = vw < 810 ? 16 : 40
+                const fsz = parseFloat(getComputedStyle(root).fontSize) || 60
+                const mdt = root.closest(".mdt")
+                const tg = mdt ? Array.from(mdt.querySelectorAll<HTMLElement>(".mdt-tag")).find((e) => e.getClientRects().length && e.style.visibility !== "hidden") : null
+                const nx = (root.nextElementSibling as HTMLElement | null) || ((root.parentElement && root.parentElement.parentElement && root.parentElement.parentElement.nextElementSibling) as HTMLElement | null)
+                const top = tg ? Math.max(2, rr.top - tg.getBoundingClientRect().bottom - 2) : Math.round(fsz * 0.2)
+                const bot = nx ? Math.max(2, nx.getBoundingClientRect().top - rr.bottom - 2) : Math.round(fsz * 0.2)
+                const left = Math.max(0, rr.left - mg)
+                const right = Math.max(0, Math.min(32, vw - mg - rr.right))
+                safe.style.cssText = `left:0;top:0;width:${root.clientWidth}px;height:${root.clientHeight}px;clip-path:inset(${-Math.round(top)}px ${-Math.floor(right)}px ${-Math.round(bot)}px ${-Math.floor(left)}px);`
+            }
+            root.appendChild(safe)
+            fxs.push(safe)
+            curSafe = safe
+            safe.appendChild(stage)
             fxs.push(stage)
             bx.set(stage, { x: 0, y: 0, w: root.clientWidth, h: root.clientHeight })
             txt.style.visibility = "hidden"
@@ -2511,7 +2649,7 @@ export default function EntryTitle(props: Props) {
                     el.className = "mdt-fx"
                     el.setAttribute("aria-hidden", "true")
                     el.style.cssText += css
-                    root.appendChild(el)
+                    safe.appendChild(el)
                     fxs.push(el)
                     return el
                 },
@@ -2522,7 +2660,7 @@ export default function EntryTitle(props: Props) {
                     g.className = "mdt-t mdt-fx mdt-stage"
                     g.setAttribute("aria-hidden", "true")
                     g.style.cssText = `left:0;top:0;width:${root.clientWidth}px;height:${root.clientHeight}px;${color ? "color:" + color + ";" : ""}`
-                    root.appendChild(g)
+                    safe.appendChild(g)
                     fxs.push(g)
                     return g
                 },
@@ -2532,7 +2670,7 @@ export default function EntryTitle(props: Props) {
                     g.setAttribute("aria-hidden", "true")
                     g.textContent = s
                     g.style.cssText = `left:${x0}px;top:${y0}px;white-space:nowrap;${css}`
-                    root.appendChild(g)
+                    safe.appendChild(g)
                     fxs.push(g)
                     const maxW = Math.max(x1 - x0, root.clientWidth - x0)
                     if (g.offsetWidth > maxW) g.style.fontSize = `${(parseFloat(getComputedStyle(root).fontSize) * maxW) / g.offsetWidth}px`
@@ -2595,7 +2733,6 @@ export default function EntryTitle(props: Props) {
         }
 
         // 追う系（f）／スクロール系（s）を回す
-        let ticking = false
         const tickLoop = () => {
             if (ticking) return
             ticking = true
@@ -2621,12 +2758,13 @@ export default function EntryTitle(props: Props) {
             const my = gen
             held = true
             sweeping = true
-            const D = 1700
+            const D = landing ? LAND_ACT - LAND_LEAD - 40 : 1700
+            const L0 = landing ? LAND_LEAD : LEAD
             const step = (now: number) => {
                 if (gen !== my || follow !== f || !sweeping) return
                 // 4周目：入る前に LEAD だけ素の姿で止める（1コマ目から傾いて・散って始まらない）
-                if (now - t0 < LEAD) { rafs.push(requestAnimationFrame(step)); return }
-                const k = Math.min(1, (now - t0 - LEAD) / D)
+                if (now - t0 < L0) { rafs.push(requestAnimationFrame(step)); return }
+                const k = Math.min(1, (now - t0 - L0) / D)
                 const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2
                 f.move(c.tb.x - c.fs * 0.4 + (c.tb.w + c.fs * 0.8) * e, c.tb.y + c.tb.h * (0.5 + 0.18 * Math.sin(k * Math.PI * 2)))
                 tickLoop()
@@ -2640,12 +2778,13 @@ export default function EntryTitle(props: Props) {
             const t0 = performance.now()
             const my = gen
             held = true
-            const D = 1400
+            const D = landing ? LAND_ACT - LAND_LEAD - 40 : 1400
+            const L0 = landing ? LAND_LEAD : LEAD
             let last = 0
             const step = (now: number) => {
                 if (gen !== my || scroller !== s) return
-                if (now - t0 < LEAD) { rafs.push(requestAnimationFrame(step)); return }
-                const k = Math.min(1, (now - t0 - LEAD) / D)
+                if (now - t0 < L0) { rafs.push(requestAnimationFrame(step)); return }
+                const k = Math.min(1, (now - t0 - L0) / D)
                 const off = Math.sin(Math.PI * k) * 600
                 s.push((off - last) * 0.9, off)
                 last = off
@@ -2688,6 +2827,12 @@ export default function EntryTitle(props: Props) {
                 tempo = f[1] && T > f[1] ? T / f[1] : 1
                 lead = f[0] ? LEAD : 0
             } else if (T > 0 && lastC && restAtStart(lastC)) lead = LEAD
+            // 8周目：着地は lead＋演技を 0.6秒に収める（ホールドは往復＝片道を半分に）
+            if (landing && T > 0) {
+                if (lead) lead = LAND_LEAD
+                const room = (LAND_ACT - lead) / ((res as Hold).hold ? 2 : 1)
+                tempo = Math.max(tempo, T / Math.max(120, room))
+            }
             fitted = true
             if (tempo !== 1 || lead) anims.forEach((a) => {
                 try {
@@ -2728,24 +2873,31 @@ export default function EntryTitle(props: Props) {
         const play = (why: string) => {
             if (reduced || !inView) return
             stop()
+            landing = why === "land"
             const res = fitAct(run(why))
             if (!res) { stop(); return }
+            unclipIfBlend()
             {
                 const L = lead
-                const ms = typeof res === "number" ? res - L : (res as Hold).hold ? (res as Hold).ms - L + 650 : (res as Follow).kind === "f" ? 1700 : 1400
+                const ms = typeof res === "number" ? res - L : (res as Hold).hold ? ((res as Hold).ms - L) * (landing ? 2 : 1) + (landing ? 0 : 650) : landing ? LAND_ACT - LAND_LEAD - 40 : (res as Follow).kind === "f" ? 1700 : 1400
                 cue(why === "hover" && (res as Hold).hold && isH ? 1200 : ms, L)
+            }
+            if (landing) {
+                // 保険：どの演技も LAND_MS で素の見出しに戻す（速い演技はこの前に自分で戻っている）
+                const my = gen
+                timers.push(window.setTimeout(() => { if (gen === my) { landing = false; stop() } }, LAND_MS - 10))
             }
             if (typeof res === "number") {
                 busyUntil = performance.now() + res
                 const my = gen
-                timers.push(window.setTimeout(() => { if (gen === my) stop() }, res + 80))
+                timers.push(window.setTimeout(() => { if (gen === my) stop() }, res + (landing ? 20 : 80)))
             } else if ((res as Hold).hold) {
                 const ms = (res as Hold).ms
                 held = true
                 busyUntil = performance.now() + ms * 2 + 600
                 if (why === "hover" && isH) return // ホバー中は保つ。離れたら戻す
                 const my = gen
-                timers.push(window.setTimeout(() => { if (gen === my) release() }, ms + 650))
+                timers.push(window.setTimeout(() => { if (gen === my) release() }, landing ? ms : ms + 650))
             } else if ((res as Follow).kind === "f") {
                 follow = res as Follow
                 busyUntil = performance.now() + 1800
@@ -2755,6 +2907,13 @@ export default function EntryTitle(props: Props) {
                 busyUntil = performance.now() + 1500
                 synth(scroller)
             }
+        }
+        // 混色（mix-blend-mode）の層があると、枠の切り抜き（＝独立した重なりの集まり）の中では地と混ざらない。その演技だけ枠を外す
+        const unclipIfBlend = () => {
+            const sf = curSafe
+            if (!sf || !sf.isConnected) return
+            const blend = Array.from(sf.querySelectorAll<HTMLElement>("*")).some((e) => e.style.mixBlendMode && e.style.mixBlendMode !== "normal")
+            if (blend) sf.style.clipPath = "none"
         }
         // ホールドの演技を逆再生で戻し、終わったら素の h1 へ
         const release = () => {
@@ -2815,7 +2974,7 @@ export default function EntryTitle(props: Props) {
             if (e.pointerType !== "mouse" || !fine || reduced) return
             if (isF) {
                 sweeping = false
-                if (!follow) { stop(); const r = fitAct(run()); if (r && (r as Follow).kind === "f") follow = r as Follow; else { stop(); return } }
+                if (!follow) { stop(); const r = fitAct(run()); if (r && (r as Follow).kind === "f") { follow = r as Follow; unclipIfBlend() } else { stop(); return } }
                 held = true
                 const [x, y] = rel(e)
                 follow!.move(x, y)
