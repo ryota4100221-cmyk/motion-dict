@@ -147,6 +147,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "notification-badge": d(() => import("./NotificationBadge")),
   "dropdown-reveal": d(() => import("./DropdownReveal")),
   "menu-toggle": d(() => import("./MenuToggle")),
+  "speed-dial": d(() => import("./SpeedDial")),
   "error-shake": d(() => import("./ErrorShake")),
   "stagger-grid": d(() => import("./StaggerGrid")),
   "liquid-fill": d(() => import("./LiquidFill")),
