@@ -4,6 +4,7 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 // 詳細ページの末尾：「近い動き」（関連）＋ 前後の項目 ＋ 一覧へ戻る。
 // 旧Next版にはあったが、Framer移行で抜け落ち、詳細ページの出口が無かった（独立レビューで指摘）。
 // データは GH の entry/<slug>.json（関連・前後は一覧と同じ並びで書き出し済み）。
+// 2026-10-25（4周目）根に .mdnav-root を付けた。EntryLab の追従する Copy の帯は、これが画面に入ったら引っ込む（関連カードに重なっていた）
 
 interface Mini {
     slug: string
@@ -100,7 +101,7 @@ export default function EntryNav(props: Props) {
     const related = (d?.related || []).slice(0, 3)
 
     return (
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 56, color: ink, fontFamily: JP, ...props.style }}>
+        <div className="mdnav-root" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 56, color: ink, fontFamily: JP, ...props.style }}>
             <style>{`
 .mdnav-card{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:${ink};min-width:0}
 .mdnav-card .ph{position:relative;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:${ink}}

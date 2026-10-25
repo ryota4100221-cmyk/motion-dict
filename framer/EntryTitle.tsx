@@ -32,6 +32,19 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 //  ・着地の1回目だけ実演値（秒は最長1.6秒・ken-burns の倍率は2倍）。ラベルの数値は本来の値のまま
 //  ・カードから来た時は、生成りの地が溶け始めてから演じる（地の下で演じ終わっていた）
 //  ・scratch-card：斜めのジグザグで削って三角の膜が残っていた → 行ごとに横へ削り、しきい値で残りを消す
+//
+// 2026-10-25（Awwwards 4周目・指摘1「見出しの演技が壊れて見える」）
+//  ・規則：どの演技も 0.8秒以内に素の見出しを一度通り、見出しの半分以上が消えている時間は 0.5秒まで、最後は素の見出しで止まる。
+//    機械の判定＝aww/r4/detail/test/judge.cjs（PC/SP×196件×着地とスライダー解放。画面のコマを素の見出しと画素で比べる）
+//  ・FIT（演技の枠）：lead＝素の姿で 180ms 止まってから動く／上限＝長い演技は再生を速めて収める。表に無い項目も、
+//    1コマ目が素の姿なら lead を付ける（restAtStart）。追う系の横切り・スクロール系の擬似スクロールも lead の後に動く
+//  ・magnetic：字の変位は 0.15em まで（ぶつかって読めなかった）／ken-burns：拡大 1.04 まで・切り抜かない（頭の字が切れた）
+//  ・dither：素の字→粒（密度は4割まで）→素の字。字の透明は rAF の中で決める（全ページ撮影で H1 が無かった）
+//  ・scratch：膜は字の上に降りてから削る（1コマ目から膜で隠れていた）／curtain：帯が覆う間だけ隠れる（伸びる前から消えていた）
+//  ・切り抜きで現れる演技は、字のある範囲で閉じる（枠の % だと短い見出しは約20msで全部開いていた）
+//  ・marquee：字の幅の中で回る帯（同じ語が後ろから続く）／輪（rotating-badge 等）・奥へ流れる・投げる・沈める系は量か時間を詰めた
+//  ・章扉と同じ演技（C）は値の定義が後から届いても張り直さない（着地の演技が約50msで消されていた）
+//  ・SP の右上のラベル：値を2行目に出す（「durati…」で切れていた）
 
 interface Param {
     key: string
@@ -201,7 +214,6 @@ function loadHeadFont(text: string): Promise<void> {
 // スライダーを離した時・ホバー・タップは本来の値。右上の数値表示はずっと本来の値（実演値は表示しない）
 const DEMO_MAX_S = 1.6
 const DEMO_AMP: Record<string, (v: V) => V> = {
-    "ken-burns": (v) => ({ ...v, zoom: 1 + (v.zoom - 1) * 2, pan: v.pan * 1.5 }),
 }
 function demoValues(slug: string, params: Param[], v: V): V {
     const o: V = { ...v }
@@ -334,6 +346,11 @@ function whole(c: Ctx, kf: Keyframe[], dur: number, ease = "linear", origin?: st
     return dur
 }
 const CLIP_BOX = "inset(-0.25em -0.04em -0.25em -0.04em)"
+// 4周目：切り抜きの「閉じた姿」を、枠（780px）ではなく字のある範囲で決める。
+// 旧版は枠の % で閉じていたので、短い見出し（字が枠の左3割）では最初の約20msで全部開き、動きが見えなかった
+function closedL(c: Ctx) { return `inset(-20% ${Math.round(c.W - c.tb.x + 2)}px -20% -5%)` }
+function closedR(c: Ctx) { return `inset(-20% -5% -20% ${Math.round(c.tb.x + c.tb.w + 2)}px)` }
+function closedC(c: Ctx) { const m = c.tb.x + c.tb.w / 2; return `inset(50% ${Math.round(c.W - m)}px 50% ${Math.round(m)}px)` }
 // 文字の下から（上へ）マスクの中を通って現れる。clip-path を動きと逆に削ると、マスクが元の位置に留まって見える
 function maskY(y: number) {
     return y >= 0
@@ -670,7 +687,9 @@ const ACT = {
                 { offset: 1, transform: `${sc}(0)`, transformOrigin: org2 },
             ], { duration: T, delay: k * 70, fill: "both" })
         }
-        if (p.hide !== false) c.a(c.txt, [{ opacity: 0 }, { opacity: 0 }], { duration: pv * (T - 60) + 30 })
+        // 4周目：字は消さない（旧版は帯が伸び始める前から字を透明にしていた＝1コマ目から見出しが無く、帯が引くまで約1.2秒消えていた）。
+        // 帯が字の上を通り過ぎるだけ。隠れるのは帯が覆っている間だけ
+        void p.hide
         return T + n * 70
     },
     // 細い羽根が順に閉じて開く（shutter）
@@ -747,7 +766,8 @@ const ACT = {
             c.a(bar, [{ opacity: 1 }, { opacity: 0 }], { duration: 400, delay: p.dur, fill: "forwards" })
             c.a(track, [{ opacity: 1 }, { opacity: 0 }], { duration: 400, delay: p.dur, fill: "forwards" })
         }
-        if (p.reveal) c.a(c.txt, [{ clipPath: `inset(-20% 100% -20% 0%)` }, { clipPath: `inset(-20% ${100 - (p.to ?? 1) * 100}% -20% 0%)` }], { duration: p.dur, easing: p.ease || EXPO })
+        // 字の切り抜きは線の先（字のある範囲）に合わせる（旧版は枠の % で開き、短い見出しは線より先に全部見えていた）
+        if (p.reveal) { const to = p.to ?? 1; c.a(c.txt, [{ clipPath: closedL(c) }, { clipPath: to >= 1 ? "inset(-20% -5% -20% -5%)" : `inset(-20% ${Math.round(c.W - c.tb.x - c.tb.w * to)}px -20% -5%)` }], { duration: p.dur, easing: p.ease || EXPO }) }
         return p.dur + 420
     },
     // 位置を追う（magnetic）
@@ -765,7 +785,9 @@ const ACT = {
                 c.chars.forEach((ch, i) => {
                     const dx = px - ctr[i].x, dy = py - ctr[i].y
                     const inR = has && Math.hypot(dx, dy) < R
-                    const tx = inR ? dx * p.strength : 0, ty = inR ? dy * p.strength : 0
+                    // 字の変位は 0.15em まで（4周目：強さ0.35×半径252px で最大88px動き、隣の字とぶつかって読めなかった）
+                    const lim = c.fs * 0.15
+                    const tx = inR ? Math.max(-lim, Math.min(lim, dx * p.strength)) : 0, ty = inR ? Math.max(-lim, Math.min(lim, dy * p.strength)) : 0
                     const k = inR ? p.lerp : p.lerp * 0.7
                     pos[i].x += (tx - pos[i].x) * k
                     pos[i].y += (ty - pos[i].y) * k
@@ -843,7 +865,8 @@ const ACT = {
                     g.style.setProperty("mask-image", mask)
                     g.style.opacity = String(o)
                 }
-                if (p.mode === "spot") c.txt.style.opacity = String(1 - o * 0.78)
+                // 4周目：円の外は半分の濃さまで（旧版は 0.22 まで沈み、円の外の字が読めなかった）
+                if (p.mode === "spot") c.txt.style.opacity = String(1 - o * 0.5)
                 if (disc) {
                     disc.style.transform = `translate(${cx - p.r}px, ${cy - p.r}px) scale(${0.4 + o * 0.6})`
                     disc.style.opacity = String(o)
@@ -881,7 +904,7 @@ const CH: Record<string, { slug: string; ja: string; label: string; flags?: stri
     scroll: { slug: "velocity-skew", ja: "速度スキュー", label: "factor 0.5 · max 8°", flags: "s", fn: (c) => skewAct(c, { factor: 0.5, maxSkew: 8, lerp: 0.1 }) },
     text: { slug: "split-text-reveal", ja: "分割テキストリビール", label: "stagger 30ms · 0.6s", fn: (c) => ACT.rise(c, { dur: 600, st: 30, op: true }) },
     transition: { slug: "curtain-wipe", ja: "カーテンワイプ", label: "0.8s × 2 · in-out", fn: (c) => ACT.curtain(c, { dur: 800 }) },
-    media: { slug: "clip-reveal", ja: "クリップリビール", label: "0.9s · expo-out", fn: (c) => ACT.clip(c, { from: "inset(-20% 100% -20% -5%)", dur: 900 }) },
+    media: { slug: "clip-reveal", ja: "クリップリビール", label: "0.9s · expo-out", fn: (c) => ACT.clip(c, { from: closedL(c), dur: 900 }) },
     ui: { slug: "press-feedback", ja: "プレスフィードバック", label: "scale 0.97 · 0.05s / 0.2s", fn: (c) => pressAct(c, { depth: 2, scale: 0.97, release: 0.2 }) },
     loading: { slug: "preloader-counter", ja: "プリローダーカウンター", label: "1.8s · expo-out", fn: (c) => ACT.progress(c, { dur: 1800, reveal: true }) },
 }
@@ -936,7 +959,9 @@ function parallaxAct(c: Ctx, v: V): Scroll {
         tick() {
             let moving = false
             c.words.forEach((w, i) => {
-                const t = -off * v.strength * depth[i]
+                // 4周目：ずれは ±0.2em に収める（旧版は最大約120pxずれて語が見出しの枠の外へ出ていた）
+                const L = c.fs * 0.2
+                const t = -L * Math.tanh((off * v.strength * depth[i]) / L)
                 cur[i] += (t - cur[i]) * v.lerp
                 if (Math.abs(t - cur[i]) > 0.05) moving = true
                 w.style.transform = `translateY(${cur[i].toFixed(2)}px)`
@@ -969,7 +994,8 @@ const SPEC: Record<string, Spec> = {
         fn: (d, _dx, el, _i, has) => {
             const b = c.box(el)
             const on = has && d < Math.max(b.w / 2, c.fs * 0.6)
-            return { opacity: String(on || !has ? 1 : v.dimOpacity), filter: on || !has ? "blur(0px)" : `blur(${K(c, v.dimBlur, 40)}px)`, transition: `opacity ${v.duration}s, filter ${v.duration}s` }
+            // 4周目：見出しでは沈めるのは半分の濃さ・ぼかしは 0.4px まで（旧版は 0.3＋ぼかしで、横切る約1.7秒ほぼ全部の語が読めなかった）
+            return { opacity: String(on || !has ? 1 : Math.max(0.5, v.dimOpacity)), filter: on || !has ? "blur(0px)" : `blur(${Math.min(0.4, K(c, v.dimBlur, 40) * 0.1).toFixed(2)}px)`, transition: `opacity ${v.duration}s, filter ${v.duration}s` }
         },
     }), "f", "dimOpacity,dimBlur"],
     "border-draw": ["B", (c, v) => borderDraw(c, v), "h"],
@@ -1036,10 +1062,11 @@ const SPEC: Record<string, Spec> = {
     "text-flip": ["A", (c, v) => ACT.flip(c, { duration: v.duration, perspective: v.perspective }), "", "duration,perspective"],
     "color-wave": ["A", (c, v) => { const b = Math.max(1, Math.round(v.batch)); let end = 0; c.chars.forEach((ch, i) => { const d = Math.floor(i / b) * v.stagger; c.a(ch, [{ opacity: v.dim / 100 }, { offset: 0.35, opacity: 1 }, { opacity: 1 }], { duration: 260 + v.hold, delay: 160 + d }); end = Math.max(end, 160 + d + 260 + v.hold) }); return end }, "", "stagger,hold"],
     "marker-line": ["A", (c, v) => { const h = ACT.underline(c, { dur: S(v.duration), behind: true, height: v.thickness / 100, y: 0.62, color: c.accent, st: 120 }); c.rootStyle({ isolation: "isolate" }); return { hold: true, ms: h.ms + S(v.delay) } }, "", "duration,thickness"],
-    "rotating-badge": ["B", (c, v) => ringAct(c, { turn: (360 / v.duration) * 2.4 * (v.direction === 1 ? -1 : 1), dur: 3600 }), "", "duration,direction"],
-    "opening-crawl": ["A", (c, v) => whole(c, [{ transform: `perspective(${K(c, v.perspective, 40)}px) rotateX(0deg) translateY(0px)`, opacity: 1, easing: EIO }, { offset: 0.25, transform: `perspective(${K(c, v.perspective, 40)}px) rotateX(${v.tilt}deg) translateY(0px)`, opacity: 1, easing: "linear" }, { offset: 0.7, transform: `perspective(${K(c, v.perspective, 40)}px) rotateX(${v.tilt}deg) translateY(${-c.fs * 3 * (18 / v.duration)}px)`, opacity: 1 - v.fade / 100, easing: EIO }, { transform: `perspective(${K(c, v.perspective, 40)}px) rotateX(0deg) translateY(0px)`, opacity: 1 }], 3600, "linear", "50% 100%"), "", "tilt,perspective"],
+    "rotating-badge": ["B", (c, v) => ringAct(c, { turn: (360 / v.duration) * 1.2 * (v.direction === 1 ? -1 : 1), dur: 1200 }), "", "duration,direction"],
+    // 4周目：遠ざかる量を見出し1行ぶん弱に・薄くなるのは半分まで（旧版は3行ぶん奥へ流れて約2.4秒読めなかった）
+    "opening-crawl": ["A", (c, v) => { const pr = K(c, v.perspective, 40); return whole(c, [{ transform: `perspective(${pr}px) rotateX(0deg) translateY(0px)`, opacity: 1, easing: EIO }, { offset: 0.3, transform: `perspective(${pr}px) rotateX(${v.tilt}deg) translateY(0px)`, opacity: 1, easing: "linear" }, { offset: 0.7, transform: `perspective(${pr}px) rotateX(${v.tilt}deg) translateY(${-c.fs * 0.8 * Math.min(1.5, 18 / v.duration)}px)`, opacity: 1 - (v.fade / 100) * 0.5, easing: EIO }, { transform: `perspective(${pr}px) rotateX(0deg) translateY(0px)`, opacity: 1 }], 2400, "linear", "50% 100%") }, "", "tilt,perspective"],
     "sliced-text": ["A", (c, v) => sliced(c, v), "", "slices,tilt"],
-    "weight-morph": ["B", (c, v) => each(c, { dur: S(v.duration), st: v.stagger, ease: EIO, kf: () => { const w = ((c.fs * 0.03 * (v.wmax - v.wmin)) / 800).toFixed(2); const sh = (x: string) => `${x}px 0 0 ${c.ink}, -${x}px 0 0 ${c.ink}, 0 ${x}px 0 ${c.ink}, 0 -${x}px 0 ${c.ink}`; return [{ textShadow: sh("0") }, { textShadow: sh(w) }, { textShadow: sh("0") }] } }), "", "wmin,wmax"],
+    "weight-morph": ["B", (c, v) => each(c, { dur: S(v.duration), st: v.stagger, ease: EIO, kf: () => { const w = ((c.fs * 0.03 * (v.wmax - v.wmin)) / 800).toFixed(2); const sh = (x: string, col = c.ink) => `${x}px 0 0 ${col}, -${x}px 0 0 ${col}, 0 ${x}px 0 ${col}, 0 -${x}px 0 ${col}`; const z = sh("0", "rgba(10,10,10,0)"); return [{ textShadow: z }, { textShadow: sh(w) }, { textShadow: z }] } }), "", "wmin,wmax"],
 
     /* ── transition ── */
     "curtain-wipe": ["A", (c, v) => ACT.curtain(c, { dur: S(v.duration), n: v.panels, dir: v.direction }), "", "duration,panels"],
@@ -1057,9 +1084,10 @@ const SPEC: Record<string, Spec> = {
 
     /* ── media ── */
     "image-zoom-hover": ["B", (c, v) => { c.rootStyle({ clipPath: CLIP_BOX }); c.txt.style.transformOrigin = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`; c.a(c.txt, [{ transform: "scale(1)" }, { transform: `scale(${v.scale})` }], { duration: S(v.duration), easing: "cubic-bezier(.25,.46,.45,.94)", fill: "both" }); return { hold: true, ms: S(v.duration) } }, "h"],
-    "clip-reveal": ["A", (c, v) => ACT.clip(c, { from: ["inset(-20% 100% -20% -5%)", "inset(100% -5% -20% -5%)", "inset(50% 50% 50% 50%)"][Math.round(v.direction)] || "inset(-20% 100% -20% -5%)", dur: S(v.duration) }), "", "duration,direction"],
+    "clip-reveal": ["A", (c, v) => ACT.clip(c, { from: [closedL(c), "inset(100% -5% -20% -5%)", closedC(c)][Math.round(v.direction)] || closedL(c), dur: S(v.duration) }), "", "duration,direction"],
     "counter-scale": ["B", (c, v) => counterScale(c, v), "", "aperture,zoom"],
-    "ken-burns": ["B", (c, v) => { const D = S(v.duration); const o = `${c.tb.x + c.tb.w * 0.3}px ${c.tb.y + c.tb.h / 2}px`; return whole(c, [{ offset: 0, transform: "scale(1) translate(0%, 0%)", easing: "cubic-bezier(.33,0,.67,1)" }, { offset: D / (D + 900), transform: `scale(${v.zoom}) translate(${-v.pan}%, ${-v.pan * 0.4}%)`, easing: EIO }, { offset: 1, transform: "scale(1) translate(0%, 0%)" }], D + 900, "linear", o, CLIP_BOX) }, "", "zoom,duration"],
+    // 4周目：文字では拡大 1.04 まで・切り抜かない（旧版は2倍の実演値で1.3倍・左寄りの原点で頭の「ケ」が枠で切れていた）
+    "ken-burns": ["B", (c, v) => { const D = S(v.duration); const z = Math.min(1.04, v.zoom); const px = Math.min(1, v.pan * 0.25); const o = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`; return whole(c, [{ offset: 0, transform: "scale(1) translateX(0%)", easing: "cubic-bezier(.33,0,.67,1)" }, { offset: D / (D + 900), transform: `scale(${z}) translateX(${-px}%)`, easing: EIO }, { offset: 1, transform: "scale(1) translateX(0%)" }], D + 900, "linear", o) }, "", "zoom,duration"],
     "duotone-hover": ["C", "media"],
     "image-parallax-hover": ["B", (c, v) => { c.rootStyle({ clipPath: CLIP_BOX }); const s = K(c, v.shift, 40); return ACT.pointerTx(c, { lerp: Math.min(0.3, 0.05 / Math.max(0.1, v.duration) * 2), fn: (x, y) => `translate(${(-x * s).toFixed(2)}px, ${(-y * s * 0.5).toFixed(2)}px) scale(${1 + (Math.min(1, Math.hypot(x, y)) * s) / c.tb.w})` }) }, "f", "shift"],
     "blur-load": ["A", (c, v) => whole(c, [{ filter: `blur(${v.blur * (c.fs / 80)}px)`, transform: "scale(1.02)" }, { filter: "blur(0px)", transform: "scale(1)" }], S(v.duration), "ease-out", `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`), "", "blur,duration"],
@@ -1070,7 +1098,8 @@ const SPEC: Record<string, Spec> = {
     "lightbox": ["C", "media"],
     "carousel": ["B", (c, v) => carouselAct(c, S(v.duration)), "", "duration"],
     "cover-flow": ["B", (c, v) => { c.txt.style.perspective = `${c.fs * 8}px`; const n = c.words.length; return each(c, { u: "w", dur: S(v.duration) * 3, ease: EIO, origin: "50% 50%", kf: (i) => { const s = i - (n - 1) / 2; const r = s === 0 ? 0 : -Math.sign(s) * v.angle; return [{ transform: "none" }, { offset: 0.4, transform: `translateX(${s * K(c, v.spacing, 40) * 0.6}px) translateZ(${s === 0 ? 0 : -K(c, v.depth, 40)}px) rotateY(${r}deg)` }, { offset: 0.6, transform: `translateX(${s * K(c, v.spacing, 40) * 0.6}px) translateZ(${s === 0 ? 0 : -K(c, v.depth, 40)}px) rotateY(${r}deg)` }, { transform: "none" }] } }) }, "", "angle,depth"],
-    "drag-scroll": ["B", (c, v) => { const kf: Keyframe[] = []; let x = 0, vel = c.fs * 0.5 * v.throw; const N = 60; for (let k = 0; k <= N; k++) { kf.push({ offset: k / N * 0.7, transform: `translateX(${-x.toFixed(1)}px)` }); x += vel; vel *= v.friction } kf.push({ offset: 1, transform: "translateX(0px)" }); kf[kf.length - 2].easing = BACK; return whole(c, kf, 1600, "linear", undefined, CLIP_BOX) }, "", "friction,throw"],
+    // 4周目：投げた距離を見出し幅の4割までに縮める（旧版は約600px流れて枠の外へ出て、約1.1秒見出しが無かった）
+    "drag-scroll": ["B", (c, v) => { const xs: number[] = []; let x = 0, vel = c.fs * 0.5 * v.throw; const N = 60; for (let k = 0; k <= N; k++) { xs.push(x); x += vel; vel *= v.friction } const sc = Math.min(1, (c.tb.w * 0.4) / Math.max(1, xs[N])); const kf: Keyframe[] = xs.map((x, k) => ({ offset: (k / N) * 0.7, transform: `translateX(${(-x * sc).toFixed(1)}px)` })); kf.push({ offset: 1, transform: "translateX(0px)" }); kf[kf.length - 2].easing = BACK; return whole(c, kf, 1600, "linear", undefined, CLIP_BOX) }, "", "friction,throw"],
     "card-shuffle": ["B", (c, v) => { const n = c.words.length; return each(c, { u: "w", dur: S(v.duration) * 2, st: 40, ease: EIO, origin: "50% 120%", kf: (i) => { const s = i - (n - 1) / 2; return [{ transform: "none" }, { offset: 0.45, transform: `rotate(${s * v.fan}deg) scale(${1 - Math.abs(s) * v.scaleStep})` }, { offset: 0.6, transform: `rotate(${s * v.fan}deg) scale(${1 - Math.abs(s) * v.scaleStep})` }, { transform: "none" }] } }) }, "", "fan,scaleStep"],
     "logo-marquee": ["B", (c, v) => marquee(c, { speed: K(c, v.speed, 24), gap: K(c, v.gap, 24), dir: 1, fade: K(c, v.fade, 40) }), "", "speed,fade"],
     "line-draw": ["B", (c, v) => ACT.outline(c, { dur: S(v.duration) * 0.5, dir: 1, st: S(v.stagger) * 0.25 }), "", "duration,stagger"],
@@ -1090,7 +1119,7 @@ const SPEC: Record<string, Spec> = {
     "ascii-effect": ["B", (c, v) => ACT.scramble(c, { cs: [" .:-=+*#%@", "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ", "░▒▓█"][Math.round(v.ramp)] || ".:-=+*#%@", tick: 1000 / v.fps, lockAt: (i, n) => 500 + (i / n) * 700 * v.contrast }), "", "ramp,fps"],
     "halftone": ["B", (c, v) => halftone(c, v), "", "gap,angle"],
     "dither-dissolve": ["B", (c, v) => dither(c, v), "", "pixel,matrix"],
-    "sprite-sheet": ["B", (c, v) => { const f = Math.round(v.frames); const D = S(v.duration) * 2; return ACT.clip(c, { from: "inset(-20% 100% -20% -5%)", dur: D, ease: v.timing === 1 ? "linear" : `steps(${f}, end)` }) }, "", "frames,timing"],
+    "sprite-sheet": ["B", (c, v) => { const f = Math.round(v.frames); const D = S(v.duration) * 2; return ACT.clip(c, { from: closedL(c), dur: D, ease: v.timing === 1 ? "linear" : `steps(${f}, end)` }) }, "", "frames,timing"],
     "frosted-glass": ["B", (c, v) => frost(c, v), "", "blur,opacity"],
     "gradient-border": ["C", "media"],
 
@@ -1103,7 +1132,7 @@ const SPEC: Record<string, Spec> = {
     "story-progress": ["B", (c, v) => ACT.progress(c, { dur: Math.min(S(v.duration), 4000), segs: v.segments, th: Math.max(2, K(c, v.height, 24)) }), "", "segments,height"],
     "dot-pagination": ["C", "ui"],
     "ruler-scrubber": ["C", "ui"],
-    "radial-carousel": ["B", (c, v) => ringAct(c, { turn: (360 / v.count) * 2, dur: S(v.duration) * 3.4, radiusK: v.radius / 320 }), "", "radius,count"],
+    "radial-carousel": ["B", (c, v) => ringAct(c, { turn: (360 / v.count) * 1.5, dur: Math.min(950, S(v.duration) * 2), radiusK: v.radius / 320 }), "", "radius,count"],
     "modal-pop": ["B", (c, v) => ACT.from(c, { u: "w", t: `scale(${v.scaleFrom})`, op: 0, dur: S(v.duration) * 1.6, st: 0, ease: "cubic-bezier(.2,.9,.3,1)", origin: "50% 50%" }), "", "duration,scaleFrom"],
     "bounce-in": ["A", (c, v) => ACT.bounce(c, { height: v.height, bounces: v.bounces, damping: v.damping, duration: v.duration }), "", "height,bounces"],
     "squash-stretch": ["A", (c, v) => ACT.squash(c, { squash: v.squash, stretch: v.stretch, recover: v.recover, overshoot: v.overshoot }), "", "squash,stretch"],
@@ -1114,7 +1143,7 @@ const SPEC: Record<string, Spec> = {
     "pill-expand": ["B", (c, v) => pill(c, v), "", "duration,labelDelay"],
     "toggle-switch": ["C", "ui"],
     "checkbox-check": ["C", "ui"],
-    "star-rating": ["B", (c, v) => ACT.pointerEach(c, { settle: S(v.duration) + 400, fn: (_d, dx, _e, i, has) => { const lit = !has || dx >= -c.fs * 0.3; return { opacity: lit ? "1" : "0.22", transform: lit && has ? `scale(${1 + (v.lift - 1) * 0.5})` : "scale(1)", transition: `opacity ${v.duration}s ${(i * v.stagger) / 1000}s, transform ${v.duration}s` } } }), "f", "lift,duration"],
+    "star-rating": ["B", (c, v) => ACT.pointerEach(c, { settle: S(v.duration) + 400, fn: (_d, dx, _e, i, has) => { const lit = !has || dx >= -c.fs * 0.3; return { opacity: lit ? "1" : "0.45", transform: lit && has ? `scale(${1 + (v.lift - 1) * 0.5})` : "scale(1)", transition: `opacity ${v.duration}s ${(i * v.stagger) / 1000}s, transform ${v.duration}s` } } }), "f", "lift,duration"],
     "theme-toggle-transition": ["B", (c, v) => ACT.fill(c, v.shape === 1 ? { dur: S(v.duration), from: "circle", ox: c.tb.x + c.tb.w, oy: c.tb.y, ease: "cubic-bezier(.4,0,.2,1)" } : { dur: S(v.duration), from: "left", ease: "cubic-bezier(.4,0,.2,1)" }), "", "duration,shape"],
     "equalizer-bars": ["B", (c, v) => ACT.jitter(c, { dur: 1800, fps: 1000 / v.speed * 2.2, origin: "50% 100%", fn: (_i, t, r) => { const e = Math.sin(Math.PI * t); const s = 1 - e * (1 - v.floor / 100) * (0.25 + r() * (0.4 + v.spread / 100)); return { transform: `scaleY(${s.toFixed(3)})` } } }), "", "speed,spread"],
     "bar-chart-grow": ["B", (c, v) => each(c, { dur: S(v.duration) * 1.6, st: v.stagger, origin: "50% 100%", ease: [OUT, BACK, "linear"][Math.round(v.easing)] || OUT, kf: () => (v.method === 1 ? [{ clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)" }] : [{ transform: "scaleY(0)" }, { transform: "scaleY(1)" }]) }), "", "duration,stagger"],
@@ -1156,7 +1185,8 @@ const SPEC: Record<string, Spec> = {
     "ambient-float": ["B", (c, v) => { const T = Math.min(S(v.duration), 4200); return ACT.jitter(c, { u: "w", dur: T, fps: 30, fn: (i, t) => { const e = Math.sin(Math.PI * t); const ph = (i * v.spread) / 100; return { transform: `translateY(${(-Math.sin(2 * Math.PI * (t + ph)) * K(c, v.distance, 40) * 0.5 * e).toFixed(2)}px) rotate(${(Math.sin(2 * Math.PI * (t + ph + 0.25)) * v.rotate * e).toFixed(2)}deg)` } } }) }, "", "distance,duration"],
     "eye-blink": ["B", (c, v) => { const d = v.duration; const dbl = v.double >= 50; return each(c, { dur: d * (dbl ? 3 : 1.4), st: 0, origin: "50% 55%", kf: () => (dbl ? [{ transform: "scaleY(1)" }, { offset: 0.17, transform: "scaleY(0.08)" }, { offset: 0.34, transform: "scaleY(1)" }, { offset: 0.5, transform: "scaleY(1)" }, { offset: 0.67, transform: "scaleY(0.08)" }, { offset: 0.84, transform: "scaleY(1)" }, { transform: "scaleY(1)" }] : [{ transform: "scaleY(1)", easing: "ease-in" }, { offset: 0.35, transform: "scaleY(0.08)", easing: "ease-out" }, { offset: 0.7, transform: "scaleY(1)" }, { transform: "scaleY(1)" }]) }) }, "", "duration,double"],
     "orbit": ["B", (c, v) => orbit(c, v), "", "period,tilt"],
-    "pendulum-swing": ["B", (c, v) => { const T = S(v.period); const N = 48; const kf: Keyframe[] = []; for (let k = 0; k <= N; k++) { const t = k / N; const a = k === N ? 0 : v.angle * Math.exp(-t * 3 * (v.damping / 60)) * Math.cos(2 * Math.PI * t * 2.5); kf.push({ offset: t, transform: `rotate(${a.toFixed(2)}deg)` }) } return each(c, { u: "w", dur: T * 2.5, st: 60, origin: `50% ${-v.pivot}%`, kf: () => kf }) }, "", "angle,period"],
+    // 4周目：静止（0°）から振り出して、減衰して止まる1往復半（旧版は1コマ目から最大角に傾いた姿で始まり、約4.4秒揺れ続けた）
+    "pendulum-swing": ["B", (c, v) => { const T = S(v.period); const N = 48; const kf: Keyframe[] = []; for (let k = 0; k <= N; k++) { const t = k / N; const a = k === N ? 0 : v.angle * Math.exp(-t * 3 * (v.damping / 60)) * Math.sin(2 * Math.PI * t * 1.5); kf.push({ offset: t, transform: `rotate(${a.toFixed(2)}deg)` }) } return each(c, { u: "w", dur: Math.min(T * 1.5, 2600), st: 60, origin: `50% ${-v.pivot}%`, kf: () => kf }) }, "", "angle,period"],
     "flicker-on": ["A", (c, v) => { const n = Math.round(v.flickers); const kf: Keyframe[] = [{ offset: 0, opacity: 0 }]; const r = rnd(3); for (let k = 0; k < n; k++) { const t = (k + 0.3 + r() * 0.4) / (n + 1); kf.push({ offset: t, opacity: 1, easing: "steps(1,end)" }); kf.push({ offset: Math.min(0.98, t + 0.04), opacity: v.dim, easing: "steps(1,end)" }) } kf.push({ offset: 1, opacity: 1 }); kf.forEach((k) => (k.easing = k.easing || "steps(1,end)")); kf.sort((a, b) => (a.offset as number) - (b.offset as number)); return whole(c, kf, S(v.duration)) }, "", "duration,flickers"],
     "dvd-bounce": ["C", "ui"],
     "conic-sweep": ["C", "ui"],
@@ -1173,6 +1203,92 @@ const SPEC: Record<string, Spec> = {
     "spiral-reveal": ["B", (c, v) => { const R = K(c, v.radius, 40); const turns = v.turns; return each(c, { dur: S(v.duration), st: S(v.stagger) * 0.5, ease: "linear", kf: (i) => { const kf: Keyframe[] = []; const N = 16; for (let k = 0; k <= N; k++) { const t = k / N; const e = 1 - Math.pow(1 - t, 3); const r = R * (1 - e); const a = (turns * 2 * Math.PI) * (1 - e) + i * 0.6; kf.push({ offset: t, transform: `translate(${(Math.cos(a) * r).toFixed(1)}px, ${(Math.sin(a) * r).toFixed(1)}px) scale(${(0.4 + 0.6 * e).toFixed(3)})`, opacity: Math.min(1, t * 3) }) } return kf } }) }, "", "radius,turns"],
     "liquid-fill": ["B", (c, v) => liquidFill(c, v), "", "progress,amplitude"],
     "boot-sequence": ["B", (c, v) => ACT.typewriter(c, { speed: v.charSpeed * 2, blink: 0.5, block: true }), "", "charSpeed,lineDelay"],
+}
+
+/* ------------------------------------------------------------------ */
+/* 読める演技の枠（2026-10-25 Awwwards 4周目・指摘1）                       */
+/* ------------------------------------------------------------------ */
+// 規則：どの演技も 0.8秒以内に「素の見出しと画素差が小さいコマ」を一度通り、見出しの半分以上が消えている時間は 0.5秒まで、
+// 最後は素の見出しで止まる（判定＝aww/r4/detail/test/judge.cjs・PC/SP×196件×着地とスライダー解放）。
+// 個別の演技を直すほかに、数値を返す演技・ホールドへ次の枠を当てる（slug → [lead, 上限ms]）：
+//  ・lead 1＝素の姿のまま LEAD ms 止めてから動き出す（1コマ目から崩れて始まらない＝「見えている状態から始める」）。
+//    初めから隠れて現れる演技（下から・ぼかし・切り抜き…）には付けない（隠れている時間が延びるだけ）
+//  ・上限＝演技の長さがこれを超えたら再生を速めて収める（スライダーで長い値にしても、隠れている時間が 0.5秒を超えない）。
+//    現れる演技は約0.7秒、往復の演技は「隠れている割合」（4周目の実測の最大値）から 0.44秒 ÷ 割合
+//  表に無い項目は枠なし（実測で規則を満たしている）。右上の数値表示は本来の値のまま
+const LEAD = 180
+const FIT: Record<string, [0 | 1, number]> = {
+    "header-hide-on-scroll": [1, 1000],
+    "drawer-slide": [0, 620],
+    "text-highlight": [0, 620],
+    "like-burst": [0, 620],
+    "typewriter": [0, 620],
+    "chat-sequence": [0, 700],
+    "gradient-wipe": [0, 700],
+    "sprite-sheet": [0, 700],
+    "blur-reveal": [0, 700],
+    "scroll-fade-in": [0, 700],
+    "spiral-reveal": [0, 700],
+    "stamp-in": [0, 600],
+    "menu-reveal": [0, 600],
+    "motion-path": [0, 620],
+    "mosaic-reveal": [0, 700],
+    "stepper": [0, 700],
+    "pill-expand": [0, 700],
+    "split-text-reveal": [0, 700],
+    "stacking-cards": [0, 620],
+    "bar-chart-grow": [0, 620],
+    "boot-sequence": [0, 700],
+    "shared-element": [0, 700],
+    "quadtree-reveal": [0, 700],
+    "bounce-in": [0, 560],
+    "clip-reveal": [0, 700],
+    "toast-slide": [0, 700],
+    "preloader-counter": [0, 700],
+    "tracking-in": [0, 700],
+    "smooth-scroll": [0, 700],
+    "outline-fill": [0, 700],
+    "line-draw": [0, 700],
+    "rack-focus": [0, 700],
+    "spring-easing": [0, 700],
+    "skeleton-shimmer": [0, 440],
+    "blur-load": [0, 520],
+    "flicker-on": [0, 420],
+    "rotating-badge": [1, 0],
+    "radial-carousel": [1, 0],
+    "drag-scroll": [1, 0],
+    "opening-crawl": [1, 0],
+    "cover-transition": [1, 740],
+    "crt-power-off": [1, 800],
+    "number-roll": [1, 560],
+    "prize-wheel": [1, 700],
+    "split-screen": [1, 950],
+    "rubber-band": [1, 780],
+    "paper-crumple": [1, 1100],
+    "horizontal-scroll": [1, 1500],
+    "list-add-remove": [1, 0],
+    "zoom-through": [1, 0],
+    "curtain-wipe": [1, 820],
+    "block-reveal": [1, 950],
+    "text-scramble": [1, 0],
+    "image-swap-hover": [1, 0],
+    "shadow-pop": [1, 0],
+    "flame-flicker": [1, 0],
+    "weight-morph": [1, 0],
+    "counter-scale": [1, 0],
+    "before-after": [1, 0],
+    "ken-burns": [1, 0],
+    "cover-flow": [1, 0],
+    "corner-brackets": [1, 0],
+    "liquid-distortion": [1, 0],
+    "notched-corner": [1, 0],
+    "equalizer-bars": [1, 0],
+    "pulse-ring": [1, 0],
+    "pendulum-swing": [1, 0],
+    "press-feedback": [1, 0],
+    "gradient-shine": [1, 0],
+    "holo-sheen": [1, 0],
+    "barber-pole": [1, 0],
 }
 
 /* ------------------------------------------------------------------ */
@@ -1203,7 +1319,8 @@ function shadowPop(c: Ctx, v: V): Hold {
     const d = K(c, v.depth, 24)
     const n = Math.max(1, Math.round(v.steps))
     const dir = [[-1, 1], [1, 1], [-1, -1], [1, -1]][Math.round(v.direction)] || [-1, 1]
-    const sh = (k: number) => Array.from({ length: n }, (_, j) => `${(-dir[0] * d * (j + 1) / n * k).toFixed(1)}px ${(dir[1] * d * (j + 1) / n * k).toFixed(1)}px 0 ${c.muted}`).join(", ")
+    // 4周目：0 の時は透明の影（ずれ0でも色付きの影を重ねると字の縁が濃くなり、素の見出しと違って見えていた）
+    const sh = (k: number) => Array.from({ length: n }, (_, j) => `${(-dir[0] * d * (j + 1) / n * k).toFixed(1)}px ${(dir[1] * d * (j + 1) / n * k).toFixed(1)}px 0 ${k ? c.muted : "rgba(107,107,102,0)"}`).join(", ")
     c.chars.forEach((ch) => c.a(ch, [{ transform: "translate(0px,0px)", textShadow: sh(0) }, { transform: `translate(${dir[0] * d}px, ${-dir[1] * d}px)`, textShadow: sh(1) }], { duration: Math.max(160, S(v.duration) * 2), easing: OUT, fill: "both" }))
     return { hold: true, ms: Math.max(160, S(v.duration) * 2) }
 }
@@ -1318,24 +1435,24 @@ function sheen(c: Ctx, p: { dur: number; angle: number; band: number; alpha: num
     return p.dur
 }
 function marquee(c: Ctx, p: { speed: number; gap: number; dir: number; fade?: number }) {
-    const P = c.W + p.gap
-    const T = (P / Math.max(20, p.speed)) * 1000
-    c.rootStyle({ clipPath: "inset(-0.3em 0 -0.3em 0)" })
+    // 4周目：見出し語の幅の中で回る帯にする（同じ語の写しが後ろから続く＝いつ見ても字が枠いっぱいにある）。
+    // 旧版は枠（780px）の幅を1周して、字が左へ抜けてから右から戻るまでの間、見出しの半分以上が無かった
+    const gap = Math.min(Math.max(p.gap, c.fs * 0.3), c.fs * 0.8)
+    const P = c.tb.w + gap
+    const T = Math.min(4000, (P / Math.max(20, p.speed)) * 1000)
+    const pad = c.fs * 0.14
+    const L = Math.max(0, c.tb.x - pad), Rt = Math.max(0, c.W - (c.tb.x + c.tb.w) - pad)
+    c.rootStyle({ clipPath: `inset(-0.3em ${Rt}px -0.3em ${L}px)` })
     if (p.fade) {
-        const m = `linear-gradient(90deg, transparent 0, #000 ${p.fade}px, #000 calc(100% - ${p.fade}px), transparent 100%)`
+        // 溶かすのは字の外の余白だけ（止まっている字の端を薄くしない）
+        const f = Math.min(p.fade, pad)
+        const m = `linear-gradient(90deg, transparent ${L}px, #000 ${L + f}px, #000 ${c.W - Rt - f}px, transparent ${c.W - Rt}px)`
         c.rootStyle({ webkitMaskImage: m, maskImage: m })
     }
-    c.chars.forEach((ch) => {
-        const b = c.box(ch)
-        const o = p.dir > 0 ? (b.x + b.w) / P : (c.W - b.x) / P
-        const a = p.dir > 0 ? -(b.x + b.w) : c.W - b.x
-        c.a(ch, [
-            { offset: 0, transform: "translateX(0px)" },
-            { offset: Math.min(0.999, o), transform: `translateX(${a}px)` },
-            { offset: Math.min(0.999, o), transform: `translateX(${a + (p.dir > 0 ? P : -P)}px)` },
-            { offset: 1, transform: "translateX(0px)" },
-        ], { duration: T, easing: "linear" })
-    })
+    const g = c.ghost()
+    const d = p.dir > 0 ? -P : P
+    c.a(c.txt, [{ transform: "translateX(0px)" }, { transform: `translateX(${d}px)` }], { duration: T, easing: "linear" })
+    c.a(g, [{ transform: `translateX(${-d}px)` }, { transform: "translateX(0px)" }], { duration: T, easing: "linear", fill: "both" })
     return T
 }
 function splitFlap(c: Ctx, v: V) {
@@ -1371,7 +1488,8 @@ function ringAct(c: Ctx, p: { turn: number; dur: number; radiusK?: number }) {
             const N = 24
             for (let k = 0; k <= N; k++) {
                 const t = k / N
-                const mix = t < 0.25 ? EIOf(t / 0.25) : t > 0.75 ? EIOf((1 - t) / 0.25) : 1
+                // 4周目：輪になっている時間を短く（旧版は 3.6秒のうち約2.6秒、字が輪に並んで読めなかった）。sin⁴ の山＝輪に近いのは全体の約1/3
+                const mix = Math.pow(Math.sin(Math.PI * t), 4)
                 const a0 = (i / n) * 2 * Math.PI - Math.PI / 2 + ((p.turn * Math.PI) / 180) * t
                 const rx = cx + Math.cos(a0) * R - (b.x + b.w / 2)
                 const ry = cy + Math.sin(a0) * R - (b.y + b.h / 2)
@@ -1622,15 +1740,24 @@ function dither(c: Ctx, v: V) {
             const cov = coverage(m, i * px, j * px, Math.min(px, c.W - i * px), Math.min(px, c.H - j * px)).mean
             if (cov > 0.05) cells.push({ x: i * px, y: j * px, cov, t: th(i, j) })
         }
-    const D = Math.min(S(v.cycle), 4000)
-    c.a(c.txt, [{ opacity: 0 }, { opacity: 0 }], { duration: D })
+    // 4周目：見えている字から始めて、一度だけ粒に崩し（密度は最低4割まで＝形は読める）、粒から字へ戻す。
+    // 旧版は字を演技の間ずっと透明にして粒だけを描き、中盤（密度0）で約1秒・スライダー後は最長2秒見出しが消えていた。
+    // 字の透明は rAF の中で毎コマ決める（rAF が止まっても「字が透明・粒も無い」状態で固まらない＝全ページ撮影で H1 が無かった）
+    const D = Math.min(S(v.cycle), 1600)
+    const st = c.txt.style
     c.loop((t) => {
-        const k = t / D
-        const lvl = k < 0.45 ? 1 - k / 0.45 : k < 0.55 ? 0 : (k - 0.55) / 0.45
+        const k = Math.min(1, t / D)
+        // 0〜0.12：字→粒に切り替え／0.12〜0.5：4割まで崩す／0.5〜0.88：戻す／0.88〜：粒→字
+        const lvl = k < 0.12 ? 1 : k < 0.5 ? 1 - 0.6 * EIOf((k - 0.12) / 0.38) : k < 0.88 ? 0.4 + 0.6 * EIOf((k - 0.5) / 0.38) : 1
+        const showTxt = k < 0.06 || k >= 0.94
+        st.opacity = showTxt ? "1" : "0"
         g.clearRect(0, 0, c.W, c.H)
-        g.fillStyle = c.ink
-        cells.forEach((q) => { if (q.t < lvl * Math.min(1, q.cov * 1.6)) g.fillRect(q.x, q.y, px, px) })
-        return k < 1
+        if (!showTxt) {
+            g.fillStyle = c.ink
+            cells.forEach((q) => { if (q.t < lvl * Math.min(1, q.cov * 1.6)) g.fillRect(q.x, q.y, px, px) })
+        }
+        if (k >= 1) { st.opacity = "1"; return false }
+        return true
     })
     return D + 40
 }
@@ -1663,11 +1790,13 @@ function ants(c: Ctx, v: V) {
     return D
 }
 function stripes(c: Ctx, v: V) {
+    // 4周目：素の字から縞の字へ溶かして、1往復で素の字へ戻す（旧版は1コマ目から最後まで縞で、素の見出しを一度も通らなかった）
     const pitch = K(c, v.pitch, 48) * 0.5
     const on = pitch * v.ratio
     const grad = `repeating-linear-gradient(${90 + v.lean}deg, ${c.ink} 0 ${on}px, ${c.muted} ${on}px ${pitch}px)`
-    const D = Math.max(1600, S(v.cycle) * 1.5)
-    c.chars.forEach((ch) => {
+    const D = Math.min(2400, Math.max(1600, S(v.cycle) * 1.5))
+    const g = c.ghost()
+    g.querySelectorAll<HTMLElement>(".mdt-c").forEach((ch) => {
         const b = c.box(ch)
         ch.style.color = "transparent"
         ch.style.backgroundImage = grad
@@ -1677,6 +1806,8 @@ function stripes(c: Ctx, v: V) {
         const d = pitch / Math.cos((v.lean * Math.PI) / 180)
         c.a(ch, [{ backgroundPosition: `${x0}px 0` }, { backgroundPosition: `${x0 + d * Math.round(D / S(v.cycle) * 3)}px 0` }], { duration: D, easing: "linear", fill: "both" })
     })
+    c.a(g, [{ opacity: 0 }, { offset: 0.18, opacity: 1 }, { offset: 0.82, opacity: 1 }, { opacity: 0 }], { duration: D, fill: "both" })
+    c.a(c.txt, [{ opacity: 1 }, { offset: 0.18, opacity: 0 }, { offset: 0.82, opacity: 0 }, { opacity: 1 }], { duration: D })
     return D
 }
 function brackets(c: Ctx, v: V) {
@@ -1789,7 +1920,7 @@ function pill(c: Ctx, v: V) {
     el.style.transformOrigin = `${ox} 50%`
     const T = D + S(v.labelDelay) * 2 + 1000
     c.a(el, [{ transform: `scaleX(${sw})`, opacity: 0 }, { offset: 0.05, opacity: 1 }, { offset: D / T, transform: "scaleX(1)", easing: "linear" }, { offset: 0.85, transform: "scaleX(1)", opacity: 1 }, { offset: 1, transform: "scaleX(1)", opacity: 0 }], { duration: T, easing: OUT, fill: "both" })
-    const clipL = v.origin === 1 ? "inset(-20% 50% -20% 50%)" : v.origin === 2 ? "inset(-20% -5% -20% 100%)" : "inset(-20% 100% -20% -5%)"
+    const clipL = v.origin === 1 ? closedC(c) : v.origin === 2 ? closedR(c) : closedL(c)
     c.a(c.txt, [{ opacity: 0, clipPath: clipL }, { offset: (S(v.labelDelay) * 2) / T, opacity: 0, clipPath: clipL, easing: OUT }, { offset: (S(v.labelDelay) * 2 + D) / T, opacity: 1, clipPath: "inset(-20% -5% -20% -5%)" }, { opacity: 1, clipPath: "inset(-20% -5% -20% -5%)" }], { duration: T })
     return T
 }
@@ -1859,8 +1990,12 @@ function scratch(c: Ctx, v: V) {
     g.fillStyle = c.muted
     g.fillRect(B.x, B.y, B.w, B.h)
     const br = K(c, v.brush, 32) * 0.5
-    const D = 1300
-    const fade = Math.max(120, S(v.fade))
+    // 4周目：見えている字の上に膜が降りてから削る（旧版は1コマ目から灰色の膜で字が隠れていた）。
+    // 膜が降りる 0.2秒 → 削る 0.6秒 → しきい値で残りを消す。字が膜の下にある時間は約0.4秒まで
+    const IN = 200
+    const D = 600
+    const fade = Math.min(300, Math.max(120, S(v.fade)))
+    c.a(g.canvas, [{ opacity: 0 }, { opacity: 1 }], { duration: IN, easing: "ease-out" })
     // 線の太さ（2br）より行の間隔を狭くして、行と行の間に膜が残らないようにする
     const rows = Math.max(2, Math.ceil(B.h / (br * 1.7)))
     const pts: [number, number][] = []
@@ -1874,7 +2009,8 @@ function scratch(c: Ctx, v: V) {
     const total = seg.reduce((x, y) => x + y, 0)
     const goal = total * Math.min(1, v.threshold / 100)
     let done = false
-    c.loop((t) => {
+    c.loop((t0) => {
+        const t = Math.max(0, t0 - IN)
         let left = goal * Math.min(1, t / D)
         g.globalCompositeOperation = "destination-out"
         g.lineCap = "round"
@@ -1896,7 +2032,7 @@ function scratch(c: Ctx, v: V) {
         }
         return t < D + fade
     })
-    return D + fade + 40
+    return IN + D + fade + 40
 }
 function gift(c: Ctx, v: V) {
     const D = S(v.duration)
@@ -1973,7 +2109,8 @@ function pageTurn(c: Ctx, v: V) {
     const ease = "cubic-bezier(0.45, 0, 0.25, 1)"
     c.a(g, [{ transform: `perspective(${pr}px) rotateY(0deg)` }, { transform: `perspective(${pr}px) rotateY(-180deg)` }], { duration: D, easing: ease, fill: "both" })
     c.a(shade, [{ opacity: 0 }, { opacity: v.shade / 100 }, { opacity: 0 }], { duration: D, easing: ease, fill: "both" })
-    c.a(under, [{ opacity: 1 }, { opacity: 0 }], { duration: D, easing: ease, fill: "both" })
+    // 4周目：綴じ目の影は紙がめくれ始めてから濃くなる（旧版は1コマ目から影の箱が見出しに掛かっていた）
+    c.a(under, [{ opacity: 0 }, { offset: 0.25, opacity: 1 }, { opacity: 0 }], { duration: D, easing: ease, fill: "both" })
     return D + 40
 }
 function peel(c: Ctx, v: V) {
@@ -2002,7 +2139,7 @@ function rings(c: Ctx, v: V) {
     const D = S(v.duration)
     for (let k = 0; k < n; k++) {
         const el = c.fx(at(B) + `border:1px solid ${c.ink};border-radius:${c.fs * 0.2}px;box-sizing:border-box;transform-origin:50% 50%;`)
-        c.a(el, [{ transform: "scale(1)", opacity: 0.7 }, { transform: `scale(${1 + v.spread * 0.03}, ${1 + v.spread * 0.12})`, opacity: 0 }], { duration: D, delay: (k * D) / n, easing: "cubic-bezier(.2,.6,.3,1)", fill: "both" })
+        c.a(el, [{ transform: "scale(1)", opacity: 0 }, { offset: 0.12, opacity: 0.7 }, { transform: `scale(${1 + v.spread * 0.03}, ${1 + v.spread * 0.12})`, opacity: 0 }], { duration: D, delay: (k * D) / n, easing: "cubic-bezier(.2,.6,.3,1)", fill: "both" })
     }
     return D * 2
 }
@@ -2151,6 +2288,10 @@ export default function EntryTitle(props: Props) {
     const grade = spec[0]
     const chap = grade === "C" ? CH[spec[1] as string] || CH.text : null
 
+    // 章扉と同じ演技（C）は値の定義を使わない。旧版は値の定義が後から届くと effect が張り直され、
+    // 着地の演技が始まって約50msで消されていた（4周目の判定で lightbox / toggle-switch / moire-drift 等で実測）
+    const paramsDep = chap ? null : params
+    const fitKey = chap ? chap.slug : slug
     // ── 演技のエンジン（クライアントのみ） ──
     const playRef = useRef<(why: string) => void>(() => {})
     const landedRef = useRef("")
@@ -2178,6 +2319,11 @@ export default function EntryTitle(props: Props) {
         let inView = false
         let gen = 0
         let sweeping = false
+        // 4周目：読める演技の枠（下の FIT）。tempo＝再生の速さ（長い演技を上限の長さに縮める）、lead＝素の姿で止まっている時間（ms）
+        let tempo = 1
+        let lead = 0
+        let fitted = false
+        let pendingLater: [() => void, number, number][] = []
 
         const allEls = () => [txt]
         const stop = () => {
@@ -2193,6 +2339,10 @@ export default function EntryTitle(props: Props) {
             texts.forEach((s, el) => (el.textContent = s))
             texts = new Map()
             locked = []
+            tempo = 1
+            lead = 0
+            fitted = false
+            pendingLater = []
             allEls().forEach((el) => { el.getAnimations().forEach((a) => a.cancel()); el.removeAttribute("style") })
             root.removeAttribute("style")
             follow = null
@@ -2278,6 +2428,8 @@ export default function EntryTitle(props: Props) {
                 box,
                 a: (el, kf, o) => {
                     const an = el.animate(kf, { fill: "backwards", ...o })
+                    // 枠を当てた後に作られた動き（later・loop の中）は、同じ速さで
+                    if (fitted && tempo !== 1) an.playbackRate = tempo
                     anims.push(an)
                     return an
                 },
@@ -2313,12 +2465,19 @@ export default function EntryTitle(props: Props) {
                     if (g.offsetWidth > maxW) g.style.fontSize = `${(parseFloat(getComputedStyle(root).fontSize) * maxW) / g.offsetWidth}px`
                     return g
                 },
-                later: (fn, ms) => { timers.push(window.setTimeout(() => { if (gen === my) fn() }, ms)) },
+                later: (fn, ms) => {
+                    const go = () => { if (gen === my) fn() }
+                    if (fitted) timers.push(window.setTimeout(go, ms / tempo))
+                    else pendingLater.push([go, ms, my])
+                },
                 loop: (fn) => {
                     const t0 = performance.now()
                     const step = (now: number) => {
                         if (gen !== my) return
-                        if (fn(now - t0) && inView) rafs.push(requestAnimationFrame(step))
+                        const t = (now - t0 - lead) * tempo
+                        // lead の間は描かない（素の姿のまま）
+                        if (t < 0) { if (inView) rafs.push(requestAnimationFrame(step)); return }
+                        if (fn(t) && inView) rafs.push(requestAnimationFrame(step))
                     }
                     rafs.push(requestAnimationFrame(step))
                 },
@@ -2343,9 +2502,15 @@ export default function EntryTitle(props: Props) {
         }
 
         let lastC: Ctx | null = null
+        // 4周目：演技の舞台を組んだ時の字の並び（書体が後から差し替わったかを見る）
+        let builtSig = ""
+        let lastWhy = ""
+        const sig = () => { const cs = txt.querySelectorAll(".mdt-c"); const a = cs[0], z = cs[cs.length - 1]; if (!a || !z) return ""; const r0 = a.getBoundingClientRect(), r1 = z.getBoundingClientRect(); return `${Math.round(r1.right - r0.left)}x${Math.round(r1.bottom - r0.top)}` }
         let demoDone = false
         const run = (why = ""): R => {
             const c = build()
+            builtSig = sig()
+            lastWhy = why
             lastC = c
             if (chap) return chap.fn(c)
             const fn = spec[1]
@@ -2386,7 +2551,9 @@ export default function EntryTitle(props: Props) {
             const D = 1700
             const step = (now: number) => {
                 if (gen !== my || follow !== f || !sweeping) return
-                const k = Math.min(1, (now - t0) / D)
+                // 4周目：入る前に LEAD だけ素の姿で止める（1コマ目から傾いて・散って始まらない）
+                if (now - t0 < LEAD) { rafs.push(requestAnimationFrame(step)); return }
+                const k = Math.min(1, (now - t0 - LEAD) / D)
                 const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2
                 f.move(c.tb.x - c.fs * 0.4 + (c.tb.w + c.fs * 0.8) * e, c.tb.y + c.tb.h * (0.5 + 0.18 * Math.sin(k * Math.PI * 2)))
                 tickLoop()
@@ -2404,7 +2571,8 @@ export default function EntryTitle(props: Props) {
             let last = 0
             const step = (now: number) => {
                 if (gen !== my || scroller !== s) return
-                const k = Math.min(1, (now - t0) / D)
+                if (now - t0 < LEAD) { rafs.push(requestAnimationFrame(step)); return }
+                const k = Math.min(1, (now - t0 - LEAD) / D)
                 const off = Math.sin(Math.PI * k) * 600
                 s.push((off - last) * 0.9, off)
                 last = off
@@ -2416,10 +2584,54 @@ export default function EntryTitle(props: Props) {
             tickLoop()
         }
 
+        // 枠を当てる：演技の長さ T を FIT の上限に縮め、lead の間は素の姿で止める。数値を返す演技・ホールドだけ（追う系・スクロール系は各自で守る）
+        // 1コマ目が素の姿か（表に無い演技の lead を決める）：舞台と字の不透明度・ぼかし・塗り・位置、切り抜きの大きさを見る。
+        // 初めから隠れている（現れる）演技に lead を足すと、隠れている時間が延びるだけなので付けない
+        const restAtStart = (c: Ctx): boolean => {
+            try {
+                const rr = root.getBoundingClientRect()
+                const hidden = (el: Element) => {
+                    const cs = getComputedStyle(el)
+                    if (parseFloat(cs.opacity) < 0.9 || /blur\((?!0px)/.test(cs.filter) || cs.visibility === "hidden") return true
+                    const cp = cs.clipPath || ""
+                    if (/circle\(0/.test(cp) || (/inset\(/.test(cp) && (cp.match(/(\d+(?:\.\d+)?)%/g) || []).some((x) => parseFloat(x) >= 30))) return true
+                    return false
+                }
+                if ([root, c.txt].some(hidden)) return false
+                if (c.words !== c.chars && c.words.some(hidden)) return false
+                return c.chars.every((ch) => {
+                    if (hidden(ch) || getComputedStyle(ch).color === "rgba(0, 0, 0, 0)") return false
+                    const r = ch.getBoundingClientRect(), b = c.box(ch)
+                    return Math.abs(r.left - rr.left - b.x) < c.fs * 0.06 && Math.abs(r.width - b.w) < b.w * 0.08 + 1 && Math.abs(r.top - rr.top - b.y - (b.h - r.height) / 2) < c.fs * 0.08
+                })
+            } catch {
+                return false
+            }
+        }
+        const fitAct = (res: R): R => {
+            const T = typeof res === "number" ? res : res && (res as Hold).hold ? (res as Hold).ms : 0
+            const f = FIT[fitKey]
+            if (T > 0 && f) {
+                tempo = f[1] && T > f[1] ? T / f[1] : 1
+                lead = f[0] ? LEAD : 0
+            } else if (T > 0 && lastC && restAtStart(lastC)) lead = LEAD
+            fitted = true
+            if (tempo !== 1 || lead) anims.forEach((a) => {
+                try {
+                    a.playbackRate = tempo
+                    if (lead) a.currentTime = ((a.currentTime as number) || 0) - lead * tempo
+                } catch {}
+            })
+            pendingLater.forEach(([go, ms, g]) => { if (g === gen) timers.push(window.setTimeout(go, lead + ms / tempo)) })
+            pendingLater = []
+            if (typeof res === "number") return res / tempo + lead
+            if (res && (res as Hold).hold) return { hold: true, ms: (res as Hold).ms / tempo + lead }
+            return res
+        }
         const play = (why: string) => {
             if (reduced || !inView) return
             stop()
-            const res = run(why)
+            const res = fitAct(run(why))
             if (!res) { stop(); return }
             if (typeof res === "number") {
                 busyUntil = performance.now() + res
@@ -2480,8 +2692,17 @@ export default function EntryTitle(props: Props) {
             Promise.all([fontP, morphLayersGone(3000)]).then(() => {
                 // 書体が差し替わった後の行組みを1コマ待ってから測る（2コマ）
                 // 「演じた」の記録は実際に演じた時に付ける（途中で effect が張り直されたら、次の回が演じる）
-                const r1 = requestAnimationFrame(() => { const r2 = requestAnimationFrame(() => { inView = true; landedRef.current = slug; play("land") }); rafs.push(r2) })
-                rafs.push(r1)
+                // 4周目：画面のコマが落ち着いてから演じる（読み込み直後はメインスレッドが詰まり、1コマ目が200ms以上遅れて
+                // 演技の頭＝素の姿が画面に出ないまま崩れた姿から見えていた）。コマの間隔が2回続けて 34ms 未満になるのを待つ（最長 500ms）
+                const tStart = performance.now()
+                let prev = tStart, calm = 0
+                const wait = (now: number) => {
+                    calm = now - prev < 34 ? calm + 1 : 0
+                    prev = now
+                    if (calm >= 2 || now - tStart > 500) { inView = true; landedRef.current = slug; play("land"); return }
+                    rafs.push(requestAnimationFrame(wait))
+                }
+                rafs.push(requestAnimationFrame(wait))
             })
         }, { threshold: 0.6 })
         go.observe(hit)
@@ -2492,7 +2713,7 @@ export default function EntryTitle(props: Props) {
             if (e.pointerType !== "mouse" || !fine || reduced) return
             if (isF) {
                 sweeping = false
-                if (!follow) { stop(); const r = run(); if (r && (r as Follow).kind === "f") follow = r as Follow; else { stop(); return } }
+                if (!follow) { stop(); const r = fitAct(run()); if (r && (r as Follow).kind === "f") follow = r as Follow; else { stop(); return } }
                 held = true
                 const [x, y] = rel(e)
                 follow!.move(x, y)
@@ -2533,7 +2754,7 @@ export default function EntryTitle(props: Props) {
             if (!scroller) {
                 if (performance.now() < busyUntil && !follow) return
                 stop()
-                const r = run()
+                const r = fitAct(run())
                 if (!r || (r as Scroll).kind !== "s") { stop(); return }
                 scroller = r as Scroll
             }
@@ -2541,6 +2762,21 @@ export default function EntryTitle(props: Props) {
             tickLoop()
         }
         window.addEventListener("scroll", onScroll, { passive: true })
+
+        // 演技の途中で見出しの書体が届くと（読み込みが遅い時。切り出しの書体は最長0.9秒しか待たない）、
+        // 舞台の字は前の書体の位置のまま新しい字形で描かれ、素の見出しとずれた姿のまま演じていた（4周目の判定で着地だけ落ちていた原因）。
+        // 字の並びが変わったら演技をやめて素の見出しに戻し、着地なら組み直して演じ直す（1回だけ）
+        let refits = 0
+        const onFonts = () => {
+            if (!fxs.length || !builtSig) return
+            if (sig() === builtSig) return
+            const why = lastWhy
+            stop()
+            demoDone = false
+            if (why === "land" && refits++ < 1) requestAnimationFrame(() => play("land"))
+        }
+        const fontSet = (document as any).fonts
+        if (fontSet && fontSet.addEventListener) fontSet.addEventListener("loadingdone", onFonts)
 
         return () => {
             io.disconnect()
@@ -2551,11 +2787,12 @@ export default function EntryTitle(props: Props) {
             hit.removeEventListener("pointerdown", onDown)
             hit.removeEventListener("pointerup", onUp)
             window.removeEventListener("scroll", onScroll)
+            if (fontSet && fontSet.removeEventListener) fontSet.removeEventListener("loadingdone", onFonts)
             stop()
             playRef.current = () => {}
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isStatic, slug, specKey, nameJa, nameEn, ink, paper, muted, accent, params, headText])
+    }, [isStatic, slug, specKey, nameJa, nameEn, ink, paper, muted, accent, paramsDep, headText])
 
     // EntryLab から：初期化（値の同期だけ）／スライダーを離した・初期値に戻した（その値で演じ直す）
     useEffect(() => {
@@ -2613,7 +2850,9 @@ export default function EntryTitle(props: Props) {
 .mdt-tag .ks{display:none}
 a.mdt-tag:hover b{text-decoration:underline}
 a.mdt-tag:focus-visible{outline:2px solid ${ink};outline-offset:2px}
-@container (max-width: 640px){.mdt-tag{max-width:calc(100% - 140px);font-size:10px;gap:6px}.mdt-tag .k,.mdt-tag .v2{display:none}.mdt-tag .ks{display:inline}}
+.mdt-tag .br{display:none}
+@container (max-width: 640px){.mdt-tag{max-width:calc(100% - 140px);font-size:10px;gap:0 6px;flex-wrap:wrap;line-height:15px}.mdt-tag .k,.mdt-tag .v2{display:none}.mdt-tag .ks{display:inline}
+.mdt-tag .br{display:block;flex-basis:100%;height:0}.mdt-tag .v{overflow:visible;text-overflow:clip;white-space:nowrap}.mdt-tag b{overflow:hidden;text-overflow:ellipsis;min-width:0}}
 ` }} />
             <div className={"mdt-clip " + cls}>
                 <h1
@@ -2667,6 +2906,7 @@ a.mdt-tag:focus-visible{outline:2px solid ${ink};outline-offset:2px}
                     <span className="k">この見出しの動き</span>
                     <span className="ks">動き</span>
                     <b>{tagName}</b>
+                    <span className="br" aria-hidden="true" />
                     {vals}
                     <span aria-hidden="true">↗</span>
                 </a>
@@ -2675,6 +2915,7 @@ a.mdt-tag:focus-visible{outline:2px solid ${ink};outline-offset:2px}
                     <span className="k">この見出しの動き</span>
                     <span className="ks">動き</span>
                     <b>{tagName}</b>
+                    <span className="br" aria-hidden="true" />
                     {vals}
                 </div>
             )}

@@ -36,6 +36,11 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 //  ・カード→詳細の板を受け取って外す（下の「板を受け取って外す」）。送り側が Framer のルーターで移ると板が残るので、
 //    板が伸び切ったらデモ枠の実位置へ寄せて地を溶かし、デモ枠のポスターが描けてから板を外す（白い待ち時間・黒い枠を消す）
 //  ・プロンプトの操作（Copy／出力先／初期値に戻す）を左詰め・Copy を先頭に。右端の Copy が Made in Framer バッジの下に入っていた
+//
+// 2026-10-25（Awwwards 4周目・指摘5）
+//  ・PC（2列）：デモの下に「今の値＋Copy」（.mdlab-now）を置き、デモと一緒に左の列で追従させる。追従位置は画面の縦の中ほど（--mdlab-pin）。
+//    旧版はデモの下が約300〜450px空いたまま右の列だけが流れていた
+//  ・追従する Copy の帯は、関連（EntryNav の .mdnav-root）が画面に入ったら引っ込める（関連カードに重なっていた）
 
 interface Param {
     key: string
@@ -313,11 +318,17 @@ export default function EntryLab(props: Props) {
         const d = demoRef.current
         const head = d?.firstElementChild as HTMLElement | null
         if (!d || !head) return
-        const set = () => d.style.setProperty("--mdlab-stick", `${-(head.offsetHeight + 14 - 8)}px`)
+        // PC（2列）：デモ＋今の値の塊を画面の縦の中ほどに留める（上端24pxに貼ると、右の列を読む間ずっと塊の下が空いて見えた）
+        const set = () => {
+            d.style.setProperty("--mdlab-stick", `${-(head.offsetHeight + 14 - 8)}px`)
+            d.style.setProperty("--mdlab-pin", `${Math.max(24, Math.round((window.innerHeight - d.offsetHeight) / 2))}px`)
+        }
         const ro = new ResizeObserver(set)
         ro.observe(head)
+        ro.observe(d)
+        window.addEventListener("resize", set)
         set()
-        return () => ro.disconnect()
+        return () => { ro.disconnect(); window.removeEventListener("resize", set) }
     }, [isStatic])
 
     // バインドが空なら GH の項目JSONで補う
@@ -356,7 +367,11 @@ export default function EntryLab(props: Props) {
             const r = el.getBoundingClientRect()
             const vh = window.innerHeight
             const nearEnd = document.documentElement.scrollHeight - (window.scrollY + vh) < vh * 0.5
-            setPromptPassed(r.height > 0 && r.bottom < 0 && !nearEnd)
+            // 2026-10-25（4周目）関連（EntryNav の .mdnav-root）が画面に入ったら引っ込める。
+            // 旧版はページ末の半画面だけを見ていたので、関連カードの上に帯が重なっていた（レビュー指摘・PC/SP）
+            const nav = Array.from(document.querySelectorAll<HTMLElement>(".mdnav-root")).find((n) => n.getClientRects().length)
+            const navIn = !!nav && nav.getBoundingClientRect().top < vh
+            setPromptPassed(r.height > 0 && r.bottom < 0 && !nearEnd && !navIn)
         }
         const on = () => { if (!raf) raf = requestAnimationFrame(check) }
         check()
@@ -589,6 +604,30 @@ export default function EntryLab(props: Props) {
                     />
                 ) : null}
             </div>
+            {/* PC（2列）だけ：デモの下に「今の値＋Copy」。デモと一緒に左の列で追従する。
+                旧版はデモの下が約300〜450px空いたまま右の列だけが流れていた（レビュー指摘）。
+                触った結果（デモ）・その数値・持ち帰る操作（Copy）が、右の列のどこを読んでいても左に揃っている */}
+            {params.length ? (
+                <div className="mdlab-now">
+                    <span className="mdlab-now-h">
+                        <span style={num}>Now</span>
+                        <span style={jpSub}>今の値</span>
+                    </span>
+                    <span className="mdlab-now-v">
+                        {params.map((p) => (
+                            <span key={p.key} className={"mdlab-now-i" + (values[p.key] !== p.default ? " on" : "")}>
+                                <span className="k">{splitLabel(p.label)[0]}</span> {fmt(p, values[p.key] ?? p.default)}
+                            </span>
+                        ))}
+                    </span>
+                    <span className="mdlab-now-b">
+                        {changed.length ? (
+                            <button className="mdlab-btn mdlab-now-reset" onClick={reset}>初期値に戻す</button>
+                        ) : null}
+                        <button className="mdlab-btn mdlab-now-copy" onClick={copy}>{copyLabel}</button>
+                    </span>
+                </div>
+            ) : null}
         </div>
     )
 
@@ -746,6 +785,17 @@ export default function EntryLab(props: Props) {
 .mdlab-recchip{position:absolute;right:10px;top:10px;font-family:${MONO};font-size:11px;letter-spacing:.04em;color:#E9E9E3;background:rgba(10,10,10,.72);padding:6px 10px;border-radius:100px;backdrop-filter:blur(6px);opacity:0;transition:opacity .3s}
 .mdlab-recchip.on{opacity:1}
 .mdlab-wrap{container-type:inline-size;--mdlab-pad:22px}
+.mdlab-now{display:none;align-items:center;gap:16px;padding-top:14px;border-top:1px solid rgba(10,10,10,.16);margin-top:6px;font-family:${MONO};font-size:12px;letter-spacing:.04em;min-width:0}
+.mdlab-now-h{display:flex;gap:8px;align-items:baseline;white-space:nowrap;text-transform:uppercase;letter-spacing:.08em}
+.mdlab-now-v{display:flex;flex-wrap:wrap;gap:6px 12px;min-width:0;flex:1;font-variant-numeric:tabular-nums}
+.mdlab-now-i{white-space:nowrap;padding:1px 6px;border-radius:4px;border:1px solid transparent}
+.mdlab-now-i .k{color:${muted}}
+.mdlab-now-i.on{background:${accent};border-color:${accent}}
+.mdlab-now-i.on .k{color:${ink}}
+.mdlab-now-b{display:flex;gap:8px;flex-shrink:0}
+.mdlab-now button{font-family:${MONO};font-size:12px;letter-spacing:.06em;height:36px;padding:0 14px;border-radius:100px;cursor:pointer;white-space:nowrap}
+.mdlab-now-copy{background:${ink};color:${paper};border:1px solid ${ink}}
+.mdlab-now-reset{background:transparent;color:${ink};border:1px solid rgba(10,10,10,.24)}
 .mdlab-grid{display:flex;flex-direction:column;gap:48px}
 .mdlab-a{display:flex;flex-direction:column;gap:24px}
 .mdlab-ctl{display:grid;grid-template-columns:1fr;column-gap:36px;row-gap:26px}
@@ -755,7 +805,8 @@ export default function EntryLab(props: Props) {
 @container (min-width: 980px){
 .mdlab-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-rows:auto 1fr;column-gap:40px;row-gap:0;align-items:start}
 .mdlab-a{display:contents}
-.mdlab-demo{grid-column:1;grid-row:1 / span 2;position:sticky;top:24px}
+.mdlab-demo{grid-column:1;grid-row:1 / span 2;position:sticky;top:var(--mdlab-pin,24px)}
+.mdlab-now{display:flex}
 .mdlab-ctl{grid-column:2;grid-row:1;padding-top:30px;row-gap:22px}
 .mdlab-prompt{grid-column:2;grid-row:2;padding-top:40px}
 .mdlab-a:not(:has(.mdlab-ctl))+.mdlab-prompt{padding-top:30px}

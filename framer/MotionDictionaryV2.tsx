@@ -466,9 +466,9 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
         >
             <span style={{ color: sub }}>この扉の動き</span>
             <span style={{ fontFamily: JP, fontWeight: 700, fontSize: sp ? 12 : 13, letterSpacing: "0.02em" }}>{ch.demo.ja}</span>
-            <span>{ch.demo.slug}</span>
-            {!sp ? <span style={{ color: sub }}>{ch.demo.params}</span> : null}
-            <span aria-hidden>↗</span>
+            {/* 矢印は直前の語と離さない（SP で「↗」だけが次の行に落ちていた） */}
+            {sp ? <span style={{ whiteSpace: "nowrap" }}>{ch.demo.slug}<span aria-hidden> ↗</span></span> : <span>{ch.demo.slug}</span>}
+            {!sp ? <span style={{ color: sub, whiteSpace: "nowrap" }}>{ch.demo.params}<span aria-hidden style={{ color: dark ? accent : ink }}> ↗</span></span> : null}
         </a>
     )
 
@@ -537,7 +537,7 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                         gap: sp ? 14 : 32,
                     }}
                 >
-                    <p style={{ margin: 0, fontFamily: JP, fontSize: sp ? 14 : 16, lineHeight: 1.7, letterSpacing: "0.03em", color: fg, maxWidth: 420, textAlign: ch.align === "right" && !sp ? "right" : "left" }}>{ch.line}</p>
+                    <p style={{ margin: 0, fontFamily: JP, fontSize: sp ? 14 : 16, lineHeight: 1.7, letterSpacing: "0.03em", color: fg, maxWidth: 420, textAlign: ch.align === "right" && !sp ? "right" : "left", ...WRAP }}>{phrases(ch.line)}</p>
                     {credit}
                 </div>
             </div>
@@ -755,12 +755,12 @@ export default function MotionDictionaryV2(props: Props) {
         const one = (e: Entry, o: { big?: boolean; row?: boolean; wide?: boolean }) => (
             <Card e={e} ink={ink} muted={muted} accent={accent} hoverable={hoverable} reduced={reduced} isStatic={isStatic} sp={sp} big={o.big} row={o.row} wide={o.wide} size={L.size} />
         )
-        return (
-            <div style={{ padding: `${sp ? 20 : 40}px ${gutter}px 8px`, maxWidth: 1680, margin: "0 auto", boxSizing: "border-box", width: "100%" }}>
+        const body = (
+            <>
                 {P.places.length ? (
                     <div style={{ display: "grid", gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))`, columnGap: colGap, rowGap, alignItems: "start" }}>
                         {P.places.map((p) => (
-                            <div key={items[p.k].slug} style={{ gridColumn: `${p.c + 1} / span ${p.w}`, gridRow: `${p.r + 1} / span ${p.h}`, minWidth: 0 }}>
+                            <div key={items[p.k].slug} className="mdx-gi" data-c={p.c} style={{ gridColumn: `${p.c + 1} / span ${p.w}`, gridRow: `${p.r + 1} / span ${p.h}`, minWidth: 0 }}>
                                 {one(items[p.k], { big: p.big && n >= 3, row: L.row, wide: L.wide })}
                             </div>
                         ))}
@@ -770,13 +770,22 @@ export default function MotionDictionaryV2(props: Props) {
                 {P.tail.length ? (
                     <div style={{ display: "grid", gridTemplateColumns: `repeat(${P.tail.length}, minmax(0, 1fr))`, columnGap: colGap, marginTop: P.places.length ? rowGap : 0, alignItems: "start" }}>
                         {P.tail.map((k) => (
-                            <div key={items[k].slug} style={{ minWidth: 0 }}>
+                            <div key={items[k].slug} className="mdx-gi" data-c={P.tail.indexOf(k)} style={{ minWidth: 0 }}>
                                 {one(items[k], { row: P.tail.length === 1 || L.row, wide: L.wide && P.tail.length > 1 })}
                             </div>
                         ))}
                     </div>
                 ) : null}
-            </div>
+            </>
+        )
+        const frame: CSSProperties = { padding: `${sp ? 20 : 40}px ${gutter}px 8px`, maxWidth: 1680, margin: "0 auto", boxSizing: "border-box", width: "100%" }
+        const ch = chapter ? CHAPTERS[chapter] : undefined
+        // 検索結果（章なし）は素の一覧。章の一覧は、その章の扉と同じ動きの言語で一覧全体が振る舞う
+        if (!ch) return <div style={frame}>{body}</div>
+        return (
+            <GridFx key={"gx-" + chapter} kind={ch.kind} demo={ch.demo} n={items.length} frame={frame} ink={ink} muted={muted} sp={sp} hoverable={hoverable} reduced={reduced} isStatic={isStatic}>
+                {body}
+            </GridFx>
         )
     }
 
@@ -875,6 +884,24 @@ export default function MotionDictionaryV2(props: Props) {
    バッジ分の余白を右と下に取る（ホームにだけ効く。詳細ページは SiteFooterCTA 側で直す） */
 .mdf-base{padding-bottom:72px!important}
 @media (min-width: 810px){.mdf-base{padding-right:184px!important}}
+/* 一覧の振る舞い（GridFx）。transform / opacity / clip-path だけ */
+.mdx-gi{position:relative}
+.gx-split .mdx-gi.gx-sa,.gx-split .mdx-gi.gx-sg{clip-path:inset(-24px -24px 0 -24px)}
+.gx-split .mdx-gi.gx-sa>*{transform:translateY(62%);opacity:0}
+.gx-split .mdx-gi.gx-sg>*{transition:transform .6s cubic-bezier(.22,1,.36,1) var(--gd,0ms),opacity .6s ease var(--gd,0ms)}
+.gx-clip .mdx-gi .ph>img,.gx-clip .mdx-gi .ph>video{clip-path:inset(0 0 0 0)}
+.gx-clip .mdx-gi.gx-ca .ph>img,.gx-clip .mdx-gi.gx-ca .ph>video{clip-path:inset(0 100% 0 0)}
+.gx-clip .mdx-gi.gx-cg .ph>img,.gx-clip .mdx-gi.gx-cg .ph>video{transition:clip-path .9s cubic-bezier(.16,1,.3,1) var(--gd,0ms)}
+.gx-wipe .mdx-gi .lf::before{content:"";position:absolute;inset:0;z-index:3;background:${ink};border-radius:8px;transform:scaleX(0);transform-origin:left center;pointer-events:none}
+.gx-wipe .mdx-gi.gx-cw .lf::before{animation:gx-cw 1.66s var(--gd,0ms) both}
+@keyframes gx-cw{0%{transform:scaleX(0);transform-origin:left center;animation-timing-function:cubic-bezier(.76,0,.24,1)}48.2%{transform:scaleX(1);transform-origin:left center}51.8%{transform:scaleX(1);transform-origin:right center;animation-timing-function:cubic-bezier(.76,0,.24,1)}100%{transform:scaleX(0);transform-origin:right center}}
+.gx-press .mdx-gi{transition:transform .2s ease-out}
+.gx-press .mdx-gi.gx-pd{transform:translateY(2px) scale(.97);transition:transform .05s ease-out}
+.gx-press .mdx-gi.gx-pw{animation:gx-pw .51s var(--gd,0ms) both}
+@keyframes gx-pw{0%{transform:none;animation-timing-function:ease-out}9.8%{transform:translateY(2px) scale(.97)}60.8%{transform:translateY(2px) scale(.97);animation-timing-function:ease-out}100%{transform:none}}
+.gx-count .mdx-gi{transition:opacity .18s ease-out}
+.gx-count .mdx-gi.gx-dim{opacity:.28}
+@media (prefers-reduced-motion: reduce){.gx-wipe .mdx-gi .lf::before{display:none}.mdx-gi{transition:none!important;animation:none!important;opacity:1!important;transform:none!important}}
 .mdx-credit{transition:opacity .2s}
 .mdx-credit:hover{opacity:.72}
 .mdx-credit:focus-visible{outline:2px solid ${accent};outline-offset:4px}
@@ -1032,6 +1059,335 @@ export default function MotionDictionaryV2(props: Props) {
                 })
             )}
             <div style={{ height: sp ? 48 : 80 }} />
+        </div>
+    )
+}
+
+// ─── 一覧そのものが章の動きで振る舞う（2026-10-25 Awwwards 4周目・指摘2 A案）──────────────
+// 3周続けて「中盤が均質な黒い箱の壁」と言われた。扉だけが動いて、扉を過ぎるとどの章も同じ並びに戻っていた。
+// そこで、扉の動き（辞典の実在項目）と同じ言語で、カード群（グリッド全体）が振る舞う：
+//   hover=カーソルにカード群が寄る（タッチは画面の中央へ寄る）／scroll=スクロール速度で傾く／text=字のように下から分割リビール
+//   transition=幕が1枚ずつ横切る／media=絵がクリップで開く／ui=入ると押されて沈む・押すと沈む／loading=カウンターで順に点く
+// 守っていること：transform / opacity / clip-path だけ（レイアウトを揺らさない）。reduced-motion・静的描画では何もしない。
+// 「出る前」に隠すのは画面のすぐ下（1.5画面ぶん）に来たセルだけ＝全ページ撮影や遠い位置で空のカードを見せない。
+// 幕（transition）と押下（ui）は「見えている状態から1回崩して戻す」ので、隠す状態を持たない。
+// 毎フレーム回るのは hover と scroll の2つだけで、どちらも一覧が画面にある間・動いている間だけ。
+const GRID_FX: Record<Kind, { params: string }> = {
+    magnetic: { params: "pull 0.06 · max 12px · lerp 0.12" },
+    skew: { params: "factor 0.15 · max 2.5°" },
+    split: { params: "stagger 80ms · 0.6s" },
+    wipe: { params: "0.8s × 2 · in-out" },
+    clip: { params: "0.9s · expo-out" },
+    press: { params: "scale 0.97 · 0.05s / 0.2s" },
+    count: { params: "1.8s · expo-out" },
+}
+
+interface GridFxProps {
+    kind: Kind
+    demo: { slug: string; ja: string }
+    n: number
+    frame: CSSProperties
+    ink: string
+    muted: string
+    sp: boolean
+    hoverable: boolean
+    reduced: boolean
+    isStatic: boolean
+    children: ReactNode
+}
+
+function GridFx({ kind, demo, n, frame, ink, muted, sp, hoverable, reduced, isStatic, children }: GridFxProps) {
+    const rootRef = useRef<HTMLDivElement>(null)
+    const wrapRef = useRef<HTMLDivElement>(null)
+    const cntRef = useRef<HTMLSpanElement>(null)
+
+    useEffect(() => {
+        if (isStatic || reduced || typeof window === "undefined" || !("IntersectionObserver" in window)) return
+        const root = rootRef.current
+        const wrap = wrapRef.current
+        if (!root || !wrap) return
+        const cells = () => Array.from(wrap.querySelectorAll<HTMLElement>(".mdx-gi"))
+        const col = (el: HTMLElement) => parseInt(el.dataset.c || "0", 10) || 0
+        const timers: number[] = []
+        const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms))
+        let raf = 0
+        let inView = false
+        const offs: (() => void)[] = []
+        const on = (t: EventTarget, ev: string, fn: (e: any) => void, o?: AddEventListenerOptions) => {
+            t.addEventListener(ev, fn, o)
+            offs.push(() => t.removeEventListener(ev, fn, o))
+        }
+        const vis = new IntersectionObserver((es) => { for (const en of es) inView = en.isIntersecting }, { threshold: 0 })
+        vis.observe(root)
+        offs.push(() => vis.disconnect())
+
+        // ── 入る直前に「出る前」へ、目に入る帯で「出る」。完全に画面外へ出たら完成形に戻す（次の入場で再び）
+        // arm/play/reset はセルごと。帯：画面の下 1.5画面ぶんに入ったら arm（まだ見えていないものだけ）
+        const entry = (arm: ((el: HTMLElement) => void) | null, play: (el: HTMLElement) => void, reset: (el: HTMLElement) => void) => {
+            const st = new WeakMap<HTMLElement, "armed" | "played">()
+            const near = new IntersectionObserver((es) => {
+                for (const en of es) {
+                    const el = en.target as HTMLElement
+                    if (en.isIntersecting) {
+                        if (!st.get(el) && en.boundingClientRect.top > window.innerHeight) {
+                            if (arm) arm(el)
+                            st.set(el, "armed")
+                        }
+                    } else {
+                        // 帯の外（遠く下・上に抜けた）：完成形へ戻して、次に近づいたらまた
+                        reset(el)
+                        st.delete(el)
+                    }
+                }
+            }, { threshold: 0, rootMargin: "0px 0px 150% 0px" })
+            const go = new IntersectionObserver((es) => {
+                for (const en of es) {
+                    const el = en.target as HTMLElement
+                    if (en.isIntersecting && st.get(el) === "armed") {
+                        st.set(el, "played")
+                        play(el)
+                    }
+                }
+            }, { threshold: 0, rootMargin: "0px 0px -12% 0px" })
+            const watch = () => cells().forEach((el) => { near.observe(el); go.observe(el) })
+            watch()
+            offs.push(() => { near.disconnect(); go.disconnect(); cells().forEach(reset) })
+        }
+
+        if (kind === "skew") {
+            // velocity-skew：速度(px/フレーム)×0.15 → ±2.5° → lerp 0.1。扉（×0.5・±8°）と同じ式で、面が大きいぶん弱く
+            let last = window.scrollY, cur = 0, running = false
+            const loop = () => {
+                const y = window.scrollY
+                const target = Math.max(-2.5, Math.min(2.5, (y - last) * 0.15))
+                last = y
+                cur += (target - cur) * 0.1
+                if (Math.abs(cur) < 0.01 && Math.abs(target) < 0.01) {
+                    cur = 0
+                    wrap.style.transform = ""
+                    wrap.style.willChange = ""
+                    running = false
+                    return
+                }
+                // 画面の中央を軸に傾ける（見ているところが動かない）
+                const r = root.getBoundingClientRect()
+                wrap.style.transformOrigin = `50% ${Math.round(window.innerHeight / 2 - r.top)}px`
+                wrap.style.transform = `skewY(${cur.toFixed(2)}deg)`
+                raf = requestAnimationFrame(loop)
+            }
+            on(window, "scroll", () => {
+                // 止まっている間も直前の位置だけは覚える（動き出しの1フレーム目の速度を正しく取る）
+                if (!inView) { last = window.scrollY; return }
+                if (running) return
+                running = true
+                wrap.style.willChange = "transform"
+                raf = requestAnimationFrame(loop)
+            }, { passive: true })
+            offs.push(() => { wrap.style.transform = ""; wrap.style.willChange = ""; wrap.style.transformOrigin = "" })
+        }
+
+        if (kind === "magnetic") {
+            // magnetic-hover：半径内でカーソルへ寄る（差分×0.06・最大12px）。追従 lerp 0.12、戻り 0.084
+            // タッチ：画面の中央の横線が磁石。スクロールで通り過ぎるカードが中央へ最大8px寄る
+            let list: { el: HTMLElement; x: number; y: number; ox: number; oy: number }[] = []
+            let px = 0, py = 0, has = false, running = false
+            const R = 420, MAX = hoverable ? 12 : 8
+            const measure = () => {
+                list = cells().map((el) => {
+                    const prev = list.find((q) => q.el === el)
+                    const r = el.getBoundingClientRect()
+                    const ox = prev ? prev.ox : 0, oy = prev ? prev.oy : 0
+                    return { el, x: r.left + r.width / 2 - ox + window.scrollX, y: r.top + r.height / 2 - oy + window.scrollY, ox, oy }
+                })
+            }
+            const loop = () => {
+                let moving = false
+                const sy = window.scrollY, sx = window.scrollX, vh = window.innerHeight
+                for (const q of list) {
+                    const cx = q.x - sx, cy = q.y - sy
+                    if (cy < -400 || cy > vh + 400) { if (q.ox || q.oy) { q.ox = 0; q.oy = 0; q.el.style.transform = "" } continue }
+                    let tx = 0, ty = 0
+                    if (hoverable) {
+                        const dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy)
+                        if (has && d < R) {
+                            const k = 0.06 * (1 - d / R) * 2
+                            tx = Math.max(-MAX, Math.min(MAX, dx * k))
+                            ty = Math.max(-MAX, Math.min(MAX, dy * k))
+                        }
+                    } else {
+                        const dy = vh / 2 - cy
+                        if (Math.abs(dy) < vh * 0.6) ty = Math.max(-MAX, Math.min(MAX, dy * 0.03 * (1 - Math.abs(dy) / (vh * 0.6)) * 2))
+                    }
+                    const kk = tx || ty ? 0.12 : 0.084
+                    q.ox += (tx - q.ox) * kk
+                    q.oy += (ty - q.oy) * kk
+                    if (Math.abs(tx - q.ox) > 0.05 || Math.abs(ty - q.oy) > 0.05) moving = true
+                    q.el.style.transform = Math.abs(q.ox) < 0.05 && Math.abs(q.oy) < 0.05 && !tx && !ty ? "" : `translate3d(${q.ox.toFixed(2)}px,${q.oy.toFixed(2)}px,0)`
+                }
+                if (moving && inView) raf = requestAnimationFrame(loop)
+                else running = false
+            }
+            const kick = () => { if (!running) { running = true; raf = requestAnimationFrame(loop) } }
+            if (hoverable) {
+                on(root, "pointerenter", (e: PointerEvent) => { if (e.pointerType === "mouse") { measure(); has = true; px = e.clientX; py = e.clientY; kick() } })
+                on(root, "pointermove", (e: PointerEvent) => { if (e.pointerType !== "mouse") return; if (!list.length) measure(); px = e.clientX; py = e.clientY; has = true; kick() })
+                on(root, "pointerleave", () => { has = false; kick() })
+                on(window, "scroll", () => { if (has) kick() }, { passive: true })
+            } else {
+                on(window, "scroll", () => { if (!inView) return; if (!list.length) measure(); kick() }, { passive: true })
+            }
+            on(window, "resize", () => { list.forEach((q) => { q.ox = 0; q.oy = 0; q.el.style.transform = "" }); list = [] })
+            offs.push(() => cells().forEach((el) => (el.style.transform = "")))
+        }
+
+        if (kind === "split") {
+            // split-text-reveal：字がマスクの下から昇るのと同じ形で、カードがセルの下端から昇る（0.6s・(0.22,1,0.36,1)）。列ごとに 80ms ずらす
+            entry(
+                (el) => el.classList.add("gx-sa"),
+                (el) => {
+                    el.style.setProperty("--gd", col(el) * 80 + "ms")
+                    el.classList.add("gx-sg")
+                    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("gx-sa")))
+                    later(() => el.classList.remove("gx-sg"), 700 + col(el) * 80)
+                },
+                (el) => el.classList.remove("gx-sa", "gx-sg"),
+            )
+        }
+
+        if (kind === "clip") {
+            // clip-reveal：絵（ポスター／録画）が左から開く 0.9s・expo-out。額（黒い枠）と名前は最初から見えている
+            entry(
+                (el) => el.classList.add("gx-ca"),
+                (el) => {
+                    el.style.setProperty("--gd", col(el) * 70 + "ms")
+                    el.classList.add("gx-cg")
+                    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("gx-ca")))
+                    later(() => el.classList.remove("gx-cg"), 1000 + col(el) * 70)
+                },
+                (el) => el.classList.remove("gx-ca", "gx-cg"),
+            )
+        }
+
+        if (kind === "wipe") {
+            // curtain-wipe：覆う 0.8s → 60ms → 反対の辺へ 0.8s で引く。見えているカードの絵の上を1回横切る（隠す状態を持たない・名前は覆わない）
+            entry(
+                null,
+                (el) => {
+                    el.style.setProperty("--gd", col(el) * 90 + "ms")
+                    el.classList.add("gx-cw")
+                    later(() => el.classList.remove("gx-cw"), 1700 + col(el) * 90)
+                },
+                (el) => el.classList.remove("gx-cw"),
+            )
+        }
+
+        if (kind === "press") {
+            // press-feedback：入ると1回押されて沈む（0.05s で scale 0.97・2px → 0.2s で戻す）。列ごとに 70ms＝鍵盤を順に叩く
+            entry(
+                null,
+                (el) => {
+                    el.style.setProperty("--gd", col(el) * 70 + "ms")
+                    el.classList.add("gx-pw")
+                    later(() => el.classList.remove("gx-pw"), 620 + col(el) * 70)
+                },
+                (el) => el.classList.remove("gx-pw"),
+            )
+            // 押している間は沈む（タッチもマウスも）
+            const up = (e: Event) => { const g = (e.target as HTMLElement)?.closest?.(".mdx-gi"); wrap.querySelectorAll(".gx-pd").forEach((x) => { if (x !== g || e.type !== "pointerdown") x.classList.remove("gx-pd") }) }
+            on(wrap, "pointerdown", (e: PointerEvent) => { const g = (e.target as HTMLElement)?.closest?.(".mdx-gi") as HTMLElement | null; if (g) { g.classList.remove("gx-pw"); g.classList.add("gx-pd") } })
+            on(window, "pointerup", up)
+            on(window, "pointercancel", up)
+            on(wrap, "pointerleave", up)
+        }
+
+        if (kind === "count") {
+            // preloader-counter：1.8s・点いた数 = round(N × (1 − 2^(−10t)))。まだ見ていない一覧だけ、暗くしてから順に点ける（消しはしない＝28%）
+            let armed = false
+            let sequencing = false
+            const cnt = cntRef.current
+            const total = () => cells().length
+            const label = (k: number) => { if (cnt) cnt.textContent = `${String(k).padStart(2, "0")} / ${String(total()).padStart(2, "0")}` }
+            const arm = () => { armed = true; cells().forEach((el) => el.classList.add("gx-dim")); label(0) }
+            const reset = () => { armed = false; sequencing = false; cancelAnimationFrame(raf); cells().forEach((el) => el.classList.remove("gx-dim")); label(total()) }
+            let lit = 0
+            // 画面に見えているセルを 1.8s の expo-out で順に点ける（全部を1本の曲線にすると、見えている数枚が最初の0.1秒で点き終わって順番が見えなかった）。
+            // その下のセルは、画面に入ったときに列の順で点く。カウンターは点いた数
+            const inBand = new Set<HTMLElement>()
+            const lightLater = (el: HTMLElement) => {
+                if (el.dataset.gq || !el.classList.contains("gx-dim")) return
+                el.dataset.gq = "1"
+                later(() => { delete el.dataset.gq; if (el.classList.contains("gx-dim")) { el.classList.remove("gx-dim"); label(++lit) } }, col(el) * 90)
+            }
+            const cellGo = new IntersectionObserver((es) => {
+                for (const en of es) {
+                    const el = en.target as HTMLElement
+                    if (en.isIntersecting) inBand.add(el)
+                    else inBand.delete(el)
+                    if (en.isIntersecting && !armed && !sequencing) lightLater(el)
+                }
+            }, { threshold: 0, rootMargin: "0px 0px -12% 0px" })
+            const play = () => {
+                armed = false
+                lit = 0
+                const vh = window.innerHeight
+                const list = cells().filter((el) => { const r = el.getBoundingClientRect(); return r.top < vh * 0.88 && r.bottom > 0 })
+                const N = list.length
+                const t0 = performance.now()
+                let k0 = 0
+                sequencing = true
+                const step = (now: number) => {
+                    const k = Math.min(1, (now - t0) / 1800)
+                    const e = k === 1 ? 1 : 1 - Math.pow(2, -10 * k)
+                    const want = Math.round(N * e)
+                    while (k0 < want) { const el = list[k0++]; if (el.classList.contains("gx-dim")) { el.classList.remove("gx-dim"); lit++ } }
+                    label(lit)
+                    if (k < 1 && k0 < N) raf = requestAnimationFrame(step)
+                    else {
+                        // 数え終わり：その間に画面へ入ってきたセルを列の順で
+                        sequencing = false
+                        inBand.forEach(lightLater)
+                    }
+                }
+                raf = requestAnimationFrame(step)
+            }
+            const near = new IntersectionObserver((es) => {
+                for (const en of es) {
+                    if (en.isIntersecting) { if (!armed && en.boundingClientRect.top > window.innerHeight) arm() }
+                    else if (en.boundingClientRect.top > 0) reset()
+                }
+            }, { threshold: 0, rootMargin: "0px 0px 150% 0px" })
+            // 一覧の頭が画面の中ほど（下45%を除いた帯）に来たら＝最初の1〜2段が見えている
+            const go = new IntersectionObserver((es) => { for (const en of es) if (en.isIntersecting && armed) play() }, { threshold: 0, rootMargin: "0px 0px -45% 0px" })
+            cells().forEach((el) => cellGo.observe(el))
+            offs.push(() => cellGo.disconnect())
+            near.observe(root)
+            go.observe(root)
+            offs.push(() => { near.disconnect(); go.disconnect(); reset() })
+        }
+
+        return () => {
+            cancelAnimationFrame(raf)
+            timers.forEach((t) => clearTimeout(t))
+            offs.forEach((f) => f())
+        }
+    }, [kind, hoverable, reduced, isStatic])
+
+    const meta: CSSProperties = { fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.04em", color: muted, fontVariantNumeric: "tabular-nums" }
+    return (
+        <div ref={rootRef} className={"mdx-gx gx-" + kind} style={frame}>
+            {/* 扉と同じ自己言及：この一覧の振る舞い自体が辞典の1項目 */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 16, marginBottom: sp ? 14 : 20, minHeight: 18 }}>
+                <a className="mdx-credit" href={"/entries/" + demo.slug} style={{ ...meta, color: ink, textDecoration: "none", display: "inline-flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+                    <span style={{ color: muted }}>この一覧の動き</span>
+                    <span style={{ fontFamily: JP, fontWeight: 700, fontSize: sp ? 12 : 13, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>{demo.ja}{sp ? <span aria-hidden> ↗</span> : null}</span>
+                    {!sp ? <span>{demo.slug}</span> : null}
+                    {!sp ? <span style={{ color: muted, whiteSpace: "nowrap" }}>{GRID_FX[kind].params}<span aria-hidden style={{ color: ink }}> ↗</span></span> : null}
+                </a>
+                {kind === "count" ? (
+                    <span ref={cntRef} aria-hidden style={{ ...meta, color: ink }}>{`${String(n).padStart(2, "0")} / ${String(n).padStart(2, "0")}`}</span>
+                ) : null}
+            </div>
+            <div ref={wrapRef} className="mdx-gw">{children}</div>
         </div>
     )
 }
@@ -1415,13 +1771,13 @@ function Stage({ e, at, n, chapter, ink, paper, accent, hoverable, reduced, isSt
                     <span className="mdt-t">{charPhrases(main)}</span>
                 </span>
             </span>
-            {alt ? <span style={{ display: "block", marginTop: sp ? 6 : 10, fontFamily: JP, fontSize: sp ? 14 : 18, lineHeight: 1.6, letterSpacing: "0.02em", color: paper }}>{alt}</span> : null}
+            {alt ? <span style={{ display: "block", marginTop: sp ? 6 : 10, fontFamily: JP, fontSize: sp ? 14 : 18, lineHeight: 1.6, letterSpacing: "0.02em", color: paper, ...WRAP }}>{phrases(alt)}</span> : null}
             <span style={{ display: "block", marginTop: sp ? 6 : 10, fontFamily: MONO, fontSize: sp ? 11 : 13, letterSpacing: "0.01em", color: dim }}>{sentence(e.nameEn)}</span>
         </span>
     )
     const body = (
         <span className="sb">
-            <span style={{ fontFamily: JP, fontWeight: 400, fontSize: sp ? 14 : 18, lineHeight: 1.7, letterSpacing: "0.02em", color: paper }}>{head}</span>
+            <span style={{ fontFamily: JP, fontWeight: 400, fontSize: sp ? 14 : 18, lineHeight: 1.7, letterSpacing: "0.02em", color: paper, ...WRAP }}>{phrases(head)}</span>
             <span className="so" style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.04em", color: accent }}>
                 Open {e.slug} <span aria-hidden>→</span>
             </span>
@@ -1777,6 +2133,28 @@ function charPhrases(s: string): ReactNode[] {
     ))
 }
 
+// 説明文の改行は文節の切れ目だけで（2026-10-25 Awwwards 4周目・指摘4）。
+// 素の和文は字のどこでも折れるので「演／出。」「伝／える動き」のように語が割れ、行頭に1〜2字だけ落ちていた。
+// 文字種の切れ目（words）を1つの塊（inline-block＝中では折れない）にし、開き括弧は次の塊へ、
+// 最後の塊が2字以下なら前の塊とつなぐ（行頭に1〜2字を残さない）。text-wrap: pretty は効く環境での上乗せ。
+// SSR とクライアントで同じ HTML（正規表現だけで切る）
+const WRAP: CSSProperties = { textWrap: "pretty" } as CSSProperties
+function phrases(s: string): ReactNode[] {
+    const seg: string[] = []
+    for (const t of words(s)) {
+        const prev = seg[seg.length - 1]
+        if (prev !== undefined && /[「『（(\[“]$/.test(prev)) seg[seg.length - 1] = prev + t
+        else seg.push(t)
+    }
+    while (seg.length > 1 && Array.from(seg[seg.length - 1].replace(/[、。・）」』！？.,!?]/g, "")).length <= 2) {
+        const last = seg.pop()!
+        seg[seg.length - 1] += last
+    }
+    return seg.map((t, i) => (
+        <span key={i} style={{ display: "inline-block" }}>{t}</span>
+    ))
+}
+
 let pfDefaults: Record<string, V> | null = null
 function defaultsOf(slug: string): V {
     if (!pfDefaults) {
@@ -1863,6 +2241,7 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
             texts.forEach((s, el) => (el.textContent = s))
             txt.removeAttribute("style")
             root.removeAttribute("style")
+            clipHosts.forEach(([el, v]) => (el.style.overflowX = v))
             const i = PF_LIVE.indexOf(h)
             if (i >= 0) PF_LIVE.splice(i, 1)
             o.onEnd?.()
@@ -1919,6 +2298,17 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
     })
     root.appendChild(stage)
     fxs.push(stage)
+    // 名前が箱に収まっている（省略記号の出番がない）ときだけ、演技の間は横の切り抜きを外す。
+    // 1.04 の拡大や揺れでも字の端が切れない余白を持たせる（3周目：ken-burns で頭の「ケ」が切れた）。止めるときに元へ戻す
+    const clipHosts: [HTMLElement, string][] = []
+    if (txt.scrollWidth <= root.clientWidth + 1) {
+        for (let el: HTMLElement | null = root, k = 0; el && k < 2; el = el.parentElement, k++) {
+            if (getComputedStyle(el).overflowX === "clip" || getComputedStyle(el).overflowX === "hidden") {
+                clipHosts.push([el, el.style.overflowX])
+                el.style.overflowX = "visible"
+            }
+        }
+    }
     bx.set(stage, { x: 0, y: 0, w: root.clientWidth, h: root.clientHeight })
     txt.style.visibility = "hidden"
     const box = (el: HTMLElement): Box => {
@@ -1946,11 +2336,13 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         root, txt: stage, chars, words: wordsEl.length >= 3 ? wordsEl : chars, lineOf, nLines: Math.max(1, tops.length),
         // 振れ幅の基準。演技の値は見出し（30〜72px）向けで、カードの名前（13〜24px）では揺れ・跳ねが2〜3pxになり見えなかった。28px を下限にする
         fs: Math.max(28, parseFloat(getComputedStyle(root).fontSize) || 16),
+        em: parseFloat(getComputedStyle(root).fontSize) || 16,
         W: root.clientWidth, H: root.clientHeight,
         tb: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 },
         ink, paper, muted, accent, en: o.en,
         box,
         a: (el, kf, op) => {
+            if (isText(el)) kf = kf.map(capScale)
             const an = el.animate(kf, { fill: "backwards", ...op })
             if (k !== 1) an.playbackRate = k
             anims.push(an)
@@ -2046,13 +2438,15 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         rafs.push(requestAnimationFrame(step))
     }
 
+    // 読める規則：隠れた状態から始まる演技は、読める状態に着くまでを 0.64 秒以内に縮める（0.8 秒に余裕を持たせる。PF_READ＝既定の速さで初めて読めるまでの ms・実測）
+    const readK = (PF_READ[o.slug] || 0) / 640
     if (typeof res === "number") {
-        k = Math.max(1, res / o.cap)
+        k = Math.max(1, res / o.cap, readK)
         flush()
         timers.push(window.setTimeout(() => h.stop(), res / k + 80))
     } else if ((res as Hold).hold) {
         const ms = (res as Hold).ms
-        k = Math.max(1, ms / o.cap)
+        k = Math.max(1, ms / o.cap, readK)
         flush()
         h.held = true
         // ホバー中は保つ（離れたら release）。それ以外は保ってから戻す
@@ -2065,7 +2459,7 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         const f = follow
         const t0 = performance.now()
         held = true
-        const D = o.cap
+        const D = Math.min(o.cap, 1400)
         const step = (now: number) => {
             if (dead) return
             const q = Math.min(1, (now - t0) / D)
@@ -2084,7 +2478,7 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         const s = scroller
         const t0 = performance.now()
         held = true
-        const D = o.cap
+        const D = Math.min(o.cap, 1400)
         let last = 0
         const step = (now: number) => {
             if (dead) return
@@ -2104,6 +2498,14 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         return null
     }
     return h
+}
+
+// 既定の速さで「初めて読める」までの時間（ms）。実演面の大きさで項目ごとに撮り、素の名前との輪郭の再現率 0.8 以上を「読める」として測った
+// （/motion-dict-v2-blind/aww/r4/home/pf/ の shoot.cjs → score.py）。ここに載っている項目だけ、その時間が 0.64 秒に収まるよう速める
+const PF_READ: Record<string, number> = {
+    "block-reveal": 803, "counter": 1000, "sprite-sheet": 1004, "mosaic-reveal": 1005, "stepper": 1238, "bounce-in": 1300,
+    "stamp-in": 1102, "scroll-fade-in": 1105, "ascii-effect": 1200, "quadtree-reveal": 1321, "chat-sequence": 1252,
+    "spiral-reveal": 1300, "gradient-morph": 1304, "motion-path": 1308, "curtain-wipe": 1400, "skeleton-shimmer": 1900,
 }
 
 // SP の「画面に入ったら1回」の順番待ち
@@ -2435,6 +2837,7 @@ interface Ctx {
     lineOf: Map<HTMLElement, number>
     nLines: number
     fs: number
+    em: number // 実際の字の大きさ（読める規則の em はこちらで測る。fs は振れ幅のために 28px を下限に底上げしてある）
     W: number
     H: number
     tb: Box // 文字が実際にある範囲
@@ -2460,6 +2863,29 @@ interface Scroll { kind: "s"; push: (vel: number, off: number) => void; tick: ()
 type R = number | Hold | Follow | Scroll | void
 
 const K = (c: Ctx, px: number, base = 40) => (px * c.fs) / base
+
+// ── 読める規則（2026-10-25 Awwwards 4周目・指摘1）────────────────────────────
+// ・どの演技も 0.8 秒以内に読める状態を通り、最後は読める状態で止まる（止める＝素の名前に戻す）
+// ・字の変位は 0.15em まで（磁石・ポインタを追う系）。字の拡大は 1.04 まで（切れない余白は pfPlay が演技中だけ取る）
+// ・消える系は「見えている状態から始めて一度だけ崩し、戻す」順
+// 0.8 秒以内に読めるかは、項目ごとに実演面の大きさで撮って機械で確かめた（輪郭の再現率 0.8 以上を「読める」）
+const isText = (el: Element) => el instanceof HTMLElement && /\bmdt-(c|p|t|stage|ghost)\b/.test(el.className)
+function capScale(k: Keyframe): Keyframe {
+    const t = k.transform
+    if (typeof t !== "string" || !/scale\(/.test(t)) return k
+    if (typeof k.opacity === "number" && k.opacity < 0.5) return k
+    const out = t.replace(/scale\(\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)/g, (m, a, b) => {
+        const x = parseFloat(a), y = b === undefined ? x : parseFloat(b)
+        // 体積を保つ潰し伸ばし（scaleX ≠ scaleY）は拡大ではないので触らない
+        if (Math.abs(x - y) > 0.001 || x <= 1.04) return m
+        return "scale(1.04)"
+    })
+    return out === t ? k : { ...k, transform: out }
+}
+const clampLen = (x: number, y: number, m: number): [number, number] => {
+    const d = Math.hypot(x, y)
+    return d > m ? [(x / d) * m, (y / d) * m] : [x, y]
+}
 const S = (s: number) => s * 1000
 
 function seeded(n: number, seed = 7): number[] {
@@ -2952,7 +3378,8 @@ const ACT = {
                 c.chars.forEach((ch, i) => {
                     const dx = px - ctr[i].x, dy = py - ctr[i].y
                     const inR = has && Math.hypot(dx, dy) < R
-                    const tx = inR ? dx * p.strength : 0, ty = inR ? dy * p.strength : 0
+                    // 寄る量は 0.15em まで（3周目：字同士が衝突して読めない時間があった）
+                    const [tx, ty] = inR ? clampLen(dx * p.strength, dy * p.strength, c.em * 0.15) : [0, 0]
                     const k = inR ? p.lerp : p.lerp * 0.7
                     pos[i].x += (tx - pos[i].x) * k
                     pos[i].y += (ty - pos[i].y) * k
@@ -3074,11 +3501,13 @@ const CH: Record<string, { slug: string; ja: string; label: string; flags?: stri
 }
 
 function skewAct(c: Ctx, v: { factor: number; maxSkew: number; lerp: number }): Scroll {
+    // 名前の右端の縦ずれが 0.3em を超えない角度まで（長い和名を 8° で傾けると、実演面の大きさでは端が 150px ずれて字の並びが読めなかった）
+    const maxSkew = Math.min(v.maxSkew, (Math.atan((c.em * 0.3) / Math.max(1, c.tb.w)) * 180) / Math.PI)
     let target = 0, cur = 0
     c.txt.style.transformOrigin = "left center"
     return {
         kind: "s",
-        push(vel) { target = Math.max(-v.maxSkew, Math.min(v.maxSkew, vel * v.factor)) },
+        push(vel) { target = Math.max(-maxSkew, Math.min(maxSkew, vel * v.factor)) },
         tick() {
             cur += (target - cur) * v.lerp
             target *= 0.9
@@ -3144,7 +3573,7 @@ const SPEC: Record<string, Spec> = {
     /* ── hover ── */
     "magnetic-hover": ["B", (c, v) => ACT.magnetic(c, { strength: v.strength, lerp: v.lerp, radius: v.radius }), "f"],
     "custom-cursor": ["B", (c, v) => ACT.lens(c, { r: K(c, v.size, 24), lerp: v.lerp, soft: 0, mode: "cursor", blend: ["normal", "difference", "exclusion"][Math.round(v.blend)] }), "f", "size,blend"],
-    "tilt": ["B", (c, v) => ACT.pointerTx(c, { lerp: 0.1, origin: `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`, fn: (x, y) => `perspective(${v.perspective * (c.tb.w / 320)}px) rotateX(${(-y * v.maxAngle).toFixed(2)}deg) rotateY(${(x * v.maxAngle).toFixed(2)}deg) scale(${1 + (v.scale - 1) * Math.min(1, Math.hypot(x, y) * 3)})` }), "f", "maxAngle,perspective"],
+    "tilt": ["B", (c, v) => ACT.pointerTx(c, { lerp: 0.1, origin: `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`, fn: (x, y) => `perspective(${v.perspective * (c.tb.w / 320)}px) rotateX(${(-y * v.maxAngle).toFixed(2)}deg) rotateY(${(x * v.maxAngle).toFixed(2)}deg) scale(${Math.min(1.04, 1 + (v.scale - 1) * Math.min(1, Math.hypot(x, y) * 3))})` }), "f", "maxAngle,perspective"],
     "text-scramble": ["A", (c, v) => ACT.scramble(c, { cs: ["ABCDEFGHIJKLMNOPQRSTUVWXYZ", "0123456789", "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ", "!<>-_\\/[]{}=+*^?#"][Math.round(v.charset)] || "ABC", lockAt: (i) => 160 + i * v.speed * 1.6 }), "", "speed,charset"],
     "underline-reveal": ["A", (c, v) => ACT.underline(c, { dur: S(v.duration), origin: v.origin }), "h"],
     "spotlight-hover": ["B", (c, v) => ACT.lens(c, { r: K(c, v.radius, 40), lerp: 0.18, soft: v.softness, mode: "spot" }), "f"],
@@ -3166,12 +3595,12 @@ const SPEC: Record<string, Spec> = {
     "hover-preview": ["B", (c, v) => previewAct(c, v), "f"],
     "hover-wave": ["A", (c, v) => each(c, { dur: S(v.duration), st: S(v.delay), ease: "ease-in-out", kf: () => [{ transform: "translateY(0px)" }, { transform: `translateY(${-K(c, v.height, 24)}px)` }, { transform: "translateY(0px)" }] }), "", "delay,height"],
     "image-swap-hover": ["B", (c, v) => ACT.swapOut(c, { mode: v.mode === 1 ? "wipe" : "fade", dur: S(v.duration) * 1.4, hold: 700 }), ""],
-    "mouse-parallax": ["B", (c, v) => ACT.pointerTx(c, { u: "w", lerp: v.lerp, fn: (x, y, _e, i) => { const d = [1, 0.4, 0.75, 0.2, 0.9][i % 5] * (v.direction === 1 ? -1 : 1) * K(c, v.strength, 40); return `translate(${(x * d).toFixed(2)}px, ${(y * d * 0.6).toFixed(2)}px)` } }), "f"],
+    "mouse-parallax": ["B", (c, v) => ACT.pointerTx(c, { u: "w", lerp: v.lerp, fn: (x, y, _e, i) => { const d = [1, 0.4, 0.75, 0.2, 0.9][i % 5] * (v.direction === 1 ? -1 : 1) * Math.min(K(c, v.strength, 40), c.em * 0.15); return `translate(${(x * d).toFixed(2)}px, ${(y * d * 0.6).toFixed(2)}px)` } }), "f"],
     "shadow-pop": ["A", (c, v) => shadowPop(c, v), "h", "depth,steps"],
     "row-expand": ["B", (c, v) => { c.txt.style.transformOrigin = `${c.tb.x}px ${c.tb.y + c.tb.h}px`; c.a(c.txt, [{ transform: "scale(1)" }, { transform: `scale(${1 + (v.grow - 1) * 0.35})` }], { duration: S(v.duration), easing: OUT, fill: "both" }); return { hold: true, ms: S(v.duration) } }, "h", "grow,duration"],
     "dock-magnify": ["B", (c, v) => ACT.pointerEach(c, {
         settle: S(v.duration) + 200,
-        fn: (d, _dx, _e, _i, has) => { const r = K(c, v.range, 40); const k = has ? Math.max(0, 1 - d / r) : 0; const s = 1 + (v.maxScale - 1) * k * k * 0.6; return { transform: `translateY(${(-K(c, v.lift, 40) * k).toFixed(2)}px) scale(${s.toFixed(3)})`, transformOrigin: "50% 100%", transition: `transform ${v.duration}s ease-out` } },
+        fn: (d, _dx, _e, _i, has) => { const r = K(c, v.range, 40); const k = has ? Math.max(0, 1 - d / r) : 0; const s = Math.min(1.04, 1 + (v.maxScale - 1) * k * k * 0.6); return { transform: `translateY(${(-Math.min(K(c, v.lift, 40), c.em * 0.15) * k).toFixed(2)}px) scale(${s.toFixed(3)})`, transformOrigin: "50% 100%", transition: `transform ${v.duration}s ease-out` } },
     }), "f", "maxScale,range"],
     "cube-roll": ["A", (c, v) => cubeRoll(c, v), "", "duration,depth"],
     "letter-spacing-hover": ["A", (c, v) => lsHold(c, v), "h", "spacing,duration"],
@@ -3243,12 +3672,12 @@ const SPEC: Record<string, Spec> = {
     "shared-element": ["B", (c, v) => { const dy = c.H + c.fs * 0.3; return each(c, { dur: S(v.duration) * 1.3, st: 14, ease: [OUT, EIO, BACK][Math.round(v.easing)] || OUT, kf: (_i, _n, el) => { const b = c.box(el); return [{ transform: `translate(${(c.tb.x + (b.x - c.tb.x) * 0.22) - b.x}px, ${dy - b.y + c.tb.y}px) scale(0.22)`, opacity: 0.0 }, { offset: 0.15, opacity: 1 }, { transform: "translate(0px,0px) scale(1)", opacity: 1 }] }, origin: "0 0" }) }, "", "duration,easing"],
 
     /* ── media ── */
-    "image-zoom-hover": ["B", (c, v) => { c.rootStyle({ clipPath: CLIP_BOX }); c.txt.style.transformOrigin = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`; c.a(c.txt, [{ transform: "scale(1)" }, { transform: `scale(${v.scale})` }], { duration: S(v.duration), easing: "cubic-bezier(.25,.46,.45,.94)", fill: "both" }); return { hold: true, ms: S(v.duration) } }, "h"],
+    "image-zoom-hover": ["B", (c, v) => { c.txt.style.transformOrigin = `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`; c.a(c.txt, [{ transform: "scale(1)" }, { transform: `scale(${v.scale})` }], { duration: S(v.duration), easing: "cubic-bezier(.25,.46,.45,.94)", fill: "both" }); return { hold: true, ms: S(v.duration) } }, "h"],
     "clip-reveal": ["A", (c, v) => ACT.clip(c, { from: ["inset(-20% 100% -20% -5%)", "inset(100% -5% -20% -5%)", "inset(50% 50% 50% 50%)"][Math.round(v.direction)] || "inset(-20% 100% -20% -5%)", dur: S(v.duration) }), "", "duration,direction"],
     "counter-scale": ["B", (c, v) => counterScale(c, v), "", "aperture,zoom"],
-    "ken-burns": ["B", (c, v) => { const D = S(v.duration); const o = `${c.tb.x + c.tb.w * 0.3}px ${c.tb.y + c.tb.h / 2}px`; return whole(c, [{ offset: 0, transform: "scale(1) translate(0%, 0%)", easing: "cubic-bezier(.33,0,.67,1)" }, { offset: D / (D + 900), transform: `scale(${v.zoom}) translate(${-v.pan}%, ${-v.pan * 0.4}%)`, easing: EIO }, { offset: 1, transform: "scale(1) translate(0%, 0%)" }], D + 900, "linear", o, CLIP_BOX) }, "", "zoom,duration"],
+    "ken-burns": ["B", (c, v) => { const D = S(v.duration); const z = Math.min(1.04, v.zoom); const pan = Math.min(0.5, v.pan); const o = `${c.tb.x + c.tb.w * 0.3}px ${c.tb.y + c.tb.h / 2}px`; return whole(c, [{ offset: 0, transform: "scale(1) translate(0%, 0%)", easing: "cubic-bezier(.33,0,.67,1)" }, { offset: D / (D + 900), transform: `scale(${z}) translate(${-pan}%, ${-pan * 0.4}%)`, easing: EIO }, { offset: 1, transform: "scale(1) translate(0%, 0%)" }], D + 900, "linear", o) }, "", "zoom,duration"],
     "duotone-hover": ["C", "media"],
-    "image-parallax-hover": ["B", (c, v) => { c.rootStyle({ clipPath: CLIP_BOX }); const s = K(c, v.shift, 40); return ACT.pointerTx(c, { lerp: Math.min(0.3, 0.05 / Math.max(0.1, v.duration) * 2), fn: (x, y) => `translate(${(-x * s).toFixed(2)}px, ${(-y * s * 0.5).toFixed(2)}px) scale(${1 + (Math.min(1, Math.hypot(x, y)) * s) / c.tb.w})` }) }, "f", "shift"],
+    "image-parallax-hover": ["B", (c, v) => { c.rootStyle({ clipPath: CLIP_BOX }); const s = Math.min(K(c, v.shift, 40), c.em * 0.15); return ACT.pointerTx(c, { lerp: Math.min(0.3, 0.05 / Math.max(0.1, v.duration) * 2), fn: (x, y) => `translate(${(-x * s).toFixed(2)}px, ${(-y * s * 0.5).toFixed(2)}px) scale(${Math.min(1.02, 1 + (Math.min(1, Math.hypot(x, y)) * s) / c.tb.w)})` }) }, "f", "shift"],
     "blur-load": ["A", (c, v) => whole(c, [{ filter: `blur(${v.blur * (c.fs / 80)}px)`, transform: "scale(1.02)" }, { filter: "blur(0px)", transform: "scale(1)" }], S(v.duration), "ease-out", `${c.tb.x + c.tb.w / 2}px ${c.tb.y + c.tb.h / 2}px`), "", "blur,duration"],
     "rack-focus": ["A", (c, v) => { const b = v.blur * (c.fs / 80); return whole(c, [{ filter: `blur(${b}px)`, easing: "ease-in-out" }, { offset: 0.55, filter: "blur(0px)" }, { offset: 0.7, filter: `blur(${(b * v.hunt).toFixed(1)}px)`, easing: "ease-out" }, { filter: "blur(0px)" }], S(v.duration) * 1.3) }, "", "blur,hunt"],
     "before-after": ["B", (c, v) => beforeAfter(c, v), "", "initial,follow"],
@@ -3301,7 +3730,7 @@ const SPEC: Record<string, Spec> = {
     "pill-expand": ["B", (c, v) => pill(c, v), "", "duration,labelDelay"],
     "toggle-switch": ["C", "ui"],
     "checkbox-check": ["C", "ui"],
-    "star-rating": ["B", (c, v) => ACT.pointerEach(c, { settle: S(v.duration) + 400, fn: (_d, dx, _e, i, has) => { const lit = !has || dx >= -c.fs * 0.3; return { opacity: lit ? "1" : "0.22", transform: lit && has ? `scale(${1 + (v.lift - 1) * 0.5})` : "scale(1)", transition: `opacity ${v.duration}s ${(i * v.stagger) / 1000}s, transform ${v.duration}s` } } }), "f", "lift,duration"],
+    "star-rating": ["B", (c, v) => ACT.pointerEach(c, { settle: S(v.duration) + 400, fn: (_d, dx, _e, i, has) => { const lit = !has || dx >= -c.fs * 0.3; return { opacity: lit ? "1" : "0.22", transform: lit && has ? `scale(${Math.min(1.04, 1 + (v.lift - 1) * 0.5)})` : "scale(1)", transition: `opacity ${v.duration}s ${(i * v.stagger) / 1000}s, transform ${v.duration}s` } } }), "f", "lift,duration"],
     "theme-toggle-transition": ["B", (c, v) => ACT.fill(c, v.shape === 1 ? { dur: S(v.duration), from: "circle", ox: c.tb.x + c.tb.w, oy: c.tb.y, ease: "cubic-bezier(.4,0,.2,1)" } : { dur: S(v.duration), from: "left", ease: "cubic-bezier(.4,0,.2,1)" }), "", "duration,shape"],
     "equalizer-bars": ["B", (c, v) => ACT.jitter(c, { dur: 1800, fps: 1000 / v.speed * 2.2, origin: "50% 100%", fn: (_i, t, r) => { const e = Math.sin(Math.PI * t); const s = 1 - e * (1 - v.floor / 100) * (0.25 + r() * (0.4 + v.spread / 100)); return { transform: `scaleY(${s.toFixed(3)})` } } }), "", "speed,spread"],
     "bar-chart-grow": ["B", (c, v) => each(c, { dur: S(v.duration) * 1.6, st: v.stagger, origin: "50% 100%", ease: [OUT, BACK, "linear"][Math.round(v.easing)] || OUT, kf: () => (v.method === 1 ? [{ clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)" }] : [{ transform: "scaleY(0)" }, { transform: "scaleY(1)" }]) }), "", "duration,stagger"],
@@ -3509,8 +3938,9 @@ function marquee(c: Ctx, p: { speed: number; gap: number; dir: number; fade?: nu
     const T = (P / Math.max(20, p.speed)) * 1000
     c.rootStyle({ clipPath: "inset(-0.3em 0 -0.3em 0)" })
     if (p.fade) {
+        // 端のフェードは流れ出してから掛ける（始まりの瞬間は素の名前のまま読める）
         const m = `linear-gradient(90deg, transparent 0, #000 ${p.fade}px, #000 calc(100% - ${p.fade}px), transparent 100%)`
-        c.rootStyle({ webkitMaskImage: m, maskImage: m })
+        c.later(() => c.rootStyle({ webkitMaskImage: m, maskImage: m }), 160)
     }
     c.chars.forEach((ch) => {
         const b = c.box(ch)
@@ -3589,25 +4019,28 @@ function sliced(c: Ctx, v: V) {
     return D
 }
 function stackAct(c: Ctx, v: V) {
-    // 1枚ずつ下から入って積まれ、先に積まれた札ほど少し上に覗いて小さくなる（最大3枚ぶん）。最後に揃って戻る
+    // 3周目：1枚ずつ下から入る形だと最後の札が入るまで読めず、実演面で「ド」だけが下に落ちて見えた（独立レビューA）。
+    // 4周目：見えている状態から。左から順に札が上から 0.12em だけ置かれ（落ちて積まれる）、先に積まれた札ほど少し上に覗いて小さくなる。最後に揃って戻る
     const els = c.words
     const n = els.length
-    const st = Math.min(170, 1300 / Math.max(1, n))
-    const D = 420
-    const T = D + st * (n - 1) + 300 + 420
-    const peek = Math.min(c.fs * 0.08, K(c, v.peek, 24) * 0.15)
+    const st = Math.min(120, 900 / Math.max(1, n))
+    const D = 300
+    const T = D + st * (n - 1) + 260 + 360
+    const peek = Math.min(c.em * 0.06, K(c, v.peek, 24) * 0.15)
+    const drop = c.em * 0.12
+    const sc = Math.min(0.03, v.scale)
     els.forEach((w, i) => {
         w.style.transformOrigin = "50% 0%"
         const kf: Keyframe[] = [
-            { offset: 0, transform: `translateY(${c.fs * 1.1}px) scale(1)`, opacity: 0 },
-            { offset: (i * st) / T, transform: `translateY(${c.fs * 1.1}px) scale(1)`, opacity: 0, easing: OUT },
-            { offset: (i * st + D) / T, transform: "translateY(0px) scale(1)", opacity: 1 },
+            { offset: 0, transform: "translateY(0px) scale(1)" },
+            { offset: (i * st) / T, transform: `translateY(${-drop}px) scale(1)`, easing: "cubic-bezier(.5,0,.75,0)" },
+            { offset: (i * st + D) / T, transform: "translateY(0px) scale(1)" },
         ]
         for (let k = 1; k <= Math.min(3, n - 1 - i); k++) {
-            kf.push({ offset: ((i + k) * st + D) / T, transform: `translateY(${-peek * k}px) scale(${1 - v.scale * k})`, opacity: 1 })
+            kf.push({ offset: ((i + k) * st + D) / T, transform: `translateY(${-peek * k}px) scale(${1 - sc * k})` })
         }
-        kf.push({ offset: (T - 420) / T, transform: kf[kf.length - 1].transform, opacity: 1, easing: OUT })
-        kf.push({ offset: 1, transform: "translateY(0px) scale(1)", opacity: 1 })
+        kf.push({ offset: (T - 360) / T, transform: kf[kf.length - 1].transform, easing: OUT })
+        kf.push({ offset: 1, transform: "translateY(0px) scale(1)" })
         kf.forEach((k, j) => { if (j > 0 && (k.offset as number) < (kf[j - 1].offset as number)) k.offset = kf[j - 1].offset })
         c.a(w, kf, { duration: T })
     })
@@ -3809,11 +4242,13 @@ function dither(c: Ctx, v: V) {
             const cov = coverage(m, i * px, j * px, Math.min(px, c.W - i * px), Math.min(px, c.H - j * px)).mean
             if (cov > 0.05) cells.push({ x: i * px, y: j * px, cov, t: th(i, j) })
         }
-    const D = Math.min(S(v.cycle), 4000)
-    c.a(c.txt, [{ opacity: 0 }, { opacity: 0 }], { duration: D })
+    // 3周目：最初から粒の絵で始まり、素の字が戻るまで読めなかった（独立レビューB）。
+    // 4周目：見えている字から始めて、粒に置き換わり（0〜12%）→ 溶けて消え（〜45%）→ 粒で戻り（〜88%）→ 素の字に戻る
+    const D = Math.min(S(v.cycle), 2600)
+    c.a(c.txt, [{ offset: 0, opacity: 1 }, { offset: 0.05, opacity: 1 }, { offset: 0.14, opacity: 0 }, { offset: 0.86, opacity: 0 }, { offset: 0.95, opacity: 1 }, { offset: 1, opacity: 1 }], { duration: D })
     c.loop((t) => {
         const k = t / D
-        const lvl = k < 0.45 ? 1 - k / 0.45 : k < 0.55 ? 0 : (k - 0.55) / 0.45
+        const lvl = k < 0.05 ? 0 : k < 0.14 ? 1 : k < 0.45 ? 1 - (k - 0.14) / 0.31 : k < 0.55 ? 0 : k < 0.86 ? (k - 0.55) / 0.31 : k < 0.95 ? 1 : 0
         g.clearRect(0, 0, c.W, c.H)
         g.fillStyle = c.ink
         cells.forEach((q) => { if (q.t < lvl * Math.min(1, q.cov * 1.6)) g.fillRect(q.x, q.y, px, px) })
@@ -4039,7 +4474,10 @@ function likeBurst(c: Ctx, v: V) {
 }
 function scratch(c: Ctx, v: V) {
     const B = pad(c.tb, c, 0.1)
-    const { g } = overlayCanvas(c)
+    const { cv, g } = overlayCanvas(c)
+    // 3周目：灰色の膜で隠れた状態から始まっていた（独立レビューB）。4周目：見えている字の上に膜が降りてから（0.28s）擦る
+    const IN = 280
+    c.a(cv, [{ opacity: 0 }, { opacity: 1 }], { duration: IN, easing: "ease-out", fill: "backwards" })
     g.fillStyle = c.muted
     g.fillRect(B.x, B.y, B.w, B.h)
     const br = K(c, v.brush, 32) * 0.5
@@ -4052,7 +4490,8 @@ function scratch(c: Ctx, v: V) {
         pts.push(rI % 2 ? [B.x + B.w, y] : [B.x, y])
     }
     let done = false
-    c.loop((t) => {
+    c.loop((tt) => {
+        const t = Math.max(0, tt - IN)
         const k = Math.min(1, t / D) * (v.threshold / 100) * 1.25
         g.globalCompositeOperation = "destination-out"
         g.lineCap = "round"
@@ -4069,12 +4508,11 @@ function scratch(c: Ctx, v: V) {
         g.globalCompositeOperation = "source-over"
         if (t >= D && !done) {
             done = true
-            const cv = g.canvas
             c.a(cv, [{ opacity: 1 }, { opacity: 0 }], { duration: fade, fill: "forwards" })
         }
         return t < D + fade
     })
-    return D + fade + 40
+    return IN + D + fade + 40
 }
 function gift(c: Ctx, v: V) {
     const D = S(v.duration)

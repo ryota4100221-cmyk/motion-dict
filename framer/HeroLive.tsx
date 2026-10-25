@@ -28,6 +28,16 @@ export interface HeroDetail { word: string; slug: string; params: Record<string,
 // 数値（min/max/step/default）は 2026-10-25 時点の entry/<slug>.json と同値。実行時に base から取り直して上書きする。
 const WORDS: Word[] = [
     {
+        word: "ポンッ", slug: "bounce-in", nameJa: "バウンドイン", nameEn: "bounce in", main: "bounces",
+        lines: "上 {{height}}px から落とし、{{bounces}} 回跳ねて静止させる。\n跳ねは毎回 {{damping}} 倍に減衰、合計 {{duration}}s。",
+        params: [
+            { key: "height", label: "height(落下距離 px)", min: 40, max: 200, step: 10, default: 120 },
+            { key: "bounces", label: "bounces(跳ねる回数)", min: 1, max: 5, step: 1, default: 3 },
+            { key: "damping", label: "damping(減衰率)", min: 0.2, max: 0.7, step: 0.05, default: 0.45 },
+            { key: "duration", label: "duration(着地までの合計時間 s)", min: 0.5, max: 2.5, step: 0.1, default: 1.2 },
+        ],
+    },
+    {
         word: "ふわっと", slug: "blur-reveal", nameJa: "ブラーリビール", nameEn: "blur reveal", main: "blur",
         lines: "1文字ずつ blur({{blur}}px)・opacity 0 から、{{duration}}s で blur(0) へ。\n文字ごとに {{stagger}}ms ずつ遅らせて順に浮かべる。",
         params: [
@@ -75,16 +85,6 @@ const WORDS: Word[] = [
         word: "じわっと", slug: "outline-fill", nameJa: "アウトラインフィル", nameEn: "outline fill", main: "duration",
         lines: "縁取り（-webkit-text-stroke）の上に塗りの層を重ね、\nclip-path: inset(0 100% 0 0) から {{duration}}s の ease で開いて満たす。",
         params: [{ key: "duration", label: "duration(塗る時間 s)", min: 0.2, max: 1.5, step: 0.05, default: 0.6 }],
-    },
-    {
-        word: "ポンッ", slug: "bounce-in", nameJa: "バウンドイン", nameEn: "bounce in", main: "bounces",
-        lines: "上 {{height}}px から落とし、{{bounces}} 回跳ねて静止させる。\n跳ねは毎回 {{damping}} 倍に減衰、合計 {{duration}}s。",
-        params: [
-            { key: "height", label: "height(落下距離 px)", min: 40, max: 200, step: 10, default: 120 },
-            { key: "bounces", label: "bounces(跳ねる回数)", min: 1, max: 5, step: 1, default: 3 },
-            { key: "damping", label: "damping(減衰率)", min: 0.2, max: 0.7, step: 0.05, default: 0.45 },
-            { key: "duration", label: "duration(着地までの合計時間 s)", min: 0.5, max: 2.5, step: 0.1, default: 1.2 },
-        ],
     },
     {
         word: "カタカタ", slug: "typewriter", nameJa: "タイプライター", nameEn: "typewriter effect", main: "speed",
@@ -435,7 +435,6 @@ export function HeroConsole(props: ConsoleProps) {
     const [tick, setTick] = useState(0) // 巡回の1拍（プログレス線の再生し直し用）
     const [narrow, setNarrow] = useState(false)
     const rootRef = useRef<HTMLDivElement>(null)
-    const chipRefs = useRef<(HTMLButtonElement | null)[]>([])
     const flashT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
     const w = words[idx]
@@ -532,31 +531,34 @@ export function HeroConsole(props: ConsoleProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [typed === 0, idx, total, isStatic])
 
-    // 自動巡回：触られるまで interval ごとに次の言葉へ
+    // 自動巡回：触られるまで interval ごとに次の言葉へ。
+    // タイマーは ref に持ち、触った瞬間（pointerdown）に同期で止める。state の auto だけで止めていると、
+    // pointerdown→再描画→effect の片付け の間に拍が来て、押したチップの次へ進むことがあった
+    const autoRef = useRef(true)
+    const cycleT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+    const stopAuto = () => {
+        autoRef.current = false
+        clearTimeout(cycleT.current)
+        setAuto(false)
+    }
     useEffect(() => {
         if (isStatic || !auto || reduced || !playing) return
-        const t = setTimeout(() => {
+        autoRef.current = true
+        cycleT.current = setTimeout(() => {
+            if (!autoRef.current) return
             setIdx((x) => (x + 1) % words.length)
             setTick((x) => x + 1)
         }, interval)
-        return () => clearTimeout(t)
+        return () => clearTimeout(cycleT.current)
     }, [isStatic, auto, reduced, playing, idx, tick, interval, words.length])
 
-    // 選択中のチップを横スクロールの中で見える位置へ（SP）
-    useEffect(() => {
-        const el = chipRefs.current[idx]
-        const row = el?.parentElement
-        if (!el || !row || row.scrollWidth <= row.clientWidth) return
-        row.scrollTo({ left: el.offsetLeft - row.clientWidth / 2 + el.offsetWidth / 2, behavior: reduced ? "auto" : "smooth" })
-    }, [idx, reduced])
-
     const choose = (k: number) => {
-        setAuto(false)
+        stopAuto()
         setIdx(k)
         setTick((x) => x + 1)
     }
     const onSlide = (val: number) => {
-        setAuto(false)
+        stopAuto()
         setValues((o) => ({ ...o, [w.slug]: { ...v, [w.main]: val } }))
         setFlash(w.main)
         clearTimeout(flashT.current)
@@ -588,12 +590,13 @@ export function HeroConsole(props: ConsoleProps) {
 
     return (
         <div ref={rootRef}
-            onPointerDown={() => setAuto(false)}
+            onPointerDown={stopAuto}
             style={{ width: "100%", background: ink, color: paper, borderRadius: 10, overflow: "hidden", fontFamily: JP, position: "relative", ...props.style }}>
             <style dangerouslySetInnerHTML={{ __html: `
 .mdh-chips{scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mdh-chips::-webkit-scrollbar{display:none}
-.mdh-chip{flex:none;height:34px;padding:0 15px;border-radius:100px;border:1px solid ${line};background:transparent;color:${paper};font-family:${JP};font-weight:700;font-size:14px;letter-spacing:.04em;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.mdh-chip{flex:none;height:34px;padding:0 15px;border-radius:100px;border:1px solid ${line};background:transparent;color:${paper};font-family:${JP};font-weight:700;font-size:14px;letter-spacing:.04em;cursor:pointer;transition:border-color .2s}
+.mdh-chips.nr .mdh-chip{height:32px;padding:0 12px;font-size:13px}
 .mdh-chip:hover{border-color:rgba(244,244,241,.5)}
 .mdh-chip[aria-pressed="true"]{background:${accent};border-color:${accent};color:${ink}}
 .mdh-chip:focus-visible,.mdh-auto:focus-visible,.mdh-link:focus-visible{outline:2px solid ${accent};outline-offset:2px}
@@ -628,7 +631,7 @@ export function HeroConsole(props: ConsoleProps) {
                     Words → Motion → Prompt
                 </span>
                 {!reduced ? (
-                    <button className="mdh-auto" aria-pressed={auto} onClick={(e) => { e.stopPropagation(); if (!auto) setTick((x) => x + 1); setAuto(!auto) }}
+                    <button className="mdh-auto" aria-pressed={auto} onClick={(e) => { e.stopPropagation(); if (auto) { stopAuto(); return } autoRef.current = true; setTick((x) => x + 1); setAuto(true) }}
                         onPointerDown={(e) => e.stopPropagation()}>
                         <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 6, background: auto ? accent : muted }} />
                         {auto ? "Auto" : "Paused"}
@@ -637,10 +640,11 @@ export function HeroConsole(props: ConsoleProps) {
             </div>
 
             {/* 擬態語のチップ */}
-            <div className="mdh-chips" role="group" aria-label="擬態語を選ぶと、見出しがその動きを演じます"
-                style={{ display: "flex", gap: 8, overflowX: "auto", padding: `16px ${pad}px 4px` }}>
+            {/* 折り返して全部見せる（横スクロールでは PC 640幅でも右端の「カタカタ」が切れていた＝3周目A） */}
+            <div className={"mdh-chips" + (narrow ? " nr" : "")} role="group" aria-label="擬態語を選ぶと、見出しがその動きを演じます"
+                style={{ display: "flex", flexWrap: "wrap", gap: narrow ? 6 : 8, padding: `16px ${pad}px 4px` }}>
                 {words.map((x, k) => (
-                    <button key={x.slug} ref={(el) => { chipRefs.current[k] = el }} className="mdh-chip" aria-pressed={k === idx}
+                    <button key={x.slug} className="mdh-chip" aria-pressed={k === idx}
                         onClick={() => choose(k)}>{x.word}</button>
                 ))}
             </div>
