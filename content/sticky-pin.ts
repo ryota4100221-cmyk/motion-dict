@@ -60,5 +60,7 @@ export const stickyPin: MotionEntry = {
       desc: "stickyが発動する画面上端からの距離。top: 0で上端ピタ付き、固定ヘッダーの高さ分ずらすのが実務の定番。",
     },
   ],
+  titleAct: { act: "C:scroll" },
+  aliases: ["固定", "ピタッ", "張り付く", "止まる"],
   related: ["horizontal-scroll", "scroll-progress", "parallax"],
 };

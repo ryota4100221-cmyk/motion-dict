@@ -86,5 +86,7 @@ export const arrowSlideThrough: MotionEntry = {
       desc: "animation を :hover に付け、iteration は1回。ホバー中ずっとループさせると、押す前から目障りになる。",
     },
   ],
+  titleAct: { act: "arrow-slide-through" },
+  aliases: ["矢印", "シュッ", "抜ける", "スッと抜ける"],
   related: ["text-slide-swap", "hint-nudge", "line-draw", "fill-hover"],
 };

@@ -86,5 +86,7 @@ export const ditherDissolve: MotionEntry = {
       desc: "網点は「点の大きさ」で濃さを表し、ディザは「点の密度」で表す。ディザは粒の大きさが一定なので、低解像度の画面らしさが出る。",
     },
   ],
+  titleAct: { act: "dither-dissolve" },
+  aliases: ["ドット絵", "ザラザラ", "溶ける", "レトロ", "粒"],
   related: ["halftone", "ascii-effect", "mosaic-reveal"],
 };

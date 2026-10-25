@@ -61,5 +61,7 @@ export const textScramble: MotionEntry = {
       desc: "文字が入れ替わっても幅が揺れない。スクランブルはmonospaceのフォントと組むのが基本。",
     },
   ],
+  titleAct: { act: "text-scramble" },
+  aliases: ["バラバラ", "ガチャガチャ", "ランダム", "暗号", "ハッカー"],
   related: ["underline-reveal", "custom-cursor"],
 };

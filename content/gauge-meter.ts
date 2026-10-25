@@ -88,5 +88,7 @@ export const gaugeMeter: MotionEntry = {
       desc: "範囲の中の現在値を表すARIAロール。進み続ける作業の割合を表すprogressbarとは区別する。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["針", "メーター", "グイッ", "ぶるん"],
   related: ["circular-progress", "counter", "bar-chart-grow", "spring-easing"],
 };

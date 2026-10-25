@@ -60,5 +60,7 @@ export const toastSlide: MotionEntry = {
       desc: "複数トーストの積み上げ。1つ消えた後の詰め直しをどう動かすかまで含めて指定する。",
     },
   ],
+  titleAct: { act: "toast-slide" },
+  aliases: ["通知", "ピョコッ", "スッと出る", "トースト"],
   related: ["tooltip-pop", "menu-reveal"],
 };

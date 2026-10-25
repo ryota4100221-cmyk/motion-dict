@@ -84,5 +84,7 @@ export const ambientFloat: MotionEntry = {
       desc: "動きを減らす端末設定。止まらないループは酔いの原因になりやすく、常時アニメーションでは対応が特に重要。",
     },
   ],
+  titleAct: { act: "ambient-float" },
+  aliases: ["ふわふわ", "浮遊", "ぷかぷか", "ゆらゆら"],
   related: ["hint-nudge", "blob-morph", "rotating-badge"],
 };

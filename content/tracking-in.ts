@@ -71,5 +71,7 @@ export const trackingIn: MotionEntry = {
       desc: "レイアウトの再計算。letter-spacingのアニメはこれを伴うため、長文や画面全体には使わず短い見出しに限定する。",
     },
   ],
+  titleAct: { act: "tracking-in" },
+  aliases: ["シュッ", "集まる", "キュッ", "字間"],
   related: ["split-text-reveal", "blur-reveal", "wave-text"],
 };

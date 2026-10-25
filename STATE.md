@@ -23,6 +23,12 @@
 - 残りの判断：Framer有料プラン＋独自ドメイン／既定言語→日本語（UIのみ）／辞典の「署名」。
 
 
+## 2026-10-26 slug 別の表をデータへ（prompt-trigger・未push／Framer 未反映）
+- 新項目（speed-dial）が表に無く、見出しが章扉の演技・擬音検索0件・下地なしだった → content に titleAct / aliases（全197件・既存は表から機械で書き戻し）、
+  ポスターから下地・明るさ補正を作る scripts/poster-derive.py（public/v2/derived/・下地は public/v2/lqip.json）。export が entries-v2.json / entry/<slug>.json に載せ、
+  MotionDictionaryV2 / EntryTitle はデータ優先・無ければ定数。毎朝は sync-to-framer が derive→export→push。規則は docs/DAILY_ENTRY_GUIDE.md 末尾「2026-10-26 追加」
+- 反映に要るもの：main へ push（GH Pages）＋ Framer のコードファイル2本（MotionDictionaryV2・EntryTitle）を上げて publish
+
 ## ✅ Awwwards ループ → 本番反映（2026-10-26・Ryota「本番に出していいよ」）
 - 8周（毎周 初見レビュアー2人）。r8＝A 7.34（D7.0 U7.5 C7.2）／B 7.40（D7.2 U7.6 C7.0）＝2人とも D・U・C ≥ 7.0。
 - 本番 PnTJSNS3Yi1gInF6kBFb に反映・publish 済。コード6本（MotionDictionaryV2 / HeroLive=qluOwqe 新規 / EntryTitle / EntryLab / EntryNav / SiteFooterCTA）。

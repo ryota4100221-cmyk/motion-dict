@@ -62,5 +62,7 @@ export const scrollZoom: MotionEntry = {
       desc: "対象がビューポートを通過した割合を0〜1に正規化した値。scrub系の計算はすべてここから始まる。",
     },
   ],
+  titleAct: { act: "scroll-zoom" },
+  aliases: ["ズーム", "グーッと", "拡大", "寄る"],
   related: ["ken-burns", "parallax", "image-zoom-hover"],
 };

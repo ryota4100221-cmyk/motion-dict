@@ -86,5 +86,7 @@ export const statefulButton: MotionEntry = {
       desc: "処理が速すぎてもスピナーを一定時間は見せる工夫。0.1sだけ出て消えるスピナーは「何かが点滅した」としか読まれない。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["送信", "ぐるぐる", "完了", "チェックマーク"],
   related: ["press-feedback", "spinner-ring", "checkbox-check", "error-shake"],
 };

@@ -61,5 +61,7 @@ export const smoothScroll: MotionEntry = {
       desc: "lerpをフレーム時間で補正すること。補正なしだと120Hz端末では60Hzの倍の速さで追いつき、機種によって体験が変わってしまう。",
     },
   ],
+  titleAct: { act: "smooth-scroll" },
+  aliases: ["ぬるぬる", "ヌルヌル", "なめらか", "慣性", "ぬるっと"],
   related: ["parallax", "velocity-skew", "scroll-progress"],
 };

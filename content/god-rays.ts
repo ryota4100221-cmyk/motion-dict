@@ -88,5 +88,7 @@ export const godRays: MotionEntry = {
       desc: "要素の見え方をグラデーションで削る指定。光条の外周を透明に落とし、途中で切れたようなハードエッジを消すのに使う。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["光が差す", "後光", "キラーン", "木漏れ日"],
   related: ["grain-overlay", "scanlines", "spotlight-hover"],
 };

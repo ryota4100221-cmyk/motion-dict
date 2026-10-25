@@ -83,5 +83,7 @@ export const radialCarousel: MotionEntry = {
       desc: "指を離したあと最寄りの定位置へ吸着させること。角度を項目の角度間隔で丸めるだけで作れる。",
     },
   ],
+  titleAct: { act: "radial-carousel" },
+  aliases: ["くるくる", "円形", "ぐるっと", "回転"],
   related: ["carousel", "drag-scroll", "rotating-badge"],
 };

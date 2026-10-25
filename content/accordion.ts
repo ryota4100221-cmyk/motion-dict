@@ -62,5 +62,7 @@ export const accordion: MotionEntry = {
       desc: "開閉状態を支援技術に伝えるbutton属性。CSSのセレクタとしても使え、状態とスタイルの同期点になる。",
     },
   ],
+  titleAct: { act: "accordion" },
+  aliases: ["開閉", "パカッ", "にゅっと開く", "FAQ"],
   related: ["tab-indicator", "drawer-slide", "menu-reveal"],
 };

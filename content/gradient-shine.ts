@@ -61,5 +61,7 @@ export const gradientShine: MotionEntry = {
       desc: "1周期のうち帯が見えている時間の割合。ベース色の区間を長く取るほど「たまに光る」上品さが出る。",
     },
   ],
+  titleAct: { act: "gradient-shine" },
+  aliases: ["キラッ", "ピカッ", "光沢", "シャイン"],
   related: ["text-highlight", "outline-fill", "wave-text"],
 };

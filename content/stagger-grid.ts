@@ -72,5 +72,7 @@ export const staggerGrid: MotionEntry = {
       desc: "delay中もキーフレームの開始状態(opacity 0)を適用させる指定。これがないと遅延待ちのカードが一瞬素の状態で見えてしまう。",
     },
   ],
+  titleAct: { act: "stagger-grid" },
+  aliases: ["パラパラ", "順番に", "ぽつぽつ", "タイル"],
   related: ["skeleton-shimmer", "scroll-fade-in", "mosaic-reveal"],
 };

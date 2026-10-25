@@ -86,5 +86,7 @@ export const coverFlow: MotionEntry = {
       desc: "カードの下に上下反転した複製を置き、下へ向かって消えるマスクを掛けた映り込み。元祖 Cover Flow の象徴的な装飾。",
     },
   ],
+  titleAct: { act: "cover-flow" },
+  aliases: ["3D", "カルーセル", "ぐるっと", "真ん中"],
   related: ["carousel", "radial-carousel", "flip-card"],
 };

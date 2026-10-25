@@ -73,5 +73,7 @@ export const textOnPath: MotionEntry = {
       desc: "セクションを画面に固定したままスクロール量だけを進める手法。送りの尺はこのピンの高さで決まるので、ブレークポイントごとの高さ指定が速度の設計そのものになる。",
     },
   ],
+  titleAct: { act: "text-on-path" },
+  aliases: ["カーブ", "曲がる", "うねる", "円に沿う"],
   related: ["rotating-badge", "motion-path", "scroll-scrub"],
 };

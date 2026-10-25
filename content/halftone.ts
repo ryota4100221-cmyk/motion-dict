@@ -88,5 +88,7 @@ export const halftone: MotionEntry = {
       desc: "getContext(\"2d\") のオプション。画素を読む用途のcanvasに立てる。網点化では読み出しは1回で済むので、読む側のcanvasにだけ付ける。",
     },
   ],
+  titleAct: { act: "halftone" },
+  aliases: ["網点", "印刷", "ドット", "ポチポチ"],
   related: ["ascii-effect", "moire-drift", "duotone-hover"],
 };

@@ -6,8 +6,42 @@ import path from "node:path";
 // - related のslugが実在するか
 // - 必須コピー(ng/ok/vocab)が揃っているか
 import { entries, entryList } from "../content";
+import { readSpec, isActName, parseRef } from "../lib/titleAct";
 
 const errors: string[] = [];
+
+// ── 見出しの演技（titleAct）と検索の別名（aliases）（2026-10-26〜 全項目で必須）──
+// 表に無い新項目は、詳細の見出しが自分の動きを演じず章扉の演技に落ち、擬音の検索にも乗らなかった（speed-dial で確認）。
+// 型＝framer/EntryTitle.tsx の SPEC のキーか "C:<章>"。一覧の写し（MotionDictionaryV2 の SPEC）も同じキーを持つこと
+const SPEC = readSpec("framer/EntryTitle.tsx");
+const SPEC_V2 = readSpec("framer/MotionDictionaryV2.tsx");
+for (const k of SPEC.keys()) if (!SPEC_V2.has(k)) errors.push(`framer: SPEC "${k}" が EntryTitle にあって MotionDictionaryV2 に無い（カード名だけ章扉の演技になる）`);
+for (const k of SPEC_V2.keys()) if (!SPEC.has(k)) errors.push(`framer: SPEC "${k}" が MotionDictionaryV2 にあって EntryTitle に無い`);
+for (const e of entryList) {
+  const ta = e.titleAct;
+  if (!ta || typeof ta.act !== "string") { errors.push(`${e.slug}: titleAct がない（例 titleAct: { act: "scroll-fade-in", map: { stagger: "stagger*1000" } }）`); }
+  else if (!isActName(ta.act, SPEC)) errors.push(`${e.slug}: titleAct.act "${ta.act}" は既存の型にない（framer/EntryTitle.tsx の SPEC のキー か "C:hover|scroll|text|transition|media|ui|loading"）`);
+  else if (ta.map) {
+    const own = new Set(e.params.map((p) => p.key));
+    const src = ta.act.startsWith("C:") ? null : entries[ta.act];
+    if (!src) errors.push(`${e.slug}: titleAct.act "${ta.act}" に map は付けられない（章扉の演技は値を使わない）`);
+    const srcKeys = new Set((src?.params || []).map((p) => p.key));
+    for (const [k, v] of Object.entries(ta.map)) {
+      if (src && !srcKeys.has(k)) errors.push(`${e.slug}: titleAct.map の鍵 "${k}" は型 ${ta.act} の値にない（${[...srcKeys].join(", ")}）`);
+      if (typeof v === "number") { if (!Number.isFinite(v)) errors.push(`${e.slug}: titleAct.map.${k} が数値でない`); continue; }
+      const r = typeof v === "string" ? parseRef(v) : null;
+      if (!r) errors.push(`${e.slug}: titleAct.map.${k} "${v}" は "鍵" か "鍵*倍率" か数値で書く`);
+      else if (!own.has(r.key)) errors.push(`${e.slug}: titleAct.map.${k} が参照する "${r.key}" はこの項目の params にない`);
+    }
+  }
+  if (ta && ta.act === e.slug && !SPEC.has(e.slug)) errors.push(`${e.slug}: titleAct.act に自分の slug は使えない（SPEC に無い＝演技の関数が無い）。近い既存の型を選ぶ`);
+  const al = e.aliases;
+  if (!Array.isArray(al) || al.length < 3 || al.length > 5) errors.push(`${e.slug}: aliases は擬音・俗な言い方を3〜5語（いま ${Array.isArray(al) ? al.length : 0}語）`);
+  else {
+    if (al.some((x) => typeof x !== "string" || !x.trim() || /[,|:]/.test(x))) errors.push(`${e.slug}: aliases に空の語か「, | :」を含む語`);
+    if (new Set(al).size !== al.length) errors.push(`${e.slug}: aliases に同じ語が2回`);
+  }
+}
 
 for (const e of entryList) {
   const paramKeys = new Set(e.params.map((p) => p.key));

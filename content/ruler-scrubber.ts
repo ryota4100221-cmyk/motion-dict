@@ -86,5 +86,7 @@ export const rulerScrubber: MotionEntry = {
       desc: "目盛をscaleYで伸ばすときの起点。topに置くと上端が揃ったまま下へ伸び、目盛の頭が波打たない。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["目盛り", "定規", "カリカリ", "スクラブ"],
   related: ["story-progress", "scroll-progress", "drag-scroll"],
 };

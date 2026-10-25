@@ -89,5 +89,7 @@ export const dockMagnify: MotionEntry = {
       desc: "ポインタでのホバーができない環境を判定するメディア特性。タッチではホバー前提の演出を切るか、指の座標で代替する。",
     },
   ],
+  titleAct: { act: "dock-magnify" },
+  aliases: ["Dock", "にゅっと大きく", "大きくなる", "ぷくっ"],
   related: ["magnetic-hover", "focus-dim", "hover-wave"],
 };

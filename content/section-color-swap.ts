@@ -61,5 +61,7 @@ export const sectionColorSwap: MotionEntry = {
       desc: "色の補間はブラウザに任せる指定。JSで毎フレームRGBを計算する必要はなく、ページ全体1枚なら負荷も軽い。",
     },
   ],
+  titleAct: { act: "section-color-swap" },
+  aliases: ["色が変わる", "背景色", "じわっと変わる", "切り替わる"],
   related: ["scroll-fade-in", "sticky-pin", "scroll-progress"],
 };

@@ -86,5 +86,7 @@ export const progressiveBlur: MotionEntry = {
       desc: "「まだ続きがある」ことを見せる手掛かり。端がぼけて切れていると続きの存在が伝わり、端まで来て消えると終端が伝わる。",
     },
   ],
+  titleAct: { act: "progressive-blur" },
+  aliases: ["ぼかし", "フェードアウト", "だんだんぼける", "端"],
   related: ["frosted-glass", "scroll-fade-in", "blur-reveal"],
 };

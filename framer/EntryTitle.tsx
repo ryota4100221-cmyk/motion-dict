@@ -992,6 +992,46 @@ const ACT = {
 
 type Spec = [grade: "A" | "B" | "C", fn: ((c: Ctx, v: V) => R) | string, flags?: string, keys?: string]
 
+// ── 項目データの演技の指定（2026-10-26）──
+// 表 SPEC に無い新項目は C（章扉の演技）に落ちていた。項目JSON（entry/<slug>.json）の titleAct で
+// 「どの型（SPEC のキー か "C:<章>"）を・どの値の対応で」演じるかを受け取り、表より優先する。
+// map：型の値の鍵 → この項目の値の鍵（"key" か "key*倍率"）か固定の数値（export-entries-json が型の鍵をすべて埋めて出す）
+// 届くまでは今の表どおり（SSR とクライアント初回は同じ HTML）。表にある項目は届いても同じ型なので演じ直さない
+interface TitleAct { act: string; map?: Record<string, string | number> }
+interface Resolved { spec: Spec; key: string; act: string; map?: Record<string, string | number> }
+function resolveAct(slug: string, cat: string, ta: TitleAct | null): Resolved {
+    const chapter = (c: string): Resolved => { const ch = c in CH ? c : "text"; return { spec: ["C", ch], key: "C:" + ch, act: "C:" + ch } }
+    const fromSpec = (k: string, map?: Record<string, string | number>): Resolved | null => {
+        const s = SPEC[k]
+        if (!s) return null
+        if (s[0] === "C") return chapter(s[1] as string)
+        return { spec: s, key: k + (map ? ":" + JSON.stringify(map) : ""), act: k, map }
+    }
+    if (ta && typeof ta.act === "string") {
+        if (ta.act.startsWith("C:")) return chapter(ta.act.slice(2))
+        const r = fromSpec(ta.act, ta.map && Object.keys(ta.map).length ? ta.map : undefined)
+        if (r) return r
+    }
+    return fromSpec(slug) || chapter(cat)
+}
+function remap(v: V, map?: Record<string, string | number>): V {
+    if (!map) return v
+    const o: V = { ...v }
+    for (const k in map) {
+        const s = map[k]
+        if (typeof s === "number") { o[k] = s; continue }
+        const m = String(s).match(/^(\w+)(?:\*(-?\d+(?:\.\d+)?))?$/)
+        const x = m ? v[m[1]] : undefined
+        if (typeof x === "number") o[k] = m && m[2] ? x * parseFloat(m[2]) : x
+    }
+    return o
+}
+// 表示する値の鍵（型の鍵）を、この項目の鍵に戻す（"stagger*1000" → "stagger"）。固定値の鍵は出さない
+function ownKeys(keys: string[], map?: Record<string, string | number>): string[] {
+    if (!map) return keys
+    return keys.map((k) => { const s = map[k]; return typeof s === "string" ? s.split("*")[0] : "" }).filter(Boolean)
+}
+
 const CH: Record<string, { slug: string; ja: string; label: string; flags?: string; fn: (c: Ctx) => R }> = {
     hover: { slug: "magnetic-hover", ja: "マグネティックホバー", label: "strength 0.35 · lerp 0.12", flags: "f", fn: (c) => ACT.magnetic(c, { strength: 0.35, lerp: 0.12, radius: 140 }) },
     scroll: { slug: "velocity-skew", ja: "速度スキュー", label: "factor 0.5 · max 8°", flags: "s", fn: (c) => skewAct(c, { factor: 0.5, maxSkew: 8, lerp: 0.1 }) },
@@ -2426,6 +2466,9 @@ export default function EntryTitle(props: Props) {
     const [params, setParams] = useState<Param[]>(() => parseParams(props.paramsJson))
     const [values, setValues] = useState<V>(() => Object.fromEntries(parseParams(props.paramsJson).map((p) => [p.key, p.default])))
     const [cat, setCat] = useState(props.category || "")
+    // 項目JSONの titleAct（届くまでは null＝今の表どおり）。fetched＝項目JSONを取り終えた（失敗も含む）
+    const [titleAct, setTitleAct] = useState<TitleAct | null>(null)
+    const [fetched, setFetched] = useState(false)
     const mainRef = useRef<HTMLSpanElement>(null)
     const hitRef = useRef<HTMLDivElement>(null)
     const valuesRef = useRef(values)
@@ -2440,34 +2483,42 @@ export default function EntryTitle(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.slug])
 
-    // 値の定義が無ければ項目JSONから（バインド忘れ・キャンバス）。カテゴリも取る（表に無い新項目＝C の章を決める）
+    // 項目JSONから：演技の指定（titleAct・2026-10-26〜 表より優先）。値の定義が無ければそれも（バインド忘れ・キャンバス）。
+    // カテゴリも取る（titleAct も表も無い項目＝C の章を決める）
     useEffect(() => {
         if (isStatic || !slug) return
-        if (params.length && (SPEC[slug] || cat)) return
         let alive = true
+        setFetched(false)
         fetch(`${base}/entry/${slug}.json`).then((r) => r.json()).then((d) => {
-            if (!alive || !d) return
+            if (!alive) return
+            setFetched(true)
+            if (!d) return
+            if (d.titleAct && typeof d.titleAct.act === "string") setTitleAct(d.titleAct)
             if (d.category) setCat(d.category)
             if (Array.isArray(d.params) && d.params.length) {
                 // 既に EntryLab から届いていれば差し替えない（配列が変わると演技の effect が張り直され、着地の演技が消えていた）
                 setParams((cur) => (cur.length ? cur : d.params))
                 setValues((cur) => ({ ...Object.fromEntries(d.params.map((p: Param) => [p.key, p.default])), ...cur }))
             }
-        }).catch(() => {})
+        }).catch(() => { if (alive) setFetched(true) })
         return () => { alive = false }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slug, isStatic, base])
 
-    const spec: Spec = SPEC[slug] || ["C", cat in CH ? cat : "text"]
-    // 演技の effect の張り直しの鍵。対応表にある項目は、章（cat）が後から届いても張り直さない
-    const specKey = SPEC[slug] ? slug : "C:" + (cat in CH ? cat : "text")
+    const act = resolveAct(slug, cat, titleAct)
+    const spec: Spec = act.spec
+    // 演技の effect の張り直しの鍵＝型（＋値の対応）。表にある項目は、項目JSON（同じ型）や章（cat）が後から届いても張り直さない
+    const specKey = act.key
+    const actMap = act.map
+    // 表に無い項目は、項目JSON（titleAct・章）が届くまで演じない（届いてから型が決まる。先に章扉の演技を始めると、届いた時に消される）
+    const actReady = !!SPEC[slug] || fetched
     const grade = spec[0]
     const chap = grade === "C" ? CH[spec[1] as string] || CH.text : null
 
     // 章扉と同じ演技（C）は値の定義を使わない。旧版は値の定義が後から届くと effect が張り直され、
     // 着地の演技が始まって約50msで消されていた（4周目の判定で lightbox / toggle-switch / moire-drift 等で実測）
     const paramsDep = chap ? null : params
-    const fitKey = chap ? chap.slug : slug
+    const fitKey = chap ? chap.slug : act.act
     // ── 演技のエンジン（クライアントのみ） ──
     const playRef = useRef<(why: string) => void>(() => {})
     const landedRef = useRef("")
@@ -2475,7 +2526,7 @@ export default function EntryTitle(props: Props) {
     const tagRef = useRef<HTMLDivElement>(null)
     const cueRef = useRef<Animation[]>([])
     useEffect(() => {
-        if (isStatic || typeof window === "undefined" || !slug) return
+        if (isStatic || typeof window === "undefined" || !slug || !actReady) return
         const root = mainRef.current
         const hit = hitRef.current
         if (!root || !hit || typeof root.animate !== "function") return
@@ -2729,7 +2780,8 @@ export default function EntryTitle(props: Props) {
             let v: V = { ...Object.fromEntries(params.map((p) => [p.key, p.default])), ...valuesRef.current }
             // 着地の1回目だけ実演値（秒を縮める・小さい倍率を広げる）。以降は本来の値
             if (why === "land" && !demoDone) { demoDone = true; v = demoValues(slug, params, v) }
-            return fn(c, v)
+            // 型が別の項目なら、この項目の値を型の値の鍵へ移す（titleAct.map）
+            return fn(c, remap(v, actMap))
         }
 
         // 追う系（f）／スクロール系（s）を回す
@@ -3053,7 +3105,7 @@ export default function EntryTitle(props: Props) {
             playRef.current = () => {}
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isStatic, slug, specKey, nameJa, nameEn, ink, paper, muted, accent, paramsDep, headText])
+    }, [isStatic, slug, specKey, actReady, nameJa, nameEn, ink, paper, muted, accent, paramsDep, headText])
 
     // EntryLab から：初期化（値の同期だけ）／スライダーを離した・初期値に戻した（その値で演じ直す）
     useEffect(() => {
@@ -3077,7 +3129,9 @@ export default function EntryTitle(props: Props) {
     }, [isStatic, slug])
 
     // 右上の自己言及：「この見出しの動き＝項目名・値」
-    const keys = (spec[3] || params.slice(0, 2).map((p) => p.key).join(",")).split(",").filter(Boolean)
+    // 型が別の項目（titleAct.map あり）なら、型の表示キーをこの項目の鍵に戻す。無ければ今までどおり
+    const keys0 = actMap && spec[3] ? ownKeys(spec[3].split(","), actMap).filter((k) => params.some((p) => p.key === k)) : []
+    const keys = actMap ? (keys0.length ? keys0 : params.slice(0, 2).map((p) => p.key)) : (spec[3] || params.slice(0, 2).map((p) => p.key).join(",")).split(",").filter(Boolean)
     const valParts: string[] = chap
         ? [chap.label]
         : keys
@@ -3090,7 +3144,7 @@ export default function EntryTitle(props: Props) {
     ))
     const tagName = chap ? chap.ja : main
     // 何の動きかが決まるまで（slug が無い SSR・対応表に無い項目で章が未取得）は、名前を出さずに場所だけ取っておく
-    const pending = !slug || (!SPEC[slug] && !cat)
+    const pending = !slug || (!SPEC[slug] && !cat && !titleAct)
 
     // 5周目・指摘8：右上の表記＝再生ボタン。押すと見出しが「いまのスライダーの値」で演じ直す（Enter / Space・SP はタップ）
     const replay = () => playRef.current("replay")

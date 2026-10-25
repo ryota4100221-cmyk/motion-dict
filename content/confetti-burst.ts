@@ -81,5 +81,7 @@ export const confettiBurst: MotionEntry = {
       desc: "飛び終えた破片を animationend で DOM から削除すること。連打で大量生成されるため、放置するとノードが溜まり続ける。",
     },
   ],
+  titleAct: { act: "confetti-burst" },
+  aliases: ["紙吹雪", "パーン", "パッ", "クラッカー", "お祝い"],
   related: ["ripple-tap", "press-feedback"],
 };

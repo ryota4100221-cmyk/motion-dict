@@ -80,5 +80,7 @@ export const scanlines: MotionEntry = {
       desc: "その要素をクリック・ホバーの当たり判定から外す指定。最前面のオーバーレイには必須で、付け忘れると画面全体が押せなくなる。",
     },
   ],
+  titleAct: { act: "scanlines" },
+  aliases: ["ブラウン管", "走査線", "レトロ", "ザザッ"],
   related: ["grain-overlay", "glitch-hover", "boot-sequence"],
 };

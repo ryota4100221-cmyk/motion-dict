@@ -62,5 +62,7 @@ export const glitchHover: MotionEntry = {
       desc: "content: attr(data-text) で擬似要素に同じ文字列を複製する定番テク。HTMLに同じ文字を3回書かずに済む。",
     },
   ],
+  titleAct: { act: "glitch-hover" },
+  aliases: ["グリッチ", "バグ", "ガガッ", "ノイズ", "サイバー"],
   related: ["text-scramble", "wave-text", "split-text-reveal"],
 };

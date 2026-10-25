@@ -81,5 +81,7 @@ export const blockReveal: MotionEntry = {
       desc: "バーが完全に覆っている一瞬。ここで文字のopacityを切り替えるので、切り替え自体は見えない。",
     },
   ],
+  titleAct: { act: "block-reveal" },
+  aliases: ["帯", "ジャッ", "ブロック", "シュッ", "かっこよく出す"],
   related: ["split-text-reveal", "marker-line", "curtain-wipe"],
 };

@@ -82,5 +82,7 @@ export const cornerBrackets: MotionEntry = {
       desc: "easeOutQuint と呼ばれるカーブ。序盤で一気に距離を詰めて終端でぴたりと止まるので、機構が「はまる」表現に向く。",
     },
   ],
+  titleAct: { act: "corner-brackets" },
+  aliases: ["四隅", "枠", "カギ括弧", "スコープ"],
   related: ["border-draw", "gradient-border", "line-draw"],
 };

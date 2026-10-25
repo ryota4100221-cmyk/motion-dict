@@ -68,13 +68,24 @@ const run = (cmd: string, opts: any = {}) => execSync(cmd, { cwd: REPO, stdio: "
     v2ok = true;
   } catch (err) { console.error("[rec-v2] failed (non-fatal):", (err as Error).message); }
 
+  // 2.3) ポスターから一覧の下地（96×54 WebP）と明るさ補正を作る（2026-10-26〜。旧：一覧のコードの定数＝新項目は下地なし）
+  //      ポスターが出来た後・entries-v2.json を書き出す前に。失敗は非致命（一覧は下地なしで出る）
+  let derived = false;
+  if (v2ok) {
+    try { execFileSync("python3", [path.join(REPO, "scripts/poster-derive.py"), slug], { cwd: REPO, stdio: "inherit" }); derived = true; }
+    catch (err) { console.error("[derive] failed (non-fatal):", (err as Error).message); }
+  }
+
   // 2.5) ホーム一覧(コードコンポーネントMotionDictionary)が読む entries.json を再生成
   //      ＝これを忘れると新項目が一覧に出てこない。
+  //      2026-10-26〜：各項目に titleAct（見出し・カード名の演技）・aliases（検索の別名）・defaults・dim が載り、
+  //      下地は public/v2/lqip.json に出る（content の titleAct・aliases は validate-content が必須にしている）
   run(`npx --yes tsx ${path.join(REPO, "scripts/export-entries-json.mts")}`);
 
   // 3) 動画・ポスター・entries.json をpush
-  run(`git add public/videos/${slug}.mp4 public/posters/${slug}.jpg public/entries.json public/entries-v2.json public/entry`);
+  run(`git add public/videos/${slug}.mp4 public/posters/${slug}.jpg public/entries.json public/entries-v2.json public/entry public/v2/lqip.json`);
   if (v2ok) run(`git add public/v2/videos/${slug}.mp4 public/v2/posters/${slug}.jpg`);
+  if (derived) run(`git add public/v2/derived/${slug}.json`);
   run(`git add -A rec`);
   try { run(`git commit -q -m "video: ${slug} ループ動画＋ポスター＋一覧（毎朝同期）"`); run(`git push origin main`); }
   catch { console.log("[git] nothing to commit (unchanged) — skip push"); }

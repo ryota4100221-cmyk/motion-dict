@@ -63,5 +63,7 @@ export const sharedElement: MotionEntry = {
       desc: "この遷移をブラウザが標準サポートするAPI。view-transition-nameを付けた要素同士が自動でモーフする。中身の原理はFLIPと同じなので、非対応環境のフォールバックにも手順の知識が要る。",
     },
   ],
+  titleAct: { act: "shared-element" },
+  aliases: ["つながる", "繋がる", "画像が伸びる", "ぬるっと"],
   related: ["lightbox", "circle-reveal", "modal-pop"],
 };

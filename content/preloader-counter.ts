@@ -63,5 +63,7 @@ export const preloaderCounter: MotionEntry = {
       desc: "「初回訪問のみ表示」の制御に使うブラウザ保存領域。タブを閉じるまで残るため、サイト内回遊中の再表示を防げる。",
     },
   ],
+  titleAct: { act: "preloader-counter" },
+  aliases: ["カウント", "数字", "ぐんぐん", "ローディング画面"],
   related: ["counter", "curtain-wipe", "loading-bar"],
 };

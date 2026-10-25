@@ -81,5 +81,7 @@ export const pendulumSwing: MotionEntry = {
       desc: "揺れている最中に押されたら、新しい揺れを今の揺れに足す。角度をリセットしないので、連続で押しても跳ねずに揺れが大きくなる。",
     },
   ],
+  titleAct: { act: "pendulum-swing" },
+  aliases: ["ゆらゆら", "ぶらぶら", "ぶらーん", "振り子"],
   related: ["ambient-float", "error-shake", "spring-easing"],
 };

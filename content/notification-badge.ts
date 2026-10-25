@@ -89,5 +89,7 @@ export const notificationBadge: MotionEntry = {
       desc: "パネルを開く・一覧を見るなど、ユーザーが通知を見たとみなす操作でバッジを消すこと。どの操作で既読にするかを決めておかないと、点がいつまでも消えないか、見る前に消える。",
     },
   ],
+  titleAct: { act: "notification-badge" },
+  aliases: ["赤い点", "未読", "ポンッ", "ぷくっ"],
   related: ["pulse-ring", "breathing-glow", "toast-slide", "like-burst"],
 };

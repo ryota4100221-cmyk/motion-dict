@@ -82,5 +82,7 @@ export const logoMarquee: MotionEntry = {
       desc: "要素の透明度をグラデーションで制御するCSS。帯の両端をフェードさせ、ロゴが唐突に見切れるのを隠す。",
     },
   ],
+  titleAct: { act: "logo-marquee" },
+  aliases: ["ロゴが流れる", "横に流れる", "スルスル", "無限"],
   related: ["marquee", "scroll-marquee", "duotone-hover"],
 };

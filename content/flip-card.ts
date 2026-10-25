@@ -72,5 +72,7 @@ export const flipCard: MotionEntry = {
       desc: "縦軸まわりの回転。左右の裏返しはこれ。上下にめくるならrotateXを使う。",
     },
   ],
+  titleAct: { act: "flip-card" },
+  aliases: ["ひっくり返す", "くるっ", "裏返し", "パタン"],
   related: ["tilt", "image-swap-hover", "press-feedback"],
 };

@@ -82,5 +82,7 @@ export const marchingAnts: MotionEntry = {
       desc: "SVGパスに「全長をこの値とみなす」と宣言できる属性。100を入れるとdasharrayを全長の百分率で書けるので、経路を差し替えても破線の粒が崩れない。",
     },
   ],
+  titleAct: { act: "marching-ants" },
+  aliases: ["破線", "流れる線", "チカチカ", "点線"],
   related: ["line-draw", "border-draw", "motion-path"],
 };

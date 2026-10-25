@@ -86,5 +86,7 @@ export const checkboxCheck: MotionEntry = {
       desc: "delay の待ち時間中は0%の姿を、終わったあとは100%の姿を保つ指定。出遅れる線を「隠れたまま待たせる」ために使う。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["チェック", "シュッ", "レ点", "カチッ"],
   related: ["line-draw", "toggle-switch", "like-burst"],
 };

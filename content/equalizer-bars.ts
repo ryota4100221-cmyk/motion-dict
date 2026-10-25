@@ -82,5 +82,7 @@ export const equalizerBars: MotionEntry = {
       desc: "本ごとに周期をずらして全体が同じ瞬間に揃わないようにすること。揃うと「音」ではなく「点滅」に見える。",
     },
   ],
+  titleAct: { act: "equalizer-bars" },
+  aliases: ["音楽", "ズンズン", "ピコピコ", "イコライザー"],
   related: ["dots-pulse", "pulse-ring", "toggle-switch"],
 };

@@ -62,5 +62,7 @@ export const waveText: MotionEntry = {
       desc: "滑らかな往復運動。CSSならease-in-outの往復キーフレームで近似、JSならMath.sin(t)で正確に作れる。",
     },
   ],
+  titleAct: { act: "wave-text" },
+  aliases: ["波", "ゆらゆら", "うねうね", "ウェーブ"],
   related: ["marquee", "typewriter", "blur-reveal"],
 };

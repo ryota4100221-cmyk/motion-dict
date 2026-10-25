@@ -86,5 +86,7 @@ export const coverTransition: MotionEntry = {
       desc: "ブラウザ標準の遷移機構。::view-transition-old / -new に対してこの動きをCSSだけで書けるが、対応外ブラウザ用の即差し替えは自前で用意する。",
     },
   ],
+  titleAct: { act: "cover-transition" },
+  aliases: ["下から出てくる", "覆う", "ぬっ", "ガバッ"],
   related: ["curtain-wipe", "crossfade", "zoom-through"],
 };

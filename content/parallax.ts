@@ -60,5 +60,7 @@ export const parallax: MotionEntry = {
       desc: "レイヤーが動いた分だけ端に隙間が出ること。背景は移動域のぶん大きく作るのが鉄則。",
     },
   ],
+  titleAct: { act: "parallax" },
+  aliases: ["奥行き", "視差", "ズレ", "パララ"],
   related: ["scroll-fade-in", "velocity-skew", "tilt"],
 };

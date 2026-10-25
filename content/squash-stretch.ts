@@ -87,5 +87,7 @@ export const squashStretch: MotionEntry = {
       desc: "動き出す直前に逆方向へ溜める予備動作。跳ぶ前に一度潰しておくと、同じ跳躍でも力の入り方が伝わる。",
     },
   ],
+  titleAct: { act: "squash-stretch" },
+  aliases: ["ぷるん", "ぷにっ", "ぷにぷに", "むにっ", "ぽよん"],
   related: ["bounce-in", "press-feedback", "spring-easing"],
 };

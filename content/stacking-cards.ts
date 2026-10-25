@@ -71,5 +71,7 @@ export const stackingCards: MotionEntry = {
       desc: "カード1枚が画面を占有するスクロール量を決める距離。広げるほど1枚をじっくり見せるテンポになる。",
     },
   ],
+  titleAct: { act: "stacking-cards" },
+  aliases: ["重なる", "積み重ね", "どんどん", "カード"],
   related: ["sticky-pin", "scroll-snap", "parallax"],
 };

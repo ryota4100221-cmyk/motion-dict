@@ -86,5 +86,7 @@ export const stickerPeel: MotionEntry = {
       desc: "外枠を回して中身を同じ角度だけ逆に回す手法。中身は正立のまま、外枠の座標系(ここでは折り目の向き)だけを傾けられる。",
     },
   ],
+  titleAct: { act: "sticker-peel" },
+  aliases: ["ペロッ", "ぺりっ", "はがれる", "シール"],
   related: ["page-turn", "flip-card", "scratch-card", "holo-sheen"],
 };

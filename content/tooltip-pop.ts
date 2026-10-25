@@ -60,5 +60,7 @@ export const tooltipPop: MotionEntry = {
       desc: "ホバーで出る小さな補足がtooltip、クリックで開く操作可能な浮き要素がpopover。呼び分けると意図が伝わる。",
     },
   ],
+  titleAct: { act: "tooltip-pop" },
+  aliases: ["ポップ", "ぴょこっ", "吹き出し", "ヒント"],
   related: ["toast-slide", "lift-hover"],
 };

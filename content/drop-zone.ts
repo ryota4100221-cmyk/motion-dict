@@ -87,5 +87,7 @@ export const dropZone: MotionEntry = {
       desc: "運搬中に指へ付いてくる分身。本体を動かさずゴーストだけ動かすと、戻したいときに元の並びが崩れない。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["ドラッグ＆ドロップ", "ポイッ", "落とす", "アップロード"],
   related: ["fly-to-cart", "drag-scroll", "press-feedback", "pulse-ring"],
 };

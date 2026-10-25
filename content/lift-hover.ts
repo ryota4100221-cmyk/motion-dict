@@ -61,5 +61,7 @@ export const liftHover: MotionEntry = {
       desc: "出だしが速く終わりが緩やかなイージング。浮き上がりに使うと「ふわり」と感じられる。",
     },
   ],
+  titleAct: { act: "lift-hover" },
+  aliases: ["浮く", "ふわっと浮く", "持ち上がる", "ひょいっ"],
   related: ["tilt", "image-zoom-hover", "fill-hover"],
 };

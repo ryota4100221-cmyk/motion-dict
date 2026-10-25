@@ -81,5 +81,7 @@ export const eyeBlink: MotionEntry = {
       desc: "短い間隔で続けて2回瞬くこと。人や動物は実際によくやり、たまに混ぜるだけで「本物らしさ」が一気に増す。",
     },
   ],
+  titleAct: { act: "eye-blink" },
+  aliases: ["まばたき", "パチッ", "パチパチ", "目"],
   related: ["breathing-glow", "ambient-float", "squash-stretch"],
 };

@@ -74,5 +74,7 @@ export const rackFocus: MotionEntry = {
       desc: "前者は要素自身を、後者は要素の背後にあるものをぼかす。被写体ごとにピントを分けるなら前者、画面全体を一度ぼかしてから合焦させる演出なら後者。",
     },
   ],
+  titleAct: { act: "rack-focus" },
+  aliases: ["ピント", "ぼけ", "ふわっ", "ピンボケ"],
   related: ["blur-reveal", "progressive-blur", "focus-dim"],
 };

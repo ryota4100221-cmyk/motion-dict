@@ -62,5 +62,7 @@ export const rippleTap: MotionEntry = {
       desc: "終わった波紋要素をDOMから削除すること。animationendを拾って消すのが定石。放置するとDOMが溜まり続ける。",
     },
   ],
+  titleAct: { act: "ripple-tap" },
+  aliases: ["波紋", "ぽわん", "じわっと広がる", "タップ"],
   related: ["toggle-switch", "circle-reveal"],
 };

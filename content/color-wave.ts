@@ -80,5 +80,7 @@ export const colorWave: MotionEntry = {
       desc: "レイアウトの再計算。colorとopacityは合成のみで済むが、letter-spacingやwidthを動かすと毎フレーム発生して重くなる。",
     },
   ],
+  titleAct: { act: "color-wave" },
+  aliases: ["光る", "1文字ずつ", "キラキラ", "色が流れる"],
   related: ["gradient-shine", "split-text-reveal", "text-highlight"],
 };

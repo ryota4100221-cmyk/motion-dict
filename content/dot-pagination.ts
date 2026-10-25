@@ -85,5 +85,7 @@ export const dotPagination: MotionEntry = {
       desc: "目標値を一度越えてから戻るイージング(cubic-bezierの第2・第4値が1を超える)。点が切り替わった瞬間に一度だけ弾ませるのに使う。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["ドット", "インスタ", "点々", "ページ送り"],
   related: ["carousel", "story-progress", "tab-indicator"],
 };

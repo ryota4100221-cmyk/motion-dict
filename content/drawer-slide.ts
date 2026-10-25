@@ -63,5 +63,7 @@ export const drawerSlide: MotionEntry = {
       desc: "パネルを指で押し戻して閉じるモバイルの作法。実装コストは上がるがネイティブアプリの操作感に近づく。",
     },
   ],
+  titleAct: { act: "drawer-slide" },
+  aliases: ["スライド", "横から出る", "シュッ", "引き出し"],
   related: ["menu-reveal", "modal-pop", "accordion"],
 };

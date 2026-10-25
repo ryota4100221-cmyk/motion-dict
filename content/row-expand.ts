@@ -73,5 +73,7 @@ export const rowExpand: MotionEntry = {
       desc: "大きさや位置が変わってレイアウトが計算し直されること。transformなら起きないが、この動きは「隣を押しのける」こと自体が目的なので、範囲を絞って許容する。",
     },
   ],
+  titleAct: { act: "row-expand" },
+  aliases: ["行が広がる", "ぐいっ", "大きくなる", "一覧"],
   related: ["lift-hover", "accordion", "hover-preview"],
 };

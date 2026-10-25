@@ -70,5 +70,7 @@ export const kenBurns: MotionEntry = {
       desc: "パンで動かす分だけ画像を枠より大きく敷いておく余白。これがないと移動中に画像の端が露出する。",
     },
   ],
+  titleAct: { act: "ken-burns" },
+  aliases: ["ゆっくり", "じわじわ", "映画", "ズーム", "ドキュメンタリー"],
   related: ["image-zoom-hover", "duotone-hover", "parallax"],
 };

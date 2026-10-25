@@ -61,5 +61,7 @@ export const blurLoad: MotionEntry = {
       desc: "画像の読み込み完了イベント。blurを外すトリガーは時間ではなくこれ。キャッシュ済みに備えて img.complete も併せて見る。",
     },
   ],
+  titleAct: { act: "blur-load" },
+  aliases: ["ぼかし", "じわっと", "ピントが合う", "ぼんやり"],
   related: ["crossfade", "blur-reveal", "ken-burns"],
 };

@@ -81,5 +81,7 @@ export const morphingDropdown: MotionEntry = {
       desc: "ホバーが外れてもすぐ閉じない猶予。トリガーからパネルへ斜めに移動する経路を許容する。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["ぬるっと", "にゅるん", "伸び縮み", "追従"],
   related: ["dropdown-reveal", "tab-indicator", "shared-element"],
 };

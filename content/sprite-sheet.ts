@@ -86,5 +86,7 @@ export const spriteSheet: MotionEntry = {
       desc: "往復再生。行きの絵をそのまま帰りに使えるので、コマ数を増やさず動きの長さだけ倍にできる。",
     },
   ],
+  titleAct: { act: "sprite-sheet" },
+  aliases: ["パラパラ漫画", "コマ送り", "カクカク", "アニメ"],
   related: ["split-flap", "typewriter", "boot-sequence"],
 };

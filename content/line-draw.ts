@@ -71,5 +71,7 @@ export const lineDraw: MotionEntry = {
       desc: "SVGが拡縮されてもstroke幅を画面上で一定に保つ指定。レスポンシブで線が太ったり痩せたりしない。",
     },
   ],
+  titleAct: { act: "line-draw" },
+  aliases: ["線を描く", "スーッ", "手書き", "なぞる"],
   related: ["border-draw", "marker-line", "blob-morph"],
 };

@@ -72,5 +72,7 @@ export const mosaicReveal: MotionEntry = {
       desc: "体感時間 = 最大delay + タイル1枚のフェード時間。枚数×staggerが膨らみやすいので、常に合計から逆算する。",
     },
   ],
+  titleAct: { act: "mosaic-reveal" },
+  aliases: ["モザイク", "パラパラ", "タイル", "ブロック"],
   related: ["shutter-transition", "clip-reveal", "blur-load"],
 };

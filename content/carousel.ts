@@ -62,5 +62,7 @@ export const carousel: MotionEntry = {
       desc: "タッチでの送り操作。touchstartとtouchendの座標差で方向を判定する。カルーセルはPCよりスマホで触られることが多く、省略すると体験が大きく欠ける。",
     },
   ],
+  titleAct: { act: "carousel" },
+  aliases: ["スライダー", "スライド", "横に送る", "くるくる"],
   related: ["logo-marquee", "scroll-snap", "lightbox"],
 };

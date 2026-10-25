@@ -87,5 +87,7 @@ export const crtPowerOff: MotionEntry = {
       desc: "変化を指定回数のコマに刻むイージング。電源の明滅を滑らかに補間すると、途端に電気の挙動に見えなくなる。",
     },
   ],
+  titleAct: { act: "crt-power-off" },
+  aliases: ["テレビ", "プツン", "ブツッ", "線になって消える"],
   related: ["scanlines", "boot-sequence", "shutter-transition"],
 };

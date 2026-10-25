@@ -71,5 +71,7 @@ export const gradientBorder: MotionEntry = {
       desc: "同じ図形をblurして背後に敷くと縁の外へ色が滲み、発光に見える。box-shadowの単色と違い、グラデーションの色みのまま光らせられる。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["キラキラ", "枠が光る", "回る枠", "グラデ"],
   related: ["border-draw", "gradient-shine", "frosted-glass"],
 };

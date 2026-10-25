@@ -62,5 +62,7 @@ export const underlineReveal: MotionEntry = {
       desc: "入りは左から伸び、出は右へ消える、のように方向を変えると洗練される。originをホバー状態で切り替える。",
     },
   ],
+  titleAct: { act: "underline-reveal" },
+  aliases: ["下線", "アンダーライン", "スーッと線", "シュッ"],
   related: ["text-scramble", "magnetic-hover"],
 };

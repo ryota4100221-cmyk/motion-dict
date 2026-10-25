@@ -61,5 +61,7 @@ export const imageZoomHover: MotionEntry = {
       desc: "scale 1.05〜1.1のような、気づくか気づかないかの変化量。大きく動かすより「触れた」感触が残り、写真の粗も出ない。",
     },
   ],
+  titleAct: { act: "image-zoom-hover" },
+  aliases: ["ズーム", "拡大", "グーッ", "寄る"],
   related: ["clip-reveal", "tilt", "spotlight-hover"],
 };

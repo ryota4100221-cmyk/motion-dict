@@ -71,5 +71,7 @@ export const dropdownReveal: MotionEntry = {
       desc: "開きはアニメーション・閉じは瞬時のように出入りを変える設計。閉じを丁寧に見せる必要はほぼない。",
     },
   ],
+  titleAct: { act: "dropdown-reveal" },
+  aliases: ["ドロップダウン", "ストン", "にゅっ", "プルダウン"],
   related: ["menu-reveal", "tooltip-pop", "drawer-slide"],
 };

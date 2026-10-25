@@ -87,5 +87,7 @@ export const starRating: MotionEntry = {
       desc: "トグルボタンのON/OFFを支援技術に伝える属性。星ボタンでは「いま確定している星」を示す。",
     },
   ],
+  titleAct: { act: "star-rating" },
+  aliases: ["星", "キラッ", "評価", "ピカッ"],
   related: ["checkbox-check", "like-burst", "toggle-switch"],
 };

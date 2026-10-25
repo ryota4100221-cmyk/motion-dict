@@ -69,5 +69,7 @@ export const velocitySkew: MotionEntry = {
       desc: "入力が止まったあと値が0へ戻っていくこと。lerpの係数が戻りの余韻の長さを決める。",
     },
   ],
+  titleAct: { act: "velocity-skew" },
+  aliases: ["グニャ", "ぐにゃっ", "歪む", "ゆがむ", "傾く"],
   related: ["parallax", "marquee"],
 };

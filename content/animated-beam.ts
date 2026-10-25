@@ -78,5 +78,7 @@ export const animatedBeam: MotionEntry = {
       desc: "周期のうち「動いている」時間の割合。ここを下げると休みが生まれ、常時の流れが1回ずつの送信に変わる。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["光が流れる", "ビーム", "ピュー", "線"],
   related: ["marching-ants", "line-draw", "motion-path"],
 };

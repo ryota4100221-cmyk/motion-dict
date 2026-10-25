@@ -71,5 +71,7 @@ export const blurReveal: MotionEntry = {
       desc: "filterやbox-shadowはピクセル単位の合成コストが高い。適用する要素数と面積を絞るのが基本。",
     },
   ],
+  titleAct: { act: "blur-reveal" },
+  aliases: ["ふわっと", "ぼかし", "ピント", "ぼわっ", "じんわり"],
   related: ["split-text-reveal", "text-scramble", "clip-reveal"],
 };

@@ -92,5 +92,7 @@ export const swipeDismiss: MotionEntry = {
       desc: "ブラウザ既定のスクロール・ズームを止めて横ドラッグを自分で扱う宣言。これが無いとスマホで追従が奪われる。",
     },
   ],
+  titleAct: { act: "swipe-dismiss" },
+  aliases: ["シュッ", "払う", "スワイプ", "ポイッ"],
   related: ["toast-slide", "drop-zone", "rubber-band"],
 };

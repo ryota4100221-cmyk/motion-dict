@@ -71,5 +71,7 @@ export const textFlip: MotionEntry = {
       desc: "横軸(X軸)まわりの回転。見出しの入れ替えではこの軸が定番。rotateYだと縦軸で観音開きのような動きになる。",
     },
   ],
+  titleAct: { act: "text-flip" },
+  aliases: ["パタン", "くるっと", "めくれる", "回転"],
   related: ["word-rotate", "text-slide-swap", "flip-card"],
 };

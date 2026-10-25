@@ -85,5 +85,7 @@ export const flameFlicker: MotionEntry = {
       desc: "アニメーションを途中から始める指定。元サイトは −0.105s で頭のフェードイン(0〜7%)を飛ばし、ホバー時は形の揺れから見せていた。",
     },
   ],
+  titleAct: { act: "flame-flicker" },
+  aliases: ["メラメラ", "ゆらゆら", "炎", "燃える"],
   related: ["flicker-on", "squash-stretch", "like-burst"],
 };

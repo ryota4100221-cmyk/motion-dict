@@ -63,5 +63,7 @@ export const spinnerRing: MotionEntry = {
       desc: "線の端の形。roundにすると弧の先端が丸くなり、それだけで柔らかい印象になる。",
     },
   ],
+  titleAct: { act: "C:loading" },
+  aliases: ["くるくる", "ぐるぐる", "ローディング", "回る"],
   related: ["dots-pulse", "circular-progress"],
 };

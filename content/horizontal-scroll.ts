@@ -62,5 +62,7 @@ export const horizontalScroll: MotionEntry = {
       desc: "GPU合成されるtransform。横移動はこれ一択で、leftやmargin-leftはリフローが走るため禁止。",
     },
   ],
+  titleAct: { act: "horizontal-scroll" },
+  aliases: ["横スクロール", "横に流れる", "ヨコ移動", "スライド"],
   related: ["sticky-pin", "marquee", "parallax"],
 };

@@ -90,5 +90,7 @@ export const dvdBounce: MotionEntry = {
       desc: "無操作が続いたら起動し、入力があれば止める、というスクリーンセーバーの発火条件。常時再生にすると読ませたい画面の邪魔になる。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["DVD", "跳ね返る", "カクッ", "スクリーンセーバー"],
   related: ["ambient-float", "bounce-in", "motion-path"],
 };

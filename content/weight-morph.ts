@@ -85,5 +85,7 @@ export const weightMorph: MotionEntry = {
       desc: "同じ動きを隣の要素へ少しずつ遅らせて渡すこと。ここでは文字ごとに開始時刻をずらすことで、太さの変化が波として読めるようになる。",
     },
   ],
+  titleAct: { act: "weight-morph" },
+  aliases: ["太くなる", "太さ", "むくっ", "ぐぐっ"],
   related: ["tracking-in", "letter-spacing-hover", "wave-text"],
 };

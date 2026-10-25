@@ -86,5 +86,7 @@ export const conicSweep: MotionEntry = {
       desc: "頭が先に進み、あとから尻尾が追いつく動き。両端を別々に送ることで、描く→消すが一方向に揃う。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["くるくる", "ぐるっと", "円弧", "回る"],
   related: ["circular-progress", "spinner-ring", "gradient-morph"],
 };

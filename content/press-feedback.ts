@@ -70,5 +70,7 @@ export const pressFeedback: MotionEntry = {
       desc: "マウス・タッチ・ペンを統一して扱えるイベント。押下フィードバックはclickではなくこの2つで駆動すると接触の瞬間に反応できる。",
     },
   ],
+  titleAct: { act: "press-feedback" },
+  aliases: ["ポチッ", "カチッ", "ぎゅっ", "押した感", "クリック感"],
   related: ["ripple-tap", "toggle-switch", "lift-hover"],
 };

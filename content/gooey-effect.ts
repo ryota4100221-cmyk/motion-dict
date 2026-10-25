@@ -90,5 +90,7 @@ export const gooeyEffect: MotionEntry = {
       desc: "フィルタが描ける矩形。既定は要素の-10%〜120%しかなく、ぼかしの裾が切り落とされて融合が途切れる。広げるのが前提。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["くっつく", "ぬちょっ", "ぷにゅ", "液体", "とろっ"],
   related: ["blob-morph", "tab-indicator", "liquid-fill"],
 };

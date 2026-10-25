@@ -70,5 +70,7 @@ export const hintNudge: MotionEntry = {
       desc: "ユーザーが操作した時点でヒントの役目は終わる。実運用では停止状態を保存し、次回以降は出さない。",
     },
   ],
+  titleAct: { act: "hint-nudge" },
+  aliases: ["ちょいちょい", "チラッ", "ぴくっ", "つつく"],
   related: ["scroll-snap", "carousel", "rubber-band"],
 };

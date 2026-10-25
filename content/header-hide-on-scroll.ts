@@ -75,5 +75,7 @@ export const headerHideOnScroll: MotionEntry = {
       desc: "scrollリスナーに付けるとブラウザがpreventDefaultを待たずにスクロールを進められる。スクロール連動処理では実質必須。",
     },
   ],
+  titleAct: { act: "header-hide-on-scroll" },
+  aliases: ["隠れる", "ヘッダーが消える", "ひょこっ", "引っ込む"],
   related: ["header-shrink", "header-invert", "scroll-spy"],
 };

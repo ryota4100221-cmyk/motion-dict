@@ -71,5 +71,7 @@ export const rubberBand: MotionEntry = {
       desc: "ブラウザ既定のジェスチャをどこまで残すかの指定。自前ドラッグではnoneにしないと、途中でブラウザ側のスクロールに主導権を奪われる。",
     },
   ],
+  titleAct: { act: "rubber-band" },
+  aliases: ["びよーん", "ゴム", "バウンド", "引っぱる", "ぐにっ"],
   related: ["scroll-snap", "smooth-scroll", "press-feedback"],
 };

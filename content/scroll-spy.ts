@@ -61,5 +61,7 @@ export const scrollSpy: MotionEntry = {
       desc: "アンカージャンプの着地位置を調整するCSS。固定ヘッダーの高さ分を確保しないと、見出しがヘッダーに隠れて判定もズレる。",
     },
   ],
+  titleAct: { act: "C:scroll" },
+  aliases: ["現在地", "目次", "光る", "追従"],
   related: ["scroll-progress", "tab-indicator", "section-color-swap"],
 };

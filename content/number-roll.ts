@@ -62,5 +62,7 @@ export const numberRoll: MotionEntry = {
       desc: "数字を等幅で描画するfont-variant-numericの値。回転中に桁幅がガタつかなくなる。",
     },
   ],
+  titleAct: { act: "number-roll" },
+  aliases: ["カラカラ", "スロット", "数字が回る", "クルクル"],
   related: ["counter", "word-rotate", "typewriter"],
 };

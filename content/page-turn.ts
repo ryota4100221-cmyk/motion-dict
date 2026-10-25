@@ -75,5 +75,7 @@ export const pageTurn: MotionEntry = {
       desc: "紙の角が丸く巻き上がる表現。平面のまま倒す page turn より写実的だが、canvas や WebGL が要ることが多い。",
     },
   ],
+  titleAct: { act: "page-turn" },
+  aliases: ["めくる", "ペラッ", "パラッ", "本"],
   related: ["flip-card", "card-shuffle", "stacking-cards"],
 };

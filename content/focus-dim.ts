@@ -70,5 +70,7 @@ export const focusDim: MotionEntry = {
       desc: "opacity/filterだけで表現しレイアウトを動かさない。大きさや位置を変えないので行がガタつかず、長いリストでも安定する。",
     },
   ],
+  titleAct: { act: "focus-dim" },
+  aliases: ["他を薄く", "暗くする", "ぼかす", "注目"],
   related: ["lift-hover", "spotlight-hover", "directional-hover"],
 };

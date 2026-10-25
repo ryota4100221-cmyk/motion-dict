@@ -83,5 +83,7 @@ export const openingCrawl: MotionEntry = {
       desc: "等速のイージング。クロールは機械送りの見立てなので、ease系を当てると終盤で失速して安っぽくなる。",
     },
   ],
+  titleAct: { act: "opening-crawl" },
+  aliases: ["スターウォーズ", "奥へ流れる", "エンドロール", "宇宙"],
   related: ["perspective-reveal", "marquee", "typewriter"],
 };

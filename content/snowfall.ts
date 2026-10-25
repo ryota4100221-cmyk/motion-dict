@@ -83,5 +83,7 @@ export const snowfall: MotionEntry = {
       desc: "その秒数だけ再生済みの状態から始める指定。待ち時間なしで、最初の1フレームから全粒を空中に散らしておける。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["雪", "しんしん", "ちらちら", "降る"],
   related: ["twinkle", "fog-drift", "floating-reactions", "parallax"],
 };

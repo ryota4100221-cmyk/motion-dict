@@ -60,5 +60,7 @@ export const dotsPulse: MotionEntry = {
       desc: "60%〜100%を同じ値にするなど、動かない区間を作る技法。ループに「間」が生まれ上品になる。",
     },
   ],
+  titleAct: { act: "dots-pulse" },
+  aliases: ["点々", "ポコポコ", "ぴょこぴょこ", "ローディングの点"],
   related: ["spinner-ring", "wave-text", "typewriter"],
 };

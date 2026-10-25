@@ -30,6 +30,12 @@ interface Entry {
     poster: string
     video: string
     posterAt?: number
+    // 2026-10-26〜 entries-v2.json が項目ごとに持つ（無ければ下の slug 別の定数に戻る）
+    titleAct?: TitleAct // カード名・実演面の演技（型＝SPEC のキー か "C:<章>"）
+    aliases?: string[] // 検索の別名（ALIAS_RAW の代わり）
+    defaults?: V // 演技の値＝params の初期値（PF_DEFAULTS の代わり）
+    dim?: number // 止まっているポスターの明るさ補正（PF_DIM の代わり。0＝補正なし）
+    lqip?: string // ポスターの下地（PF_LQIP の代わり。別ファイル v2/lqip.json から後で入る）
 }
 
 interface Props {
@@ -714,7 +720,22 @@ export default function MotionDictionaryV2(props: Props) {
         fetch(dataUrl)
             .then((r) => r.json())
             .then((d: Entry[]) => {
-                if (alive) startTransition(() => setEntries(Array.isArray(d) ? d : []))
+                if (!alive) return
+                const list = Array.isArray(d) ? d : []
+                startTransition(() => setEntries(list))
+                // ポスターの下地（v2/lqip.json・2026-10-26〜）。一覧の表示を待たせないよう後から取り、届いたら各項目に入れて描き直す。
+                // 届くまで・取れない時は今の定数（PF_LQIP）＝表にある項目は今と同じ下地
+                const lqUrl = /entries-v2\.json(\?.*)?$/.test(dataUrl) ? dataUrl.replace(/entries-v2\.json(\?.*)?$/, "v2/lqip.json") : ""
+                if (!lqUrl) return
+                fetch(lqUrl)
+                    .then((r) => (r.ok ? r.json() : null))
+                    .then((m: Record<string, string> | null) => {
+                        if (!alive || !m || typeof m !== "object") return
+                        let n = 0
+                        for (const e of list) if (typeof m[e.slug] === "string" && m[e.slug] !== e.lqip) { e.lqip = m[e.slug]; n++ }
+                        if (n) startTransition(() => setEntries(list.slice()))
+                    })
+                    .catch(() => {})
             })
             .catch(() => {})
         return () => {
@@ -2032,14 +2053,14 @@ function Media({ e, isStatic, P, eager }: { e: Entry; isStatic: boolean; P: Retu
         if (direct || !img) return
         return plWatch(img, e.poster)
     }, [e.poster, direct])
-    const lq = lqipOf(e.slug)
+    const lq = lqipOf(e)
     return (
         <span className="ph" ref={P.phRef} style={lq ? { backgroundImage: lq, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
             {/* 止まっている時に黒地に暗灰でほぼ読めないポスター（PF_DIM・70/196枚）は明るさを補正する。録画が回り始めたら録画が上に重なる */}
             {/* src は先回り読み込み（plWatch）が入れる。読み込み前は img を透明にして下塗りを見せる（壊れた画像の枠を出さない） */}
             <img ref={imgRef} src={direct ? e.poster : undefined} alt="" decoding="async" className={direct ? undefined : "pl"}
                 onLoad={(ev) => ev.currentTarget.classList.add("in")}
-                style={dimOf(e.slug) ? { filter: `brightness(${dimOf(e.slug)})` } : undefined} />
+                style={dimOf(e) ? { filter: `brightness(${dimOf(e)})` } : undefined} />
             {!isStatic && P.active ? (
                 <video
                     ref={P.vRef}
@@ -2241,7 +2262,7 @@ function IndexRow({ e, no, ink, paper, muted, accent, hoverable, reduced, isStat
             <span className="no" aria-hidden style={{ color: sub }}>{String(no).padStart(2, "0")}</span>
             {seen && !isStatic ? (
                 <span className="pv" aria-hidden>
-                    <img src={e.poster} alt="" decoding="async" style={dimOf(e.slug) ? { filter: `brightness(${dimOf(e.slug)})` } : undefined} />
+                    <img src={e.poster} alt="" decoding="async" style={dimOf(e) ? { filter: `brightness(${dimOf(e)})` } : undefined} />
                     {pv && !reduced ? <video src={e.video} muted loop playsInline autoPlay preload="auto" /> : null}
                 </span>
             ) : null}
@@ -2292,6 +2313,7 @@ function Stage({ e, at, n, chapter, ink, paper, accent, hoverable, reduced, isSt
         if (!el || live.current) return
         live.current = pfPlay(el, {
             slug: e.slug, cat: e.category, en: sentence(e.nameEn).split(" / ")[0] || e.nameEn, cap: CARD_CAP, hold: false, card: false,
+            act: e.titleAct, defaults: e.defaults,
             // 暗い面の上なので、演技の「地」と「字」を入れ替える
             colors: { ink: paper, paper: ink, muted: dim, accent },
             onEnd: () => { live.current = null },
@@ -2751,7 +2773,10 @@ function defaultsOf(slug: string): V {
     return pfDefaults[slug] || {}
 }
 let lqipMap: Record<string, string> | null = null
-function lqipOf(slug: string): string {
+// 下地：項目データ（v2/lqip.json）＞ 定数 PF_LQIP
+function lqipOf(e: Entry): string {
+    if (e.lqip) return `url(data:image/webp;base64,${e.lqip})`
+    const slug = e.slug
     if (!lqipMap) {
         lqipMap = {}
         for (const t of PF_LQIP.split(" ")) {
@@ -2763,7 +2788,10 @@ function lqipOf(slug: string): string {
     return b ? `url(data:image/webp;base64,${b})` : ""
 }
 let dimMap: Record<string, number> | null = null
-function dimOf(slug: string): number {
+// 明るさ補正：項目データ（entries-v2.json の dim・0＝補正なし）＞ 定数 PF_DIM
+function dimOf(e: Entry): number {
+    if (typeof e.dim === "number") return e.dim
+    const slug = e.slug
     if (!dimMap) {
         dimMap = {}
         for (const t of PF_DIM.split(" ")) {
@@ -2775,7 +2803,7 @@ function dimOf(slug: string): number {
 }
 
 interface PfColors { ink: string; paper: string; muted: string; accent: string }
-interface PfOpts { slug: string; cat: string; en: string; cap: number; hold: boolean; card: boolean; colors: PfColors; onEnd?: () => void }
+interface PfOpts { slug: string; cat: string; en: string; cap: number; hold: boolean; card: boolean; colors: PfColors; onEnd?: () => void; act?: TitleAct; defaults?: V }
 interface PfHandle { root: HTMLElement; card: boolean; held: boolean; stop: () => void; release: () => void }
 
 const PF_LIVE: PfHandle[] = []
@@ -2807,7 +2835,9 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
         while (cards.length >= PF_MAX) cards.shift()!.stop()
     }
 
-    const spec: Spec = SPEC[o.slug] || ["C", o.cat in CH ? o.cat : "text"]
+    // 型：項目データの titleAct ＞ 表 SPEC ＞ 章扉（2026-10-26〜）
+    const act = resolveAct(o.slug, o.cat, o.act || null)
+    const spec: Spec = act.spec
     const chap = spec[0] === "C" ? CH[spec[1] as string] || CH.text : null
     const { ink, paper, muted, accent } = o.colors
 
@@ -3027,7 +3057,7 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
     let res: R
     try {
         if (chap) res = chap.fn(c)
-        else if (typeof spec[1] === "function") res = (spec[1] as (c: Ctx, v: V) => R)(c, defaultsOf(o.slug))
+        else if (typeof spec[1] === "function") res = (spec[1] as (c: Ctx, v: V) => R)(c, remap(o.defaults || defaultsOf(o.slug), act.map))
         else res = CH.text.fn(c)
     } catch {
         res = undefined
@@ -3058,7 +3088,8 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
     }
 
     // 読める規則：隠れた状態から始まる演技は、読める状態に着くまでを 0.64 秒以内に縮める（0.8 秒に余裕を持たせる。PF_READ＝既定の速さで初めて読めるまでの ms・実測）
-    const readK = (PF_READ[o.slug] || 0) / 640
+    // 表に無い項目は、型（titleAct.act）の実測で代える
+    const readK = (PF_READ[o.slug] || PF_READ[act.act] || 0) / 640
     if (typeof res === "number") {
         k = Math.max(1, res / o.cap, readK)
         flush()
@@ -3151,10 +3182,12 @@ function pfPump() {
 /** カードの名前の演技。名前が画面に入ったら1回（PC・SP とも。5周目に PC も）＋ PC はホバーでも（enter/leave をカードに付ける） */
 function useCardPerform(ref: { current: HTMLElement | null }, e: Entry, o: { hoverable: boolean; reduced: boolean; isStatic: boolean; colors: PfColors; cap: number }, ext?: { current: (() => void) | null }) {
     const live = useRef<PfHandle | null>(null)
-    const flags = (SPEC[e.slug] ? (SPEC[e.slug][2] as string) : "") || ""
+    const sp0 = resolveAct(e.slug, e.category, e.titleAct || null).spec
+    const flags = (sp0[0] !== "C" ? (sp0[2] as string) : "") || ""
     const isH = flags.includes("h")
     const opts = (hold: boolean): PfOpts => ({
         slug: e.slug, cat: e.category, en: sentence(e.nameEn).split(" / ")[0] || e.nameEn, cap: o.cap, hold, card: true, colors: o.colors,
+        act: e.titleAct, defaults: e.defaults,
         onEnd: () => { live.current = null },
     })
 
@@ -3299,7 +3332,10 @@ const ALIAS_RAW =
 
 let aliasMap: Record<string, string[]> | null = null
 let pinMap: Record<string, string> | null = null
-function aliasesOf(slug: string): string[] {
+// 別名：項目データ（entries-v2.json の aliases・2026-10-26〜）＞ 定数 ALIAS_RAW
+function aliasesOf(e: Entry): string[] {
+    if (Array.isArray(e.aliases) && e.aliases.length) return e.aliases.map(normalize).filter(Boolean)
+    const slug = e.slug
     if (!aliasMap) {
         aliasMap = {}
         for (const row of ALIAS_RAW.split("|")) {
@@ -3322,7 +3358,7 @@ const HAY = new WeakMap<Entry, Hay>()
 function hayOf(e: Entry): Hay {
     let h = HAY.get(e)
     if (!h) {
-        h = { name: normalize(e.nameJa) + "|" + normalize(e.nameEn) + "|" + normalize(e.slug), lede: normalize(e.lede), al: aliasesOf(e.slug) }
+        h = { name: normalize(e.nameJa) + "|" + normalize(e.nameEn) + "|" + normalize(e.slug), lede: normalize(e.lede), al: aliasesOf(e) }
         HAY.set(e, h)
     }
     return h
@@ -4763,6 +4799,36 @@ const ACT = {
 /* ------------------------------------------------------------------ */
 
 type Spec = [grade: "A" | "B" | "C", fn: ((c: Ctx, v: V) => R) | string, flags?: string, keys?: string]
+
+// ── 項目データの演技の指定（2026-10-26・EntryTitle と同じ規則の写し。コードファイル同士は import できない）──
+// entries-v2.json の titleAct＝型（SPEC のキー か "C:<章>"）と値の対応 map（型の鍵 → この項目の鍵 "key" / "key*倍率" か固定値）
+interface TitleAct { act: string; map?: Record<string, string | number> }
+function resolveAct(slug: string, cat: string, ta: TitleAct | null): { spec: Spec; act: string; map?: Record<string, string | number> } {
+    const chapter = (c: string) => { const ch = c in CH ? c : "text"; return { spec: ["C", ch] as Spec, act: "C:" + ch } }
+    const fromSpec = (k: string, map?: Record<string, string | number>) => {
+        const s = SPEC[k]
+        if (!s) return null
+        return s[0] === "C" ? chapter(s[1] as string) : { spec: s, act: k, map }
+    }
+    if (ta && typeof ta.act === "string") {
+        if (ta.act.startsWith("C:")) return chapter(ta.act.slice(2))
+        const r = fromSpec(ta.act, ta.map && Object.keys(ta.map).length ? ta.map : undefined)
+        if (r) return r
+    }
+    return fromSpec(slug) || chapter(cat)
+}
+function remap(v: V, map?: Record<string, string | number>): V {
+    if (!map) return v
+    const o: V = { ...v }
+    for (const k in map) {
+        const s = map[k]
+        if (typeof s === "number") { o[k] = s; continue }
+        const m = String(s).match(/^(\w+)(?:\*(-?\d+(?:\.\d+)?))?$/)
+        const x = m ? v[m[1]] : undefined
+        if (typeof x === "number") o[k] = m && m[2] ? x * parseFloat(m[2]) : x
+    }
+    return o
+}
 
 const CH: Record<string, { slug: string; ja: string; label: string; flags?: string; fn: (c: Ctx) => R }> = {
     hover: { slug: "magnetic-hover", ja: "マグネティックホバー", label: "strength 0.35 · lerp 0.12", flags: "f", fn: (c) => ACT.magnetic(c, { strength: 0.35, lerp: 0.12, radius: 140 }) },

@@ -83,5 +83,7 @@ export const pillExpand: MotionEntry = {
       desc: "scale(0)から出現する起点。画面左端のピルなら left にしないと、外側へはみ出して生まれる。",
     },
   ],
+  titleAct: { act: "pill-expand" },
+  aliases: ["にゅっ", "伸びる", "ぐいーん", "ピル"],
   related: ["tooltip-pop", "dropdown-reveal", "shadow-pop"],
 };

@@ -81,5 +81,7 @@ export const motionPath: MotionEntry = {
       desc: "複数要素の発火を少しずつずらすこと。同じパスでも遅延を与えると束が順にほどけ、1本の«流れ»として読める。",
     },
   ],
+  titleAct: { act: "motion-path" },
+  aliases: ["ひゅーん", "飛ぶ", "曲線", "弧を描く"],
   related: ["stagger-grid", "card-shuffle", "bounce-in"],
 };

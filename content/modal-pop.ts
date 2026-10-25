@@ -61,5 +61,7 @@ export const modalPop: MotionEntry = {
       desc: "表示中にTabフォーカスをモーダル内へ閉じ込めること。アニメーションと同じくらい重要な実装作法。",
     },
   ],
+  titleAct: { act: "modal-pop" },
+  aliases: ["ふわっと", "ポップ", "ぽわん", "ポンッ"],
   related: ["drawer-slide", "menu-reveal", "crossfade"],
 };

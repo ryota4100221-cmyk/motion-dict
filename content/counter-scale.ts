@@ -82,5 +82,7 @@ export const counterScale: MotionEntry = {
       desc: "カメラを寄せながら画角を広げ、被写体の大きさだけ据え置く映画の技法。カウンタースケールは見た目が似ているが、動くのは枠と倍率だけで遠近は変わらない別物。",
     },
   ],
+  titleAct: { act: "counter-scale" },
+  aliases: ["ポン", "ポンッ", "ぎゅっ", "逆スケール"],
   related: ["clip-reveal", "image-zoom-hover", "circle-reveal"],
 };

@@ -76,5 +76,7 @@ export const expandingSearch: MotionEntry = {
       desc: "ボタンが制御する領域が開いているかを支援技術に伝える属性。検索ボタンに付け、開閉と同時に true / false を切り替える。",
     },
   ],
+  titleAct: { act: "expanding-search" },
+  aliases: ["にゅっ", "検索", "伸びる", "ビヨーン"],
   related: ["pill-expand", "floating-label", "morphing-dropdown", "menu-reveal"],
 };

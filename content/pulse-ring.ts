@@ -70,5 +70,7 @@ export const pulseRing: MotionEntry = {
       desc: "装飾のリングを支援技術から隠す属性。意味を持つのはコア(LIVE等のラベル)側だけにし、輪は読み上げさせない。",
     },
   ],
+  titleAct: { act: "pulse-ring" },
+  aliases: ["波紋", "ドクドク", "ピコン", "LIVE"],
   related: ["dots-pulse", "ripple-tap", "hint-nudge"],
 };

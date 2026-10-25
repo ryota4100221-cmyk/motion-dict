@@ -83,5 +83,7 @@ export const notchedCorner: MotionEntry = {
       desc: "欠けの深さを1変数に集約しておくと、12個の頂点をcalc()で一斉に動かせる。JS側はこの1つを書き換えるだけで済む。",
     },
   ],
+  titleAct: { act: "notched-corner" },
+  aliases: ["角欠け", "カット", "カクッ", "サイバー"],
   related: ["corner-brackets", "pill-expand", "tab-indicator"],
 };

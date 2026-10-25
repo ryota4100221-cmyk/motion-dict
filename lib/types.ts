@@ -33,6 +33,18 @@ export type MotionEntry = {
   okExample: { say: string; why: string };
   vocab: { term: string; desc: string }[];
   related: string[]; // slug配列
+  // 詳細の見出し・一覧のカード名が演じる動き（2026-10-26〜。新項目は必須＝validate-content が検査）。
+  // 型＝framer/EntryTitle.tsx の SPEC のキー（既存項目の slug）か "C:<章>"。書き方は docs/DAILY_ENTRY_GUIDE.md
+  titleAct?: TitleAct;
+  // 検索の別名（擬音・俗な言い方 3〜5語。2026-10-26〜 新項目は必須）。一覧の検索が名前・説明文に加えて引く
+  aliases?: string[];
+};
+
+export type TitleAct = {
+  act: string; // "scroll-fade-in" / "C:ui" など
+  // 型の値の鍵 → この項目の値の鍵（"stagger" / 単位を変えるとき "stagger*1000"）か固定の数値。
+  // 書かない鍵は、同じ名前の自分の値 → 無ければ型の項目の初期値（export が埋める）
+  map?: Record<string, string | number>;
 };
 
 export type ParamValues = Record<string, number>;

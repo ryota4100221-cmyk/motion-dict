@@ -64,5 +64,7 @@ export const dragScroll: MotionEntry = {
       desc: "pointerdownした要素にポインタを固定するAPI。指がステージの外へ出てもmove/upを取り続けられ、掴んだまま画面外へ振り抜く操作が破綻しない。",
     },
   ],
+  titleAct: { act: "drag-scroll" },
+  aliases: ["ドラッグ", "ぐいっ", "慣性", "ひっぱる"],
   related: ["carousel", "velocity-skew", "rubber-band"],
 };

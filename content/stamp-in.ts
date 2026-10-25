@@ -81,5 +81,7 @@ export const stampIn: MotionEntry = {
       desc: "Web Animations APIで再生前後の状態を保持する指定。これが無いと押し終わった瞬間に初期状態へ戻り、判子が消える。",
     },
   ],
+  titleAct: { act: "stamp-in" },
+  aliases: ["ドンッ", "バン", "ハンコ", "ポン"],
   related: ["press-feedback", "bounce-in", "confetti-burst"],
 };

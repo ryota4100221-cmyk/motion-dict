@@ -82,5 +82,7 @@ export const slicedText: MotionEntry = {
       desc: "切り口に沿って一度だけ走る細い光の線。刃が通った瞬間を示す補助演出で、scaleX(0→1)で伸ばす。",
     },
   ],
+  titleAct: { act: "sliced-text" },
+  aliases: ["スライス", "斜め", "切れる", "ズバッ"],
   related: ["split-text-reveal", "block-reveal", "glitch-hover"],
 };

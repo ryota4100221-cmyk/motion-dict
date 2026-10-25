@@ -72,5 +72,7 @@ export const breathingGlow: MotionEntry = {
       desc: "同じ動きの開始タイミングを要素ごとにずらすこと。複数の点が一斉に明滅すると電飾に見えるので、少しずらして生き物らしさを出す。",
     },
   ],
+  titleAct: { act: "breathing-glow" },
+  aliases: ["ふわっと光る", "呼吸", "じわーっ", "ぼんやり光る"],
   related: ["pulse-ring", "twinkle", "ambient-float"],
 };

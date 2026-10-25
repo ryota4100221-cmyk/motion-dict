@@ -61,5 +61,7 @@ export const zoomThrough: MotionEntry = {
       desc: "クリック要素の画面内座標を取る標準API。originの%換算(要素中心 ÷ ビューポート寸法 × 100)に使う。",
     },
   ],
+  titleAct: { act: "zoom-through" },
+  aliases: ["吸い込まれる", "ズーム", "グワッ", "突き抜ける"],
   related: ["circle-reveal", "image-zoom-hover", "scroll-zoom"],
 };

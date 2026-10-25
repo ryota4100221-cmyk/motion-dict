@@ -88,5 +88,7 @@ export const gradientWipe: MotionEntry = {
       desc: "映像編集ソフト(Premiere等)の同名トランジションが語源。英語圏ではsoft wipe / feathered wipeとも呼ぶ。",
     },
   ],
+  titleAct: { act: "gradient-wipe" },
+  aliases: ["ワイプ", "スーッと", "拭う", "じわっと切り替え"],
   related: ["curtain-wipe", "clip-reveal", "crossfade", "progressive-blur"],
 };

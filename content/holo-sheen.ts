@@ -85,5 +85,7 @@ export const holoSheen: MotionEntry = {
       desc: "JSは --gx / --gy を書き換えるだけ、描画はCSSに任せる分担。React の state を経由しないので毎フレームの再レンダリングが起きない。",
     },
   ],
+  titleAct: { act: "holo-sheen" },
+  aliases: ["キラキラ", "ホロ", "虹色", "ギラッ"],
   related: ["gradient-shine", "spotlight-hover", "tilt", "breathing-glow"],
 };

@@ -70,5 +70,7 @@ export const magneticHover: MotionEntry = {
       desc: "枠と中のテキストを別の強さで動かすと高級感が出る(テキストは弱め)。",
     },
   ],
+  titleAct: { act: "magnetic-hover" },
+  aliases: ["ぬるっと", "磁石", "吸い付く", "吸い寄せ", "マグネット"],
   related: ["custom-cursor", "tilt", "spotlight-hover"],
 };

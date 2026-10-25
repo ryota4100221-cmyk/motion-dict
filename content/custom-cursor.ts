@@ -71,5 +71,7 @@ export const customCursor: MotionEntry = {
       desc: "リンクホバーで拡大、ドラッグ中で縮小など、状態に応じて形を変えると「生きている」感が出る。",
     },
   ],
+  titleAct: { act: "custom-cursor" },
+  aliases: ["丸がついてくる", "マウスストーカー", "カーソル追従", "ついてくる"],
   related: ["magnetic-hover", "spotlight-hover", "text-scramble"],
 };

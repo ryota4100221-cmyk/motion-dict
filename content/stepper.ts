@@ -73,5 +73,7 @@ export const stepper: MotionEntry = {
       desc: "現在index を境にした 完了/現在/未到達 の分け方。状態を1つの数値で持つと戻る操作も同じ規則で書ける。",
     },
   ],
+  titleAct: { act: "stepper" },
+  aliases: ["ステップ", "進捗", "ポチポチ", "段階"],
   related: ["tab-indicator", "loading-bar", "scroll-spy"],
 };

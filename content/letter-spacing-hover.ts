@@ -87,5 +87,7 @@ export const letterSpacingHover: MotionEntry = {
       desc: "トラッキングは文字列全体の字間を一律に、カーニングは特定の2文字の詰めを個別に調整する。ここで動かすのはトラッキング。",
     },
   ],
+  titleAct: { act: "letter-spacing-hover" },
+  aliases: ["字間", "広がる", "ふわっと開く", "間隔"],
   related: ["tracking-in", "underline-reveal", "text-slide-swap"],
 };

@@ -70,5 +70,7 @@ export const errorShake: MotionEntry = {
       desc: "操作の失敗を伝える応答。動きだけに頼らず色・テキストを併用するのが原則(色覚・reduced-motion対応)。",
     },
   ],
+  titleAct: { act: "error-shake" },
+  aliases: ["ガタガタ", "プルプル", "ぶるぶる", "ブルッ", "首を振る"],
   related: ["press-feedback", "floating-label", "toast-slide"],
 };

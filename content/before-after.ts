@@ -62,5 +62,7 @@ export const beforeAfter: MotionEntry = {
       desc: "マウス・タッチ・ペンを単一のイベント系で扱えるAPI。mousedownとtouchstartを二重に書くより短く安全。",
     },
   ],
+  titleAct: { act: "before-after" },
+  aliases: ["比較", "ビフォーアフター", "ずらす", "見比べ"],
   related: ["duotone-hover", "image-zoom-hover", "blur-load"],
 };

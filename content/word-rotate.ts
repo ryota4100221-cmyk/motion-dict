@@ -62,5 +62,7 @@ export const wordRotate: MotionEntry = {
       desc: "最後の単語→先頭の単語への戻り。ここだけ逆方向に回すと違和感が出るので、常に同方向で回すのが基本。",
     },
   ],
+  titleAct: { act: "word-rotate" },
+  aliases: ["単語が変わる", "パラパラ", "入れ替わる", "クルッ"],
   related: ["typewriter", "split-text-reveal", "number-roll"],
 };

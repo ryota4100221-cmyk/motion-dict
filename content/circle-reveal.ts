@@ -63,5 +63,7 @@ export const circleReveal: MotionEntry = {
       desc: "円の面積は半径の2乗で増えるため、線形に半径を動かしても後半が一気に開いて見える。easingは強くかけすぎない。",
     },
   ],
+  titleAct: { act: "circle-reveal" },
+  aliases: ["丸く広がる", "ぱあっ", "円", "じわーっ"],
   related: ["menu-reveal", "curtain-wipe", "clip-reveal"],
 };

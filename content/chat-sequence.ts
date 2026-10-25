@@ -83,5 +83,7 @@ export const chatSequence: MotionEntry = {
       desc: "新しい内容が末尾に足されていく領域を示すARIAロール。aria-live と組み合わせると、追加された発言だけがスクリーンリーダーで読み上げられる。",
     },
   ],
+  titleAct: { act: "chat-sequence" },
+  aliases: ["チャット", "吹き出し", "ポコポコ", "入力中"],
   related: ["dots-pulse", "typewriter", "list-add-remove", "toast-slide"],
 };

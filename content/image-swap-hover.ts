@@ -64,5 +64,7 @@ export const imageSwapHover: MotionEntry = {
       desc: "縦横比の違う画像を枠いっぱいに敷き詰める指定。2枚のサイズ差を吸収し切替中のズレを防ぐ。",
     },
   ],
+  titleAct: { act: "image-swap-hover" },
+  aliases: ["画像が変わる", "切り替え", "パッと"],
   related: ["image-zoom-hover", "crossfade", "duotone-hover"],
 };

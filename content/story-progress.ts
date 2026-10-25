@@ -72,5 +72,7 @@ export const storyProgress: MotionEntry = {
       desc: "scaleXの伸び始めの起点。指定しないと中央から左右に開いてしまい、進捗バーに見えなくなる。",
     },
   ],
+  titleAct: { act: "story-progress" },
+  aliases: ["インスタ", "ストーリー", "バーが伸びる", "ジワジワ"],
   related: ["carousel", "loading-bar", "stepper"],
 };

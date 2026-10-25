@@ -63,5 +63,7 @@ export const textSlideSwap: MotionEntry = {
       desc: "枠の高さと各行の高さを一致させること。ここがズレると入れ替わりの瞬間に文字が欠けたり隙間が出る。",
     },
   ],
+  titleAct: { act: "text-slide-swap" },
+  aliases: ["入れ替わる", "スルッ", "文字が抜ける", "スライド"],
   related: ["fill-hover", "underline-reveal", "marquee"],
 };

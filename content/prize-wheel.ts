@@ -76,5 +76,7 @@ export const prizeWheel: MotionEntry = {
       desc: "CSS の transition が終わったときに発火するイベント。結果表示とボタンの再有効化をここで行い、setTimeout で時間を二重管理しない。",
     },
   ],
+  titleAct: { act: "prize-wheel" },
+  aliases: ["ルーレット", "ぐるぐる", "ガラガラ", "抽選"],
   related: ["confetti-burst", "number-roll", "stateful-button", "radial-carousel"],
 };

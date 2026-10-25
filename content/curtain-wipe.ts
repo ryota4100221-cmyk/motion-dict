@@ -72,5 +72,7 @@ export const curtainWipe: MotionEntry = {
       desc: "指定したdurationは片道分。覆う+引くで体感は2倍になるため、合計1.5s前後に収まるよう逆算して決める。",
     },
   ],
+  titleAct: { act: "curtain-wipe" },
+  aliases: ["幕", "カーテン", "シャーッ", "ワイプ"],
   related: ["crossfade", "clip-reveal", "split-text-reveal"],
 };

@@ -87,5 +87,7 @@ export const copyToClipboard: MotionEntry = {
       desc: "中身が変わったときに、読み上げ中の内容を遮らずに読み上げさせる属性。見た目だけのラベルでは、スクリーンリーダーにコピーの成否が伝わらない。",
     },
   ],
+  titleAct: { act: "copy-to-clipboard" },
+  aliases: ["コピー", "コピーしました", "ポン", "完了"],
   related: ["stateful-button", "toast-slide", "tooltip-pop", "press-feedback"],
 };

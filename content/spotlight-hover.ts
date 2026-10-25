@@ -61,5 +61,7 @@ export const spotlightHover: MotionEntry = {
       desc: "mouseleaveで光を即消しすると安っぽい。opacityを0.3s程度で落とすと余韻が出る。",
     },
   ],
+  titleAct: { act: "spotlight-hover" },
+  aliases: ["光る", "懐中電灯", "照らす", "ピカッ"],
   related: ["magnetic-hover", "tilt", "custom-cursor"],
 };

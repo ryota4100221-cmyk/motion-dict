@@ -63,5 +63,7 @@ export const tabIndicator: MotionEntry = {
       desc: "下線ではなく背景の角丸ブロックが移動する変種。iOSのセグメンテッドコントロールが代表例。",
     },
   ],
+  titleAct: { act: "tab-indicator" },
+  aliases: ["下線が動く", "スッ", "ぬるっと", "タブ"],
   related: ["underline-reveal", "accordion", "fill-hover"],
 };

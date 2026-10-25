@@ -71,5 +71,7 @@ export const marquee: MotionEntry = {
       desc: "装飾目的の複製テキストを支援技術から隠す属性。付けないと同じ文が10回読み上げられる。",
     },
   ],
+  titleAct: { act: "marquee" },
+  aliases: ["流れる", "テロップ", "電光掲示板", "ずっと流れる"],
   related: ["velocity-skew", "typewriter", "scroll-progress"],
 };

@@ -84,5 +84,7 @@ export const liquidDistortion: MotionEntry = {
       desc: "SVG組み込みのアニメーション要素。フィルタ属性はCSSから動かせないため、ここだけは現役で使う。",
     },
   ],
+  titleAct: { act: "liquid-distortion" },
+  aliases: ["ゆらゆら", "水", "ゆがむ", "ぐにゃ", "もやもや"],
   related: ["grain-overlay", "blob-morph", "frosted-glass"],
 };

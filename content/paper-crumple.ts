@@ -86,5 +86,7 @@ export const paperCrumple: MotionEntry = {
       desc: "削除が実行されたことを形で示す演出。消えた物がどこへ行ったかを見せると、取り消し(Undo)の存在にも気付かせやすい。",
     },
   ],
+  titleAct: { act: "paper-crumple" },
+  aliases: ["クシャッ", "くしゃくしゃ", "ポイッ", "丸める"],
   related: ["list-add-remove", "swipe-dismiss", "sticker-peel", "fly-to-cart"],
 };

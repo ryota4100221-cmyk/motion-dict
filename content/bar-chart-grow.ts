@@ -82,5 +82,7 @@ export const barChartGrow: MotionEntry = {
       desc: "要素を内側に切り抜く指定。round で角丸も保てるので、scaleYのように角丸が縦に潰れない。",
     },
   ],
+  titleAct: { act: "bar-chart-grow" },
+  aliases: ["グラフ", "にょきにょき", "伸びる", "グーン"],
   related: ["counter", "stagger-grid", "equalizer-bars", "circular-progress"],
 };

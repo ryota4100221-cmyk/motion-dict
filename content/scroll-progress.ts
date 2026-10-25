@@ -60,5 +60,7 @@ export const scrollProgress: MotionEntry = {
       desc: "レイアウトの再計算。widthを毎フレーム書き換えると発生し、スクロールがカクつく主因になる。",
     },
   ],
+  titleAct: { act: "scroll-progress" },
+  aliases: ["読了", "進捗", "バー", "今どこ"],
   related: ["scroll-fade-in", "counter"],
 };

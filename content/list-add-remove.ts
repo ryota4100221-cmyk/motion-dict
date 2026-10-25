@@ -86,5 +86,7 @@ export const listAddRemove: MotionEntry = {
       desc: "First・Last・Invert・Play。並べ替えや中間への挿入で、詰まる側の行まで transform で動かしたいときの手法。",
     },
   ],
+  titleAct: { act: "list-add-remove" },
+  aliases: ["削除", "すっと消える", "詰まる", "シュッ"],
   related: ["accordion", "swipe-dismiss", "fly-to-cart", "shared-element"],
 };

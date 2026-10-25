@@ -91,5 +91,7 @@ export const fogDrift: MotionEntry = {
       desc: "アニメーションの一時停止/再開を切り替えるプロパティ。IntersectionObserverと組み、画面外の長周期ループを止める。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["霧", "もやもや", "もや", "ふわふわ"],
   related: ["god-rays", "grain-overlay", "parallax", "ambient-float"],
 };

@@ -82,5 +82,7 @@ export const xrayLens: MotionEntry = {
       desc: "表と同じ座標に重ねておく別の描画。設計図・注釈・加工前の写真など「同じ場所の別の顔」を敷くと、レンズで覗く意味が生まれる。",
     },
   ],
+  titleAct: { act: "xray-lens" },
+  aliases: ["透ける", "覗く", "レンズ", "スケスケ"],
   related: ["spotlight-hover", "custom-cursor", "before-after"],
 };

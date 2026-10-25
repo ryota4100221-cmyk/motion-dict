@@ -85,5 +85,7 @@ export const barberPole: MotionEntry = {
       desc: "進捗率が出せない処理の表現。数字ではなく「流れ続ける縞」で作業中だけを伝える定番の型。",
     },
   ],
+  titleAct: { act: "barber-pole" },
+  aliases: ["斜めストライプ", "工事", "床屋", "流れる縞"],
   related: ["marching-ants", "scanlines", "loading-bar"],
 };

@@ -62,5 +62,7 @@ export const clipReveal: MotionEntry = {
       desc: "マスクの動きと逆方向へ画像を少しだけ動かす技。奥行きが出るが、量が多いと酔うので10%以内に抑える。",
     },
   ],
+  titleAct: { act: "clip-reveal" },
+  aliases: ["シュッ", "切り抜き", "スッと出る", "マスク"],
   related: ["curtain-wipe", "image-zoom-hover", "split-text-reveal"],
 };

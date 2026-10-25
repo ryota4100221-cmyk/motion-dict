@@ -81,5 +81,7 @@ export const shadowPop: MotionEntry = {
       desc: "ease-in寄りの立ち上がりが速いカーブ。短時間の「跳ねる」表現で、ease-outより硬質な当たりが出る。",
     },
   ],
+  titleAct: { act: "shadow-pop" },
+  aliases: ["影", "ポコッ", "飛び出す", "立体"],
   related: ["lift-hover", "press-feedback"],
 };

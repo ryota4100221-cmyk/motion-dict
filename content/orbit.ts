@@ -80,5 +80,7 @@ export const orbit: MotionEntry = {
       desc: "大きさ・濃さ・重なり順など、平面で奥行きを感じさせる要素。軌道の手前で大きく濃く、奥で小さく薄くするのが最小構成。",
     },
   ],
+  titleAct: { act: "orbit" },
+  aliases: ["くるくる", "周回", "ぐるぐる", "衛星"],
   related: ["rotating-badge", "ambient-float", "radial-carousel"],
 };

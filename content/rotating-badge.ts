@@ -63,5 +63,7 @@ export const rotatingBadge: MotionEntry = {
       desc: "一定速度のイージング。無限回転は必ずlinear。デフォルトのeaseのままだと1周ごとに呼吸するような加減速がつく。",
     },
   ],
+  titleAct: { act: "rotating-badge" },
+  aliases: ["ぐるぐる", "回る", "バッジ", "くるくる"],
   related: ["marquee", "circular-progress", "scroll-marquee"],
 };

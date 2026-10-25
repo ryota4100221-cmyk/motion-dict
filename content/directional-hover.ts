@@ -64,5 +64,7 @@ export const directionalHover: MotionEntry = {
       desc: "塗りの色に応じて前面テキストの色を自動反転させる合成モード。文字色の手動切替を省ける。",
     },
   ],
+  titleAct: { act: "directional-hover" },
+  aliases: ["スッと", "入ってきた方向", "色が入る", "方向"],
   related: ["fill-hover", "underline-reveal", "spotlight-hover"],
 };

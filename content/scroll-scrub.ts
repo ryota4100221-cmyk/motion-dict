@@ -77,5 +77,7 @@ export const scrollScrub: MotionEntry = {
       desc: "wrapperの高さを消費する間だけ映像を画面に留める指定。scroll scrubの見た目はこれで作る。",
     },
   ],
+  titleAct: { act: "C:scroll" },
+  aliases: ["動画", "コマ送り", "ぐりぐり", "連動"],
   related: ["sticky-pin", "scroll-progress", "ken-burns"],
 };

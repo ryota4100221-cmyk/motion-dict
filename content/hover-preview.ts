@@ -72,5 +72,7 @@ export const hoverPreview: MotionEntry = {
       desc: "trailは動きに合わせて残像を何枚も撒く。previewは1枚だけが追従し続ける。似て非なる動き。",
     },
   ],
+  titleAct: { act: "hover-preview" },
+  aliases: ["画像がついてくる", "プレビュー", "チラ見せ"],
   related: ["image-trail", "custom-cursor", "magnetic-hover"],
 };

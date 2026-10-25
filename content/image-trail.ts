@@ -62,5 +62,7 @@ export const imageTrail: MotionEntry = {
       desc: "画像配列を順繰りに使う選び方。ランダムと違い「同じ画像が連続する」事故が起きない。",
     },
   ],
+  titleAct: { act: "image-trail" },
+  aliases: ["画像がついてくる", "軌跡", "ぞろぞろ", "残像"],
   related: ["custom-cursor", "magnetic-hover", "image-zoom-hover"],
 };

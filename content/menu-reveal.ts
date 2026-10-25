@@ -62,5 +62,7 @@ export const menuReveal: MotionEntry = {
       desc: "メニューが開いている間、背面のbodyスクロールを止める処理。忘れると背景だけが流れてメニューと視界がずれる。",
     },
   ],
+  titleAct: { act: "menu-reveal" },
+  aliases: ["メニュー", "ハンバーガー", "パラパラ", "開く"],
   related: ["circle-reveal", "curtain-wipe", "split-text-reveal"],
 };

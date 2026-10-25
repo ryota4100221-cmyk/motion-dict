@@ -71,5 +71,7 @@ export const headerShrink: MotionEntry = {
       desc: "スクロール量に連続で追従させず、閾値でクラスをON/OFFする方式。実装が単純で挙動が安定し、CSS transitionに任せられる。",
     },
   ],
+  titleAct: { act: "header-shrink" },
+  aliases: ["縮む", "小さくなる", "キュッ", "ヘッダー"],
   related: ["footer-reveal", "scroll-progress", "smooth-scroll"],
 };

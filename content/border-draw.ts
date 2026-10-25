@@ -61,5 +61,7 @@ export const borderDraw: MotionEntry = {
       desc: "width/heightをいじらず線を伸ばす。レイアウト計算(リフロー)が走らないので細い線でも滑らか。",
     },
   ],
+  titleAct: { act: "border-draw" },
+  aliases: ["枠線", "枠が描かれる", "なぞる", "スーッと線"],
   related: ["underline-reveal", "fill-hover", "lift-hover"],
 };

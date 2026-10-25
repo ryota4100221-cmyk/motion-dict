@@ -88,5 +88,7 @@ export const asciiEffect: MotionEntry = {
       desc: "全文字が同じ送り幅を持つフォント。桁が揃うことがASCII表現の前提で、縦横比はおよそ1:1.8。",
     },
   ],
+  titleAct: { act: "ascii-effect" },
+  aliases: ["アスキー", "文字で描く", "コード", "テキストアート"],
   related: ["grain-overlay", "scanlines", "sprite-sheet"],
 };

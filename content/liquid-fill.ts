@@ -81,5 +81,7 @@ export const liquidFill: MotionEntry = {
       desc: "進捗率をtranslateYに変換した値。容器の底=0%、上端=100%になるよう線形にマッピングする。",
     },
   ],
+  titleAct: { act: "liquid-fill" },
+  aliases: ["水が溜まる", "ちゃぷちゃぷ", "満ちる", "たぷたぷ"],
   related: ["circular-progress", "preloader-counter", "blob-morph"],
 };

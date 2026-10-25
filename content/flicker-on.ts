@@ -80,5 +80,7 @@ export const flickerOn: MotionEntry = {
       desc: "明滅の間隔と落ち込みを回ごとに短く・浅くしていく設計。等間隔だと点滅サインになり、収束させると「電圧が安定していく」物理に読める。",
     },
   ],
+  titleAct: { act: "flicker-on" },
+  aliases: ["チカチカ", "ネオン", "パチパチ", "点灯"],
   related: ["crt-power-off", "scanlines", "glitch-hover"],
 };

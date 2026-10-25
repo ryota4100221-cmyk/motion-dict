@@ -63,5 +63,7 @@ export const splitScreen: MotionEntry = {
       desc: "ゆっくり入って一気に抜け、最後に減速するイージング。ページ遷移の「重いものが動く」感覚に合う定番値。",
     },
   ],
+  titleAct: { act: "split-screen" },
+  aliases: ["真っ二つ", "割れる", "パカッ", "左右に"],
   related: ["curtain-wipe", "shutter-transition", "circle-reveal"],
 };

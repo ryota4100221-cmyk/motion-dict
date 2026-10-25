@@ -80,5 +80,7 @@ export const perspectiveReveal: MotionEntry = {
       desc: "複数要素の開始を一定間隔ずつ遅らせること。カードを1枚ずつ配るリズムはここで生まれる。",
     },
   ],
+  titleAct: { act: "perspective-reveal" },
+  aliases: ["パタッ", "起き上がる", "パタン", "立ち上がる", "3D"],
   related: ["scroll-fade-in", "clip-reveal", "flip-card"],
 };

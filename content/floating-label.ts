@@ -71,5 +71,7 @@ export const floatingLabel: MotionEntry = {
       desc: "フォーカスが外れても値があればラベルを浮かせたままにする判定。これが漏れるとラベルと入力値が重なる事故になる。",
     },
   ],
+  titleAct: { act: "floating-label" },
+  aliases: ["ラベル", "スッと上がる", "ふわっ", "入力欄"],
   related: ["error-shake", "underline-reveal", "toggle-switch"],
 };

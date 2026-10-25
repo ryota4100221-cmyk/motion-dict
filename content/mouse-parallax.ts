@@ -72,5 +72,7 @@ export const mouseParallax: MotionEntry = {
       desc: "無印のparallaxはスクロール量に連動して縦に動く。mouse parallaxはカーソル位置に連動して全方向に動く。入力源が違う別の動き。",
     },
   ],
+  titleAct: { act: "mouse-parallax" },
+  aliases: ["奥行き", "マウスで動く", "ぐりぐり", "視差"],
   related: ["parallax", "tilt", "image-parallax-hover"],
 };

@@ -62,5 +62,7 @@ export const counter: MotionEntry = {
       desc: "12480を\"12,480\"にするJSの標準API。桁区切りを自前で正規表現処理する必要はない。",
     },
   ],
+  titleAct: { act: "counter" },
+  aliases: ["グワーッと", "カウントアップ", "数字が増える", "ぐんぐん"],
   related: ["typewriter", "scroll-fade-in", "scroll-progress"],
 };

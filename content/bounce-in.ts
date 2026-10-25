@@ -85,5 +85,7 @@ export const bounceIn: MotionEntry = {
       desc: "接地の瞬間に潰し、跳ね上がりで伸ばす作画の原則。scaleを数%足すだけで生っぽさが跳ね上がるが、ロゴなど形が正である要素には使わない。",
     },
   ],
+  titleAct: { act: "bounce-in" },
+  aliases: ["ポンッ", "ぽよん", "バウンド", "ぴょん", "跳ねる"],
   related: ["modal-pop", "error-shake", "rubber-band"],
 };

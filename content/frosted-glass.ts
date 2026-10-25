@@ -70,5 +70,7 @@ export const frostedGlass: MotionEntry = {
       desc: "特定のCSS機能への対応を条件分岐するアットルール。backdrop-filter非対応環境へのフォールバックに使う。",
     },
   ],
+  titleAct: { act: "frosted-glass" },
+  aliases: ["すりガラス", "ガラス", "半透明", "ぼかし"],
   related: ["blur-load", "duotone-hover", "modal-pop"],
 };

@@ -62,5 +62,7 @@ export const lightbox: MotionEntry = {
       desc: "サムネイル(First)から中央(Last)への差分をtransformで再生する開き方。「どこから開いたか」の連続性が出て、突然湧くモーダルと決定的に差がつく。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["拡大表示", "ポップアップ", "パッと", "クリックで大きく"],
   related: ["shared-element", "modal-pop", "image-zoom-hover"],
 };

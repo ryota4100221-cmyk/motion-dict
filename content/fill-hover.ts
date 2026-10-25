@@ -63,5 +63,7 @@ export const fillHover: MotionEntry = {
       desc: "塗りの到達と同時に文字色を切り替える。durationを塗りと揃えると一体に見える。mix-blend-mode: differenceで自動反転させる手もある。",
     },
   ],
+  titleAct: { act: "fill-hover" },
+  aliases: ["塗り", "色が変わる", "じわっと", "ボタンの色"],
   related: ["underline-reveal", "magnetic-hover", "lift-hover"],
 };

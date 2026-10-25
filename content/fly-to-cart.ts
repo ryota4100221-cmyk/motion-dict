@@ -86,5 +86,7 @@ export const flyToCart: MotionEntry = {
       desc: "位置と拡縮を親子の別要素に分ける設計。1要素のtransformに両方書くと片方が上書きされ、別々のイージングも当てられない。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["ピューッ", "飛んでいく", "カート", "ひゅっ"],
   related: ["shared-element", "dock-magnify", "confetti-burst"],
 };

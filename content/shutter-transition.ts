@@ -72,5 +72,7 @@ export const shutterTransition: MotionEntry = {
       desc: "下のDOM入れ替えは帯が画面を完全に覆った(開き切った)瞬間に行う。ここがずれると前後のページが混ざって見える。",
     },
   ],
+  titleAct: { act: "shutter-transition" },
+  aliases: ["ブラインド", "シャッター", "パタパタ", "ザザッ"],
   related: ["curtain-wipe", "mosaic-reveal", "circle-reveal"],
 };

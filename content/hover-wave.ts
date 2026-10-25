@@ -70,5 +70,7 @@ export const hoverWave: MotionEntry = {
       desc: "wave-textは常時揺れ続ける環境的な動き。hover waveはホバー発火で1回だけ走る応答的な動き。",
     },
   ],
+  titleAct: { act: "hover-wave" },
+  aliases: ["波打つ", "ウェーブ", "ぴょこぴょこ", "うねうね"],
   related: ["wave-text", "split-text-reveal", "underline-reveal"],
 };

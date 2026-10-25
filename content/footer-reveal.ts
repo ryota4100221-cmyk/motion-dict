@@ -71,5 +71,7 @@ export const footerReveal: MotionEntry = {
       desc: "露出前のフッターに重ねる半透明の黒。捲れた本文の「奥」から現れる遠近感を作る。opacityだけで動かす。",
     },
   ],
+  titleAct: { act: "footer-reveal" },
+  aliases: ["めくれる", "下から出てくる", "ぬっ", "フッター"],
   related: ["header-shrink", "parallax", "sticky-pin"],
 };

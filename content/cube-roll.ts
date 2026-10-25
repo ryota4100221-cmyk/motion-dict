@@ -86,5 +86,7 @@ export const cubeRoll: MotionEntry = {
       desc: "終点を一度通り過ぎてから戻る動き。cubic-bezierの制御点のyを1より大きくすると出る。重さのある物が止まる感じが出る。",
     },
   ],
+  titleAct: { act: "cube-roll" },
+  aliases: ["クルッ", "くるっと回る", "3D回転", "サイコロ"],
   related: ["flip-card", "tilt", "press-feedback"],
 };

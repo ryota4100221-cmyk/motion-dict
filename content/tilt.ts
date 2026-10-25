@@ -70,5 +70,7 @@ export const tilt: MotionEntry = {
       desc: "カード内の要素を手前に浮かせる指定。テキストだけ浮かせると多層の立体感が出る。",
     },
   ],
+  titleAct: { act: "tilt" },
+  aliases: ["ぐりぐり", "傾く", "3D", "ゆらっ"],
   related: ["magnetic-hover", "spotlight-hover"],
 };

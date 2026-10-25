@@ -70,5 +70,7 @@ export const bootSequence: MotionEntry = {
       desc: "入力位置を示す点滅カーソル(▌)。タイプ中の行の末尾だけに出すのがログらしさの要。",
     },
   ],
+  titleAct: { act: "boot-sequence" },
+  aliases: ["ターミナル", "カタカタ", "ピピピ", "起動"],
   related: ["typewriter", "preloader-counter", "loading-bar"],
 };

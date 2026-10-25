@@ -72,5 +72,7 @@ export const springEasing: MotionEntry = {
       desc: "制御点は縦方向に1を超えて置けるが、振動は1往復ぶんしか作れない。2回以上の揺れや細かい減衰はlinear()でしか書けない。",
     },
   ],
+  titleAct: { act: "spring-easing" },
+  aliases: ["ぽよん", "ばね", "びよん", "ぷるん"],
   related: ["bounce-in", "rubber-band", "magnetic-hover"],
 };

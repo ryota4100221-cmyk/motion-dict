@@ -72,5 +72,7 @@ export const lineBoil: MotionEntry = {
       desc: "板と文字など重なった要素を別周期・逆再生で震わせること。同じ周期だと1枚の画像が揺れているだけに見える。",
     },
   ],
+  titleAct: { act: "line-boil" },
+  aliases: ["ぷるぷる", "手描き", "ぶるぶる", "震え", "ガタガタ"],
   related: ["sprite-sheet", "error-shake", "hint-nudge"],
 };

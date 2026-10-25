@@ -69,5 +69,7 @@ export const markerLine: MotionEntry = {
       desc: "強調語が行をまたいだときの背景の扱い。cloneを指定すると折り返した各行にマーカーが正しく付く。",
     },
   ],
+  titleAct: { act: "marker-line" },
+  aliases: ["マーカー", "蛍光ペン", "線を引く", "シャッ"],
   related: ["text-highlight", "underline-reveal", "line-draw"],
 };

@@ -63,5 +63,7 @@ export const outlineFill: MotionEntry = {
       desc: "装飾用の重ねテキストを支援技術から隠す属性。二重テキスト構成では必須のケア。",
     },
   ],
+  titleAct: { act: "outline-fill" },
+  aliases: ["じわっと", "縁取り", "塗りつぶす", "満ちる"],
   related: ["fill-hover", "underline-reveal", "gradient-shine"],
 };

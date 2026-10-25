@@ -71,5 +71,7 @@ export const blobMorph: MotionEntry = {
       desc: "画面の大きな領域が動き続けると起こる映像酔い。周期を長く・振れ幅を小さく・reduced-motion対応、の3点で防ぐ。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["うにょうにょ", "ぐにゃぐにゃ", "ぷにぷに", "液体"],
   related: ["liquid-fill", "grain-overlay", "gradient-shine"],
 };

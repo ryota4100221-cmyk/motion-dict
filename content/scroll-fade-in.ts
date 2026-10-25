@@ -70,5 +70,7 @@ export const scrollFadeIn: MotionEntry = {
       desc: "一度発火した要素の監視を解除すること。逆スクロールでの再アニメーションと無駄な監視コストを防ぐ。",
     },
   ],
+  titleAct: { act: "scroll-fade-in" },
+  aliases: ["ふわっと", "フェードイン", "じわっと出る", "スーッ"],
   related: ["parallax", "split-text-reveal", "clip-reveal"],
 };

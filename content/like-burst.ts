@@ -86,5 +86,7 @@ export const likeBurst: MotionEntry = {
       desc: "トグルボタンの ON/OFF を支援技術に伝える属性。演出を止めても状態はここと色で伝わる。",
     },
   ],
+  titleAct: { act: "like-burst" },
+  aliases: ["ポンッ", "パッ", "ハート", "弾ける", "いいね"],
   related: ["confetti-burst", "floating-reactions", "press-feedback"],
 };

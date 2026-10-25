@@ -71,5 +71,7 @@ export const textHighlight: MotionEntry = {
       desc: "複数要素に少しずつ時差を与えること。行ごとの塗りの遅れで「上から読み下ろす」順序を演出する。",
     },
   ],
+  titleAct: { act: "text-highlight" },
+  aliases: ["だんだん読める", "浮かび上がる", "じわじわ", "色がつく"],
   related: ["scroll-progress", "split-text-reveal", "scroll-fade-in"],
 };

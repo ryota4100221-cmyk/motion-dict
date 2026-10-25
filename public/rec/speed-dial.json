@@ -1,0 +1,14 @@
+{
+  "note": "閉じた FAB を押して3項目が下から順に立ち上がり＋が×に替わる、少し見せてからもう一度押して逆順に引っ込み、始まりと同じ閉じた状態に戻る",
+  "zoom": 1.4,
+  "before": [
+    { "do": "wait", "ms": 100 }
+  ],
+  "steps": [
+    { "do": "click", "sel": "button >> nth=3", "dur": 250 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "click", "sel": "button >> nth=3", "dur": 300 },
+    { "do": "wait", "ms": 900 },
+    { "do": "leave", "dur": 300 }
+  ]
+}

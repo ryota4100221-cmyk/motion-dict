@@ -85,5 +85,7 @@ export const quadtreeReveal: MotionEntry = {
       desc: "葉を大きい順に並べて出す設計。大→小の順にすることで「粗い像が先に立ち上がり、細部が後から埋まる」読み取りやすい動きになる。",
     },
   ],
+  titleAct: { act: "quadtree-reveal" },
+  aliases: ["パッと", "モザイク", "解像度", "ドット"],
   related: ["mosaic-reveal", "blur-load", "ascii-effect"],
 };

@@ -82,5 +82,7 @@ export const aiOrb: MotionEntry = {
       desc: "本体の背後に置いてぼかした色の輪。濃さ・ぼかし・回転速度の3つが、そのまま状態の「熱量」の表現になる。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["AI", "もやもや", "脈打つ", "考え中"],
   related: ["chat-sequence", "dots-pulse", "equalizer-bars", "gradient-border", "breathing-glow"],
 };

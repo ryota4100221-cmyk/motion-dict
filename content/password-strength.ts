@@ -77,5 +77,7 @@ export const passwordStrength: MotionEntry = {
       desc: "入力欄に補足説明の要素を結び付ける属性。スクリーンリーダーが欄に入ったときに強度の説明を一緒に読み上げる。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["パスワード", "強度", "にょきっ", "メーター"],
   related: ["floating-label", "error-shake", "gauge-meter", "checkbox-check"],
 };

@@ -62,5 +62,7 @@ export const duotoneHover: MotionEntry = {
       desc: "要素をクリック判定から除外する指定。装飾レイヤーに必ず付け、下のリンクやボタンを妨げない。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["白黒", "モノクロ", "色がつく", "カラーになる"],
   related: ["image-zoom-hover", "ken-burns", "spotlight-hover"],
 };

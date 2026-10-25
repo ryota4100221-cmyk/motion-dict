@@ -85,5 +85,7 @@ export const gestureHint: MotionEntry = {
       desc: "ループで初期位置に戻る区間を透明にしておくこと。戻りが見えると、教えたい操作の逆方向まで実演してしまう。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["手", "指", "スワイプして", "ここ触って"],
   related: ["hint-nudge", "drag-scroll", "ripple-tap", "pulse-ring"],
 };

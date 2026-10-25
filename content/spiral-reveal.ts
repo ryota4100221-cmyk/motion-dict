@@ -81,5 +81,7 @@ export const spiralReveal: MotionEntry = {
       desc: "複数要素の発火を少しずつずらすこと。渦は重なると形が読めなくなるので、ずらして«1本の流れ»に見せるのが効く。",
     },
   ],
+  titleAct: { act: "spiral-reveal" },
+  aliases: ["ぐるっと", "渦", "うずまき", "くるくる"],
   related: ["motion-path", "stagger-grid", "radial-carousel"],
 };

@@ -76,5 +76,7 @@ export const splitFlap: MotionEntry = {
       desc: "桁ごとに開始を遅らせ、左から右へ順に反転させる演出。stagger値で流れの速さが決まる。",
     },
   ],
+  titleAct: { act: "split-flap" },
+  aliases: ["パタパタ", "パタン", "空港", "掲示板", "めくれる"],
   related: ["number-roll", "flip-card", "word-rotate"],
 };

@@ -61,5 +61,7 @@ export const crossfade: MotionEntry = {
       desc: "transition: transform 0s 0.8s のように所要時間0+遅延で書くと、「フェード完了後に瞬時に初期値へ戻す」がCSSだけで実現できる。",
     },
   ],
+  titleAct: { act: "crossfade" },
+  aliases: ["ふわっと切り替え", "フェード", "じわっと", "溶ける"],
   related: ["curtain-wipe", "image-zoom-hover"],
 };

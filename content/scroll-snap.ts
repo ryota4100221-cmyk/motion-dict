@@ -67,5 +67,7 @@ export const scrollSnap: MotionEntry = {
       desc: "スナップ位置のオフセット。固定ヘッダーの高さ分だけ止まる位置をずらすのに使う。",
     },
   ],
+  titleAct: { act: "scroll-snap" },
+  aliases: ["ピタッ", "止まる", "カチッ", "1画面ずつ"],
   related: ["sticky-pin", "horizontal-scroll", "scroll-fade-in"],
 };

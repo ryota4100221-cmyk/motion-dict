@@ -85,5 +85,7 @@ export const moireDrift: MotionEntry = {
       desc: "要素の見え方をグラデーションで抜く指定。装飾の帯を hard edge で切らず空気に溶かせる。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["モアレ", "しましま", "チラチラ", "干渉"],
   related: ["scanlines", "grain-overlay", "marching-ants"],
 };

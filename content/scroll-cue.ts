@@ -85,5 +85,7 @@ export const scrollCue: MotionEntry = {
       desc: "最初の画面で見える範囲の下端。キューはこの境目の真上に置き、スクロールが始まったら消す。",
     },
   ],
+  titleAct: { act: "scroll-cue" },
+  aliases: ["スクロールしてね", "マウス", "ぴょこぴょこ", "下へ"],
   related: ["hint-nudge", "scroll-progress", "gesture-hint"],
 };

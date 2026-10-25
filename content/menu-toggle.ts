@@ -71,5 +71,7 @@ export const menuToggle: MotionEntry = {
       desc: "2枚の絵を差し替えるのではなく、同じ要素を変形させて別の記号に見せる手法。差し替えより「動きが繋がる」ため状態変化が理解しやすい。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["ハンバーガー", "×になる", "くるっ", "三本線"],
   related: ["menu-reveal", "toggle-switch"],
 };

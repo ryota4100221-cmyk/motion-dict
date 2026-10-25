@@ -81,5 +81,7 @@ export const twinkle: MotionEntry = {
       desc: "長い周期の大半を待機に使い、一瞬だけ走らせる演出。頻度を下げるほど「見つけた」感が出る。",
     },
   ],
+  titleAct: { act: "twinkle" },
+  aliases: ["キラキラ", "星", "ピカピカ", "またたく"],
   related: ["ambient-float", "god-rays", "grain-overlay"],
 };

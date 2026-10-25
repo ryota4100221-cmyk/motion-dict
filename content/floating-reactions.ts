@@ -81,5 +81,7 @@ export const floatingReactions: MotionEntry = {
       desc: "粒を一定間隔で生み出す発生源。発生間隔・同時数の上限・寿命の3つで画面の賑やかさが決まる。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["ふわふわ", "ハート", "湧き上がる", "ポコポコ"],
   related: ["confetti-burst", "ambient-float", "press-feedback"],
 };

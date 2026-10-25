@@ -60,5 +60,7 @@ export const typewriter: MotionEntry = {
       desc: "レイアウトのガタつき(Cumulative Layout Shift)。タイプ中に幅が伸びて周囲が動くのを、透明ダミーで幅を先取りして防ぐ。",
     },
   ],
+  titleAct: { act: "typewriter" },
+  aliases: ["カタカタ", "打たれる", "タイプ", "カチャカチャ"],
   related: ["text-scramble", "counter", "split-text-reveal"],
 };

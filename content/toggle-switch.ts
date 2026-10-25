@@ -61,5 +61,7 @@ export const toggleSwitch: MotionEntry = {
       desc: "複数プロパティを同じduration・タイミングで動かし、1つの動きとして知覚させること。",
     },
   ],
+  titleAct: { act: "C:ui" },
+  aliases: ["カチッ", "スイッチ", "パチッ", "オンオフ"],
   related: ["ripple-tap", "fill-hover"],
 };

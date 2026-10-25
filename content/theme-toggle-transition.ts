@@ -78,5 +78,7 @@ export const themeToggleTransition: MotionEntry = {
       desc: "要素ごとに色遷移の速度や対象がずれ、一瞬だけ混ざった配色が見える現象。スナップショット方式なら起きない。",
     },
   ],
+  titleAct: { act: "theme-toggle-transition" },
+  aliases: ["ダークモード", "パッと", "じわっと", "切り替え"],
   related: ["circle-reveal", "curtain-wipe", "toggle-switch", "section-color-swap"],
 };

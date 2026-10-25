@@ -61,5 +61,7 @@ export const skeletonShimmer: MotionEntry = {
       desc: "敷いたグラデーションをずらして光を動かす手軽な方式。要素数が多い画面では::after+translateXの方が描画負荷が軽い。",
     },
   ],
+  titleAct: { act: "skeleton-shimmer" },
+  aliases: ["スケルトン", "キラッ", "ぴかー", "灰色"],
   related: ["loading-bar", "preloader-counter", "blur-reveal"],
 };

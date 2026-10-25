@@ -61,5 +61,7 @@ export const imageParallaxHover: MotionEntry = {
       desc: "mousemoveのたびに目標値を更新し、補間はtransitionに任せる省コストな滑らか化。rAFでlerpを回すより実装が軽い。",
     },
   ],
+  titleAct: { act: "image-parallax-hover" },
+  aliases: ["奥行き", "視差", "ぐりぐり", "ゆらっ"],
   related: ["image-zoom-hover", "tilt", "parallax"],
 };

@@ -62,5 +62,7 @@ export const circularProgress: MotionEntry = {
       desc: "SVG要素の路長を任意の値(例:100)に正規化する属性。使うとdashoffsetを進捗%そのままで書ける。",
     },
   ],
+  titleAct: { act: "C:loading" },
+  aliases: ["丸いゲージ", "ぐるっと", "円", "じわじわ"],
   related: ["spinner-ring", "scroll-progress", "counter"],
 };

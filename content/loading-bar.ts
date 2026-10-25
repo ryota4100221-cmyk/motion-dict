@@ -61,5 +61,7 @@ export const loadingBar: MotionEntry = {
       desc: "進捗が一瞬でも戻る動きはユーザーの信頼を壊す。表示する値は常に単調増加のみに保つ。",
     },
   ],
+  titleAct: { act: "loading-bar" },
+  aliases: ["バー", "シューッ", "YouTube", "ジワジワ"],
   related: ["scroll-progress", "preloader-counter", "skeleton-shimmer"],
 };

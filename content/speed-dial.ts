@@ -76,5 +76,7 @@ export const speedDial: MotionEntry = {
       desc: "開閉する部品を操作するボタンに付ける属性。true/false で、読み上げに「展開」「折りたたみ」の状態を伝える。",
     },
   ],
+  titleAct: { act: "scroll-fade-in", map: { distance: "distance", duration: "duration", stagger: "stagger*1000" } },
+  aliases: ["ぽこぽこ", "にょきにょき", "ピョコッ", "FAB", "プラスがバツに"],
   related: ["menu-toggle", "dropdown-reveal", "stagger-grid", "pill-expand"],
 };

@@ -70,5 +70,7 @@ export const grainOverlay: MotionEntry = {
       desc: "feTurbulenceのタイル境界を連続させる指定。\"stitch\"にしないと、背景リピートの継ぎ目に線が出る。",
     },
   ],
+  titleAct: { act: "C:media" },
+  aliases: ["ノイズ", "ザラザラ", "フィルム", "粒子"],
   related: ["blob-morph", "ken-burns", "glitch-hover"],
 };

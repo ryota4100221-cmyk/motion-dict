@@ -75,5 +75,7 @@ export const scratchCard: MotionEntry = {
       desc: "setPointerCapture で、押した要素に以後のポインタイベントを送り続けさせる指定。カードの外へはみ出して戻っても線が切れない。",
     },
   ],
+  titleAct: { act: "scratch-card" },
+  aliases: ["こする", "削る", "ゴシゴシ", "ガリガリ", "スクラッチ"],
   related: ["prize-wheel", "xray-lens", "confetti-burst", "line-draw"],
 };

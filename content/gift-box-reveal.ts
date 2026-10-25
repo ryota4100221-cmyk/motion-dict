@@ -85,5 +85,7 @@ export const giftBoxReveal: MotionEntry = {
       desc: "遅延中は0%の姿、終了後は100%の姿を保つ指定。きらめきを遅延中は隠し、終了後は灯したまま残すために使う。",
     },
   ],
+  titleAct: { act: "gift-box-reveal" },
+  aliases: ["プレゼント", "ワクワク", "ぴょこぴょこ", "カタカタ"],
   related: ["scratch-card", "prize-wheel", "like-burst", "hint-nudge"],
 };

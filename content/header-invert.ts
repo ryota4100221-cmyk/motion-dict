@@ -72,5 +72,7 @@ export const headerInvert: MotionEntry = {
       desc: "ヘッダー内の全要素を同じ2変数に参照させておく設計。反転が「変数2つの差し替え」で済み、要素ごとの色指定が散らばらない。",
     },
   ],
+  titleAct: { act: "header-invert" },
+  aliases: ["色反転", "白黒", "パッと変わる", "ヘッダーの色"],
   related: ["header-shrink", "section-color-swap", "custom-cursor"],
 };

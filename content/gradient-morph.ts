@@ -82,5 +82,7 @@ export const gradientMorph: MotionEntry = {
       desc: "内容を持たず空気だけを担う背景レイヤー。前景と競合しないよう、動きは遅く・コントラストは低くが原則。",
     },
   ],
+  titleAct: { act: "C:transition" },
+  aliases: ["グラデ", "ふわっと変わる", "色が溶ける", "ぼやーっ"],
   related: ["section-color-swap", "gradient-border", "god-rays"],
 };

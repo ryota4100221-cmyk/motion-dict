@@ -70,5 +70,7 @@ export const splitTextReveal: MotionEntry = {
       desc: "JS読込前に生テキストが一瞬見えてしまう問題。初期stateをCSSで隠すか、分割前のテキストを表示したままにするかを決めておく。",
     },
   ],
+  titleAct: { act: "split-text-reveal" },
+  aliases: ["パラパラ", "1文字ずつ", "下から", "ぬっ"],
   related: ["text-scramble", "typewriter", "clip-reveal"],
 };

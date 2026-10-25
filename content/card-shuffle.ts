@@ -82,5 +82,7 @@ export const cardShuffle: MotionEntry = {
       desc: "アニメーション終了後も最終フレームの状態を保つ指定。これがないと終了直後に元の位置へ戻り、並び替えとの間で一瞬ちらつく。",
     },
   ],
+  titleAct: { act: "card-shuffle" },
+  aliases: ["シャッフル", "トランプ", "バサッ", "混ぜる"],
   related: ["stacking-cards", "carousel", "flip-card"],
 };

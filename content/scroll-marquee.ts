@@ -75,5 +75,7 @@ export const scrollMarquee: MotionEntry = {
       desc: "スクロール量に位置を1対1で対応させる方式。本項の速度加算とは別物で、scrubはスクロールが止まるとマーキーも止まる。",
     },
   ],
+  titleAct: { act: "scroll-marquee" },
+  aliases: ["流れる", "テロップ", "加速", "ぐいぐい"],
   related: ["marquee", "velocity-skew", "logo-marquee"],
 };
