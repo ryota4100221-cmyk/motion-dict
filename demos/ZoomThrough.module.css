@@ -16,14 +16,14 @@
   justify-content: center;
   gap: 16px;
   background-color: var(--code-bg);
-  background-image: url("/motion-dict/demo/photo-03.jpg");
+  background-image: url("/motion-dict/demo/photo-18.jpg");
   background-size: cover;
   background-position: center;
 }
 
-/* 写真(A=photo-03.jpg / B=photo-02.jpg) */
+/* 写真(A=photo-18.jpg / B=photo-07.jpg) */
 .faceB {
-  background-image: url("/motion-dict/demo/photo-02.jpg");
+  background-image: url("/motion-dict/demo/photo-07.jpg");
 }
 
 /* 遷移中に拡大する現在ページのレイヤー */
@@ -56,7 +56,7 @@
   border: 1px solid rgba(216, 212, 200, 0.35);
   border-radius: 2px;
   background-color: #2b2b27;
-  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-02.jpg");
+  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-07.jpg");
   background-size: cover;
   background-position: center;
   font-family: var(--font-mono), monospace;
@@ -78,14 +78,14 @@
 
 /* 2枚目のタイルは別の写真。01=次のページ(B)の写真で、抜けた先と絵が繋がる */
 .tile:nth-child(2) {
-  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-07.jpg");
+  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-11.jpg");
 }
 
 /* Page B側のタイル。01=抜けて戻る先(A)の写真 */
 .tileB {
-  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-03.jpg");
+  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-18.jpg");
 }
 
 .tileB:nth-child(2) {
-  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-06.jpg");
+  background-image: linear-gradient(rgba(10, 10, 10, 0.28), rgba(10, 10, 10, 0.28)), url("/motion-dict/demo/photo-01.jpg");
 }

@@ -93,12 +93,12 @@ export default function PillExpand({ params }: { params: ParamValues }) {
         onMouseLeave={() => setOpen(false)}
         onTouchStart={() => setOpen((o) => !o)}
       >
-        <span className={styles.caption}>Project 01</span>
+        <span className={styles.caption}>Entry 01</span>
         <div className={styles.rail}>
           <span className={styles.dot} style={dotStyle} aria-hidden />
           <div className={styles.pill} style={pillStyle}>
             <span className={styles.label} style={labelStyle}>
-              View project
+              Open entry
             </span>
           </div>
         </div>

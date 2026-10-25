@@ -60,7 +60,7 @@ export default function ScrollZoom({ params }: { params: ParamValues }) {
           {/* overflow: clip のフレーム。拡縮は内側の面にかけ、はみ出しはここで断つ */}
           <div className={styles.frame} ref={frameRef}>
             <div className={styles.image} ref={imageRef} aria-hidden />
-            <span className={styles.frameLabel}>Image 01</span>
+            <span className={styles.frameLabel}>Plate 01</span>
           </div>
           <div className={styles.card}>
             <span className={styles.cardLabel}>Next section</span>

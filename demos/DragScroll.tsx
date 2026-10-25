@@ -9,9 +9,10 @@ import styles from "./DragScroll.module.css";
 
 // 掴んで放り投げるための、幅が表示領域を超える横並びパネル
 const PANELS = Array.from({ length: 8 }, (_, i) => i + 1);
-// パネルn枚目に写真photo-0n.jpgを敷く。番号が読めるよう下へ濃くなる暗幕を重ねる
+// パネルn枚目に写真 DRAG_PHOTOS[n-1] を敷く（隣の cover-flow / card-shuffle と重ならない8枚）。番号が読めるよう下へ濃くなる暗幕を重ねる
+const DRAG_PHOTOS = [2, 3, 5, 8, 11, 12, 13, 15];
 const photoBg = (n: number) =>
-  `linear-gradient(180deg, rgba(10,10,10,0) 45%, rgba(10,10,10,0.65) 100%), url("/motion-dict/demo/photo-0${n}.jpg")`;
+  `linear-gradient(180deg, rgba(10,10,10,0) 45%, rgba(10,10,10,0.65) 100%), url("/motion-dict/demo/photo-${String(n).padStart(2, "0")}.jpg")`;
 
 export default function DragScroll({ params }: { params: ParamValues }) {
   const reduce = useReducedMotion();
@@ -120,7 +121,7 @@ export default function DragScroll({ params }: { params: ParamValues }) {
           <div
             key={n}
             className={n === 3 ? `${styles.panel} ${styles.accent}` : styles.panel}
-            style={{ backgroundImage: photoBg(n) }}
+            style={{ backgroundImage: photoBg(DRAG_PHOTOS[n - 1]) }}
           >
             <span className={styles.num}>{String(n).padStart(2, "0")}</span>
           </div>

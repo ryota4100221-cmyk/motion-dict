@@ -63,7 +63,7 @@ export default function SkeletonShimmer({ params }: { params: ParamValues }) {
           <>
             <div className={styles.row}>
               <img
-                src="/motion-dict/demo/photo-04.jpg"
+                src="/motion-dict/demo/photo-17.jpg"
                 alt=""
                 className={`${styles.photo} ${styles.avatar}`}
               />
@@ -75,15 +75,15 @@ export default function SkeletonShimmer({ params }: { params: ParamValues }) {
               </span>
             </div>
             <img
-              src="/motion-dict/demo/photo-01.jpg"
+              src="/motion-dict/demo/photo-18.jpg"
               alt=""
               className={`${styles.photo} ${styles.thumb}`}
             />
             <span className={`${styles.text} ${styles.lineFull}`}>
-              Morning light over the fjord.
+              Notes, taken by hand.
             </span>
             <span className={`${styles.text} ${styles.textMute} ${styles.lineHalf}`}>
-              Norway, 2026
+              Proof, p.12
             </span>
           </>
         ) : (

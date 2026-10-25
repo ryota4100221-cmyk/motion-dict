@@ -15,14 +15,14 @@
   align-items: center;
   justify-content: center;
   background-color: var(--code-bg);
-  background-image: url("/motion-dict/demo/photo-08.jpg");
+  background-image: url("/motion-dict/demo/photo-12.jpg");
   background-size: cover;
   background-position: center;
 }
 
-/* 写真(A=photo-08.jpg / B=photo-01.jpg) */
+/* 写真(A=photo-12.jpg / B=photo-04.jpg) */
 .faceB {
-  background-image: url("/motion-dict/demo/photo-01.jpg");
+  background-image: url("/motion-dict/demo/photo-04.jpg");
 }
 
 /* 写真の上でも読めるよう、薄い暗幕を敷いたラベル。字間ぶん右の余白を詰めて中央に見せる */
@@ -53,11 +53,11 @@
   align-items: center;
   justify-content: center;
   background-color: var(--code-bg);
-  background-image: url("/motion-dict/demo/photo-08.jpg");
+  background-image: url("/motion-dict/demo/photo-12.jpg");
   background-size: cover;
   background-position: center;
 }
 
 .innerB {
-  background-image: url("/motion-dict/demo/photo-01.jpg");
+  background-image: url("/motion-dict/demo/photo-04.jpg");
 }

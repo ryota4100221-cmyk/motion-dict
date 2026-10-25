@@ -84,7 +84,7 @@ export default function ZoomThrough({ params }: { params: ParamValues }) {
         .filter(Boolean)
         .join(" ")}
     >
-      <span className={p === "B" ? styles.labelB : styles.label}>Page {p}</span>
+      <span className={p === "B" ? styles.labelB : styles.label}>Folio {p}</span>
       <div className={styles.tiles}>
         {[0, 1].map((i) => (
           <button

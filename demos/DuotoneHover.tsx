@@ -32,7 +32,7 @@ export default function DuotoneHover({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="PC: カードにホバー / スマホ: タップ">
-      <figure
+      <figure data-md-bleed=""
         className={active ? `${styles.card} ${styles.cardActive}` : styles.card}
         style={cardStyle}
         onMouseEnter={() => setActive(true)}
@@ -41,7 +41,7 @@ export default function DuotoneHover({ params }: { params: ParamValues }) {
       >
         <div className={styles.frame}>
           <img
-            src="/motion-dict/demo/photo-02.jpg"
+            src="/motion-dict/demo/photo-14.jpg"
             alt=""
             draggable={false}
             className={styles.img}

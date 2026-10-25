@@ -69,7 +69,7 @@ export default function ShadowPop({ params }: { params: ParamValues }) {
         onTouchStart={() => setPressed((p) => !p)}
       >
         <span className={styles.slab} style={slabStyle} aria-hidden />
-        <span className={styles.label}>View work</span>
+        <span className={styles.label}>Open entry</span>
       </button>
     </DemoStage>
   );

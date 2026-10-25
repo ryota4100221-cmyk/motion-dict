@@ -59,12 +59,12 @@
 }
 
 .near .photo {
-  background-image: url("/motion-dict/demo/photo-02.jpg");
+  background-image: url("/motion-dict/demo/photo-03.jpg");
 }
 
 /* 奥は遠景。わずかに彩度とコントラストを落として空気遠近を足す */
 .far .photo {
-  background-image: url("/motion-dict/demo/photo-08.jpg");
+  background-image: url("/motion-dict/demo/photo-02.jpg");
   filter: saturate(0.85) contrast(0.92);
 }
 

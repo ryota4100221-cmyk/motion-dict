@@ -5,7 +5,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./TrackingIn.module.css";
 
-const TEXT = "Maison";
+const TEXT = "Tracking";
 // 収束後の字間(em)
 const FINAL_SPREAD = 0.02;
 

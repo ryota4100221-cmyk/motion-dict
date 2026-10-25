@@ -50,7 +50,7 @@ const LOGOS: { name: string; node: ReactNode }[] = [
     ),
   },
   {
-    name: "Monaka & co.",
+    name: "Folio & co.",
     node: (
       // ワードマークのみのロゴ。横長なので高さを抑えて面積を合わせる
       <svg width="118" height="16" viewBox="0 0 118 16" aria-hidden>
@@ -62,7 +62,7 @@ const LOGOS: { name: string; node: ReactNode }[] = [
           letterSpacing="1"
           fontFamily="var(--font-mono), monospace"
         >
-          Monaka &amp; co.
+          Folio &amp; co.
         </text>
       </svg>
     ),

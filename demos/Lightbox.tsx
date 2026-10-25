@@ -12,9 +12,9 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./Lightbox.module.css";
 
 const THUMBS = [
-  "/motion-dict/demo/photo-01.jpg",
-  "/motion-dict/demo/photo-02.jpg",
-  "/motion-dict/demo/photo-03.jpg",
+  "/motion-dict/demo/photo-08.jpg",
+  "/motion-dict/demo/photo-12.jpg",
+  "/motion-dict/demo/photo-17.jpg",
 ];
 
 const EASE = "cubic-bezier(0.33, 1, 0.68, 1)"; // ease-out

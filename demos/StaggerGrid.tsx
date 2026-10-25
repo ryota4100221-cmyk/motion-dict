@@ -13,8 +13,10 @@ const COLS = 4;
 const ROWS = 3;
 
 // カードの写真。8枚を順に割り当てる。ドットとバーが読めるよう下へ濃くなる暗幕を重ねる
+// 12枚に紙と活字の写真を重ならないよう割り振る（隣の spiral-reveal とは別の並び）
+const GRID_PHOTOS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const photoBg = (i: number) =>
-  `linear-gradient(180deg, rgba(10,10,10,0) 35%, rgba(10,10,10,0.6) 100%), url("/motion-dict/demo/photo-0${(i % 8) + 1}.jpg")`;
+  `linear-gradient(180deg, rgba(10,10,10,0) 35%, rgba(10,10,10,0.6) 100%), url("/motion-dict/demo/photo-${String(GRID_PHOTOS[i % GRID_PHOTOS.length]).padStart(2, "0")}.jpg")`;
 
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 

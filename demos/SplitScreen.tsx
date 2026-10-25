@@ -101,7 +101,7 @@ export default function SplitScreen({ params }: { params: ParamValues }) {
           }
         >
           <span className={baseLabel === "B" ? styles.labelB : styles.label}>
-            Page {baseLabel}
+            Folio {baseLabel}
           </span>
         </div>
         {([0, 1] as const).map((i) => (
@@ -113,7 +113,7 @@ export default function SplitScreen({ params }: { params: ParamValues }) {
               style={innerGeo[i]}
             >
               <span className={page === "B" ? styles.labelB : styles.label}>
-                Page {page}
+                Folio {page}
               </span>
             </div>
           </div>

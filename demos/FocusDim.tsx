@@ -20,12 +20,12 @@ function useReducedMotion(): boolean {
   );
 }
 
-// 実績リストを模したダミー項目(制作会社サイトの定番レイアウト)
+// 辞典の索引を模した項目(見出し語＋章)
 const ITEMS = [
-  { title: "ATLAS FILMS", meta: "Title Sequence" },
-  { title: "NOIR STUDIO", meta: "Color Grade" },
-  { title: "HELIOS", meta: "VFX / Comp" },
-  { title: "MONSOON", meta: "Edit / Online" },
+  { title: "KEN BURNS", meta: "Media / 05" },
+  { title: "PARALLAX", meta: "Scroll / 02" },
+  { title: "SCRAMBLE", meta: "Text / 03" },
+  { title: "GLITCH", meta: "Hover / 01" },
 ];
 
 export default function FocusDim({ params }: { params: ParamValues }) {

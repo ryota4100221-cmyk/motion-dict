@@ -4,7 +4,7 @@
  "steps": [
   {
    "do": "move",
-   "sel": "text=Mountain",
+   "sel": "text=Reading",
    "dur": 230
   },
   {
@@ -17,7 +17,7 @@
   },
   {
    "do": "move",
-   "sel": "text=Dune",
+   "sel": "text=Leafing",
    "dur": 400
   },
   {
@@ -30,7 +30,7 @@
   },
   {
    "do": "move",
-   "sel": "text=City",
+   "sel": "text=Printing",
    "dur": 400
   },
   {

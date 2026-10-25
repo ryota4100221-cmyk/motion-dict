@@ -82,13 +82,13 @@ export default function CurtainWipe({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="Play: ページ遷移を再生">
-      <div
+      <div data-md-bleed=""
         className={
           page === "B" ? `${styles.pageFrame} ${styles.frameB}` : styles.pageFrame
         }
       >
         <span className={page === "A" ? styles.labelA : styles.labelB}>
-          Page {page}
+          Folio {page}
         </span>
         <div className={styles.panels} aria-hidden>
           {Array.from({ length: panels }, (_, i) => (

@@ -91,13 +91,13 @@
   width: 56%;
 }
 
-/* ページ内の画像ブロック(/demo/photo-07.jpg)。同じページの色違いなので写真は共通で、
+/* ページ内の画像ブロック(/demo/photo-15.jpg)。同じページの色違いなので写真は共通で、
    ダークでは明度だけ落として地に馴染ませる */
 .card {
   width: 30%;
   height: 120px;
   border-radius: 6px;
-  background: #0a0a0a url("/motion-dict/demo/photo-07.jpg") center / cover;
+  background: #0a0a0a url("/motion-dict/demo/photo-15.jpg") center / cover;
   filter: brightness(var(--card-dim));
 }
 

@@ -22,10 +22,10 @@ function useReducedMotion(): boolean {
 
 // 塗りの中身は写真。カードごとに別の1枚を敷き、入った辺から写真がスライドして入る
 const CARDS = [
-  { label: "SPEEDSTER", photo: "/motion-dict/demo/photo-05.jpg" },
-  { label: "ROADSTER", photo: "/motion-dict/demo/photo-06.jpg" },
-  { label: "TECHNOLOGY", photo: "/motion-dict/demo/photo-07.jpg" },
-  { label: "OWNERSHIP", photo: "/motion-dict/demo/photo-04.jpg" },
+  { label: "TYPE", photo: "/motion-dict/demo/photo-10.jpg" },
+  { label: "PENCIL", photo: "/motion-dict/demo/photo-11.jpg" },
+  { label: "RULE", photo: "/motion-dict/demo/photo-12.jpg" },
+  { label: "DRAFT", photo: "/motion-dict/demo/photo-13.jpg" },
 ];
 
 type Edge = { x: number; y: number };

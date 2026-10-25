@@ -30,7 +30,7 @@ const REST = 0.7;
 
 type Leaf = { x: number; y: number; w: number; h: number; fill: string };
 
-// 写真(public/demo/photo-01.jpg・同一オリジンなのでgetImageDataでcanvasを汚染しない)が読めるまでの代わりの絵。
+// 写真(public/demo/photo-04.jpg・同一オリジンなのでgetImageDataでcanvasを汚染しない)が読めるまでの代わりの絵。
 // なだらかな空 + くっきりした稜線、という組み合わせが分割の粗密の差を一番よく見せる。
 function drawSource(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const sky = ctx.createLinearGradient(0, 0, 0, h);
@@ -205,7 +205,7 @@ export default function QuadtreeReveal({ params }: { params: ParamValues }) {
       data = sctx.getImageData(0, 0, SRC_W, SRC_H).data;
       leafSig = "";
     };
-    photo.src = "/motion-dict/demo/photo-01.jpg";
+    photo.src = "/motion-dict/demo/photo-04.jpg";
 
     let width = 0;
     let height = 0;

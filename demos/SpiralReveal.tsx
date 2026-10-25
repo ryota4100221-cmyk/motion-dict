@@ -24,7 +24,9 @@ const ROWS = 3;
 const COUNT = COLS * ROWS;
 
 // タイルの写真。8枚を順に割り当て、9枚目は1枚目に戻る
-const photoOf = (i: number) => `url("/motion-dict/demo/photo-0${(i % 8) + 1}.jpg")`;
+// 9枚。隣の stagger-grid(01〜12)と先頭が揃わないよう後ろの番号から
+const SPIRAL_PHOTOS = [13, 14, 15, 16, 17, 18, 9, 6, 3];
+const photoOf = (i: number) => `url("/motion-dict/demo/photo-${String(SPIRAL_PHOTOS[i % SPIRAL_PHOTOS.length]).padStart(2, "0")}.jpg")`;
 
 // 軌道が非線形なのでCSSのkeyframes 2点では表現できない。
 // tを等間隔でサンプリングし、その座標列をWAAPIに渡す(rAFは回さない)

@@ -21,9 +21,9 @@
   background-position: center;
 }
 
-/* 掃かれる側(01=photo-04.jpg)。マスクは JS が mask-image に流し込む */
+/* 掃かれる側(01=photo-17.jpg)。マスクは JS が mask-image に流し込む */
 .imgA {
-  background-image: url("/motion-dict/demo/photo-04.jpg");
+  background-image: url("/motion-dict/demo/photo-17.jpg");
   background-size: cover;
   background-position: center;
   -webkit-mask-size: 100% 100%;
@@ -70,4 +70,23 @@
 
 .playBtn:hover {
   border-color: rgba(216, 212, 200, 0.7);
+}
+
+/* r7（2026-10-25）：写真が主役のデモは舞台いっぱいに敷く。
+   旧版は写真が舞台の約2〜4割しかなく、黒い舞台の中の小さな切手に見えていた（独立レビュー）。
+   data-md-bleed を付けた要素は録画台本の zoom から外す（record-v2.cjs）。 */
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.playBtn {
+  z-index: 3;
+  bottom: 18px;
+  background: rgba(10, 10, 10, 0.62);
 }

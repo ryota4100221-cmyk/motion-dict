@@ -106,7 +106,7 @@ export default function CornerBrackets({ params }: { params: ParamValues }) {
 
         {/* 囲まれる中身。四辺を閉じないので視認性が落ちないことが分かる */}
         <div className={styles.body}>
-          <span className={styles.eyebrow}>DIGITAL STUDIO</span>
+          <span className={styles.eyebrow}>ENTRY 064</span>
           <span className={styles.title}>Framed,<br />not fenced.</span>
         </div>
       </div>

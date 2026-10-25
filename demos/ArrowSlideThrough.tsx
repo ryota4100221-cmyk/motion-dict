@@ -33,9 +33,9 @@ const ARROWS = {
 type ArrowKey = keyof typeof ARROWS;
 
 const ROWS: { label: string; arrow: ArrowKey }[] = [
-  { label: "Next project", arrow: "right" },
-  { label: "View case study", arrow: "upRight" },
-  { label: "Get in touch", arrow: "right" },
+  { label: "Next entry", arrow: "right" },
+  { label: "Open the index", arrow: "upRight" },
+  { label: "Copy the prompt", arrow: "right" },
 ];
 
 // 無操作が続いたら、上から順に1本ずつ自動で再生する(ms)

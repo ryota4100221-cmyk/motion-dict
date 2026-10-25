@@ -9,9 +9,9 @@ import styles from "./Parallax.module.css";
 const BG_WORDS = ["Para", "Llax", "Depth", "Layer", "Speed", "Field"];
 const FG_CARDS = ["Foreground 01", "Foreground 02", "Foreground 03"];
 // 前景カードの写真（public/demo/photo-XX.jpg）。ラベルが読めるよう上下に暗幕を重ねる
-const PHOTOS = [6, 5, 8];
+const PHOTOS = [2, 9, 5];
 const photoBg = (n: number) =>
-  `linear-gradient(180deg, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.1) 45%, rgba(10,10,10,0.55) 100%), url("/motion-dict/demo/photo-0${n}.jpg")`;
+  `linear-gradient(180deg, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.1) 45%, rgba(10,10,10,0.55) 100%), url("/motion-dict/demo/photo-${String(n).padStart(2, "0")}.jpg")`;
 
 export default function Parallax({ params }: { params: ParamValues }) {
   const scrollerRef = useRef<HTMLDivElement>(null);

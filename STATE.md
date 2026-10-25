@@ -1,5 +1,15 @@
 # motion-dict v2 ブラッシュアップ（2026-10-24〜）— 再開はここから
 
+## 2026-10-25 r7 デモの絵を「紙と活字」に（prompt-trigger ブランチ・未push）
+- 写真：public/demo/photo-01〜18（Unsplash License・picsum経由・粒子のあるモノクロ）。再現＝scripts/photos-paper.py／出典＝public/demo/PHOTO_CREDITS.md
+  ※ Unsplash 本体はボット検査（Anubis）で取得不可＝picsum の Unsplash 写真から選んだ（18枚）
+- 割り振り：1枚あたりの使用デモ数の最大 22→8、隣接項目の写真かぶり 17組→1組（stagger-grid↔spiral-reveal：12+9枚で18枚を超えるため不可避）
+- 仮の言葉：ATLAS/Hover me/Monaka/Lorem の grep 9ファイル→0。索引・見出し語・Folio・Plate・Colophon 等に置換（rec の text= セレクタも追従）
+- 舞台いっぱい：写真が主役の12本を data-md-bleed で全面に、ホバーカード3本は舞台高の66%。測定＝scripts/photo-coverage.cjs
+- ポスター：録画v2 がカーソル無しの2本目を撮り、そこから「止まって読めるコマ」を選ぶ（poster-pick.py）。白丸 121/196→0（scripts/poster-cursor-check.py）
+- 全196件を撮り直し済。record-all-v2.sh は xargs -I が長すぎて1件も撮らずに「done」を出していた→修正
+- 判断待ち：duotone-hover は静止状態で写真にライムを被せる（デモの主題）。「写真に色を付けない」と衝突。ポスターはホバー後（無彩色）のコマが選ばれている
+
 ## 🟢 2026-10-25 本番移行済（Ryota「本番に入れていいよ」）
 - 本番 Framer（PnTJSNS3Yi1gInF6kBFb）へ v2 を反映・publish 済。手順は下の「本番移行の手順」どおり。
   本番で新規ノードのIDは複製と違う（dTop=PTWVjbb6m / hReel=yoE4M8laN / Prompt Raw=HybwCt26x / Params JSON=Hxba1_vhG

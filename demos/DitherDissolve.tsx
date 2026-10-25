@@ -50,7 +50,7 @@ function bayer(size: number): number[] {
 const MATRICES = [bayer(2), bayer(4), bayer(8)];
 const MATRIX_SIZES = [2, 4, 8];
 
-// 素材は写真(public/demo/photo-06.jpg)。同一オリジンなので getImageData でcanvasを汚さない。
+// 素材は写真(public/demo/photo-14.jpg)。同一オリジンなので getImageData でcanvasを汚さない。
 // 明るい曇り空・中間調の草地・暗い崖が並ぶので、粒の密度で濃さを出しているのが読める。
 // 枠と縦横比が違う分は cover で中央を切る
 function drawPhoto(ctx: CanvasRenderingContext2D, photo: HTMLImageElement, w: number, h: number) {
@@ -157,7 +157,7 @@ export default function DitherDissolve({ params }: { params: ParamValues }) {
       photoReady = true;
       readSource();
     };
-    photo.src = "/motion-dict/demo/photo-06.jpg";
+    photo.src = "/motion-dict/demo/photo-14.jpg";
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);

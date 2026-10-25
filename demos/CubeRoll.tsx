@@ -101,11 +101,11 @@ export default function CubeRoll({ params }: { params: ParamValues }) {
       >
         <div className={styles.cube} style={cubeStyle}>
           <div className={`${styles.face} ${styles.front}`}>
-            <span className={styles.label}>View project</span>
+            <span className={styles.label}>View entry</span>
           </div>
           <div className={`${styles.face} ${styles.back}`}>
             <span className={styles.label} style={backContentStyle}>
-              View project ↗
+              View entry ↗
             </span>
           </div>
           <div className={`${styles.face} ${styles.side} ${styles.top}`} />

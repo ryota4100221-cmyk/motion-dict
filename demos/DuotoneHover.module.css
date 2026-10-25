@@ -12,7 +12,7 @@
   overflow: hidden;
 }
 
-/* 写真(/demo/photo-02.jpg・テラコッタ系)。カラー復帰がひと目で分かる */
+/* 写真(/demo/photo-14.jpg・本を読む人。写真はモノクロなので、ホバーで外れるのはライムの色被せ) */
 .img {
   width: 100%;
   height: 100%;
@@ -47,4 +47,26 @@
   font-size: 10px;
   letter-spacing: 0.12em;
   color: rgba(216, 212, 200, 0.6);
+}
+
+/* r7（2026-10-25）：カードのまま大きく。舞台の高さの66%（旧版は幅240pxで舞台の約2割）。
+   高さを舞台(%)から取り、幅は16:9で決める。data-md-bleed で録画台本の zoom から外す */
+.card {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  height: 66%;
+  aspect-ratio: 16 / 9;
+  max-width: calc(100% - 32px);
+  transform: translate(-50%, -50%);
+}
+.frame {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.caption {
+  position: absolute;
+  top: 100%;
+  left: 0;
 }

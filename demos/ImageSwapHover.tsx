@@ -46,7 +46,7 @@ export default function ImageSwapHover({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="PC: カードにホバー / スマホ: タップ">
-      <figure
+      <figure data-md-bleed=""
         className={styles.card}
         onMouseEnter={() => setSwapped(true)}
         onMouseLeave={() => setSwapped(false)}
@@ -55,13 +55,13 @@ export default function ImageSwapHover({ params }: { params: ParamValues }) {
         <div className={styles.frame}>
           {/* 2枚とも最初からDOMに置き事前読込(src差し替えはチラつく) */}
           <img
-            src="/motion-dict/demo/photo-02.jpg"
+            src="/motion-dict/demo/photo-17.jpg"
             alt=""
             draggable={false}
             className={styles.img}
           />
           <img
-            src="/motion-dict/demo/photo-03.jpg"
+            src="/motion-dict/demo/photo-18.jpg"
             alt=""
             draggable={false}
             className={`${styles.img} ${styles.imgTop}`}

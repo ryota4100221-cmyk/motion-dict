@@ -129,7 +129,7 @@ export default function CoverTransition({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="クリック / タップ: 次のページが下から覆いかぶさる(無操作時は自動で繰り返す)">
-      <div
+      <div data-md-bleed=""
         className={styles.pageFrame}
         onClick={() => {
           touchedRef.current = true;
@@ -143,7 +143,7 @@ export default function CoverTransition({ params }: { params: ParamValues }) {
           }
         >
           <span className={page === "B" ? styles.labelB : styles.label}>
-            Page {page}
+            Folio {page}
           </span>
         </div>
         <div
@@ -156,7 +156,7 @@ export default function CoverTransition({ params }: { params: ParamValues }) {
           aria-hidden
         >
           <span className={next === "B" ? styles.labelB : styles.label}>
-            Page {next}
+            Folio {next}
           </span>
         </div>
       </div>

@@ -44,7 +44,7 @@ export default function FogDrift({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="PC: クリックで手前の1層だけに(比較) / スマホ: タップで切替">
-      <figure
+      <figure data-md-bleed=""
         className={styles.card}
         onClick={() => setSolo((v) => !v)}
       >
@@ -68,7 +68,7 @@ export default function FogDrift({ params }: { params: ParamValues }) {
               ))
               .reverse()}
           </div>
-          <span className={styles.title}>Nightfall</span>
+          <span className={styles.title}>Fog</span>
         </div>
         <figcaption className={styles.caption}>
           {solo

@@ -38,7 +38,7 @@ export const textFlip: MotionEntry = {
   promptTemplate: `見出しに text flip を実装してください。
 
 - きっかけ: ページ表示後、操作なしで自動ループする（最初の単語を1周期表示してから最初の入れ替え）。ホバーやクリックでは何も起きない
-- ["Design", "Develop", "Deliver"] のテキストを一定間隔で3D回転しながら入れ替える
+- ["Ease", "Scrub", "Spring"] のテキストを一定間隔で3D回転しながら入れ替える
 - 親要素に perspective: {{perspective}}px を設定し、単語は同じ位置に絶対配置で重ねる
 - {{interval}}s ごと(回転時間を含む周期。setTimeout を繋いで回す)に、現在の単語を rotateX(0)→rotateX(-90deg)(transform-origin: 50% 0)で上へ倒し、次の単語を rotateX(90deg)(transform-origin: 50% 100%)→rotateX(0) で下から起こす。両方 {{duration}}s の ease で同時に動かす
 - 倒れる側は keyframes の60%まで opacity 1 を保ち、60%→100%で opacity 0 へ落とし(起きる側は opacity を動かさない)、裏面が見える不自然さを消す(backface-visibility: hidden も併用)

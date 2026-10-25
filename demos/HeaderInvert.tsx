@@ -10,8 +10,8 @@ import styles from "./HeaderInvert.module.css";
 const SECTIONS = [
   { label: "01 / Intro", dark: false },
   { label: "02 / Manifesto", dark: true },
-  { label: "03 / Works", dark: false },
-  { label: "04 / Contact", dark: true },
+  { label: "03 / Entries", dark: false },
+  { label: "04 / Colophon", dark: true },
 ];
 
 const HEADER_HEIGHT = 56;
@@ -94,11 +94,11 @@ export default function HeaderInvert({ params }: { params: ParamValues }) {
     >
       <div className={styles.scroller} ref={scrollerRef}>
         <header className={headerClass} style={headerStyle}>
-          <span className={styles.logo}>Monaka</span>
+          <span className={styles.logo}>Motion dict</span>
           <nav className={styles.nav}>
-            <span>Work</span>
-            <span>About</span>
-            <span>Contact</span>
+            <span>Index</span>
+            <span>Glossary</span>
+            <span>Colophon</span>
           </nav>
         </header>
         <div className={styles.content}>

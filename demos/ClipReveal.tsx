@@ -75,9 +75,9 @@ export default function ClipReveal({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="Play: リビールを再生">
-      <div className={styles.frame}>
+      <div data-md-bleed="" className={styles.frame}>
         <img
-          src="/motion-dict/demo/photo-02.jpg"
+          src="/motion-dict/demo/photo-01.jpg"
           alt=""
           draggable={false}
           className={styles.img}

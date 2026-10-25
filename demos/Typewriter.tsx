@@ -6,7 +6,7 @@ import { addTick } from "@/lib/raf";
 import type { ParamValues } from "@/lib/types";
 import styles from "./Typewriter.module.css";
 
-const TEXT = "Hello, I'm monaka design.";
+const TEXT = "Motion, put into words.";
 const HOLD_MS = 1500; // 打ち終わってからクリアまでの静止時間
 
 export default function Typewriter({ params }: { params: ParamValues }) {

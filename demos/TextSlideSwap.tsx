@@ -57,10 +57,10 @@ export default function TextSlideSwap({ params }: { params: ParamValues }) {
         <span className={styles.clip}>
           <span className={styles.roll} style={rollStyle}>
             <span className={styles.item} style={itemStyle(0)}>
-              Hover me
+              Hover to swap
             </span>
             <span className={styles.item} style={itemStyle(1)}>
-              Hover me
+              Hover to swap
             </span>
           </span>
         </span>

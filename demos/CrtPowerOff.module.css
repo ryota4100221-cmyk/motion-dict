@@ -28,11 +28,11 @@
   transform-origin: center;
   transform: scaleY(1) scaleX(1);
   filter: brightness(1);
-  /* 映っている絵=写真(photo-05.jpg)。上の文字が読めるよう周辺ほど暗く落とす */
+  /* 映っている絵=写真(photo-15.jpg)。上の文字が読めるよう周辺ほど暗く落とす */
   background-color: #050706;
   background-image:
     radial-gradient(120% 90% at 50% 40%, rgba(10, 14, 12, 0.38) 0%, rgba(5, 7, 6, 0.72) 70%, #050706 100%),
-    url("/motion-dict/demo/photo-05.jpg");
+    url("/motion-dict/demo/photo-15.jpg");
   background-size: cover;
   background-position: center;
   will-change: transform, filter, opacity;

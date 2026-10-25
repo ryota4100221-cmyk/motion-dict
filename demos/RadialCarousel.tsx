@@ -8,20 +8,20 @@ import styles from "./RadialCarousel.module.css";
 
 // リング上の見出し。countの最大値ぶん用意しておき、先頭からcount個だけ使う
 const WORDS = [
-  "INTRO",
-  "WORKS",
-  "STUDIO",
-  "PROCESS",
-  "TEAM",
-  "NEWS",
-  "CAREER",
-  "CONTACT",
-  "JOURNAL",
-  "AWARDS",
-  "LAB",
-  "PRESS",
-  "STORE",
-  "LEGAL",
+  "HOVER",
+  "SCROLL",
+  "TEXT",
+  "TRANSITION",
+  "MEDIA",
+  "UI",
+  "LOADING",
+  "EASING",
+  "TIMING",
+  "INDEX",
+  "GLOSSARY",
+  "PROMPT",
+  "NOTES",
+  "COLOPHON",
 ];
 
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";

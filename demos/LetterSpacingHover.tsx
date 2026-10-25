@@ -24,7 +24,7 @@ function useReducedMotion(): boolean {
 // content/letter-spacing-hover.ts の ease options と同順
 const EASINGS = ["linear", "cubic-bezier(0.16, 1, 0.3, 1)", "ease-in-out"];
 
-const LINKS = ["Work", "Studio", "Journal", "Contact"];
+const LINKS = ["Index", "Entries", "Glossary", "Colophon"];
 
 // 実ポインタが離れてからアイドル巡回を再開するまで(ms)と、開ききってから次へ送るまで(ms)
 const IDLE_AFTER = 1600;

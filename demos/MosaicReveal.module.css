@@ -14,11 +14,11 @@
   overflow: clip;
 }
 
-/* 写真(/demo/photo-01.jpg)。タイルの下に1枚絵として敷く */
+/* 写真(/demo/photo-16.jpg)。タイルの下に1枚絵として敷く */
 .img {
   position: absolute;
   inset: 0;
-  background-image: url("/motion-dict/demo/photo-01.jpg");
+  background-image: url("/motion-dict/demo/photo-16.jpg");
   background-size: cover;
   background-position: center;
 }
@@ -43,4 +43,30 @@
   font-size: 10px;
   letter-spacing: 0.12em;
   color: rgba(216, 212, 200, 0.6);
+}
+
+/* r7（2026-10-25）：写真が主役のデモは舞台いっぱいに敷く。
+   旧版は写真が舞台の約2〜4割しかなく、黒い舞台の中の小さな切手に見えていた（独立レビュー）。
+   data-md-bleed を付けた要素は録画台本の zoom から外す（record-v2.cjs）。 */
+.card {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+.frame {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  margin: 0;
+}
+.caption {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  margin: 0;
+  z-index: 2;
+  text-align: right;
+  color: rgba(240, 238, 230, 0.86);
+  text-shadow: 0 1px 2px rgba(10, 10, 10, 0.6);
 }

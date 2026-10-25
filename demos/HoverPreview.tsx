@@ -23,9 +23,9 @@ function useReducedMotion(): boolean {
 
 // リンクと対応するプレビュー画像(用意済みダミー)
 const ITEMS = [
-  { label: "Fjord", src: "/motion-dict/demo/photo-01.jpg" },
-  { label: "Coffee", src: "/motion-dict/demo/photo-02.jpg" },
-  { label: "Falls", src: "/motion-dict/demo/photo-03.jpg" },
+  { label: "Reading", src: "/motion-dict/demo/photo-14.jpg" },
+  { label: "Leafing", src: "/motion-dict/demo/photo-15.jpg" },
+  { label: "Printing", src: "/motion-dict/demo/photo-16.jpg" },
 ];
 
 export default function HoverPreview({ params }: { params: ParamValues }) {

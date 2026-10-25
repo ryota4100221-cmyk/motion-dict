@@ -38,7 +38,7 @@ function MockPage({ theme }: { theme: Theme }) {
       </div>
       <div className={styles.body}>
         <div className={styles.copy}>
-          <span className={styles.title}>Aspen</span>
+          <span className={styles.title}>Folio</span>
           <span className={styles.line} />
           <span className={`${styles.line} ${styles.short}`} />
         </div>

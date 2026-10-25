@@ -33,10 +33,10 @@ export default function KenBurns({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="操作不要(自動でズーム+パンをループ再生)">
-      <figure className={styles.card}>
+      <figure data-md-bleed="" className={styles.card}>
         <div className={styles.frame}>
           <img
-            src="/motion-dict/demo/photo-01.jpg"
+            src="/motion-dict/demo/photo-05.jpg"
             alt=""
             draggable={false}
             className={styles.img}

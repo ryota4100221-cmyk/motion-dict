@@ -9,6 +9,12 @@
 //  ・CDP screencast で実フレームを時刻付きで受け、ffmpeg で 60fps CFR に並べ直す
 //  ・操作は rec/<slug>.json の台本（項目ごと）。台本が無ければヒント文から推定した既定動作
 //  ・先頭の無動作を切り、ループ長は台本の長さ。ポスターは「動きの見せ場」のフレームを自動選択
+// r7（2026-10-25）ポスターを「2本目」から撮る:
+//  ・旧版はポスター＝動画の1コマだったため、196件中121件に擬似カーソルの白丸が焼き込まれ（例「Rep●ay」）、
+//    文字が組み替わる途中のコマも選ばれていた（独立レビュー／scripts/poster-cursor-check.py で実測）。
+//  ・カーソルを出す台本は、同じ台本をカーソル無し（白丸も波紋も描かない。実マウスは同じ経路で動く＝:hover は同じ）で
+//    もう1本撮り、そこから poster-pick.py が「演出が止まって読めるコマ」を選ぶ。カーソルを出さない台本は本番の1本から選ぶ。
+//  ・ループ動画はポスターと同じ瞬間から始まるよう回す（rotate-loops.py）。ポスターは上書きしない（meta.posterClean）。
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
@@ -51,10 +57,12 @@ const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clampPt = (p) => [Math.min(W - 1, Math.max(1, p[0])), Math.min(H - 1, Math.max(1, p[1]))];
 const outside = (p) => p[0] < 0 || p[0] > W || p[1] < 0 || p[1] > H;
 async function cursorVisible(page, on) {
+  if (ghost) return;
   await page.evaluate((v) => { const c = document.getElementById("__pw_cursor"); if (c) c.style.opacity = v ? "1" : "0"; }, on).catch(() => {});
 }
 let cur = [W * 0.5, H - 1]; // 下端から入ってくる（最初は見えない）
 let hidden = true;
+let ghost = false; // ポスター用の2本目：擬似カーソルを描かない（表示を切り替えない）
 async function glide(page, toRaw, dur) {
   const to = clampPt(toRaw);
   if (hidden && !outside(toRaw)) { hidden = false; await cursorVisible(page, true); }
@@ -121,22 +129,22 @@ function defaultSteps(hint) {
   return [{ do: "move", at: [0.5, 0.5], dur: 700 }, { do: "orbit", at: [0.5, 0.5], r: 0.1, dur: 1800 }, { do: "wait", ms: 500 }, { do: "leave", dur: 600 }, { do: "wait", ms: 600 }];
 }
 
-(async () => {
-  const TMP = fs.mkdtempSync(path.join(require("os").tmpdir(), `rec2-${slug}-`));
-  const browser = await chromium.launch({ args: ["--mute-audio", "--force-color-profile=srgb"] });
+// 1本ぶん撮る。frames＝CDP screencast の実フレーム（時刻付き）
+async function capture(browser, { hideCursor }) {
+  cur = [W * 0.5, H - 1]; hidden = true; ghost = hideCursor;
   const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, reducedMotion: "no-preference" });
   const page = await ctx.newPage();
   await page.goto(`${BASE}/stage/${slug}/`, { waitUntil: "networkidle", timeout: 45000 });
   // 操作ヒントの文字は動画に焼き込まない（一覧・詳細ではHTML側に出す）
   await page.addStyleTag({ content: "nextjs-portal{display:none!important}[data-md-hint]{opacity:0!important}" });
-  // 台本の zoom：ステージの中身が枠に対して小さいデモを拡大して撮る（ヒントは除く）
-  if (spec?.zoom && spec.zoom !== 1) await page.addStyleTag({ content: `[data-md-stage] > *:not([data-md-hint]){zoom:${spec.zoom}}` });
+  // 台本の zoom：ステージの中身が枠に対して小さいデモを拡大して撮る（ヒントと、舞台いっぱいに敷いた data-md-bleed は除く）
+  if (spec?.zoom && spec.zoom !== 1) await page.addStyleTag({ content: `[data-md-stage] > *:not([data-md-hint]):not([data-md-bleed]){zoom:${spec.zoom}}` });
   await page.waitForTimeout(spec?.settle ?? 900);
   const hint = await page.evaluate(() => document.querySelector("[data-md-hint]")?.textContent || "");
-  const useCursor = spec?.cursor ?? true;
+  const useCursor = (spec?.cursor ?? true) && !hideCursor;
   {
-    // 補間ドライバー（__mdGlide/__mdOrbit）は常に入れる。カーソルを出さない台本では見た目だけ隠す
-    await page.addStyleTag({ content: CURSOR_CSS + (useCursor ? "" : "#__pw_cursor{display:none!important}") });
+    // 補間ドライバー（__mdGlide/__mdOrbit）は常に入れる。カーソルを出さない台本では見た目（白丸とクリックの波紋）だけ隠す
+    await page.addStyleTag({ content: CURSOR_CSS + (useCursor ? "" : "#__pw_cursor,.__pw_ripple{display:none!important}") });
     await page.evaluate(() => {
       const c = document.createElement("div"); c.id = "__pw_cursor"; document.body.appendChild(c);
       // 疑似カーソルは rAF 補間（__mdGlide）が描く。実イベントでは動かさない（往復遅延で25Hzに落ちるため）。
@@ -196,35 +204,51 @@ function defaultSteps(hint) {
     cdp.send("Page.screencastFrameAck", { sessionId: f.sessionId }).catch(() => {});
   });
   await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, maxWidth: W * DPR, maxHeight: H * DPR, everyNthFrame: 1 });
-  const t0 = Date.now();
   await page.waitForTimeout(120);
   await runSteps(page, spec?.steps || defaultSteps(hint));
   await page.waitForTimeout(spec?.tail ?? 200);
   const tEnd = Date.now() / 1000;
   await cdp.send("Page.stopScreencast");
   await page.waitForTimeout(150);
-  await browser.close();
-
-  // 時刻付きフレーム → concat 用リスト（各フレームの表示時間）→ 60fps CFR
+  await ctx.close();
   frames.sort((a, b) => a.t - b.t);
-  frames.forEach((f, i) => fs.writeFileSync(path.join(TMP, `f${String(i).padStart(5, "0")}.jpg`), Buffer.from(f.data, "base64")));
-  // 60fps の各刻みに「その時刻に画面に出ていたフレーム」を割り当てて並べる。
-  // ⚠️ concat に可変の duration を渡して fps=60 で変換すると、画像入力が既定の25fpsで読まれ、
-  //    実フレームは60来ているのに中身が2〜3コマごとにしか変わらない動画になっていた（独立レビュー2で実測）。
+  return { frames, tEnd, hint };
+}
+
+// 時刻付きフレーム → concat 用リスト（各フレームの表示時間）→ 60fps CFR の mp4
+// ⚠️ concat に可変の duration を渡して fps=60 で変換すると、画像入力が既定の25fpsで読まれ、
+//    実フレームは60来ているのに中身が2〜3コマごとにしか変わらない動画になっていた（独立レビュー2で実測）。
+//    60fps の各刻みに「その時刻に画面に出ていたフレーム」を割り当てて並べる。
+function toMp4({ frames, tEnd }, dir, out) {
+  fs.mkdirSync(dir, { recursive: true });
+  frames.forEach((f, i) => fs.writeFileSync(path.join(dir, `f${String(i).padStart(5, "0")}.jpg`), Buffer.from(f.data, "base64")));
   const list = [];
   if (frames.length) {
     const T0 = frames[0].t, T1 = Math.max(tEnd, frames[frames.length - 1].t + 1 / FPS);
     let k = 0;
     for (let tick = T0; tick < T1; tick += 1 / FPS) {
       while (k + 1 < frames.length && frames[k + 1].t <= tick + 1e-4) k++;
-      list.push(`file '${path.join(TMP, `f${String(k).padStart(5, "0")}.jpg`)}'\nduration ${(1 / FPS).toFixed(6)}`);
+      list.push(`file '${path.join(dir, `f${String(k).padStart(5, "0")}.jpg`)}'\nduration ${(1 / FPS).toFixed(6)}`);
     }
-    list.push(`file '${path.join(TMP, `f${String(k).padStart(5, "0")}.jpg`)}'`);
+    list.push(`file '${path.join(dir, `f${String(k).padStart(5, "0")}.jpg`)}'`);
   }
-  fs.writeFileSync(path.join(TMP, "list.txt"), list.join("\n"));
+  fs.writeFileSync(path.join(dir, "list.txt"), list.join("\n"));
+  execSync(`ffmpeg -y -loglevel error -f concat -safe 0 -i "${path.join(dir, "list.txt")}" -vf "settb=1/${FPS},setpts=N/${FPS}/TB,fps=${FPS},scale=${W * DPR}:${H * DPR}:flags=lanczos,format=yuv420p" -c:v libx264 -preset slow -crf 20 -movflags +faststart -an "${out}"`);
+}
+
+(async () => {
+  const TMP = fs.mkdtempSync(path.join(require("os").tmpdir(), `rec2-${slug}-`));
+  const browser = await chromium.launch({ args: ["--mute-audio", "--force-color-profile=srgb"] });
+  const showsCursor = spec?.cursor ?? true;
+  const main = await capture(browser, { hideCursor: false });
+  // ポスター用の2本目（カーソルを出す台本だけ）。同じ台本・同じ時刻で、白丸と波紋だけを描かない
+  const ghostRun = showsCursor ? await capture(browser, { hideCursor: true }) : null;
+  await browser.close();
+  const { frames, tEnd, hint } = main;
+
   const span = frames.length ? tEnd - frames[0].t : 0;
   const raw = path.join(TMP, "raw.mp4");
-  execSync(`ffmpeg -y -loglevel error -f concat -safe 0 -i "${path.join(TMP, "list.txt")}" -vf "settb=1/${FPS},setpts=N/${FPS}/TB,fps=${FPS},scale=${W * DPR}:${H * DPR}:flags=lanczos,format=yuv420p" -c:v libx264 -preset slow -crf 20 -movflags +faststart -an "${raw}"`);
+  toMp4(main, path.join(TMP, "main"), raw);
 
   // 先頭の無動作を切る（最初に画が変わる点の0.15s手前から）
   let start = 0;
@@ -238,22 +262,29 @@ function defaultSteps(hint) {
   fs.mkdirSync(path.join(OUT, "posters"), { recursive: true });
   const out = path.join(OUT, "videos", `${slug}.mp4`);
   execSync(`ffmpeg -y -loglevel error -ss ${start} -i "${raw}" -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p -movflags +faststart -an "${out}"`);
+  const dur = Number(execSync(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${out}"`).toString().trim());
 
-  // ポスター：見せ場のフレーム（台本の posterAt が優先。無ければ poster-pick.py が
-  // 「暗くない・情報量が多い・ライムが出ている」時刻を選ぶ）。旧版は1フレーム目＝
-  // まだ何も起きていない暗い画で、一覧の3分の1が黒い四角になっていた。
-  let at = spec?.posterAt;
-  if (at == null) {
-    try { at = Number(execSync(`python3 "${path.join(__dirname, "poster-pick.py")}" "${out}"`).toString().trim()) || 0; } catch (e) { at = 0; }
+  // ポスター：カーソルの無い1本（2本目、無ければ本番の未トリム）から、演出が止まって読めるコマを選ぶ。
+  // 台本の posterAt（動画の時刻）があればそれを優先する。
+  const src = ghostRun ? path.join(TMP, "ghost.mp4") : raw;
+  if (ghostRun) toMp4(ghostRun, path.join(TMP, "ghost"), src);
+  let srcAt;
+  if (spec?.posterAt != null) srcAt = Number(spec.posterAt) + start;
+  else {
+    // 動画として残る範囲（トリム後）の中から選ぶ：src を同じだけ頭出ししてから選ぶ
+    const cut = path.join(TMP, "pick.mp4");
+    execSync(`ffmpeg -y -loglevel error -ss ${start} -i "${src}" -t ${dur} -c:v libx264 -preset veryfast -crf 18 -an "${cut}"`);
+    try { srcAt = start + (Number(execSync(`python3 "${path.join(__dirname, "poster-pick.py")}" "${cut}"`).toString().trim()) || 0); } catch (e) { srcAt = start; }
   }
+  const at = Math.min(Math.max(0, srcAt - start), Math.max(0, dur - 0.05));
   const poster = path.join(OUT, "posters", `${slug}.jpg`);
-  execSync(`ffmpeg -y -loglevel error -ss ${at} -i "${out}" -frames:v 1 -vf "scale=960:-1:flags=lanczos" -q:v 3 "${poster}"`);
+  execSync(`ffmpeg -y -loglevel error -ss ${srcAt.toFixed(3)} -i "${src}" -frames:v 1 -q:v 3 "${poster}"`);
   fs.rmSync(TMP, { recursive: true, force: true });
   // 一覧のカードが「ポスターと同じ瞬間から」再生できるよう、ポスターの時刻を残す（entries-v2.json に載る）
   fs.mkdirSync(path.join(OUT, "meta"), { recursive: true });
-  fs.writeFileSync(path.join(OUT, "meta", `${slug}.json`), JSON.stringify({ posterAt: Number(at) || 0 }));
-  // ループを見せ場（ポスターの時刻）から始まるように回し、ポスターを1440幅で作り直す
+  fs.writeFileSync(path.join(OUT, "meta", `${slug}.json`), JSON.stringify({ posterAt: Number(at.toFixed(2)), posterClean: true }));
+  // ループを見せ場（ポスターの時刻）から始まるように回す（ポスターは上書きしない＝posterClean）
   try { execSync(`python3 "${path.join(__dirname, "rotate-loops.py")}" ${slug}`, { env: { ...process.env, MD_V2_OUT: OUT } }); } catch (e) { console.error("[rotate] failed (non-fatal)"); }
-  const dur = execSync(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${out}"`).toString().trim();
-  console.log(JSON.stringify({ slug, frames: frames.length, span: +span.toFixed(2), fpsReal: +(frames.length / span).toFixed(1), trimmed: +start.toFixed(2), dur: +dur, posterAt: at, spec: !!spec, hint }));
+  const durOut = execSync(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${out}"`).toString().trim();
+  console.log(JSON.stringify({ slug, frames: frames.length, span: +span.toFixed(2), fpsReal: +(frames.length / span).toFixed(1), trimmed: +start.toFixed(2), dur: +durOut, posterAt: +at.toFixed(2), ghost: !!ghostRun, spec: !!spec, hint }));
 })().catch((e) => { console.error("RECORD FAIL:", slug, e.message); process.exit(1); });

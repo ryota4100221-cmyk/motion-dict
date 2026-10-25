@@ -48,7 +48,7 @@ export default function PressFeedback({ params }: { params: ParamValues }) {
         onPointerLeave={() => setPressed(false)}
         onPointerCancel={() => setPressed(false)}
       >
-        Press me
+        Press down
       </button>
     </DemoStage>
   );

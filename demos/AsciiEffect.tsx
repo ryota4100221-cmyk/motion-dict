@@ -39,7 +39,7 @@ const STILL_T = 1.6;
 // 写真を枠より何倍に広げて敷くか。この余りの中をゆっくり漂わせて「映像」にする
 const PAN_ZOOM = 1.18;
 
-// 写真(public/demo/photo-05.jpg・同一オリジンなのでgetImageDataでcanvasを汚染しない)を
+// 写真(public/demo/photo-03.jpg・同一オリジンなのでgetImageDataでcanvasを汚染しない)を
 // coverで敷き、余りの中を時刻tでゆっくり漂わせる。明るい空と暗い街並みの境目が
 // ASCII化したとき文字の密度差としていちばんはっきり出る
 function drawPhoto(ctx: CanvasRenderingContext2D, photo: HTMLImageElement, t: number) {
@@ -127,7 +127,7 @@ export default function AsciiEffect({ params }: { params: ParamValues }) {
       photoReady = true;
       stillSig = "";
     };
-    photo.src = "/motion-dict/demo/photo-05.jpg";
+    photo.src = "/motion-dict/demo/photo-03.jpg";
 
     let width = 0;
     let height = 0;

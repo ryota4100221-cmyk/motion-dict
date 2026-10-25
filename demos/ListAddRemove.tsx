@@ -21,14 +21,14 @@ function useReducedMotion(): boolean {
 
 type Item = { id: number; name: string; price: string; photo: number; leaving: boolean; entering: boolean };
 
-// 品名は写真(public/demo/photo-0N.jpg)の絵柄に合わせたプリント商品
+// 品名は写真(public/demo/photo-NN.jpg)の絵柄に合わせた紙と文具
 const POOL = [
-  { name: "Fjord Print", price: "¥480", photo: 1 },
-  { name: "Pour-over", price: "¥620", photo: 2 },
-  { name: "Green Falls", price: "¥540", photo: 3 },
-  { name: "Red Canoe", price: "¥1,280", photo: 4 },
-  { name: "Dusk Skyline", price: "¥860", photo: 5 },
-  { name: "Sea Cliffs", price: "¥360", photo: 6 },
+  { name: "Folio book", price: "¥480", photo: 9 },
+  { name: "Paper bundle", price: "¥620", photo: 8 },
+  { name: "Steel rule", price: "¥540", photo: 12 },
+  { name: "Pencil set", price: "¥1,280", photo: 11 },
+  { name: "Compass", price: "¥860", photo: 17 },
+  { name: "Drafting sheet", price: "¥360", photo: 13 },
 ];
 
 const MAX_ROWS = 4;
@@ -149,7 +149,7 @@ function Row({ item, params, reduce, onRemove, onDone }: RowProps) {
     <li className={styles.row} ref={rowRef} data-leaving={item.leaving || undefined}>
       <span
         className={styles.thumb}
-        style={{ backgroundImage: `url("/motion-dict/demo/photo-0${item.photo}.jpg")` }}
+        style={{ backgroundImage: `url("/motion-dict/demo/photo-${String(item.photo).padStart(2, "0")}.jpg")` }}
         aria-hidden
       />
       <span className={styles.name}>{item.name}</span>

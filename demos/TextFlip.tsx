@@ -7,7 +7,7 @@ import type { ParamValues } from "@/lib/types";
 import styles from "./TextFlip.module.css";
 
 // 回す単語(同じセルに重ねるので幅は最長の単語に揃う)
-const WORDS = ["Design", "Develop", "Deliver"];
+const WORDS = ["Ease", "Scrub", "Spring"];
 
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 

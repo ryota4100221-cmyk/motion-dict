@@ -70,7 +70,7 @@ export default function BeforeAfter({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="ドラッグ / スワイプ: 境界を動かして比較">
-      <div
+      <div data-md-bleed=""
         className={styles.frame}
         onPointerDown={onDown}
         onPointerMove={onMove}

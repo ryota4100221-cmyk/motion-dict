@@ -9,15 +9,15 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  /* 写真(A=photo-02.jpg / B=photo-06.jpg) */
+  /* 写真(A=photo-05.jpg / B=photo-13.jpg) */
   background-color: var(--code-bg);
-  background-image: url("/motion-dict/demo/photo-02.jpg");
+  background-image: url("/motion-dict/demo/photo-05.jpg");
   background-size: cover;
   background-position: center;
 }
 
 .frameB {
-  background-image: url("/motion-dict/demo/photo-06.jpg");
+  background-image: url("/motion-dict/demo/photo-13.jpg");
 }
 
 /* 写真の上でも読めるよう、薄い暗幕を敷いたラベル。字間ぶん右の余白を詰めて中央に見せる */
@@ -71,4 +71,23 @@
 .playBtn:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+/* r7（2026-10-25）：写真が主役のデモは舞台いっぱいに敷く。
+   旧版は写真が舞台の約2〜4割しかなく、黒い舞台の中の小さな切手に見えていた（独立レビュー）。
+   data-md-bleed を付けた要素は録画台本の zoom から外す（record-v2.cjs）。 */
+.pageFrame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.playBtn {
+  z-index: 3;
+  bottom: 18px;
+  background: rgba(10, 10, 10, 0.62);
 }

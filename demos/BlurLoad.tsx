@@ -43,7 +43,7 @@ export default function BlurLoad({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="クリック / タップで読み込みをリプレイ">
-      <figure className={styles.card} onClick={() => setRun((r) => r + 1)}>
+      <figure data-md-bleed="" className={styles.card} onClick={() => setRun((r) => r + 1)}>
         <div className={styles.frame}>
           <div className={styles.img} style={imgStyle} />
         </div>

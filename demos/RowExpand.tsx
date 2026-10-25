@@ -28,9 +28,9 @@ const CAP_GAP = 9;
 const CAP_BLOCK = CAP_LINE + CAP_GAP;
 
 const ROWS = [
-  { title: "Europa", meta: "Brand system", tints: [0.92, 0.46, 0.24] },
-  { title: "Molteni", meta: "Art direction", tints: [0.3, 0.86, 0.5] },
-  { title: "Kessel", meta: "Digital", tints: [0.56, 0.26, 0.9] },
+  { title: "Ease", meta: "Easing", tints: [0.92, 0.46, 0.24] },
+  { title: "Spring", meta: "Physics", tints: [0.3, 0.86, 0.5] },
+  { title: "Stagger", meta: "Sequence", tints: [0.56, 0.26, 0.9] },
 ];
 
 export default function RowExpand({ params }: { params: ParamValues }) {

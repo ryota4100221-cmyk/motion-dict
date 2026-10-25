@@ -86,13 +86,13 @@
   width: 148px;
 }
 
-/* 商品写真(/demo/photo-02.jpg)。正方形の枠にcoverで切り抜く。分身(.flyerInner)も同じ写真 */
+/* 商品写真(/demo/photo-16.jpg)。正方形の枠にcoverで切り抜く。分身(.flyerInner)も同じ写真 */
 .thumb {
   display: block;
   width: 84px;
   height: 84px;
   border-radius: 2px;
-  background: var(--sumi) url("/motion-dict/demo/photo-02.jpg") center / cover;
+  background: var(--sumi) url("/motion-dict/demo/photo-16.jpg") center / cover;
 }
 
 .name {
@@ -157,7 +157,7 @@
   width: 100%;
   height: 100%;
   border-radius: 2px;
-  background: var(--sumi) url("/motion-dict/demo/photo-02.jpg") center / cover;
+  background: var(--sumi) url("/motion-dict/demo/photo-16.jpg") center / cover;
   animation-name: flyShrink;
   animation-timing-function: cubic-bezier(0.5, 0, 0.75, 1);
   animation-fill-mode: forwards;

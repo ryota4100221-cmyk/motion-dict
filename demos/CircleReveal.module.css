@@ -15,14 +15,14 @@
   align-items: center;
   justify-content: center;
   background-color: var(--code-bg);
-  background-image: url("/motion-dict/demo/photo-01.jpg");
+  background-image: url("/motion-dict/demo/photo-08.jpg");
   background-size: cover;
   background-position: center;
 }
 
-/* 写真(A=photo-01.jpg / B=photo-04.jpg) */
+/* 写真(A=photo-08.jpg / B=photo-11.jpg) */
 .faceB {
-  background-image: url("/motion-dict/demo/photo-04.jpg");
+  background-image: url("/motion-dict/demo/photo-11.jpg");
 }
 
 /* 次ページのレイヤー。静止時はcircle(0%)で完全に隠れている */

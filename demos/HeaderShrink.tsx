@@ -71,12 +71,12 @@ export default function HeaderShrink({ params }: { params: ParamValues }) {
       <div className={styles.scroller} ref={scrollerRef}>
         <header className={styles.header} style={headerStyle}>
           <span className={styles.logo} style={logoStyle}>
-            Monaka
+            Motion dict
           </span>
           <nav className={styles.nav}>
-            <span>Work</span>
-            <span>About</span>
-            <span>Contact</span>
+            <span>Index</span>
+            <span>Glossary</span>
+            <span>Colophon</span>
           </nav>
         </header>
         <div className={styles.content}>

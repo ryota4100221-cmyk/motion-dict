@@ -74,7 +74,7 @@ export default function GrainOverlay({ params }: { params: ParamValues }) {
         onTouchStart={() => setOff((v) => !v)}
       >
         <div className={styles.frame}>
-          <span className={styles.title}>Night drive</span>
+          <span className={styles.title}>Proof sheet</span>
           <div
             ref={grainRef}
             className={styles.grain}

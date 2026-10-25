@@ -95,7 +95,7 @@ export default function GradientWipe({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="自動でループ再生 / Switch: 手動で切り替え(タップも可)">
-      <div className={styles.frame}>
+      <div data-md-bleed="" className={styles.frame}>
         <div className={`${styles.layer} ${styles.imgB}`}>
           <span className={`${styles.tag} ${styles.tagB}`}>02</span>
         </div>

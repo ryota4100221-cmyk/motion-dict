@@ -99,7 +99,7 @@ export default function MosaicReveal({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="クリック / タップ: リプレイ">
-      <figure className={styles.card} onClick={play}>
+      <figure data-md-bleed="" className={styles.card} onClick={play}>
         <div className={styles.frame}>
           <div className={styles.img} />
           <div

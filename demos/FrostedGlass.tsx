@@ -41,7 +41,7 @@ export default function FrostedGlass({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="PC: 画像にホバー / スマホ: タップ">
-      <figure
+      <figure data-md-bleed=""
         className={styles.frame}
         style={stageStyle}
         onMouseEnter={() => setShown(true)}
@@ -49,7 +49,7 @@ export default function FrostedGlass({ params }: { params: ParamValues }) {
         onTouchStart={() => setShown((s) => !s)}
       >
         <img
-          src="/motion-dict/demo/photo-03.jpg"
+          src="/motion-dict/demo/photo-01.jpg"
           alt=""
           draggable={false}
           className={styles.img}

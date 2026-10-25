@@ -32,7 +32,7 @@ export default function ImageZoomHover({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="PC: カードにホバー / スマホ: タップ">
-      <figure
+      <figure data-md-bleed=""
         className={styles.card}
         onMouseEnter={() => setZoomed(true)}
         onMouseLeave={() => setZoomed(false)}
@@ -40,7 +40,7 @@ export default function ImageZoomHover({ params }: { params: ParamValues }) {
       >
         <div className={styles.frame}>
           <img
-            src="/motion-dict/demo/photo-01.jpg"
+            src="/motion-dict/demo/photo-06.jpg"
             alt=""
             draggable={false}
             className={styles.img}
@@ -48,7 +48,7 @@ export default function ImageZoomHover({ params }: { params: ParamValues }) {
           />
         </div>
         <figcaption className={styles.caption}>
-          Fig.01 — gradient study
+          Fig.01 — zoom study
         </figcaption>
       </figure>
     </DemoStage>

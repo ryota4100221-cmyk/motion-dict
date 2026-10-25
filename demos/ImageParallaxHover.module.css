@@ -13,12 +13,12 @@
   overflow: clip;
 }
 
-/* 写真(/demo/photo-01.jpg)。
+/* 写真(/demo/photo-13.jpg)。
    最大シフト量(28px)より広い32pxのブリードを敷いておく */
 .img {
   position: absolute;
   inset: -32px;
-  background-image: url("/motion-dict/demo/photo-01.jpg");
+  background-image: url("/motion-dict/demo/photo-13.jpg");
   background-size: cover;
   background-position: center;
   transform: translate(0, 0);

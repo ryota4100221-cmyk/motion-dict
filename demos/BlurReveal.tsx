@@ -5,7 +5,7 @@ import DemoStage from "@/components/motion/DemoStage";
 import type { ParamValues } from "@/lib/types";
 import styles from "./BlurReveal.module.css";
 
-const TEXT = "Reverie";
+const TEXT = "Clarity";
 
 // transitionのリセットを確定させるため、reflowを強制する
 function forceReflow(el: HTMLElement) {

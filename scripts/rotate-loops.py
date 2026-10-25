@@ -19,5 +19,8 @@ for s in slugs:
         meta["rotatedFrom"] = at
     meta["posterAt"] = 0
     json.dump(meta, open(mp, "w"))
-    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", v, "-frames:v", "1", "-q:v", "3", os.path.join(ROOT, "posters", f"{s}.jpg")], check=True)
+    # r7（2026-10-25）：録画 v2 がカーソル無しの2本目から撮ったポスター（posterClean）は上書きしない。
+    # 動画の1コマ目には擬似カーソルが写っているため、ここで作り直すと白丸が焼き込まれる。
+    if not meta.get("posterClean"):
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", v, "-frames:v", "1", "-q:v", "3", os.path.join(ROOT, "posters", f"{s}.jpg")], check=True)
 print("rotated", len(slugs))

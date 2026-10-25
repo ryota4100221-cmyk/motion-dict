@@ -41,7 +41,7 @@ export default function Crossfade({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="Switch: 画像を切り替え">
-      <div className={styles.frame}>
+      <div data-md-bleed="" className={styles.frame}>
         <div className={`${styles.layer} ${styles.imgA}`} style={layerStyle(0)}>
           <span className={styles.tag}>01</span>
         </div>

@@ -90,12 +90,12 @@ export default function ShutterTransition({ params }: { params: ParamValues }) {
 
   return (
     <DemoStage hint="Play: ページ遷移を再生">
-      <div className={styles.pageFrame}>
+      <div data-md-bleed="" className={styles.pageFrame}>
         <div
           className={page === "B" ? `${styles.face} ${styles.faceB}` : styles.face}
         >
           <span className={page === "B" ? styles.labelB : styles.label}>
-            Page {page}
+            Folio {page}
           </span>
         </div>
         <div
@@ -118,7 +118,7 @@ export default function ShutterTransition({ params }: { params: ParamValues }) {
         </div>
         <div className={styles.nextLabel} style={nextLabelStyle} aria-hidden>
           <span className={next === "B" ? styles.labelB : styles.label}>
-            Page {next}
+            Folio {next}
           </span>
         </div>
       </div>

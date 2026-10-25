@@ -87,11 +87,11 @@ export default function HeaderHideOnScroll({ params }: { params: ParamValues }) 
     <DemoStage hint="ステージ内を下へ、そして上へスクロール" className={styles.scrollStage}>
       <div className={styles.scroller} ref={scrollerRef}>
         <header className={styles.header} style={headerStyle}>
-          <span className={styles.logo}>Monaka</span>
+          <span className={styles.logo}>Motion dict</span>
           <nav className={styles.nav}>
-            <span>Work</span>
-            <span>About</span>
-            <span>Contact</span>
+            <span>Index</span>
+            <span>Glossary</span>
+            <span>Colophon</span>
           </nav>
         </header>
         <div className={styles.content}>

@@ -38,7 +38,7 @@ const SPARKS = [
   { left: 62, dx: 3 },
 ];
 
-const ROWS = ["Trending now", "Hot deals", "12-day streak"];
+const ROWS = ["Trending now", "Most read", "12-day streak"];
 
 // 無操作が続いたら、上から順に1つずつ自動で燃やす(ms)
 const IDLE_AFTER = 1800;
