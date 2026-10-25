@@ -1,0 +1,218 @@
+--- base.tsx	2026-10-25 11:34:28
++++ proposed.tsx	2026-10-25 11:39:05
+@@ -7,7 +7,7 @@
+     type CSSProperties,
+     type ReactNode,
+ } from "react"
+-import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
++import { addPropertyControls, ControlType, useIsStaticRenderer, useRouter } from "framer"
+ 
+ // 一覧 v2（2026-10-24）
+ // 旧版からの変更（独立レビュー3本の指摘を反映）:
+@@ -562,6 +562,12 @@
+     } = props
+ 
+     const isStatic = useIsStaticRenderer()
++    // カード→詳細を Framer のルーターで移るため、ルーターを遷移の関数（morphAndGo）へ渡しておく
++    const router = useRouter()
++    useEffect(() => {
++        ROUTER = router
++        return () => { if (ROUTER === router) ROUTER = null }
++    }, [router])
+     const [entries, setEntries] = useState<Entry[]>([])
+     const [query, setQuery] = useState("")
+     const [activeCat, setActiveCat] = useState<string>("all")
+@@ -1455,7 +1461,15 @@
+ // 着地後にデモ枠が組み替わるのが見えた（レビュー指摘）＝一覧と詳細が別のサイトに見える。
+ //
+ // やること：カードの絵（ポスター／再生中なら今のコマ）を fixed の板に載せ、
+-// 「詳細ページのデモ枠が出る位置」まで伸ばす。同時に背景を生成りで覆う。伸び切ったら location.assign。
++// 「詳細ページのデモ枠が出る位置」まで伸ばす。同時に背景を生成りで覆う。
++//
++// 2026-10-25（Awwwards 3周目）：location.assign（文書ごと読み直し）をやめ、Framer のルーターで移る。
++//   実測（公開中の複製・ken-burns）：location.assign だと、地が満ちてから新しい文書が描かれるまで約450ms、
++//   生成りの地に板だけが浮いた「何もない画面」が続いていた（レビューの「白画面約0.5秒」）。
++//   コードコンポーネントの素の <a> は Framer のルーターを通らない（click() し直しても文書ごと読み直す・実測）。
++//   useRouter().navigate(routeId, hash, pathVariables) なら文書が切り替わらず、板も body に残る。
++//   板は詳細側（EntryLab）が「デモ枠のポスターが描けた」ところで外す（CMS のポスターは一覧と別URL＝未キャッシュで、
++//   旧版は着地後しばらくデモ枠が真っ黒だった）。ルーターが無い（取れない）ときは従来どおり location.assign。
+ // ブラウザの paint holding で最後のコマ（＝デモ枠の位置にあるポスター）が残り、
+ // 詳細ページは SSR でデモ枠にポスターを描く（EntryLab の posterImage）ので、絵が途切れずにつながる。
+ //
+@@ -1478,56 +1492,90 @@
+ const DEMO_Y_KEY = "md-demo-y" // { [slug]: { bp, vw, y } } … 詳細側が書く実測の縦位置
+ 
+ type Rect = { x: number; y: number; w: number; h: number }
++
++// Framer のルーター（MotionDictionaryV2 が useRouter() で取って置く）
++let ROUTER: any = null
++// ルーターを使うときは、板が伸びている途中で移り始める（詳細ページを地の下で先に描かせ、ポスターの読み込みを前に出す）
++const NAV_AT = 180 // ms
+ 
++/** "/entries/ken-burns" → { id: 詳細ページの routeId, vars: { <変数名>: "ken-burns" } }（routes の path は "/entries/:xxxx"） */
++function matchRoute(routes: any, pathname: string): { id: string; vars: Record<string, string> } | null {
++    if (!routes || typeof routes !== "object") return null
++    const segs = pathname.replace(/\/+$/, "").split("/")
++    for (const id of Object.keys(routes)) {
++        const path = routes[id] && routes[id].path
++        if (typeof path !== "string") continue
++        const ps = path.replace(/\/+$/, "").split("/")
++        if (ps.length !== segs.length) continue
++        const vars: Record<string, string> = {}
++        let ok = true
++        for (let i = 0; i < ps.length; i++) {
++            if (ps[i].startsWith(":")) vars[ps[i].slice(1)] = decodeURIComponent(segs[i])
++            else if (ps[i] !== segs[i]) { ok = false; break }
++        }
++        if (ok && Object.keys(vars).length) return { id, vars }
++    }
++    return null
++}
++// 板と地を外す（受け側が外さなかったときの保険）
++function clearLayers() {
++    document.querySelectorAll<HTMLElement>(".md-morph-layer").forEach((n) => {
++        const a = n.animate([{ opacity: getComputedStyle(n).opacity }, { opacity: 0 }], { duration: 200, fill: "forwards" })
++        a.finished.then(() => n.remove(), () => n.remove())
++    })
++}
++
+ function breakpoint(vw: number): "d" | "t" | "p" {
+     return vw >= 1200 ? "d" : vw >= 810 ? "t" : "p"
+ }
+ 
+-// 縦位置の実測表（2026-10-25・本番相当プレビュー・195件）。"slug:PC.SP" で、値は y-400（整数px）。
++// 縦位置の表（2026-10-25 3周目で更新）。"slug:PC.SP" で、値は y-400（整数px）。
++//   PC＝公開中の複製（1440幅・195件）の実測から、説明文を2行（14px・行間170%）にした分を引いた予測値。
++//     説明文の組みを Framer で変えて公開した後、measure_all で取り直して差し替える（受け側 EntryLab が着地時に数pxのずれは寄せる）
++//   SP＝公開中の複製（390幅）の実測。
++//   ※タブレット（810〜1199）は説明文の組みが PC と別になったので、下の「PC から -8」は数十pxずれうる（受け側が寄せる）
+ //   PC = 1440幅（1200以上はどの幅でも同じ値になる＝見出しの欄が固定幅）／SP = 390幅
+ //   タブレット（810〜1199）は PC から -8（12件で実測：-8が10件、-4.6/-2.7が各1件）
+ // 作り直し：/Users/shitoryota/projects/motion-dict-v2-blind/aww/r1/morph/measure_all.cjs → ytable.txt
+ const Y_TABLE =
+-    "underline-reveal:72.75 text-scramble:72.70 spotlight-hover:72.70 fill-hover:72.80 lift-hover:72.96 " +
+-    "directional-hover:101.117 focus-dim:72.70 custom-cursor:72.70 border-draw:72.87 magnetic-hover:72.70 " +
+-    "image-trail:101.80 text-slide-swap:98.67 glitch-hover:101.87 hover-wave:72.87 hover-preview:101.110 " +
+-    "tilt:122.162 image-swap-hover:101.104 mouse-parallax:72.75 row-expand:101.126 shadow-pop:101.138 " +
+-    "letter-spacing-hover:101.131 arrow-slide-through:101.108 holo-sheen:152.202 line-boil:152.213 " +
+-    "xray-lens:152.238 flame-flicker:152.217 perspective-reveal:98.67 scroll-fade-in:98.97 parallax:72.96 " +
+-    "dock-magnify:101.104 scroll-progress:72.75 text-highlight:72.70 velocity-skew:72.96 scroll-scrub:101.104 " +
+-    "text-on-path:101.117 sticky-pin:72.80 horizontal-scroll:68.88 section-color-swap:101.121 scroll-snap:101.104 " +
+-    "stacking-cards:72.75 cube-roll:101.146 header-shrink:72.75 smooth-scroll:101.87 scroll-zoom:72.80 " +
+-    "header-hide-on-scroll:72.101 header-invert:101.117 scroll-spy:72.80 footer-reveal:101.80 rubber-band:101.117 " +
+-    "split-text-reveal:72.70 progressive-blur:152.133 block-reveal:101.110 typewriter:72.87 blur-reveal:72.87 " +
+-    "scroll-marquee:98.117 word-rotate:72.70 outline-fill:72.75 gradient-shine:98.97 number-roll:101.117 " +
+-    "wave-text:72.87 tracking-in:101.96 marquee:72.96 color-wave:101.87 text-flip:72.80 counter:101.87 " +
+-    "split-flap:101.104 opening-crawl:101.91 rotating-badge:72.110 marker-line:101.117 sliced-text:122.114 " +
+-    "crossfade:101.117 curtain-wipe:101.146 cover-transition:101.100 gradient-wipe:101.130 gradient-morph:101.150 " +
+-    "circle-reveal:101.110 crt-power-off:152.202 menu-reveal:101.110 weight-morph:101.138 shutter-transition:98.97 " +
+-    "zoom-through:101.155 split-screen:72.87 shared-element:101.169 image-zoom-hover:101.110 counter-scale:101.125 " +
+-    "ken-burns:101.126 duotone-hover:101.104 blur-load:101.126 rack-focus:101.139 mosaic-reveal:101.110 " +
+-    "quadtree-reveal:98.147 before-after:101.110 clip-reveal:101.110 lightbox:101.117 carousel:101.139 " +
+-    "cover-flow:152.187 drag-scroll:98.117 card-shuffle:101.110 image-parallax-hover:98.97 logo-marquee:101.126 " +
+-    "marching-ants:101.160 barber-pole:152.173 grain-overlay:101.110 blob-morph:101.126 corner-brackets:152.158 " +
+-    "scanlines:101.146 god-rays:101.139 fog-drift:101.176 moire-drift:101.146 line-draw:101.140 twinkle:152.187 " +
+-    "snowfall:152.173 liquid-distortion:152.183 ascii-effect:101.100 halftone:101.126 frosted-glass:101.70 " +
+-    "gradient-border:98.97 animated-beam:152.238 sprite-sheet:101.147 notched-corner:152.173 tab-indicator:101.104 " +
+-    "stepper:101.110 gooey-effect:101.110 story-progress:101.121 dot-pagination:147.180 radial-carousel:72.96 " +
+-    "dither-dissolve:152.164 bounce-in:101.126 modal-pop:101.117 squash-stretch:98.117 spring-easing:72.91 " +
+-    "drawer-slide:101.110 accordion:101.146 pill-expand:72.112 ruler-scrubber:131.176 toggle-switch:101.117 " +
+-    "checkbox-check:175.153 star-rating:152.213 bar-chart-grow:101.167 equalizer-bars:131.140 ripple-tap:101.141 " +
+-    "theme-toggle-transition:98.147 tooltip-pop:101.75 gauge-meter:181.202 press-feedback:101.100 " +
+-    "toast-slide:101.126 stamp-in:101.126 stateful-button:152.183 copy-to-clipboard:176.210 like-burst:152.188 " +
+-    "prize-wheel:152.187 scratch-card:152.194 floating-reactions:224.151 gift-box-reveal:181.183 " +
+-    "fly-to-cart:101.140 drop-zone:101.117 paper-crumple:152.194 swipe-dismiss:152.158 chat-sequence:181.218 " +
+-    "list-add-remove:147.180 confetti-burst:101.117 sticker-peel:152.194 flip-card:101.117 floating-label:101.100 " +
+-    "password-strength:176.210 dropdown-reveal:98.126 expanding-search:101.160 morphing-dropdown:175.162 " +
+-    "ai-orb:181.268 menu-toggle:101.167 error-shake:101.146 gesture-hint:152.158 page-turn:101.176 " +
+-    "scroll-cue:152.194 breathing-glow:152.217 hint-nudge:72.96 pulse-ring:72.96 ambient-float:72.91 " +
+-    "eye-blink:152.192 orbit:152.238 pendulum-swing:152.173 flicker-on:101.167 dvd-bounce:101.146 " +
+-    "conic-sweep:101.126 motion-path:152.152 preloader-counter:98.97 loading-bar:101.80 spinner-ring:72.87 " +
+-    "dots-pulse:72.96 circular-progress:101.104 skeleton-shimmer:101.110 spiral-reveal:152.138 liquid-fill:101.117 " +
+-    "boot-sequence:131.169 stagger-grid:101.126"
++    "underline-reveal:61.75 text-scramble:61.70 spotlight-hover:61.70 fill-hover:61.80 lift-hover:61.96 " +
++    "directional-hover:60.117 focus-dim:61.70 custom-cursor:61.70 border-draw:61.87 magnetic-hover:61.70 " +
++    "image-trail:60.80 text-slide-swap:57.67 glitch-hover:60.87 hover-wave:61.87 hover-preview:60.110 tilt:111.162 " +
++    "image-swap-hover:60.104 mouse-parallax:61.75 row-expand:60.126 shadow-pop:60.138 letter-spacing-hover:60.131 " +
++    "arrow-slide-through:60.108 holo-sheen:111.202 line-boil:111.213 xray-lens:111.238 flame-flicker:111.217 " +
++    "perspective-reveal:57.67 scroll-fade-in:57.97 parallax:61.96 dock-magnify:60.104 scroll-progress:61.75 " +
++    "text-highlight:61.70 velocity-skew:61.96 scroll-scrub:60.104 text-on-path:60.117 sticky-pin:61.80 " +
++    "horizontal-scroll:57.88 section-color-swap:60.121 scroll-snap:60.104 stacking-cards:61.75 cube-roll:60.146 " +
++    "header-shrink:61.75 smooth-scroll:60.87 scroll-zoom:61.80 header-hide-on-scroll:61.101 header-invert:60.117 " +
++    "scroll-spy:61.80 footer-reveal:60.80 rubber-band:60.117 split-text-reveal:61.70 progressive-blur:111.133 " +
++    "block-reveal:60.110 typewriter:61.87 blur-reveal:61.87 scroll-marquee:57.117 word-rotate:61.70 " +
++    "outline-fill:60.75 gradient-shine:57.97 number-roll:60.117 wave-text:61.87 tracking-in:60.96 marquee:61.96 " +
++    "color-wave:60.87 text-flip:61.80 counter:60.87 split-flap:60.104 opening-crawl:60.91 rotating-badge:61.110 " +
++    "marker-line:60.117 sliced-text:111.114 crossfade:60.117 curtain-wipe:60.146 cover-transition:60.100 " +
++    "gradient-wipe:60.130 gradient-morph:60.150 circle-reveal:60.110 crt-power-off:111.202 menu-reveal:60.110 " +
++    "weight-morph:60.138 shutter-transition:57.97 zoom-through:60.155 split-screen:61.87 shared-element:60.169 " +
++    "image-zoom-hover:60.110 counter-scale:60.125 ken-burns:60.126 duotone-hover:60.104 blur-load:60.126 " +
++    "rack-focus:60.139 mosaic-reveal:60.110 quadtree-reveal:57.147 before-after:60.110 clip-reveal:60.110 " +
++    "lightbox:60.117 carousel:60.139 cover-flow:111.187 drag-scroll:57.117 card-shuffle:60.110 " +
++    "image-parallax-hover:57.97 logo-marquee:60.126 marching-ants:60.160 barber-pole:111.173 grain-overlay:60.110 " +
++    "blob-morph:60.126 corner-brackets:111.158 scanlines:60.146 god-rays:60.139 fog-drift:60.176 moire-drift:60.146 " +
++    "line-draw:60.140 twinkle:111.187 snowfall:111.173 liquid-distortion:111.183 ascii-effect:60.100 halftone:60.126 " +
++    "frosted-glass:60.70 gradient-border:57.97 animated-beam:111.238 sprite-sheet:60.147 notched-corner:111.173 " +
++    "tab-indicator:60.104 stepper:60.110 gooey-effect:60.110 story-progress:60.121 dot-pagination:106.180 " +
++    "radial-carousel:61.96 dither-dissolve:111.164 bounce-in:60.126 modal-pop:60.117 squash-stretch:57.117 " +
++    "spring-easing:61.91 drawer-slide:60.110 accordion:60.146 pill-expand:61.112 ruler-scrubber:61.176 " +
++    "toggle-switch:60.117 checkbox-check:134.153 star-rating:111.213 bar-chart-grow:60.167 equalizer-bars:61.140 " +
++    "ripple-tap:60.141 theme-toggle-transition:57.147 tooltip-pop:60.75 gauge-meter:111.202 press-feedback:60.100 " +
++    "toast-slide:60.126 stamp-in:60.126 stateful-button:111.183 copy-to-clipboard:106.210 like-burst:111.188 " +
++    "prize-wheel:111.187 scratch-card:111.194 floating-reactions:106.151 gift-box-reveal:111.183 fly-to-cart:60.140 " +
++    "drop-zone:60.117 paper-crumple:111.194 swipe-dismiss:111.158 chat-sequence:111.218 list-add-remove:106.180 " +
++    "confetti-burst:60.117 sticker-peel:111.194 flip-card:60.117 floating-label:60.100 password-strength:106.210 " +
++    "dropdown-reveal:57.100 expanding-search:60.160 morphing-dropdown:134.136 ai-orb:111.268 menu-toggle:61.141 " +
++    "error-shake:60.120 gesture-hint:111.158 page-turn:60.176 scroll-cue:111.194 breathing-glow:111.217 " +
++    "hint-nudge:61.96 pulse-ring:61.96 ambient-float:61.91 eye-blink:111.192 orbit:111.238 pendulum-swing:111.173 " +
++    "flicker-on:60.167 dvd-bounce:60.146 conic-sweep:60.126 motion-path:111.152 preloader-counter:57.97 " +
++    "loading-bar:60.80 spinner-ring:61.87 dots-pulse:61.96 circular-progress:60.104 skeleton-shimmer:60.110 " +
++    "spiral-reveal:111.138 liquid-fill:60.117 boot-sequence:61.169 stagger-grid:60.126"
+ let yMap: Record<string, [number, number]> | null = null
+ function measuredY(slug: string): [number, number] | null {
+     if (!yMap) {
+@@ -1542,7 +1590,7 @@
+ 
+ // 表に無い項目（新しく足した項目）の縦位置＝中央値。[言い換えなし, 言い換えあり]
+ const Y_MEDIAN: Record<"d" | "t" | "p", [number, number]> = {
+-    d: [501, 552],
++    d: [460, 511],
+     t: [493, 544],
+     p: [510, 588],
+ }
+@@ -1661,20 +1709,32 @@
+     const fade = veil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: DUR * 0.6, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" })
+ 
+     let gone = false
++    const R = ROUTER
++    const hit = R && typeof R.navigate === "function" ? matchRoute(R.routes, url.pathname) : null
+     const go = () => {
+         if (gone) return
+         gone = true
++        if (hit) {
++            try {
++                const p = R.navigate(hit.id, url.hash ? url.hash.slice(1) : undefined, hit.vars)
++                // 板は EntryLab が外す（ポスターが描けた時）。4秒たっても残っていたら外す
++                setTimeout(clearLayers, 4000)
++                Promise.resolve(p).catch(() => window.location.assign(url.href))
++                return
++            } catch {}
++        }
+         window.location.assign(url.href)
+     }
+-    // 着地の読み込みを少しでも前に出す：伸び始めと同時に次のページの HTML を取りに行く
+-    try {
++    // 着地の読み込みを少しでも前に出す：伸び始めと同時に次のページの HTML を取りに行く（ルーターで移るときは不要）
++    if (!hit) try {
+         const l = document.createElement("link")
+         l.rel = "prefetch"
+         l.href = url.href
+         document.head.appendChild(l)
+     } catch {}
+     void fade
+-    setTimeout(go, DUR + 16)
++    // ルーター：伸びている途中で移る（板は残る）／location.assign：伸び切ってから（paint holding で最後のコマを残す）
++    setTimeout(go, hit ? NAV_AT : DUR + 16)
+ }
+ 
+ 

@@ -676,12 +676,15 @@ export function HeroConsole(props: ConsoleProps) {
             ) : null}
 
             {/* 項目名と詳細へのリンク */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", padding: `14px ${pad}px 16px`, borderTop: `1px solid ${line}` }}>
-                <span style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0 }}>
+            {/* SP：リンクを左に置く（右下の Made in Framer バッジ 約150×40・右下12px に隠れていた＝独立レビュー3周目） */}
+            <div style={{ display: "flex", flexDirection: narrow ? "column" : "row", alignItems: narrow ? "flex-start" : "center", justifyContent: "space-between", gap: narrow ? 6 : 16, flexWrap: "wrap", padding: `14px ${pad}px ${narrow ? 10 : 16}px`, borderTop: `1px solid ${line}` }}>
+                <span style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0, maxWidth: "100%" }}>
                     <span style={{ fontSize: 15, fontWeight: 700, whiteSpace: "nowrap" }}>{w.nameJa}</span>
                     <span style={{ fontFamily: MONO, fontSize: 12, color: dim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.nameEn}</span>
                 </span>
-                <a className="mdh-link" href={`/entries/${w.slug}`} style={{ fontSize: 13 }}>この項目を開く →</a>
+                <a className="mdh-link" href={`/entries/${w.slug}`} style={narrow ? { fontSize: 13, display: "inline-flex", alignItems: "center", height: 44, borderBottom: 0, padding: 0 } : { fontSize: 13 }}>
+                    <span style={narrow ? { borderBottom: `1px solid ${accent}`, paddingBottom: 2 } : undefined}>この項目を開く →</span>
+                </a>
             </div>
         </div>
     )

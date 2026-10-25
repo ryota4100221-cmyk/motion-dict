@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react"
 import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 
 // 詳細ページの見出し（h1）。CMS の Name JA / Name EN / Slug / Params JSON をバインドして使う（SSRで本文に出る）。
@@ -23,6 +23,15 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 //  ・最後は必ず素の h1 に戻る（演技は transform / opacity / clip-path と、レイアウトに触れない塗りだけ）
 //  ・SSR とクライアント初回は同じ HTML（文字の分割は正規表現と Array.from だけ。Intl.Segmenter は使わない）
 //  ・reduced-motion では演じない。画面外では動かさない
+//
+// 2026-10-25（Awwwards 3周目）
+//  ・右上のラベル：slug が決まるまで名前を出さない（SSR は場所だけ）。URL からは paint 前に取る。
+//    旧版は SSR に slug が無く「分割テキストリビール」と描いてから正しい名前に変わっていた（196件中195件）
+//  ・着地の開始：ページ全体の書体（Noto Sans JP 全体 約2.2MB）を待たず、見出し語の字だけの切り出し（数KB・SSR で preload）を待つ。
+//    値の定義が届く前に空の値で演じて、届いた後にもう一度演じていたのも直した（着地は slug ごとに1回）
+//  ・着地の1回目だけ実演値（秒は最長1.6秒・ken-burns の倍率は2倍）。ラベルの数値は本来の値のまま
+//  ・カードから来た時は、生成りの地が溶け始めてから演じる（地の下で演じ終わっていた）
+//  ・scratch-card：斜めのジグザグで削って三角の膜が残っていた → 行ごとに横へ削り、しきい値で残りを消す
 
 interface Param {
     key: string
@@ -129,6 +138,95 @@ function slugFromLocation(): string {
     if (typeof window === "undefined") return ""
     const m = window.location.pathname.match(/\/entries\/([^/?#]+)/)
     return m ? decodeURIComponent(m[1]) : ""
+}
+// クライアントでは描画の前（paint 前）に走る effect。サーバーでは useEffect（警告を出さない）
+const useIsoLayout = typeof window !== "undefined" ? useLayoutEffect : useEffect
+
+// ── 見出し語の書体（2026-10-25 Awwwards 3周目）──
+// 公開サイトの Noto Sans JP は全グリフ入りの1ファイル（700・約2.2MB）で、初回は読み込みに約2.3秒かかる（実測）。
+// 旧版は document.fonts.ready を待ってから演じたので、着地の演技が見出しの表示から約2秒遅れていた。
+// 見出し語の字だけを Google Fonts の text= で切り出し（数KB）、別名 "mdt-head" で登録する。字形は同じ Noto Sans JP 700
+// ＝後から全体の書体が届いても見た目は変わらない。全体の書体が既に読めている時（一覧から来た時）は取りに行かない
+const HEAD_FAM = "mdt-head"
+const headFonts = new Map<string, Promise<void>>()
+function fullJpLoaded(): boolean {
+    try {
+        let ok = false
+        ;(document as any).fonts.forEach((f: FontFace) => {
+            if (f.family.replace(/["']/g, "") === "Noto Sans JP" && String(f.weight) === "700" && f.status === "loaded") ok = true
+        })
+        return ok
+    } catch {
+        return false
+    }
+}
+// 切り出しの CSS の URL。SSR でも同じ文字列になる（Set の並びは挿入順・sort は符号順＝環境で変わらない）＝SSR で preload できる
+// 空白（U+20）を必ず入れる：ブラウザは「空白を持つ最初の書体」を要素の主書体とみなし、主書体が読み込み待ち（block）だと
+// 字を持っている書体があっても文字列ごと透明にする（Chrome で実測。空白抜きだと全体の書体が届くまで見出しが消えていた）
+function headCssUrl(text: string): string {
+    const chars = Array.from(new Set(Array.from(" " + text.replace(/\s+/g, "")))).sort().join("")
+    return chars.trim() ? `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&text=${encodeURIComponent(chars)}&display=block` : ""
+}
+function loadHeadFont(text: string): Promise<void> {
+    if (typeof window === "undefined" || typeof FontFace === "undefined" || !(document as any).fonts) return Promise.resolve()
+    const url = headCssUrl(text)
+    if (!url) return Promise.resolve()
+    let p = headFonts.get(url)
+    if (!p) {
+        // SSR の <link rel=preload as=fetch> と同じ要求（cors・credentials same-origin）＝読み込み済みを使い回す
+        p = fetch(url)
+            .then((r) => (r.ok ? r.text() : ""))
+            .then((css) => {
+                const faces = css.match(/@font-face\s*\{[^}]*\}/g) || []
+                return Promise.all(
+                    faces.map((b) => {
+                        const u = b.match(/url\(([^)]+)\)/)
+                        if (!u) return null
+                        const ur = b.match(/unicode-range:\s*([^;]+);/)
+                        const ff = new FontFace(HEAD_FAM, `url(${u[1]}) format("woff2")`, { weight: "700", style: "normal", ...(ur ? { unicodeRange: ur[1].trim() } : {}) } as any)
+                        return ff.load().then((x) => { (document as any).fonts.add(x) })
+                    })
+                )
+            })
+            .then(() => {})
+            .catch(() => {})
+        headFonts.set(url, p)
+    }
+    return p
+}
+
+// ── 着地の1回目だけの「実演値」（2026-10-25 Awwwards 3周目）──
+// ken-burns（片道12秒・1.15倍）は、着地から3秒見ても見出しが動いて見えなかった（レビュー指摘）。
+// 着地の1回目だけ、秒の値を最長1.6秒に縮め、ken-burns 型の小さい倍率は見出しで見える量に広げて演じる。
+// スライダーを離した時・ホバー・タップは本来の値。右上の数値表示はずっと本来の値（実演値は表示しない）
+const DEMO_MAX_S = 1.6
+const DEMO_AMP: Record<string, (v: V) => V> = {
+    "ken-burns": (v) => ({ ...v, zoom: 1 + (v.zoom - 1) * 2, pan: v.pan * 1.5 }),
+}
+function demoValues(slug: string, params: Param[], v: V): V {
+    const o: V = { ...v }
+    for (const p of params) {
+        const u = unitOf(p.label)
+        const x = o[p.key]
+        if (typeof x !== "number" || p.options) continue
+        if (u === "s" && x > DEMO_MAX_S) o[p.key] = DEMO_MAX_S
+        else if (u === "ms" && x > DEMO_MAX_S * 1000) o[p.key] = DEMO_MAX_S * 1000
+    }
+    return DEMO_AMP[slug] ? DEMO_AMP[slug](o) : o
+}
+
+// カード→詳細の地（MotionDictionaryV2 の morphAndGo が body に置く .md-morph-layer のうち、絵を持たない全面の生成り）が
+// 消えるまで待つ。Framer のルーターで移ると地と板は文書をまたいで残り、EntryLab が板が伸び切った時に地を溶かす。
+// 地の下で演じても見えないので、地が溶け始める（EntryLab が data-leaving を付ける）か消えるまで待つ。
+// 溶け始めと同時に演じる＝見出しが素の姿で一度見えてから消えて現れ直す、という二度見えが出ない（板＝デモ枠の上の絵は見出しに重ならないので待たない）
+function morphLayersGone(maxMs: number): Promise<void> {
+    const veil = () => Array.from(document.querySelectorAll(".md-morph-layer")).some((n) => n.childElementCount === 0 && !n.hasAttribute("data-leaving"))
+    return new Promise((res) => {
+        if (typeof document === "undefined" || !veil()) return res()
+        const mo = new MutationObserver(() => { if (!veil()) { mo.disconnect(); clearTimeout(t); res() } })
+        mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-leaving"] })
+        const t = setTimeout(() => { mo.disconnect(); res() }, maxMs)
+    })
 }
 
 /* ================================================================== */
@@ -1753,39 +1851,48 @@ function likeBurst(c: Ctx, v: V) {
     return D
 }
 function scratch(c: Ctx, v: V) {
+    // 2026-10-25（3周目）：旧版は行の端どうしを斜めに結ぶジグザグで削っていたので、削り終わりに三角の膜が字の上に残り、
+    // 消えるまで約1秒「削り残し」に見えていた（レビュー指摘・SP）。行ごとに横へ往復して削り、
+    // しきい値に届いた瞬間から残りを fade 秒で消す（デモと同じ「打ち切りの閾値」）
     const B = pad(c.tb, c, 0.1)
     const { g } = overlayCanvas(c)
     g.fillStyle = c.muted
     g.fillRect(B.x, B.y, B.w, B.h)
     const br = K(c, v.brush, 32) * 0.5
-    const D = 1500
-    const fade = S(v.fade)
+    const D = 1300
+    const fade = Math.max(120, S(v.fade))
+    // 線の太さ（2br）より行の間隔を狭くして、行と行の間に膜が残らないようにする
+    const rows = Math.max(2, Math.ceil(B.h / (br * 1.7)))
     const pts: [number, number][] = []
-    const rows = Math.max(2, Math.ceil(B.h / (br * 1.3)))
-    for (let rI = 0; rI <= rows; rI++) {
-        const y = B.y + (B.h * rI) / rows
-        pts.push(rI % 2 ? [B.x + B.w, y] : [B.x, y])
+    for (let r = 0; r < rows; r++) {
+        const y = B.y + (B.h * (r + 0.5)) / rows
+        const L: [number, number] = [B.x - br * 0.3, y], Rt: [number, number] = [B.x + B.w + br * 0.3, y]
+        if (r % 2) pts.push(Rt, L)
+        else pts.push(L, Rt)
     }
+    const seg = pts.slice(1).map((p, i) => Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]))
+    const total = seg.reduce((x, y) => x + y, 0)
+    const goal = total * Math.min(1, v.threshold / 100)
     let done = false
     c.loop((t) => {
-        const k = Math.min(1, t / D) * (v.threshold / 100) * 1.25
+        let left = goal * Math.min(1, t / D)
         g.globalCompositeOperation = "destination-out"
         g.lineCap = "round"
+        g.lineJoin = "round"
         g.lineWidth = br * 2
         g.beginPath()
-        const seg = k * (pts.length - 1)
-        for (let i = 0; i < pts.length - 1 && i <= seg; i++) {
-            const f = Math.min(1, seg - i)
+        g.moveTo(pts[0][0], pts[0][1])
+        for (let i = 0; i < seg.length && left > 0; i++) {
+            const f = Math.min(1, left / seg[i])
             const [x0, y0] = pts[i], [x1, y1] = pts[i + 1]
-            g.moveTo(x0, y0)
             g.lineTo(x0 + (x1 - x0) * f, y0 + (y1 - y0) * f)
+            left -= seg[i]
         }
         g.stroke()
         g.globalCompositeOperation = "source-over"
         if (t >= D && !done) {
             done = true
-            const cv = g.canvas
-            c.a(cv, [{ opacity: 1 }, { opacity: 0 }], { duration: fade, fill: "forwards" })
+            c.a(g.canvas, [{ opacity: 1 }, { opacity: 0 }], { duration: fade, easing: "ease-out", fill: "forwards" })
         }
         return t < D + fade
     })
@@ -1998,6 +2105,9 @@ export default function EntryTitle(props: Props) {
     const raw = `clamp(30px, ${(98 / len).toFixed(2)}cqi, 72px)`
     const rawSub = `clamp(17px, ${((98 / len) * 0.36).toFixed(2)}cqi, 26px)`
     const cls = `mdt-${len}`
+    // 見出し語の書体の切り出しに入れる字（見出し語＋英名＝英名を見出しの字で出す演技がある＋数字）
+    const headText = main + " " + nameEn + "0123456789"
+    const headCss = headCssUrl(headText)
 
     const [slug, setSlug] = useState(props.slug || "")
     const [params, setParams] = useState<Param[]>(() => parseParams(props.paramsJson))
@@ -2008,10 +2118,13 @@ export default function EntryTitle(props: Props) {
     const valuesRef = useRef(values)
     valuesRef.current = values
 
-    useEffect(() => {
-        if (props.slug) return
+    // slug：バインドが無ければ URL から。描画の前（paint 前）に取る＝着地直後に別の項目名が一瞬出ない。
+    // 旧版は SSR の時点で slug が無く、対応表に無い扱い（C・テキスト章）で「分割テキストリビール」と描いてから正しい名前に変わっていた
+    useIsoLayout(() => {
+        if (props.slug) { if (props.slug !== slug) setSlug(props.slug); return }
         const s = slugFromLocation()
-        if (s) setSlug(s)
+        if (s && s !== slug) setSlug(s)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.slug])
 
     // 値の定義が無ければ項目JSONから（バインド忘れ・キャンバス）。カテゴリも取る（表に無い新項目＝C の章を決める）
@@ -2022,8 +2135,9 @@ export default function EntryTitle(props: Props) {
         fetch(`${base}/entry/${slug}.json`).then((r) => r.json()).then((d) => {
             if (!alive || !d) return
             if (d.category) setCat(d.category)
-            if (!params.length && Array.isArray(d.params)) {
-                setParams(d.params)
+            if (Array.isArray(d.params) && d.params.length) {
+                // 既に EntryLab から届いていれば差し替えない（配列が変わると演技の effect が張り直され、着地の演技が消えていた）
+                setParams((cur) => (cur.length ? cur : d.params))
                 setValues((cur) => ({ ...Object.fromEntries(d.params.map((p: Param) => [p.key, p.default])), ...cur }))
             }
         }).catch(() => {})
@@ -2032,11 +2146,14 @@ export default function EntryTitle(props: Props) {
     }, [slug, isStatic, base])
 
     const spec: Spec = SPEC[slug] || ["C", cat in CH ? cat : "text"]
+    // 演技の effect の張り直しの鍵。対応表にある項目は、章（cat）が後から届いても張り直さない
+    const specKey = SPEC[slug] ? slug : "C:" + (cat in CH ? cat : "text")
     const grade = spec[0]
     const chap = grade === "C" ? CH[spec[1] as string] || CH.text : null
 
     // ── 演技のエンジン（クライアントのみ） ──
     const playRef = useRef<(why: string) => void>(() => {})
+    const landedRef = useRef("")
     useEffect(() => {
         if (isStatic || typeof window === "undefined" || !slug) return
         const root = mainRef.current
@@ -2226,13 +2343,16 @@ export default function EntryTitle(props: Props) {
         }
 
         let lastC: Ctx | null = null
-        const run = (): R => {
+        let demoDone = false
+        const run = (why = ""): R => {
             const c = build()
             lastC = c
             if (chap) return chap.fn(c)
             const fn = spec[1]
             if (typeof fn !== "function") return CH.text.fn(c)
-            const v: V = { ...Object.fromEntries(params.map((p) => [p.key, p.default])), ...valuesRef.current }
+            let v: V = { ...Object.fromEntries(params.map((p) => [p.key, p.default])), ...valuesRef.current }
+            // 着地の1回目だけ実演値（秒を縮める・小さい倍率を広げる）。以降は本来の値
+            if (why === "land" && !demoDone) { demoDone = true; v = demoValues(slug, params, v) }
             return fn(c, v)
         }
 
@@ -2299,7 +2419,7 @@ export default function EntryTitle(props: Props) {
         const play = (why: string) => {
             if (reduced || !inView) return
             stop()
-            const res = run()
+            const res = run(why)
             if (!res) { stop(); return }
             if (typeof res === "number") {
                 busyUntil = performance.now() + res
@@ -2344,15 +2464,24 @@ export default function EntryTitle(props: Props) {
         }, { threshold: 0 })
         io.observe(hit)
 
-        // 着地：見出しが見えたら1回（カードから来たときは板が消えた直後＝少しだけ早く）
-        let landed = false
+        // 着地：見出しが見えたら1回。
+        // 旧版は document.fonts.ready（＝ページの全書体。Noto Sans JP 全体 約2.2MB×2）を待ってから 380ms 後に演じていたので、
+        // 見出しが見えてから約2秒遅れて始まっていた（公開中の複製で実測：fonts.ready 2329ms → 演技 2711ms）。
+        // 今は「見出し語の字の書体（切り出し・数KB）」だけを待つ（最長0.9秒）。カード→詳細の板が残っている間は、板が外れるまで待つ
+        // 値の定義（params）がまだ無い間は演じない（EntryLab の通知か項目JSONで届いた後、この effect がもう一度走って演じる）。
+        // 旧版はここで空の値のまま演じ、届いた後にもう一度演じていた（秒が NaN → 本来の値で2回目）。着地は slug ごとに1回だけ
+        let landed = landedRef.current === slug || (!chap && typeof spec[1] === "function" && !params.length)
+        const headP = loadHeadFont(headText)
+        const fontP = fullJpLoaded() ? Promise.resolve() : Promise.race([headP, new Promise<void>((r) => setTimeout(r, 900))])
         const go = new IntersectionObserver(([e]) => {
             if (!e.isIntersecting || landed) return
             landed = true
             go.disconnect()
-            const fonts = (document as any).fonts
-            ;(fonts && fonts.ready ? fonts.ready : Promise.resolve()).then(() => {
-                timers.push(window.setTimeout(() => { inView = true; play("land") }, ARRIVED ? 140 : 380))
+            Promise.all([fontP, morphLayersGone(3000)]).then(() => {
+                // 書体が差し替わった後の行組みを1コマ待ってから測る（2コマ）
+                // 「演じた」の記録は実際に演じた時に付ける（途中で effect が張り直されたら、次の回が演じる）
+                const r1 = requestAnimationFrame(() => { const r2 = requestAnimationFrame(() => { inView = true; landedRef.current = slug; play("land") }); rafs.push(r2) })
+                rafs.push(r1)
             })
         }, { threshold: 0.6 })
         go.observe(hit)
@@ -2426,7 +2555,7 @@ export default function EntryTitle(props: Props) {
             playRef.current = () => {}
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isStatic, slug, cat, nameJa, nameEn, ink, paper, muted, accent, params])
+    }, [isStatic, slug, specKey, nameJa, nameEn, ink, paper, muted, accent, params, headText])
 
     // EntryLab から：初期化（値の同期だけ）／スライダーを離した・初期値に戻した（その値で演じ直す）
     useEffect(() => {
@@ -2461,13 +2590,18 @@ export default function EntryTitle(props: Props) {
         <span key={i} className={"v" + (i ? " v2" : "")}>{(i ? "· " : "") + t}</span>
     ))
     const tagName = chap ? chap.ja : main
+    // 何の動きかが決まるまで（slug が無い SSR・対応表に無い項目で章が未取得）は、名前を出さずに場所だけ取っておく
+    const pending = !slug || (!SPEC[slug] && !cat)
 
     return (
         <div className="mdt" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14, color: ink, containerType: "inline-size", position: "relative", ...props.style } as CSSProperties}>
+            {/* 見出し語の字だけの書体（数KB）を、JS を待たずに取りに行かせる */}
+            {headCss ? <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /> : null}
+            {headCss ? <link rel="preload" as="fetch" href={headCss} crossOrigin="anonymous" /> : null}
             <style dangerouslySetInnerHTML={{ __html: `.${cls}{font-size:${raw};font-size:round(${raw},1px)}.${cls} .mdt-sub{font-size:${rawSub};font-size:round(${rawSub},1px)}
 .mdt-clip{overflow-x:clip;overflow-y:visible;margin:0 -64px;padding:0 64px}
 @container (max-width: 640px){.mdt-clip{margin:0 -12px;padding:0 12px}}
-.mdt-m{display:block;position:relative}
+.mdt-m{display:block;position:relative;font-family:"${HEAD_FAM}", ${JP}}
 .mdt-t{display:block}
 .mdt-stage .mdt-p,.mdt-stage .mdt-c{position:absolute;display:block;white-space:pre}
 .mdt-fx{position:absolute;pointer-events:none;display:block}
@@ -2523,7 +2657,12 @@ a.mdt-tag:focus-visible{outline:2px solid ${ink};outline-offset:2px}
             <p style={{ margin: 0, fontFamily: MONO, fontSize: 13, letterSpacing: "0.02em", lineHeight: 1.6, color: muted, overflowWrap: "anywhere" }}>
                 {sentence(nameEn)}
             </p>
-            {chap ? (
+            {pending ? (
+                <div className="mdt-tag" aria-hidden="true" style={{ visibility: "hidden" }}>
+                    <span className="k">この見出しの動き</span>
+                    <span className="ks">動き</span>
+                </div>
+            ) : chap ? (
                 <a className="mdt-tag" href={"/entries/" + chap.slug} title="この見出しの動き（章扉と同じ）">
                     <span className="k">この見出しの動き</span>
                     <span className="ks">動き</span>
@@ -2541,15 +2680,6 @@ a.mdt-tag:focus-visible{outline:2px solid ${ink};outline-offset:2px}
             )}
         </div>
     )
-}
-
-// 一覧カードから来たか（CardMorph が書く）。EntryLab が読んで消すので、描画の時点で先に覗いておく
-let ARRIVED = false
-if (typeof window !== "undefined") {
-    try {
-        const r = JSON.parse(sessionStorage.getItem("md-morph") || "null")
-        ARRIVED = !!r && Date.now() - r.t < 2000
-    } catch {}
 }
 
 addPropertyControls(EntryTitle, {

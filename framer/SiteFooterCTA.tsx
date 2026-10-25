@@ -56,6 +56,7 @@ export default function SiteFooterCTA(props: Props) {
 .mdf-sub:hover{border-color:${paper}}
 .mdf-cta:focus-visible,.mdf-sub:focus-visible{outline:2px solid ${accent};outline-offset:3px}
 .mdf-base{max-width:1680px;margin:0 auto;padding:20px clamp(16px,3.4cqi,40px) 28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid rgba(244,244,241,.14);font-family:${MONO};font-size:12px;letter-spacing:.04em;color:rgba(244,244,241,.55)}
+@media (min-width:640px){.mdf-base{padding-right:184px}}.mdf-base{padding-bottom:72px}
 .mdf-base a{color:inherit;text-decoration:none}.mdf-base a:hover{color:${paper}}
 @media (prefers-reduced-motion: reduce){.mdf-cta,.mdf-cta .ar{transition:none}}
 ` }} />

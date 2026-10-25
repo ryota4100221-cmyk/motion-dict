@@ -57,9 +57,31 @@ export default function EntryNav(props: Props) {
         const m = window.location.pathname.match(/\/entries\/([^/?#]+)/)
         if (!m) return
         let alive = true
-        fetch(`${base}/entry/${decodeURIComponent(m[1])}.json`)
+        const slug = decodeURIComponent(m[1])
+        fetch(`${base}/entry/${slug}.json`)
             .then((r) => r.json())
-            .then((j) => alive && startTransition(() => setD(j)))
+            .then(async (j) => {
+                // 「近い動き」が3件に満たない項目（196件中14件が2件）は、同じ章の項目で3件まで補う（3列目が空いていた）。
+                // 補うのは一覧の並びで自分の後ろから（前後の項目＝下の Prev/Next と重ならないもの）
+                const rel: Mini[] = Array.isArray(j.related) ? j.related : []
+                if (rel.length < 3) {
+                    try {
+                        const all: Mini[] = await fetch(`${base}/entries-v2.json`).then((r) => r.json())
+                        const me = all.find((e) => e.slug === slug)
+                        if (me) {
+                            const skip = new Set([slug, j.prev && j.prev.slug, j.next && j.next.slug, ...rel.map((r) => r.slug)])
+                            const same = all.filter((e) => e.category === me.category)
+                            const i = same.findIndex((e) => e.slug === slug)
+                            const order = same.slice(i + 1).concat(same.slice(0, i))
+                            for (const e of order) {
+                                if (rel.length >= 3) break
+                                if (!skip.has(e.slug)) rel.push({ slug: e.slug, nameJa: e.nameJa, nameEn: e.nameEn, category: e.category, poster: e.poster })
+                            }
+                        }
+                    } catch {}
+                }
+                if (alive) startTransition(() => setD({ ...j, related: rel }))
+            })
             .catch(() => {})
         const mq = window.matchMedia("(max-width: 640px)")
         const on = () => setNarrow(mq.matches)

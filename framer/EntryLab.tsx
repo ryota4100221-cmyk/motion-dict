@@ -31,6 +31,11 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 //    （見出しが演じ直す）。動かしている最中は演じさせない
 //  ・浮くバーは「02 Prompt の節を画面の上へ通り過ぎた後」だけ出す。旧版は Copy が見えていない間ずっと出ていて、
 //    1画面目でデモの Next ボタン・スライダーの説明文（PC）、デモ本体（SP）に重なっていた（レビュー2人の指摘）
+//
+// 2026-10-25（Awwwards 3周目・遷移）
+//  ・カード→詳細の板を受け取って外す（下の「板を受け取って外す」）。送り側が Framer のルーターで移ると板が残るので、
+//    板が伸び切ったらデモ枠の実位置へ寄せて地を溶かし、デモ枠のポスターが描けてから板を外す（白い待ち時間・黒い枠を消す）
+//  ・プロンプトの操作（Copy／出力先／初期値に戻す）を左詰め・Copy を先頭に。右端の Copy が Made in Framer バッジの下に入っていた
 
 interface Param {
     key: string
@@ -217,6 +222,69 @@ export default function EntryLab(props: Props) {
                     : { video: d.video, poster: d.poster, posterAt: d.posterAt || 0 }))
             .catch(() => {})
     }, [slug, isStatic, base])
+
+    // カード→詳細の板を受け取って外す（2026-10-25 Awwwards 3周目）。
+    // 送り側（MotionDictionaryV2 の morphAndGo）が Framer のルーターで移ると、文書が切り替わらないので
+    // 板（.md-morph-layer：生成りの地＋デモ枠の位置まで伸びたポスター）が body に残ったまま詳細ページが描かれる。
+    //  ①板が伸び切ったら：板をデモ枠の実際の位置へ寄せ（送り側の位置は予想値）、地を溶かしてページを見せる
+    //  ②デモ枠のポスターが描けたら（読み込み＋decode）：板を外す（下に同じ絵がある）
+    // ＝白い待ち時間（文書の切り替え）も、着地後の黒い枠（CMS のポスターは一覧と別URL＝未キャッシュで読み込み待ち）も出ない。
+    // ポスターは最長2.5秒待つ（送り側も4秒で外す）
+    useEffect(() => {
+        if (isStatic || typeof document === "undefined") return
+        const layers = () => Array.from(document.querySelectorAll<HTMLElement>(".md-morph-layer"))
+        if (!layers().length) return
+        const stage = stageRef.current
+        // Framer は3つのブレークポイント版を同時に描く。見えている版だけが受け取る
+        if (!stage || !stage.getClientRects().length) return
+        let alive = true
+        const img = stage.querySelector<HTMLImageElement>(".mdlab-poster")
+        const posterReady = new Promise<void>((res) => {
+            if (!img) return res()
+            const done = () => { (typeof img.decode === "function" ? img.decode() : Promise.resolve()).catch(() => {}).then(() => res()) }
+            if (img.complete && img.naturalWidth) done()
+            else {
+                img.addEventListener("load", done, { once: true })
+                img.addEventListener("error", () => res(), { once: true })
+            }
+        })
+        const plateOf = () => layers().find((l) => l.childElementCount > 0)
+        const grown = Promise.all(
+            layers().flatMap((l) => l.getAnimations().filter((a) => a.playState === "running").map((a) => a.finished.then(() => {}, () => {})))
+        )
+        const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
+        // ①
+        Promise.race([grown, wait(900)]).then(() => {
+            if (!alive) return
+            requestAnimationFrame(() => {
+                const plate = plateOf()
+                if (plate) {
+                    const r = stage.getBoundingClientRect()
+                    const p = plate.getBoundingClientRect()
+                    if (p.width > 0 && (Math.abs(r.top - p.top) > 1 || Math.abs(r.left - p.left) > 1 || Math.abs(r.width - p.width) > 1)) {
+                        // transformOrigin は 0 0（送り側）。伸び切った位置（translate 0・scale 1）から、デモ枠の矩形へ
+                        plate.animate(
+                            [{ transform: "translate(0px, 0px) scale(1)" }, { transform: `translate(${r.left - p.left}px, ${r.top - p.top}px) scale(${r.width / p.width}, ${r.height / p.height})` }],
+                            { duration: 200, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }
+                        )
+                    }
+                }
+                layers().filter((l) => l.childElementCount === 0).forEach((veil) => {
+                    // 見出し（EntryTitle）はこの印で演じ始める（地が溶けるのと同時に、見出しが自分の動きで現れる）
+                    veil.setAttribute("data-leaving", "")
+                    const a = veil.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" })
+                    a.finished.then(() => veil.remove(), () => veil.remove())
+                })
+            })
+        })
+        // ②（①の寄せが終わってから）
+        Promise.all([Promise.race([posterReady, wait(2500)]), Promise.race([grown, wait(900)]).then(() => wait(220))]).then(() => {
+            if (!alive) return
+            // decode 済みでも画面に出るのは次のコマ。1コマ待ってから外す
+            requestAnimationFrame(() => requestAnimationFrame(() => layers().forEach((l) => l.remove())))
+        })
+        return () => { alive = false }
+    }, [isStatic])
 
     // 着地位置を記録して CardMorph に返す（見出しと説明文の行数で縦位置が項目ごとに違うため）
     useEffect(() => {
@@ -601,11 +669,11 @@ export default function EntryLab(props: Props) {
                 <span style={jpSub}>数値はスライダーと連動</span>
             </h2>
             <div style={{ background: ink, borderRadius: 10, overflow: "hidden" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px var(--mdlab-pad)", borderBottom: "1px solid rgba(233,233,227,0.12)" }}>
-                    <span style={{ fontFamily: MONO, fontSize: 12, color: "rgba(233,233,227,.55)", letterSpacing: "0.06em" }}>
-                        {changed.length ? `${changed.length} value${changed.length > 1 ? "s" : ""} tuned` : "prompt.md"}
-                    </span>
-                    <span style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                {/* 操作は左詰め（Copy を先頭）。右下に固定の Made in Framer バッジ（約140×40）があり、PC の1画面目でこの行が
+                    画面の下端に来る項目では、右端の Copy prompt がバッジの下に入っていた（レビュー指摘）。右端には読むだけのファイル名を置く */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px var(--mdlab-pad)", borderBottom: "1px solid rgba(233,233,227,0.12)" }}>
+                    <span style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", minWidth: 0 }}>
+                        <button className="mdlab-btn" onClick={copy} style={btn(true)} aria-live="polite">{copyLabel}</button>
                         <select className="mdlab-target" aria-label="プロンプトの出力先" value={target} onChange={(e) => setTarget(e.target.value)}>
                             {TARGETS.map((t) => (
                                 <option key={t.key} value={t.key}>{t.label}</option>
@@ -614,7 +682,9 @@ export default function EntryLab(props: Props) {
                         {changed.length ? (
                             <button className="mdlab-btn" onClick={reset} style={btn(false)}>初期値に戻す</button>
                         ) : null}
-                        <button className="mdlab-btn" onClick={copy} style={btn(true)} aria-live="polite">{copyLabel}</button>
+                    </span>
+                    <span className="mdlab-fname" style={{ marginLeft: "auto", fontFamily: MONO, fontSize: 12, color: "rgba(233,233,227,.55)", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
+                        {changed.length ? `${changed.length} value${changed.length > 1 ? "s" : ""} tuned` : "prompt.md"}
                     </span>
                 </div>
                 <div
