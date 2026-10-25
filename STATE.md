@@ -22,6 +22,17 @@
   写真を入れていないもの＝文字・UI部品が主役のデモ（halftone 等）。skeleton-shimmer は録画では骨組みのまま（クリックで写真）。
 - 残りの判断：Framer有料プラン＋独自ドメイン／既定言語→日本語（UIのみ）／辞典の「署名」。
 
+
+## ✅ Awwwards ループ → 本番反映（2026-10-26・Ryota「本番に出していいよ」）
+- 8周（毎周 初見レビュアー2人）。r8＝A 7.34（D7.0 U7.5 C7.2）／B 7.40（D7.2 U7.6 C7.0）＝2人とも D・U・C ≥ 7.0。
+- 本番 PnTJSNS3Yi1gInF6kBFb に反映・publish 済。コード6本（MotionDictionaryV2 / HeroLive=qluOwqe 新規 / EntryTitle / EntryLab / EntryNav / SiteFooterCTA）。
+- 本番のキャンバス変更：Hero の h1 jCG_TzbUJ → HeroTitle uMPxFGDU5（maxSize 176）、HeroReel yoE4M8laN → HeroConsole JwtrfD_Pl（640px・Tablet/Phone 100%）、
+  FV説明文 kP2VHVF0k maxWidth 520＋改行（Phone は4行）、EntryTitle SgJ0coVxH に Params JSON(Hxba1_vhG)、EntryLab lqoo8Muzt に Poster(vq1Y9e63J)、
+  Lede x18RxENQD Desktop 14px/1.7/0.02em/maxWidth1245（Tablet/Phone 16px/1.85/680）、onm7Q3akY・P3tnExolP padding 0 115 0 0、wVCo5rUp6 padding 0、
+  headStart＝背景 #F4F4F1・エディタバー非表示・Geist Mono preload。CMS Poster 197件を ?v=r7 で再アップロード。
+- 公開後の点検：hydration エラー0（home / page-turn / scratch-card / speed-dial）、カード→詳細は文書を切り替えずに遷移、SP 横はみ出し0。
+- デモの絵＝紙と活字・モノクロ18枚（r7、GH Pages）。一覧の下地 LQIP は MotionDictionaryV2 の定数＝ポスターを撮り直したら再生成（毎朝の新項目は下地なしで表示）。
+
 ## 状態
 - 本番（https://motion-dict.framer.website・Framer PnTJSNS3Yi1gInF6kBFb）は **無変更**。
 - 作業は Framer の **複製プロジェクト** `4FmgcacdTtjanKiZQCuP`（プレビュー https://glorious-sandwich-453593.framer.app ・noindex）と、
