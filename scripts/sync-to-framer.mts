@@ -84,7 +84,7 @@ const run = (cmd: string, opts: any = {}) => execSync(cmd, { cwd: REPO, stdio: "
 
   // 3) 動画・ポスター・entries.json をpush
   run(`git add public/videos/${slug}.mp4 public/posters/${slug}.jpg public/entries.json public/entries-v2.json public/entry public/v2/lqip.json`);
-  if (v2ok) run(`git add public/v2/videos/${slug}.mp4 public/v2/posters/${slug}.jpg`);
+  if (v2ok) run(`git add public/v2/videos/${slug}.mp4 public/v2/posters/${slug}.jpg public/v2/meta/${slug}.json public/rec/${slug}.json`);
   if (derived) run(`git add public/v2/derived/${slug}.json`);
   run(`git add -A rec`);
   try { run(`git commit -q -m "video: ${slug} ループ動画＋ポスター＋一覧（毎朝同期）"`); run(`git push origin main`); }
