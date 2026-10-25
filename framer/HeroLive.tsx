@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react"
 import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 
 // FVの見せ場。「言葉を選ぶと動きになり、動きを触ると言葉（プロンプト）になる」を1画面目で起こす。
-// HeroTitle   … h1「動きの伝え方辞典」。window の CustomEvent "md:hero" を受けると、その擬態語の動きを見出し自身が演じる。
-// HeroConsole … 黒い面。擬態語を選ぶ→見出しが演じる／プロンプトの要の行を打ち出す／スライダーで数値が書き換わり、離すと演じ直す。
-// 2つはキャンバス上で別々に置き、イベントだけでつながる（Framerのレイアウトを縛らないため）。
+// HeroTitle   … h1「動きの伝え方辞典」＋直下に擬音のチップ列・「↑ いまの見出し＝擬音 項目名 値」・プロンプトの頭。
+//                チップを押すと見出し自身が即座にその動きを演じる（目の順＝見出し→チップ→値→プロンプト）。
+// HeroConsole … 黒い面。いまの動きを擬音そのものが小さく演じる「絵」＋プロンプト全文＋主パラメータのスライダー。
+// 2つはキャンバス上で別々に置き、状態はこのファイルの store（useHS）で共有、演技は window の CustomEvent "md:hero" で伝える。
 // 演技の数値は辞典の各項目の params.default と同じ。px の値だけは見出しの大きさ（デモ比）に合わせて比例拡大して見せる。
-// reduced-motion：見出しは動かず下線で反応するだけ。コンソールは即時表示・自動巡回しない。
+// 上へ動く演技（ポンッ・ぷるん）は、見出しの上の要素（ラベル）に字が掛からない高さで頭打ち（5周目：読み込み時にラベルと重なった）。
+// reduced-motion：見出しは動かず下線で反応するだけ。プロンプトは即時表示・自動巡回しない。
 
 const MONO = '"Geist Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace'
 const JP = '"Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif'
@@ -126,7 +128,8 @@ function reducedMotion() {
 /* 見出しの演技（WAAPI）。すべて fill:"backwards"＝終われば素の h1 に戻る */
 /* ------------------------------------------------------------------ */
 
-type Ctx = { chars: HTMLElement[]; caret: HTMLElement | null; fontPx: number; ink: string; cleanups: (() => void)[] }
+// rise＝上へ動いてよい距離（px）。見出しの上にあるラベル等へ字が重ならないよう、跳ね・落下の高さをここで頭打ちにする
+type Ctx = { chars: HTMLElement[]; caret: HTMLElement | null; fontPx: number; ink: string; rise: number; cleanups: (() => void)[] }
 const anim = (el: HTMLElement, kf: Keyframe[], o: KeyframeAnimationOptions) => el.animate(kf, { fill: "backwards", ...o })
 
 const ACTS: Record<string, (c: Ctx, v: Record<string, number>) => void> = {
@@ -154,8 +157,8 @@ const ACTS: Record<string, (c: Ctx, v: Record<string, number>) => void> = {
         })
     },
     // ぷるん：予備動作で潰れ→跳ぶ→着地で潰れ→行き過ぎて収まる。体積保存（scaleX = 1/scaleY）・足元基準
-    "squash-stretch": ({ chars, fontPx }, v) => {
-        const H = 0.22 * fontPx
+    "squash-stretch": ({ chars, fontPx, rise }, v) => {
+        const H = Math.min(0.22 * fontPx, rise)
         const sq = 1 - v.squash / 100, st = 1 + v.stretch / 100, ov = 1 + v.overshoot / 100
         const T = 660 + v.recover * 1000
         const pts: [number, number, number, string][] = [
@@ -224,8 +227,8 @@ const ACTS: Record<string, (c: Ctx, v: Record<string, number>) => void> = {
         })
     },
     // ポンッ：上から落ちて、減衰しながら跳ねて静止。区間の長さは高さの平方根に比例、上りease-out／下りease-in
-    "bounce-in": ({ chars, fontPx }, v) => {
-        const H = (v.height / 120) * 0.9 * fontPx
+    "bounce-in": ({ chars, fontPx, rise }, v) => {
+        const H = Math.min((v.height / 120) * 0.9 * fontPx, rise)
         const B = Math.round(v.bounces)
         const segs: { y0: number; y1: number; t: number; e: string }[] = [{ y0: -H, y1: 0, t: Math.sqrt(H), e: "ease-in" }]
         let h = H
@@ -276,6 +279,255 @@ const ACTS: Record<string, (c: Ctx, v: Record<string, number>) => void> = {
 }
 
 /* ------------------------------------------------------------------ */
+/* 共有の状態（見出し・チップ列・黒いパネルが同じ「いまの言葉」を見る）     */
+/* ------------------------------------------------------------------ */
+// 5周目：チップ列を見出しの直下へ移した（チップ→見出し→プロンプトを1本の視線に）。チップは HeroTitle、
+// スライダーと全文は HeroConsole にあり、キャンバス上では別々の部品なので、状態はこのファイルの中の1つの store で持つ。
+// Framer は Desktop/Tablet/Phone の版を同時に描くが、どれも同じ store を見る（隠れている版は画面外＝巡回も演技もしない）。
+// SSR とクライアント初回は INIT を描く（useSyncExternalStore の getServerSnapshot）＝同じ HTML。
+
+interface HS {
+    words: Word[]
+    idx: number
+    values: Record<string, Record<string, number>>
+    auto: boolean
+    tick: number // 言葉を替えた回数（チップの残り時間の線を引き直す鍵）
+    playAt: number // 最後に演じた時刻（performance.now）。0 は「打ち出さず全文を見せる」
+    flash: string // スライダーで動かした直後の param key（値が光る）
+    playing: boolean // 巡回中か（画面内・準備済み・Auto・reduced でない）
+    interval: number
+}
+function initValues() {
+    const o: Record<string, Record<string, number>> = {}
+    WORDS.forEach((w) => (o[w.slug] = defaults(w)))
+    return o
+}
+const INIT: HS = { words: WORDS, idx: 0, values: initValues(), auto: true, tick: 0, playAt: 0, flash: "", playing: false, interval: 4600 }
+let S: HS = INIT
+const SUBS = new Set<() => void>()
+function setS(p: Partial<HS>) {
+    S = { ...S, ...p }
+    SUBS.forEach((f) => f())
+}
+const subscribe = (f: () => void) => {
+    SUBS.add(f)
+    return () => { SUBS.delete(f) }
+}
+function useHS(): HS {
+    return useSyncExternalStore(subscribe, () => S, () => INIT)
+}
+
+// 巡回の指揮（モジュールに1つ）。どれか1つの部品が画面内にあれば回る
+const C = { ready: false, booted: false, fired: "", cycleT: 0 as unknown as ReturnType<typeof setTimeout>, fetched: false, flashT: 0 as unknown as ReturnType<typeof setTimeout> }
+const VIS = new Set<object>()
+
+function fireNow(vals?: Record<string, number>) {
+    if (typeof window === "undefined") return
+    const x = S.words[S.idx]
+    const detail: HeroDetail = { word: x.word, slug: x.slug, params: vals || S.values[x.slug] || defaults(x) }
+    setS({ playAt: reducedMotion() ? 0 : performance.now() })
+    window.dispatchEvent(new CustomEvent(EVT, { detail }))
+}
+function drive() {
+    if (typeof window === "undefined") return
+    const on = C.ready && VIS.size > 0
+    const reduced = reducedMotion()
+    const key = `${S.idx}:${S.tick}`
+    if (on && C.fired !== key) {
+        const first = C.fired === ""
+        C.fired = key
+        // reduced-motion：読み込み時は演じない（触ったときだけ下線で応える）
+        if (!(reduced && first)) fireNow()
+    }
+    const playing = on && S.auto && !reduced
+    if (playing !== S.playing) setS({ playing })
+    clearTimeout(C.cycleT)
+    if (!playing) return
+    C.cycleT = setTimeout(() => {
+        if (!S.auto) return
+        setS({ idx: (S.idx + 1) % S.words.length, tick: S.tick + 1 })
+        drive()
+    }, S.interval)
+}
+function boot() {
+    if (C.booted || typeof window === "undefined") return
+    C.booted = true
+    // マウント直後は見出しを一度読ませてから演じる
+    setTimeout(() => { C.ready = true; drive() }, 700)
+}
+function stopAuto() {
+    clearTimeout(C.cycleT)
+    if (S.auto || S.playing) setS({ auto: false, playing: false })
+}
+function startAuto() {
+    setS({ auto: true, tick: S.tick + 1 })
+    drive()
+}
+function choose(k: number) {
+    stopAuto()
+    C.ready = true
+    setS({ idx: k, tick: S.tick + 1 })
+    drive()
+}
+function slide(key: string, val: number) {
+    stopAuto()
+    const w = S.words[S.idx]
+    setS({ values: { ...S.values, [w.slug]: { ...(S.values[w.slug] || defaults(w)), [key]: val } }, flash: key })
+    clearTimeout(C.flashT)
+    C.flashT = setTimeout(() => setS({ flash: "" }), 650)
+}
+// 辞典の実データで数値の範囲・初期値・項目名を合わせ直す（落ちても手持ちの値で動く）
+function ensureData(base: string) {
+    if (C.fetched || typeof window === "undefined" || typeof fetch === "undefined") return
+    C.fetched = true
+    Promise.all(WORDS.map((x) => fetch(`${base}/entry/${x.slug}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null))).then((list) => {
+        const next = WORDS.map((x, k) => {
+            const j = list[k]
+            if (!j || !Array.isArray(j.params)) return x
+            const params = x.params.map((p) => {
+                const q = j.params.find((r: Param) => r.key === p.key)
+                return q ? { ...p, label: q.label ?? p.label, min: q.min, max: q.max, step: q.step, default: q.default } : p
+            })
+            return { ...x, nameJa: j.nameJa || x.nameJa, params }
+        })
+        const o = { ...S.values }
+        next.forEach((x, k) => {
+            WORDS[k].params.forEach((p, n) => {
+                // まだ誰も触っていない値だけ、辞典の初期値に寄せる
+                if (o[x.slug] && o[x.slug][p.key] === p.default) o[x.slug] = { ...o[x.slug], [p.key]: x.params[n].default }
+            })
+        })
+        setS({ words: next, values: o })
+    })
+}
+/** 画面内にあるあいだ巡回に参加する（隠れている版・画面外の部品は数えない） */
+function useVisible(ref: { current: HTMLElement | null }, isStatic: boolean, onChange?: (v: boolean) => void) {
+    useEffect(() => {
+        if (isStatic || !ref.current || typeof IntersectionObserver === "undefined") return
+        const me = {}
+        boot()
+        const io = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting) VIS.add(me)
+            else VIS.delete(me)
+            onChange?.(e.isIntersecting)
+            drive()
+        }, { threshold: 0 })
+        io.observe(ref.current)
+        return () => { io.disconnect(); VIS.delete(me); drive() }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isStatic])
+}
+/** プロンプトの打ち出し（1文字16ms）。playAt が 0 なら全文 */
+function useTyped(total: number, playAt: number, isStatic: boolean) {
+    const [typed, setTyped] = useState(Infinity)
+    useEffect(() => {
+        if (isStatic || !playAt) { setTyped(Infinity); return }
+        let raf = 0
+        const step = () => {
+            const n = Math.floor((performance.now() - playAt) / 16)
+            setTyped(n >= total ? Infinity : Math.max(0, n))
+            if (n < total) raf = requestAnimationFrame(step)
+        }
+        step()
+        return () => cancelAnimationFrame(raf)
+    }, [playAt, total, isStatic])
+    return typed
+}
+
+function segLen(segs: Seg[], w: Word, v: Record<string, number>) {
+    const pBy = Object.fromEntries(w.params.map((p) => [p.key, p])) as Record<string, Param>
+    return segs.reduce((s, g) => s + (g.t === "x" ? g.text.length : fmt(pBy[g.key], v[g.key]).length + g.unit.length), 0)
+}
+/** segs を先頭から limit 文字ぶんだけ描く。値は .mdh-dyn（光る対象は flash） */
+function Segs({ segs, w, v, limit, flash, cls }: { segs: Seg[]; w: Word; v: Record<string, number>; limit: number; flash: string; cls: string }) {
+    const pBy = Object.fromEntries(w.params.map((p) => [p.key, p])) as Record<string, Param>
+    let left = limit
+    return (
+        <>
+            {segs.map((g, i) => {
+                if (left <= 0) return null
+                if (g.t === "x") {
+                    const s = g.text.slice(0, left)
+                    left -= g.text.length
+                    return <span key={i}>{s}</span>
+                }
+                const full = fmt(pBy[g.key], v[g.key]) + g.unit
+                const s = full.slice(0, left)
+                left -= full.length
+                return <span key={i} className={cls + (flash === g.key ? " on" : "")}>{s}</span>
+            })}
+        </>
+    )
+}
+/** いまの値の表記（主パラメータ1つ）：「duration 0.60s」「bounces 3」 */
+function mainText(w: Word, v: Record<string, number>) {
+    const p = w.params.find((x) => x.key === w.main)
+    if (!p) return ""
+    const g = parse(w.lines).find((x) => x.t === "p" && x.key === w.main) as { t: "p"; key: string; unit: string } | undefined
+    return `${p.key} ${fmt(p, v[p.key])}${g ? g.unit : ""}`
+}
+
+/** 演技の器：字の span を受け取り、md:hero を受けたら ACTS で演じる（見出し・パネルの小さな実演で共通） */
+function useActor(o: {
+    isStatic: boolean
+    ink: string
+    inView: { current: boolean }
+    host: { current: HTMLElement | null }
+    chars: { current: (HTMLSpanElement | null)[] }
+    caret: { current: HTMLSpanElement | null }
+    rise: () => number
+    defer?: boolean // パネルの実演：言葉の差し替え（React の再描画）を待ってから演じる
+    onReduced?: () => void
+}) {
+    const cleanups = useRef<(() => void)[]>([])
+    useEffect(() => {
+        if (o.isStatic || typeof window === "undefined") return
+        let raf = 0
+        const stop = () => {
+            const els = o.chars.current.filter(Boolean) as HTMLElement[]
+            els.forEach((c) => { c.getAnimations().forEach((a) => a.cancel()); c.style.removeProperty("transform-origin") })
+            o.caret.current?.getAnimations().forEach((a) => a.cancel())
+            cleanups.current.forEach((f) => f())
+            cleanups.current = []
+        }
+        const play = (d: HeroDetail) => {
+            const w = WORDS.find((x) => x.slug === d.slug) || WORDS.find((x) => x.word === d.word)
+            if (!w) return
+            if (reducedMotion()) { o.onReduced?.(); return }
+            const act = ACTS[w.slug]
+            const host = o.host.current
+            if (!act || !host || typeof host.animate !== "function") return
+            stop()
+            const els = o.chars.current.filter(Boolean) as HTMLElement[]
+            if (!els.length) return
+            act({ chars: els, caret: o.caret.current, fontPx: parseFloat(getComputedStyle(host).fontSize) || 100, ink: o.ink, rise: o.rise(), cleanups: cleanups.current }, { ...defaults(w), ...(d.params || {}) })
+        }
+        const onHero = (ev: Event) => {
+            const d = (ev as CustomEvent<HeroDetail>).detail
+            if (!d || !o.inView.current) return
+            cancelAnimationFrame(raf)
+            if (o.defer) raf = requestAnimationFrame(() => play(d))
+            else play(d)
+        }
+        window.addEventListener(EVT, onHero)
+        return () => { window.removeEventListener(EVT, onHero); cancelAnimationFrame(raf); stop() }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [o.isStatic, o.ink])
+}
+
+/** 見出しの上にある要素（ラベル等）までの空き。祖先をさかのぼって、最初に見つかった「上の兄弟」の下端との距離 */
+function roomAbove(el: HTMLElement): number {
+    const top = el.getBoundingClientRect().top
+    for (let a: HTMLElement | null = el; a && a !== document.body; a = a.parentElement) {
+        for (let s = a.previousElementSibling as HTMLElement | null; s; s = s.previousElementSibling as HTMLElement | null) {
+            const r = s.getBoundingClientRect()
+            if (r.width > 0 && r.height > 0 && getComputedStyle(s).position !== "fixed") return Math.max(0, top - r.bottom)
+        }
+    }
+    return Math.max(0, top)
+}
+
+/* ------------------------------------------------------------------ */
 /* HeroTitle                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -283,107 +535,181 @@ interface TitleProps {
     text: string
     maxSize: number
     ink: string
+    paper: string
     accent: string
+    muted: string
+    base: string
     style?: CSSProperties
 }
 
 /**
- * Hero Title（演じる見出し）
+ * Hero Title（演じる見出し＋擬音のチップ列＋いまの値＋プロンプトの頭）
+ *
+ * 5周目：チップ列を黒いパネルから見出しの直下へ移した。
+ * 目の順＝見出し → チップ（押すと見出しが即座に演じる）→「↑ いまの見出し＝擬音 項目名 値」→ プロンプトの頭。
  *
  * @framerIntrinsicWidth 1360
- * @framerIntrinsicHeight 150
+ * @framerIntrinsicHeight 300
  *
  * @framerSupportedLayoutWidth fixed
  * @framerSupportedLayoutHeight auto
  */
 export function HeroTitle(props: TitleProps) {
-    const { text = TITLE, maxSize = 130, ink = "#0A0A0A", accent = "#A5E02E" } = props
+    const { text = TITLE, maxSize = 176, ink = "#0A0A0A", paper = "#F4F4F1", accent = "#A5E02E", muted = "#6B6B66", base = "https://ryota4100221-cmyk.github.io/motion-dict" } = props
     const isStatic = useIsStaticRenderer()
+    const st = useHS()
     const chars = useMemo(() => Array.from(text), [text])
     const rootRef = useRef<HTMLDivElement>(null)
     const h1Ref = useRef<HTMLHeadingElement>(null)
     const charRefs = useRef<(HTMLSpanElement | null)[]>([])
     const caretRef = useRef<HTMLSpanElement>(null)
-    const cleanups = useRef<(() => void)[]>([])
     const inView = useRef(true)
     const [mark, setMark] = useState(false) // reduced-motion 時の反応（下線）
+    const markT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
     // 1文字の幅 ≒ 1em − 字詰め。幅いっぱいに収める cqi を文字数から出す
     const fit = 100 / (chars.length * 0.96 + 0.1)
 
-    useEffect(() => {
-        if (isStatic || !rootRef.current || typeof IntersectionObserver === "undefined") return
-        const io = new IntersectionObserver(([e]) => (inView.current = e.isIntersecting), { threshold: 0 })
-        io.observe(rootRef.current)
-        return () => io.disconnect()
-    }, [isStatic])
-
-    useEffect(() => {
-        if (isStatic || typeof window === "undefined") return
-        let markT: ReturnType<typeof setTimeout> | undefined
-        const stop = () => {
-            const els = charRefs.current.filter(Boolean) as HTMLElement[]
-            els.forEach((c) => { c.getAnimations().forEach((a) => a.cancel()); c.style.removeProperty("transform-origin") })
-            caretRef.current?.getAnimations().forEach((a) => a.cancel())
-            cleanups.current.forEach((f) => f())
-            cleanups.current = []
-        }
-        const onHero = (ev: Event) => {
-            const d = (ev as CustomEvent<HeroDetail>).detail
-            if (!d || !inView.current) return
-            const w = WORDS.find((x) => x.slug === d.slug) || WORDS.find((x) => x.word === d.word)
-            if (!w) return
-            if (reducedMotion()) {
-                setMark(true)
-                clearTimeout(markT)
-                markT = setTimeout(() => setMark(false), 1400)
-                return
-            }
-            const act = ACTS[w.slug]
+    useVisible(rootRef, isStatic, (v) => (inView.current = v))
+    useEffect(() => { if (!isStatic) ensureData(base) }, [isStatic, base])
+    useEffect(() => () => clearTimeout(markT.current), [])
+    useActor({
+        isStatic, ink, inView, host: h1Ref, chars: charRefs, caret: caretRef,
+        // 上のラベルに字が掛からない高さまで。字面の上には行送りの余り（約0.12em）があるので、その分は使ってよい
+        rise: () => {
             const h1 = h1Ref.current
-            if (!act || !h1 || typeof h1.animate !== "function") return
-            stop()
-            act({
-                chars: charRefs.current.filter(Boolean) as HTMLElement[],
-                caret: caretRef.current,
-                fontPx: parseFloat(getComputedStyle(h1).fontSize) || 100,
-                ink,
-                cleanups: cleanups.current,
-            }, { ...defaults(w), ...(d.params || {}) })
-        }
-        window.addEventListener(EVT, onHero)
-        return () => { window.removeEventListener(EVT, onHero); clearTimeout(markT); stop() }
-    }, [isStatic, ink])
+            if (!h1) return 0
+            const fs = parseFloat(getComputedStyle(h1).fontSize) || 100
+            return Math.max(0, roomAbove(h1) + fs * 0.12 - 8)
+        },
+        onReduced: () => {
+            setMark(true)
+            clearTimeout(markT.current)
+            markT.current = setTimeout(() => setMark(false), 1400)
+        },
+    })
+
+    const w = st.words[st.idx]
+    const v = st.values[w.slug] || defaults(w)
+    const head = useMemo(() => parse(w.lines.split("\n")[0]), [w])
+    const headTotal = segLen(head, w, v)
+    const typed = useTyped(headTotal, st.playAt, isStatic)
+    const done = typed >= headTotal
+    const line = "rgba(10,10,10,.16)"
+    const tint = "rgba(165,224,46,.38)"
 
     return (
-        <div ref={rootRef} style={{ width: "100%", containerType: "inline-size", ...props.style } as CSSProperties}>
+        <div ref={rootRef} className="mdh-t" style={{ width: "100%", containerType: "inline-size", ...props.style } as CSSProperties}>
+            <style dangerouslySetInnerHTML={{ __html: `
+.mdh-t .mdh-rail{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 40px;margin-top:22px}
+.mdh-t .mdh-tc{display:flex;flex-wrap:wrap;gap:8px;flex:none;max-width:100%}
+.mdh-t .mdh-tc button{position:relative;overflow:hidden;flex:none;height:38px;padding:0 17px;border-radius:100px;border:1px solid ${line};background:transparent;color:${ink};font-family:${JP};font-weight:700;font-size:15px;letter-spacing:.04em;cursor:pointer;transition:border-color .2s,background-color .2s;touch-action:manipulation}
+.mdh-t .mdh-tc button:hover{border-color:${ink}}
+.mdh-t .mdh-tc button[aria-pressed="true"]{background:${accent};border-color:${accent};color:${ink}}
+.mdh-t .mdh-tc button:focus-visible{outline:2px solid ${ink};outline-offset:2px}
+.mdh-t .mdh-tc .bar{position:absolute;left:14px;right:14px;bottom:5px;height:2px;background:${ink};opacity:.55;transform-origin:0 50%;transform:scaleX(0);pointer-events:none}
+.mdh-t .mdh-now{margin:0;flex:1 1 0;min-width:0;justify-content:flex-end;display:flex;align-items:baseline;flex-wrap:nowrap;white-space:nowrap;gap:4px 10px;font-family:${JP};font-size:14px;line-height:1.5;color:${ink}}
+.mdh-t .mdh-now .k{font-family:${MONO};font-size:12px;letter-spacing:.04em;color:${muted};white-space:nowrap}
+.mdh-t .mdh-now b{font-size:17px;letter-spacing:.02em}
+.mdh-t .mdh-now .n{color:${muted};white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mdh-t .mdh-now b,.mdh-t .mdh-now .k,.mdh-t .mdh-now .mdh-v{flex:none}
+.mdh-t .mdh-v{font-family:${MONO};font-size:14px;color:${ink};background:${tint};border-radius:3px;padding:1px 6px;white-space:nowrap;font-variant-numeric:tabular-nums;transition:background-color .3s}
+.mdh-t .mdh-v.on{background:${accent};transition:none}
+.mdh-t .mdh-head{margin:16px 0 0;display:flex;align-items:baseline;gap:14px;font-family:${MONO};font-size:14px;line-height:1.7;color:${ink};min-height:1.7em}
+.mdh-t .mdh-head .k{flex:none;font-size:11px;letter-spacing:.08em;color:${muted}}
+.mdh-t .mdh-head .tx{min-width:0;overflow-wrap:anywhere}
+.mdh-t .mdh-head .tx>span{min-width:0}
+.mdh-t .mdh-head .mdh-v{font-size:13px;padding:0 4px}
+.mdh-t .mdh-head .more{flex:none;color:${muted};white-space:nowrap}
+.mdh-t .mdh-head .more.sp{display:none}
+.mdh-t .mdh-caret{display:inline-block;width:.55em;height:1.1em;vertical-align:-.2em;margin-left:2px;background:${ink};animation:mdh-tblink 1s steps(1,end) infinite}
+@keyframes mdh-tblink{50%{opacity:0}}
+@keyframes mdh-tbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* 版面が狭いとき（タブレット〜）：値の表記はチップ列の下の行へ（横に詰めると項目名が潰れる） */
+@container (max-width: 1080px){
+.mdh-t .mdh-now{flex-basis:100%;justify-content:flex-start}
+}
+@container (max-width: 640px){
+.mdh-t .mdh-rail{margin-top:16px;gap:12px}
+.mdh-t .mdh-tc{gap:6px}
+.mdh-t .mdh-tc button{height:36px;padding:0 13px;font-size:14px}
+.mdh-t .mdh-now{font-size:13px;gap:2px 8px;flex-wrap:nowrap;white-space:nowrap}
+.mdh-t .mdh-now .n{display:none}
+.mdh-t .mdh-now b{font-size:15px}
+.mdh-t .mdh-head{margin-top:10px;font-size:13px;gap:10px}
+.mdh-t .mdh-head .more.pc{display:none}
+.mdh-t .mdh-head .tx>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdh-t .mdh-head .more.sp{display:inline}
+}
+@media (prefers-reduced-motion: reduce){.mdh-t .mdh-tc button,.mdh-t .mdh-v{transition:none}.mdh-t .mdh-caret{animation:none}}
+` }} />
             {/* 横だけ clip：演技中に文字が右へはみ出しても横スクロールを生まない（縦は跳ねるので見せる）。
                 左は負方向なのでスクロールを生まない＝ぼかしの滲みが切れないよう 64px 外まで描かせる */}
             <div style={{ overflowX: "clip", overflowY: "visible", marginLeft: -64, paddingLeft: 64 }}>
-            <h1 ref={h1Ref} aria-label={text}
-                style={{
-                    position: "relative", width: "fit-content", margin: 0, fontFamily: JP, fontWeight: 700, color: ink,
-                    fontSize: `min(${maxSize}px, ${fit.toFixed(2)}cqi)`, lineHeight: 1.18, letterSpacing: "-0.04em",
-                    whiteSpace: "nowrap", fontKerning: "none",
-                }}>
-                {chars.map((ch, i) => (
-                    <span key={i} aria-hidden="true" ref={(el) => { charRefs.current[i] = el }}
-                        style={{ display: "inline-block", whiteSpace: "pre" }}>{ch}</span>
-                ))}
-                <span ref={caretRef} aria-hidden="true"
-                    style={{ position: "absolute", left: 0, top: 0, width: "0.06em", height: "0.9em", background: ink, opacity: 0, pointerEvents: "none" }} />
-                <span aria-hidden="true"
-                    style={{ position: "absolute", left: 0, bottom: "-0.02em", height: "max(3px, 0.05em)", width: "100%", background: accent, opacity: mark ? 1 : 0, pointerEvents: "none" }} />
-            </h1>
+                <h1 ref={h1Ref} aria-label={text}
+                    style={{
+                        position: "relative", width: "fit-content", margin: 0, fontFamily: JP, fontWeight: 700, color: ink,
+                        fontSize: `min(${maxSize}px, ${fit.toFixed(2)}cqi)`, lineHeight: 1.18, letterSpacing: "-0.04em",
+                        whiteSpace: "nowrap", fontKerning: "none",
+                    }}>
+                    {chars.map((ch, i) => (
+                        <span key={i} aria-hidden="true" ref={(el) => { charRefs.current[i] = el }}
+                            style={{ display: "inline-block", whiteSpace: "pre" }}>{ch}</span>
+                    ))}
+                    <span ref={caretRef} aria-hidden="true"
+                        style={{ position: "absolute", left: 0, top: 0, width: "0.06em", height: "0.9em", background: ink, opacity: 0, pointerEvents: "none" }} />
+                    <span aria-hidden="true"
+                        style={{ position: "absolute", left: 0, bottom: "-0.02em", height: "max(3px, 0.05em)", width: "100%", background: accent, opacity: mark ? 1 : 0, pointerEvents: "none" }} />
+                </h1>
             </div>
+
+            {/* 擬音のチップ（押すと見出しが即座に演じる）＋ いまの見出しの値 */}
+            <div className="mdh-rail">
+                <div className="mdh-tc" role="group" aria-label="擬音を選ぶと、見出しがその動きを演じます">
+                    {st.words.map((x, k) => (
+                        <button key={x.slug} type="button" aria-pressed={k === st.idx} onClick={() => choose(k)}>
+                            {x.word}
+                            {/* 自動で次の語へ移るまでの残り時間（触ると止まる） */}
+                            {k === st.idx && st.playing ? (
+                                <span key={`b${st.tick}`} className="bar" aria-hidden="true" style={{ animation: `mdh-tbar ${st.interval}ms linear forwards` }} />
+                            ) : null}
+                        </button>
+                    ))}
+                </div>
+                {/* 自動巡回中は読み上げない（4.6秒ごとに割り込むため）。人が選んだ・動かしたときだけ知らせる */}
+                <p className="mdh-now" aria-live={st.auto ? "off" : "polite"}>
+                    <span className="k">↑ いまの見出し＝</span>
+                    <b>{w.word}</b>
+                    <span className="n">{w.nameJa}</span>
+                    <span className={"mdh-v" + (st.flash === w.main ? " on" : "")}>{mainText(w, v)}</span>
+                </p>
+            </div>
+
+            {/* プロンプトの頭（全文は黒いパネル）。打ち出しは 1文字16ms＝パネルの全文と同じ速さで同時に書かれる */}
+            <p className="mdh-head">
+                <span className="k" aria-hidden="true">PROMPT</span>
+                <span className="tx" style={{ display: "grid" }}>
+                    {/* 全文ぶんの幅と高さを先に確保して、打ち出し中にレイアウトを動かさない */}
+                    <span aria-hidden="true" style={{ gridArea: "1 / 1", visibility: "hidden" }}><Segs segs={head} w={w} v={v} limit={Infinity} flash="" cls="mdh-v" /></span>
+                    <span style={{ gridArea: "1 / 1" }}>
+                        <Segs segs={head} w={w} v={v} limit={done ? Infinity : typed} flash={st.flash} cls="mdh-v" />
+                        {!done ? <span className="mdh-caret" aria-hidden="true" /> : null}
+                    </span>
+                </span>
+                <span className="more pc" aria-hidden="true" style={{ visibility: done ? "visible" : "hidden" }}>… 全文 ↘</span>
+                <span className="more sp" aria-hidden="true" style={{ visibility: done ? "visible" : "hidden" }}>全文 ↓</span>
+            </p>
         </div>
     )
 }
 
 addPropertyControls(HeroTitle, {
     text: { type: ControlType.String, title: "Text", defaultValue: TITLE },
-    maxSize: { type: ControlType.Number, title: "Max size", defaultValue: 130, min: 32, max: 240, step: 1, unit: "px" },
+    maxSize: { type: ControlType.Number, title: "Max size", defaultValue: 176, min: 32, max: 240, step: 1, unit: "px" },
+    base: { type: ControlType.String, title: "Base", defaultValue: "https://ryota4100221-cmyk.github.io/motion-dict" },
     ink: { type: ControlType.Color, title: "Ink", defaultValue: "#0A0A0A" },
+    paper: { type: ControlType.Color, title: "Paper", defaultValue: "#F4F4F1" },
     accent: { type: ControlType.Color, title: "Accent", defaultValue: "#A5E02E" },
+    muted: { type: ControlType.Color, title: "Muted", defaultValue: "#6B6B66" },
 })
 
 /* ------------------------------------------------------------------ */
@@ -401,10 +727,13 @@ interface ConsoleProps {
 }
 
 /**
- * Hero Console（擬態語→動き→プロンプト）
+ * Hero Console（その動きの絵＋プロンプト全文＋スライダー）
+ *
+ * 5周目：チップは見出しの直下（HeroTitle）へ移した。黒い面は「いま見出しが演じた動き」を
+ * 小さく実演する面と、プロンプトの全文・主パラメータのスライダーを受け持つ。
  *
  * @framerIntrinsicWidth 640
- * @framerIntrinsicHeight 360
+ * @framerIntrinsicHeight 280
  *
  * @framerSupportedLayoutWidth fixed
  * @framerSupportedLayoutHeight auto
@@ -419,193 +748,61 @@ export function HeroConsole(props: ConsoleProps) {
         muted = "#6B6B66",
     } = props
     const isStatic = useIsStaticRenderer()
-    const [words, setWords] = useState<Word[]>(WORDS)
-    const [idx, setIdx] = useState(0)
-    const [values, setValues] = useState<Record<string, Record<string, number>>>(() => {
-        const o: Record<string, Record<string, number>> = {}
-        WORDS.forEach((w) => (o[w.slug] = defaults(w)))
-        return o
-    })
-    const [auto, setAuto] = useState(true)
-    const [inView, setInView] = useState(true)
+    const st = useHS()
     const [reduced, setReduced] = useState(false)
-    const [ready, setReady] = useState(false) // マウント直後は見出しを一度読ませてから演じる
-    const [typed, setTyped] = useState(Infinity)
-    const [flash, setFlash] = useState("")
-    const [tick, setTick] = useState(0) // 巡回の1拍（プログレス線の再生し直し用）
     const [narrow, setNarrow] = useState(false)
     const rootRef = useRef<HTMLDivElement>(null)
-    const flashT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+    const stageRef = useRef<HTMLDivElement>(null)
+    const wordRef = useRef<HTMLSpanElement>(null)
+    const charRefs = useRef<(HTMLSpanElement | null)[]>([])
+    const caretRef = useRef<HTMLSpanElement>(null)
+    const inView = useRef(true)
 
-    const w = words[idx]
-    const v = values[w.slug] || defaults(w)
-    const pBy = useMemo(() => Object.fromEntries(w.params.map((p) => [p.key, p])) as Record<string, Param>, [w])
-    const main = pBy[w.main]
-    const segs = useMemo(() => parse(w.lines), [w])
-
-    // 画面外・タブ非表示では巡回しない
+    useVisible(rootRef, isStatic, (x) => (inView.current = x))
+    useEffect(() => { if (!isStatic) ensureData(base) }, [isStatic, base])
     useEffect(() => {
-        if (isStatic || !rootRef.current || typeof IntersectionObserver === "undefined") return
-        const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.15 })
-        io.observe(rootRef.current)
-        return () => io.disconnect()
-    }, [isStatic])
+        if (isStatic) return
+        setReduced(reducedMotion())
+        if (S.interval !== interval) { setS({ interval }); drive() }
+    }, [isStatic, interval])
     useEffect(() => {
         if (isStatic || !rootRef.current || typeof ResizeObserver === "undefined") return
         const ro = new ResizeObserver(([e]) => setNarrow(e.contentRect.width < 520))
         ro.observe(rootRef.current)
         return () => ro.disconnect()
     }, [isStatic])
+    // 小さな実演：見出しと同じ md:hero を受けて、同じ値で、その擬音そのものが演じる
+    useActor({ isStatic, ink: paper, inView, host: wordRef, chars: charRefs, caret: caretRef, rise: () => 1e4, defer: true })
 
-    useEffect(() => {
-        if (isStatic) return
-        setReduced(reducedMotion())
-        const t = setTimeout(() => setReady(true), 700)
-        return () => clearTimeout(t)
-    }, [isStatic])
-
-    // 辞典の実データで数値の範囲・初期値・項目名を合わせ直す（落ちても手持ちの値で動く）
-    useEffect(() => {
-        if (isStatic) return
-        let alive = true
-        Promise.all(WORDS.map((x) => fetch(`${base}/entry/${x.slug}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null))).then((list) => {
-            if (!alive) return
-            const next = WORDS.map((x, k) => {
-                const j = list[k]
-                if (!j || !Array.isArray(j.params)) return x
-                const params = x.params.map((p) => {
-                    const q = j.params.find((r: Param) => r.key === p.key)
-                    return q ? { ...p, label: q.label ?? p.label, min: q.min, max: q.max, step: q.step, default: q.default } : p
-                })
-                return { ...x, nameJa: j.nameJa || x.nameJa, params }
-            })
-            setWords(next)
-            setValues((old) => {
-                const o = { ...old }
-                next.forEach((x, k) => {
-                    WORDS[k].params.forEach((p, n) => {
-                        // まだ誰も触っていない値だけ、辞典の初期値に寄せる
-                        if (o[x.slug] && o[x.slug][p.key] === p.default) o[x.slug] = { ...o[x.slug], [p.key]: x.params[n].default }
-                    })
-                })
-                return o
-            })
-        })
-        return () => { alive = false }
-    }, [isStatic, base])
-
-    const fire = (k: number, vals?: Record<string, number>) => {
-        if (typeof window === "undefined") return
-        const x = words[k]
-        const detail: HeroDetail = { word: x.word, slug: x.slug, params: vals || values[x.slug] || defaults(x) }
-        window.dispatchEvent(new CustomEvent(EVT, { detail }))
-    }
-
-    // 言葉が替わったら：見出しに演じさせ、プロンプトを打ち出し直す
-    const playing = ready && inView
-    const playRef = useRef({ idx: -1, tick: -1 })
-    useEffect(() => {
-        if (isStatic || !playing) return
-        if (playRef.current.idx === idx && playRef.current.tick === tick) return
-        const first = playRef.current.idx === -1
-        playRef.current = { idx, tick }
-        if (reduced) { if (!first) fire(idx); setTyped(Infinity); return }
-        fire(idx)
-        setTyped(0)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [idx, tick, playing, reduced, isStatic])
-
-    // 打ち出し：1文字 16ms（等幅の行が「書かれていく」速さ）
-    const total = useMemo(() => segs.reduce((s, g) => s + (g.t === "x" ? g.text.length : fmt(pBy[g.key], v[g.key]).length + g.unit.length), 0), [segs, pBy, v])
-    useEffect(() => {
-        if (isStatic || typed >= total) return
-        let raf = 0
-        const t0 = performance.now() - typed * 16
-        const step = (now: number) => {
-            const n = Math.floor((now - t0) / 16)
-            setTyped(n >= total ? Infinity : n)
-            if (n < total) raf = requestAnimationFrame(step)
-        }
-        raf = requestAnimationFrame(step)
-        return () => cancelAnimationFrame(raf)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [typed === 0, idx, total, isStatic])
-
-    // 自動巡回：触られるまで interval ごとに次の言葉へ。
-    // タイマーは ref に持ち、触った瞬間（pointerdown）に同期で止める。state の auto だけで止めていると、
-    // pointerdown→再描画→effect の片付け の間に拍が来て、押したチップの次へ進むことがあった
-    const autoRef = useRef(true)
-    const cycleT = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-    const stopAuto = () => {
-        autoRef.current = false
-        clearTimeout(cycleT.current)
-        setAuto(false)
-    }
-    useEffect(() => {
-        if (isStatic || !auto || reduced || !playing) return
-        autoRef.current = true
-        cycleT.current = setTimeout(() => {
-            if (!autoRef.current) return
-            setIdx((x) => (x + 1) % words.length)
-            setTick((x) => x + 1)
-        }, interval)
-        return () => clearTimeout(cycleT.current)
-    }, [isStatic, auto, reduced, playing, idx, tick, interval, words.length])
-
-    const choose = (k: number) => {
-        stopAuto()
-        setIdx(k)
-        setTick((x) => x + 1)
-    }
-    const onSlide = (val: number) => {
-        stopAuto()
-        setValues((o) => ({ ...o, [w.slug]: { ...v, [w.main]: val } }))
-        setFlash(w.main)
-        clearTimeout(flashT.current)
-        flashT.current = setTimeout(() => setFlash(""), 650)
-    }
-    const replay = () => fire(idx, v)
-
-    // 打ち出し中の表示：segs を先頭から typed 文字ぶんだけ出す
-    const renderSegs = (limit: number, ghost: boolean) => {
-        let left = limit
-        return segs.map((g, i) => {
-            if (left <= 0) return null
-            if (g.t === "x") {
-                const s = g.text.slice(0, left)
-                left -= g.text.length
-                return <span key={i}>{s}</span>
-            }
-            const full = fmt(pBy[g.key], v[g.key]) + g.unit
-            const s = full.slice(0, left)
-            left -= full.length
-            return <span key={i} className={ghost ? "mdh-dyn" : "mdh-dyn" + (flash === g.key ? " on" : "")}>{s}</span>
-        })
-    }
+    const w = st.words[st.idx]
+    const v = st.values[w.slug] || defaults(w)
+    const main = w.params.find((p) => p.key === w.main)
+    const segs = useMemo(() => parse(w.lines), [w])
+    const total = segLen(segs, w, v)
+    const typed = useTyped(total, st.playAt, isStatic)
     const done = typed >= total
     const dim = "rgba(244,244,241,.56)"
     const line = "rgba(244,244,241,.14)"
     const pad = narrow ? 16 : 24
     const fill = main ? ((v[w.main] - main.min) / (main.max - main.min)) * 100 : 0
+    const replay = () => fireNow(S.values[S.words[S.idx].slug])
+    const wordChars = Array.from(w.word)
 
     return (
         <div ref={rootRef}
             onPointerDown={stopAuto}
             style={{ width: "100%", background: ink, color: paper, borderRadius: 10, overflow: "hidden", fontFamily: JP, position: "relative", ...props.style }}>
             <style dangerouslySetInnerHTML={{ __html: `
-.mdh-chips{scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.mdh-chips::-webkit-scrollbar{display:none}
-.mdh-chip{flex:none;height:34px;padding:0 15px;border-radius:100px;border:1px solid ${line};background:transparent;color:${paper};font-family:${JP};font-weight:700;font-size:14px;letter-spacing:.04em;cursor:pointer;transition:border-color .2s}
-.mdh-chips.nr .mdh-chip{height:32px;padding:0 12px;font-size:13px}
-.mdh-chip:hover{border-color:rgba(244,244,241,.5)}
-.mdh-chip[aria-pressed="true"]{background:${accent};border-color:${accent};color:${ink}}
-.mdh-chip:focus-visible,.mdh-auto:focus-visible,.mdh-link:focus-visible{outline:2px solid ${accent};outline-offset:2px}
 .mdh-auto{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px;border-radius:100px;border:1px solid ${line};background:transparent;color:${dim};font-family:${MONO};font-size:11px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.mdh-auto:focus-visible,.mdh-link:focus-visible,.mdh-replay:focus-visible{outline:2px solid ${accent};outline-offset:2px}
 .mdh-dyn{color:${accent};background:rgba(165,224,46,.14);border-radius:3px;padding:0 3px;transition:background .3s,color .3s}
 .mdh-dyn.on{background:${accent};color:${ink};transition:none}
 .mdh-caret{display:inline-block;width:.55em;height:1.1em;vertical-align:-.2em;margin-left:2px;background:${accent};animation:mdh-blink 1s steps(1,end) infinite}
 @keyframes mdh-blink{50%{opacity:0}}
 @keyframes mdh-bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.mdh-stage{position:relative;overflow:hidden;border-radius:6px;background:rgba(244,244,241,.05);border:1px solid ${line};cursor:pointer}
+.mdh-stage:hover .mdh-replay{color:${paper};border-color:rgba(244,244,241,.5)}
+.mdh-replay{position:absolute;right:8px;top:8px;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:100px;border:1px solid ${line};background:${ink};color:${dim};font-family:${MONO};font-size:11px;letter-spacing:.04em;cursor:pointer;transition:color .2s,border-color .2s}
 .mdh-range{-webkit-appearance:none;appearance:none;width:100%;height:32px;background:transparent;margin:0;cursor:pointer}
 .mdh-range:focus{outline:none}
 .mdh-range:focus-visible{outline:2px solid ${accent};outline-offset:2px;border-radius:4px}
@@ -616,72 +813,79 @@ export function HeroConsole(props: ConsoleProps) {
 .mdh-range::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:${accent};border:2px solid ${ink}}
 .mdh-range:active::-webkit-slider-thumb{transform:scale(1.18)}
 .mdh-link{color:${paper};text-decoration:none;border-bottom:1px solid ${accent};padding-bottom:2px;white-space:nowrap}
-@media (prefers-reduced-motion: reduce){.mdh-chip,.mdh-dyn{transition:none}.mdh-caret{animation:none}}
+@media (prefers-reduced-motion: reduce){.mdh-dyn{transition:none}.mdh-caret{animation:none}}
 ` }} />
 
             {/* 巡回の残り時間（触ると消える） */}
-            <span aria-hidden="true" key={`bar${tick}`}
+            <span aria-hidden="true" key={`bar${st.tick}`}
                 style={{ position: "absolute", left: 0, top: 0, height: 2, width: "100%", background: accent, transformOrigin: "0 50%",
-                    opacity: auto && !reduced && playing ? 1 : 0, transform: "scaleX(0)",
-                    animation: auto && !reduced && playing ? `mdh-bar ${interval}ms linear forwards` : "none" }} />
+                    opacity: st.playing ? 1 : 0, transform: "scaleX(0)",
+                    animation: st.playing ? `mdh-bar ${st.interval}ms linear forwards` : "none" }} />
 
-            {/* ヘッダー */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: `12px ${pad}px`, borderBottom: `1px solid ${line}` }}>
-                <span style={{ fontFamily: MONO, fontSize: 12, letterSpacing: "0.06em", color: dim }}>
-                    Words → Motion → Prompt
+            {/* ヘッダー：いまの項目のファイル名＋自動巡回 */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: `10px ${pad}px`, borderBottom: `1px solid ${line}` }}>
+                <span style={{ fontFamily: MONO, fontSize: 12, letterSpacing: "0.04em", color: dim, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {`// ${w.slug}.md`}
                 </span>
                 {!reduced ? (
-                    <button className="mdh-auto" aria-pressed={auto} onClick={(e) => { e.stopPropagation(); if (auto) { stopAuto(); return } autoRef.current = true; setTick((x) => x + 1); setAuto(true) }}
+                    <button className="mdh-auto" aria-pressed={st.auto} onClick={(e) => { e.stopPropagation(); if (st.auto) stopAuto(); else startAuto() }}
                         onPointerDown={(e) => e.stopPropagation()}>
-                        <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 6, background: auto ? accent : muted }} />
-                        {auto ? "Auto" : "Paused"}
+                        <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 6, background: st.auto ? accent : muted }} />
+                        {st.auto ? "Auto" : "Paused"}
                     </button>
                 ) : null}
             </div>
 
-            {/* 擬態語のチップ */}
-            {/* 折り返して全部見せる（横スクロールでは PC 640幅でも右端の「カタカタ」が切れていた＝3周目A） */}
-            <div className={"mdh-chips" + (narrow ? " nr" : "")} role="group" aria-label="擬態語を選ぶと、見出しがその動きを演じます"
-                style={{ display: "flex", flexWrap: "wrap", gap: narrow ? 6 : 8, padding: `16px ${pad}px 4px` }}>
-                {words.map((x, k) => (
-                    <button key={x.slug} className="mdh-chip" aria-pressed={k === idx}
-                        onClick={() => choose(k)}>{x.word}</button>
-                ))}
-            </div>
+            <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "188px 1fr", gap: narrow ? 14 : 24, padding: `${narrow ? 14 : 18}px ${pad}px ${narrow ? 6 : 8}px` }}>
+                {/* その動きの絵：擬音そのものが、見出しと同じ値で演じる（押すともう一度） */}
+                <div ref={stageRef} className="mdh-stage" onClick={replay} aria-hidden="true"
+                    style={{ minHeight: narrow ? 116 : 140 }}>
+                    <button type="button" className="mdh-replay" tabIndex={-1} onClick={(e) => { e.stopPropagation(); replay() }}>↻ もう一度</button>
+                    <span style={{ position: "absolute", left: 14, right: 14, bottom: 30, height: 1, background: line }} />
+                    <span ref={wordRef} key={w.slug}
+                        style={{ position: "absolute", left: 14, bottom: 30, fontFamily: JP, fontWeight: 700, fontSize: narrow ? 36 : 40, lineHeight: 1.18, letterSpacing: "-0.02em", color: paper, whiteSpace: "nowrap" }}>
+                        {wordChars.map((ch, i) => (
+                            <span key={i} ref={(el) => { charRefs.current[i] = el }} style={{ display: "inline-block", whiteSpace: "pre" }}>{ch}</span>
+                        ))}
+                        <span ref={caretRef} style={{ position: "absolute", left: 0, top: 0, width: "0.06em", height: "0.9em", background: paper, opacity: 0, pointerEvents: "none" }} />
+                    </span>
+                    <span style={{ position: "absolute", left: 14, bottom: 8, fontFamily: MONO, fontSize: 11, letterSpacing: "0.04em", color: dim, whiteSpace: "nowrap" }}>{mainText(w, v)}</span>
+                </div>
 
-            {/* プロンプトの要の行（打ち出し） */}
-            <div style={{ padding: `14px ${pad}px 4px`, fontFamily: MONO, fontSize: narrow ? 13 : 14, lineHeight: 1.8, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
-                <div style={{ fontSize: 12, color: dim, marginBottom: 6, letterSpacing: "0.04em" }}>{`// ${w.slug}.md`}</div>
-                <div style={{ display: "grid" }}>
-                    {/* 全文ぶんの高さを先に確保して、打ち出し中にレイアウトを動かさない */}
-                    <div aria-hidden="true" style={{ gridArea: "1 / 1", visibility: "hidden" }}>{renderSegs(Infinity, true)}</div>
-                    <div aria-live="off" style={{ gridArea: "1 / 1" }}>
-                        {renderSegs(done ? Infinity : typed, false)}
-                        {!done ? <span className="mdh-caret" aria-hidden="true" /> : null}
+                <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10 }}>
+                    {/* プロンプトの全文（打ち出し） */}
+                    {/* 高さは8語のうち一番長いプロンプトの行数ぶん確保（PC・SP とも4行）＝語が替わっても面の高さと下の行が動かない */}
+                    <div style={{ fontFamily: MONO, fontSize: narrow ? 13 : 14, lineHeight: 1.75, whiteSpace: "pre-wrap", overflowWrap: "anywhere", display: "grid", alignContent: "start", minHeight: narrow ? 92 : 98 }}>
+                        {/* 全文ぶんの高さを先に確保して、打ち出し中にレイアウトを動かさない */}
+                        <div aria-hidden="true" style={{ gridArea: "1 / 1", visibility: "hidden" }}><Segs segs={segs} w={w} v={v} limit={Infinity} flash="" cls="mdh-dyn" /></div>
+                        <div aria-live="off" style={{ gridArea: "1 / 1" }}>
+                            <Segs segs={segs} w={w} v={v} limit={done ? Infinity : typed} flash={st.flash} cls="mdh-dyn" />
+                            {!done ? <span className="mdh-caret" aria-hidden="true" /> : null}
+                        </div>
                     </div>
+
+                    {/* 主パラメータのスライダー */}
+                    {main ? (
+                        <div>
+                            <label style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, fontFamily: MONO, fontSize: 12, color: dim, letterSpacing: "0.02em" }}>
+                                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{main.label}</span>
+                                <span style={{ color: accent }}>{fmt(main, v[w.main])}</span>
+                                <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>（離すと見出しがこの値で動きます）</span>
+                            </label>
+                            <input className="mdh-range" type="range" aria-label={`${w.nameJa}：${main.label}`}
+                                min={main.min} max={main.max} step={main.step} value={v[w.main]}
+                                style={{ ["--fill" as string]: `${fill}%` } as CSSProperties}
+                                onChange={(e) => slide(w.main, parseFloat(e.target.value))}
+                                onPointerUp={replay}
+                                onKeyUp={(e) => { if (e.key.startsWith("Arrow") || e.key === "Home" || e.key === "End" || e.key.startsWith("Page")) replay() }} />
+                        </div>
+                    ) : null}
                 </div>
             </div>
-
-            {/* 主パラメータのスライダー */}
-            {main ? (
-                <div style={{ padding: `10px ${pad}px 14px` }}>
-                    <label style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, fontFamily: MONO, fontSize: 12, color: dim, letterSpacing: "0.02em" }}>
-                        <span>{main.label}</span>
-                        <span style={{ color: accent }}>{fmt(main, v[w.main])}</span>
-                        <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>（離すと見出しがこの値で動きます）</span>
-                    </label>
-                    <input className="mdh-range" type="range" aria-label={`${w.nameJa}：${main.label}`}
-                        min={main.min} max={main.max} step={main.step} value={v[w.main]}
-                        style={{ ["--fill" as string]: `${fill}%` } as CSSProperties}
-                        onChange={(e) => onSlide(parseFloat(e.target.value))}
-                        onPointerUp={replay}
-                        onKeyUp={(e) => { if (e.key.startsWith("Arrow") || e.key === "Home" || e.key === "End" || e.key.startsWith("Page")) replay() }} />
-                </div>
-            ) : null}
 
             {/* 項目名と詳細へのリンク */}
             {/* SP：リンクを左に置く（右下の Made in Framer バッジ 約150×40・右下12px に隠れていた＝独立レビュー3周目） */}
-            <div style={{ display: "flex", flexDirection: narrow ? "column" : "row", alignItems: narrow ? "flex-start" : "center", justifyContent: "space-between", gap: narrow ? 6 : 16, flexWrap: "wrap", padding: `14px ${pad}px ${narrow ? 10 : 16}px`, borderTop: `1px solid ${line}` }}>
+            <div style={{ display: "flex", flexDirection: narrow ? "column" : "row", alignItems: narrow ? "flex-start" : "center", justifyContent: "space-between", gap: narrow ? 6 : 16, flexWrap: "wrap", padding: `12px ${pad}px ${narrow ? 10 : 14}px`, borderTop: `1px solid ${line}` }}>
                 <span style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0, maxWidth: "100%" }}>
                     <span style={{ fontSize: 15, fontWeight: 700, whiteSpace: "nowrap" }}>{w.nameJa}</span>
                     <span style={{ fontFamily: MONO, fontSize: 12, color: dim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.nameEn}</span>
@@ -710,22 +914,22 @@ addPropertyControls(HeroConsole, {
 interface LiveProps extends ConsoleProps { maxSize: number }
 
 /**
- * Hero Live（見出し＋コンソール）
+ * Hero Live（見出し＋チップ列＋コンソール）
  *
  * @framerIntrinsicWidth 1360
- * @framerIntrinsicHeight 560
+ * @framerIntrinsicHeight 640
  *
  * @framerSupportedLayoutWidth fixed
  * @framerSupportedLayoutHeight auto
  */
 export default function HeroLive(props: LiveProps) {
-    const { maxSize = 130, ink = "#0A0A0A", accent = "#A5E02E" } = props
+    const { maxSize = 176, ink = "#0A0A0A", paper = "#F4F4F1", accent = "#A5E02E", muted = "#6B6B66" } = props
     return (
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 24, ...props.style }}>
-            <HeroTitle text={TITLE} maxSize={maxSize} ink={ink} accent={accent} />
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 28, ...props.style }}>
+            <HeroTitle text={TITLE} maxSize={maxSize} ink={ink} paper={paper} accent={accent} muted={muted} base={props.base} />
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <div style={{ width: "100%", maxWidth: 640 }}>
-                    <HeroConsole base={props.base} interval={props.interval} ink={ink} paper={props.paper} accent={accent} muted={props.muted} />
+                    <HeroConsole base={props.base} interval={props.interval} ink={ink} paper={paper} accent={accent} muted={muted} />
                 </div>
             </div>
         </div>
@@ -733,7 +937,7 @@ export default function HeroLive(props: LiveProps) {
 }
 
 addPropertyControls(HeroLive, {
-    maxSize: { type: ControlType.Number, title: "Max size", defaultValue: 130, min: 32, max: 240, step: 1, unit: "px" },
+    maxSize: { type: ControlType.Number, title: "Max size", defaultValue: 176, min: 32, max: 240, step: 1, unit: "px" },
     interval: { type: ControlType.Number, title: "Interval", defaultValue: 4600, min: 2500, max: 12000, step: 100, unit: "ms" },
     base: { type: ControlType.String, title: "Base", defaultValue: "https://ryota4100221-cmyk.github.io/motion-dict" },
     ink: { type: ControlType.Color, title: "Ink", defaultValue: "#0A0A0A" },

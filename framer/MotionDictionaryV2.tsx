@@ -188,10 +188,10 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
     const fxRef = useRef<HTMLSpanElement>(null) // wipe の幕／count の数字
     const barRef = useRef<HTMLSpanElement>(null) // count の進捗線／skew の読み値
     // press：押している間だけ章名の地と文字を反転（ボタンの押下状態。色は増やさない）
-    const fgRef = useRef(fg)
-    const bgRef = useRef(dark ? ink : paper)
-    fgRef.current = fg
-    bgRef.current = dark ? ink : paper
+    const accentRef = useRef(accent)
+    const inkRef = useRef(ink)
+    accentRef.current = accent
+    inkRef.current = ink
 
     const avail = Math.min(w, 1680) - gutter * 2
     // 章名は欧文なので Geist Mono（2026-10-25 2周目。Noto Sans JP の欧文＝既定書体の顔だった）。
@@ -254,9 +254,11 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
                 })
             } else if (ch.kind === "press") {
                 // press-feedback：入り0.05s で沈む → 戻り0.2s ease-out（非対称）。沈み 2px は16pxのボタン基準なので 0.125em に読み替え
+                // 5周目：色は補間しない（地と文字を 0.05s/0.2s で補間すると途中が灰色のカプセルになり「沈んで」見えた＝独立レビュー B）。
+                // 形（沈み）だけを補間し、色は押している間だけライムに即座に切り替える
                 later(() => {
-                    t.style.transition = "transform .05s ease-out, background-color .05s ease-out, color .05s ease-out"; t.style.transform = "translateY(.125em) scale(.97)"; t.style.background = fgRef.current; t.style.color = bgRef.current
-                    later(() => { t.style.transition = "transform .2s ease-out, background-color .2s ease-out, color .2s ease-out"; t.style.transform = "none"; t.style.background = ""; t.style.color = "" }, 220)
+                    t.style.transition = "transform .05s ease-out"; t.style.transform = "translateY(.125em) scale(.97)"; t.style.background = accentRef.current; t.style.color = inkRef.current
+                    later(() => { t.style.transition = "transform .2s ease-out"; t.style.transform = "none"; t.style.background = ""; t.style.color = "" }, 220)
                 }, 380)
             } else if (ch.kind === "count") {
                 // preloader-counter：1.8s・表示値 = round(N × (1 − 2^(−10t)))
@@ -401,9 +403,9 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
     // UI の扉は章名が押せる（押している間だけ沈む）。説明のための飾りなので、フォーカス対象にはしない
     const press = ch.kind === "press" && !isStatic && !reduced
         ? {
-              onPointerDown: () => { const t = tRef.current; if (t) { t.style.transition = "transform .05s ease-out, background-color .05s ease-out, color .05s ease-out"; t.style.transform = "translateY(.125em) scale(.97)"; t.style.background = fgRef.current; t.style.color = bgRef.current } },
-              onPointerUp: () => { const t = tRef.current; if (t) { t.style.transition = "transform .2s ease-out, background-color .2s ease-out, color .2s ease-out"; t.style.transform = "none"; t.style.background = ""; t.style.color = "" } },
-              onPointerLeave: () => { const t = tRef.current; if (t) { t.style.transition = "transform .2s ease-out, background-color .2s ease-out, color .2s ease-out"; t.style.transform = "none"; t.style.background = ""; t.style.color = "" } },
+              onPointerDown: () => { const t = tRef.current; if (t) { t.style.transition = "transform .05s ease-out"; t.style.transform = "translateY(.125em) scale(.97)"; t.style.background = accentRef.current; t.style.color = inkRef.current } },
+              onPointerUp: () => { const t = tRef.current; if (t) { t.style.transition = "transform .2s ease-out"; t.style.transform = "none"; t.style.background = ""; t.style.color = "" } },
+              onPointerLeave: () => { const t = tRef.current; if (t) { t.style.transition = "transform .2s ease-out"; t.style.transform = "none"; t.style.background = ""; t.style.color = "" } },
           }
         : {}
 
@@ -417,7 +419,10 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
             style={{
                 margin: 0,
                 display: "flex",
-                justifyContent: justify,
+                // UI の扉（PC）：左に押下の3コマ（rest → press → release）、右に押せる章名。左の空きを「この扉の動き」の図解で埋める（5周目）
+                justifyContent: ch.kind === "press" && !sp ? "space-between" : justify,
+                alignItems: ch.kind === "press" && !sp ? "flex-end" : undefined,
+                gap: ch.kind === "press" && !sp ? 40 : undefined,
                 fontFamily: MONO,
                 fontWeight: 500,
                 fontSize: fs,
@@ -431,6 +436,20 @@ function Door({ c, n, idx, ink, paper, muted, accent, w, sp, gutter, reduced, ho
             }}
         >
             <span style={SR}>{c.label} — {c.ja}</span>
+            {ch.kind === "press" && !sp ? (
+                <span aria-hidden style={{ display: "flex", gap: 36, alignItems: "flex-end", paddingBottom: "0.08em" }}>
+                    {([["rest", "1.00", "0 ms"], ["press", "0.97", "+50 ms"], ["release", "1.00", "+250 ms"]] as const).map(([k, sc, tm], i) => (
+                        <span key={k} style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
+                            <span style={{ display: "inline-block", fontSize: Math.round(fs * 0.24), lineHeight: 0.92, letterSpacing: "-0.06em", whiteSpace: "nowrap", border: `1px solid ${ink}`, borderRadius: 999, padding: "0.06em 0.42em 0.14em", background: i === 1 ? accent : ink, color: i === 1 ? ink : paper, transform: i === 1 ? "translateY(.125em) scale(.97)" : undefined }}>
+                                {c.label}
+                            </span>
+                            <span style={{ fontFamily: MONO, fontSize: 11, lineHeight: 1.5, letterSpacing: "0.04em", color: sub, whiteSpace: "nowrap" }}>
+                                <span style={{ color: fg }}>{k}</span> · scale {sc}<br />{tm}
+                            </span>
+                        </span>
+                    ))}
+                </span>
+            ) : null}
             <span aria-hidden style={{ position: "relative", display: "inline-block" }}>
             <span
                 ref={tRef}
@@ -771,7 +790,9 @@ export default function MotionDictionaryV2(props: Props) {
                     <div style={{ display: "grid", gridTemplateColumns: `repeat(${P.tail.length}, minmax(0, 1fr))`, columnGap: colGap, marginTop: P.places.length ? rowGap : 0, alignItems: "start" }}>
                         {P.tail.map((k) => (
                             <div key={items[k].slug} className="mdx-gi" data-c={P.tail.indexOf(k)} style={{ minWidth: 0 }}>
-                                {one(items[k], { row: P.tail.length === 1 || L.row, wide: L.wide && P.tail.length > 1 })}
+                                {/* 横長カードの章（Text）で1枚だけ残ったときは、録画を大きく取った横長（1.3:1）で段を埋める。
+                                    5周目：従来の 1:2 では録画が版面の1/3に縮み、右下に大きな空きが残った（独立レビュー B） */}
+                                {one(items[k], { row: P.tail.length === 1 || L.row, wide: L.wide, big: L.wide && P.tail.length === 1 && !sp })}
                             </div>
                         ))}
                     </div>
@@ -819,6 +840,11 @@ export default function MotionDictionaryV2(props: Props) {
 .mdx-card .ph{position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#0B0B0A;isolation:isolate}
 .mdx-card .ph img,.mdx-card .ph video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .mdx-card .ph video{opacity:0;transition:opacity .18s}
+.mdx-door .mdx-pill{background:${ink};color:${paper};border-color:${ink}!important}
+.mdx-door.dark .mdx-pill{background:${paper};color:${ink};border-color:${paper}!important}
+.mdx-card .ph img.pl:not([src]){visibility:hidden}
+.mdx-card .ph img.pl{opacity:0;transition:opacity .25s}
+.mdx-card .ph img.pl.in{opacity:1}
 .mdx-card .ph video.on{opacity:1}
 /* ホバーの合図は名前の演技に移した（ライムの下敷きは reduced-motion のときだけ残す） */
 .mdx-card .ph::after{content:"";position:absolute;inset:0;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);pointer-events:none}
@@ -834,6 +860,7 @@ export default function MotionDictionaryV2(props: Props) {
 /* 名前の演技（pfPlay）。素の名前は inline のまま（仮名のカーニングを保つ）、舞台は1文字ずつ絶対配置 */
 .mdx-pf{position:relative;display:inline-block;vertical-align:top;max-width:100%;white-space:nowrap;overflow-x:clip;overflow-y:visible;text-overflow:ellipsis}
 .mdx-pf .mdt-t{display:inline}
+.nm.w .mdx-pf{white-space:normal;text-overflow:clip}
 .mdx-pf .mdt-stage .mdt-p,.mdx-pf .mdt-stage .mdt-c{position:absolute;display:block;white-space:pre}
 .mdx-pf .mdt-fx{position:absolute;pointer-events:none;display:block}
 .mdx-pf .mdt-ghost{font:inherit;letter-spacing:inherit;line-height:inherit}
@@ -862,7 +889,7 @@ export default function MotionDictionaryV2(props: Props) {
 .st-S .lf,.st-C .lf{min-height:0;height:100%}
 .st-S .lf{grid-column:1/-1}
 .st-S .ph img,.st-S .ph video,.st-C .ph img,.st-C .ph video{object-fit:contain}
-.st-S .ph,.st-C .ph{background:${ink}}
+.st-S .ph,.st-C .ph{background-color:${ink};background-size:contain!important;background-repeat:no-repeat}
 .st-S .sn{grid-column:1;align-self:end}
 .st-S .sb{grid-column:2;align-self:end;justify-self:end}
 /* C＝上に名前（中央）、中央に録画、下に一言 */
@@ -996,6 +1023,22 @@ export default function MotionDictionaryV2(props: Props) {
                         <p style={{ margin: 0, padding: `8px ${gutter}px 0`, maxWidth: 1680, marginInline: "auto", boxSizing: "border-box", fontSize: 13, lineHeight: 1.7, color: muted }}>
                             「{q}」そのものは見つからなかったので、{found.mode === "words-all" ? "次の語をすべて含む動き" : "次の語のどれかを含む動き"}を出しています：{found.tokens.join(" / ")}
                         </p>
+                    ) : null}
+                    {searching && filtered.length && found.syn ? (
+                        <p style={{ margin: 0, padding: `8px ${gutter}px 0`, maxWidth: 1680, marginInline: "auto", boxSizing: "border-box", fontSize: 13, lineHeight: 1.7, color: muted }}>
+                            「{q}」に近い言い方（{synLabels(nq).slice(0, 5).join(" / ")} など）で当たった {found.syn} 件も、後ろに並べています。
+                        </p>
+                    ) : null}
+                    {/* 当たりが少ないとき（1〜5件）は、近い言い方を候補に出す（0件のときは下の候補） */}
+                    {searching && filtered.length > 0 && filtered.length < 6 ? (
+                        <div style={{ padding: `12px ${gutter}px 0`, maxWidth: 1680, marginInline: "auto", boxSizing: "border-box", display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <span style={{ fontFamily: MONO, fontSize: 12, color: muted, letterSpacing: "0.04em", marginRight: 4 }}>近い言い方</span>
+                            {(synLabels(nq).length ? synLabels(nq) : PIN_RAW.map(([wd]) => wd)).filter((wd) => normalize(wd) !== nq).slice(0, 8).map((wd) => (
+                                <button key={wd} className="mdx-chip" onClick={() => { setQuery(wd); setActiveCat("all") }} style={chip(false)}>
+                                    {wd}
+                                </button>
+                            ))}
+                        </div>
                     ) : null}
                     {filtered.length ? (
                         // 1カテゴリの絞り込み（検索なし）はその章の並びを使う。検索中は均一の並び
@@ -1587,11 +1630,45 @@ function usePlay(slug: string, prio: number, hoverable: boolean, isStatic: boole
     return { active, ready, setReady, vRef, phRef, hov }
 }
 
+// ポスターの先回り読み込み（5周目）：loading="lazy" の既定の距離（Chrome で約1250px）では高速スクロールに追いつかなかった。
+// 自前の IntersectionObserver で、下へ画面2.5枚ぶん・上へ1枚ぶん先から src を入れる。下塗り（PF_LQIP）と併用
+const PL: { io: IntersectionObserver | null; src: Map<Element, string> } = { io: null, src: new Map() }
+function plWatch(img: HTMLImageElement, src: string): () => void {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) { img.src = src; return () => {} }
+    if (!PL.io)
+        PL.io = new IntersectionObserver(
+            (es) => {
+                for (const en of es) {
+                    if (!en.isIntersecting) continue
+                    const el = en.target as HTMLImageElement
+                    const u = PL.src.get(el)
+                    if (u && !el.getAttribute("src")) el.src = u
+                    PL.src.delete(el)
+                    PL.io?.unobserve(el)
+                }
+            },
+            { rootMargin: "100% 0px 250% 0px" }
+        )
+    PL.src.set(img, src)
+    PL.io.observe(img)
+    return () => { PL.io?.unobserve(img); PL.src.delete(img) }
+}
 function Media({ e, isStatic, P, eager }: { e: Entry; isStatic: boolean; P: ReturnType<typeof usePlay>; eager?: boolean }) {
+    const imgRef = useRef<HTMLImageElement>(null)
+    const direct = isStatic || !!eager
+    useEffect(() => {
+        const img = imgRef.current
+        if (direct || !img) return
+        return plWatch(img, e.poster)
+    }, [e.poster, direct])
+    const lq = lqipOf(e.slug)
     return (
-        <span className="ph" ref={P.phRef}>
+        <span className="ph" ref={P.phRef} style={lq ? { backgroundImage: lq, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
             {/* 止まっている時に黒地に暗灰でほぼ読めないポスター（PF_DIM・70/196枚）は明るさを補正する。録画が回り始めたら録画が上に重なる */}
-            <img src={e.poster} alt="" loading={eager ? "eager" : "lazy"} decoding="async" style={dimOf(e.slug) ? { filter: `brightness(${dimOf(e.slug)})` } : undefined} />
+            {/* src は先回り読み込み（plWatch）が入れる。読み込み前は img を透明にして下塗りを見せる（壊れた画像の枠を出さない） */}
+            <img ref={imgRef} src={direct ? e.poster : undefined} alt="" decoding="async" className={direct ? undefined : "pl"}
+                onLoad={(ev) => ev.currentTarget.classList.add("in")}
+                style={dimOf(e.slug) ? { filter: `brightness(${dimOf(e.slug)})` } : undefined} />
             {!isStatic && P.active ? (
                 <video
                     ref={P.vRef}
@@ -1640,7 +1717,7 @@ function Card({ e, ink, muted, accent, hoverable, reduced, isStatic, sp, big, ro
             </span>
             <span className="tx" style={{ display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
                 <span
-                    className="nm"
+                    className={sp ? "nm w" : "nm"}
                     style={{
                         alignSelf: "flex-start",
                         maxWidth: "100%",
@@ -1650,18 +1727,18 @@ function Card({ e, ink, muted, accent, hoverable, reduced, isStatic, sp, big, ro
                         lineHeight: 1.45,
                         letterSpacing: "-0.005em",
                         color: ink,
-                        // 横は切って省略記号、縦は演技のはみ出し（跳ねる・浮く）を見せる
-                        overflowX: "clip",
-                        overflowY: "visible",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
+                        // PC：横は切って省略記号、縦は演技のはみ出し（跳ねる・浮く）を見せる。
+                        // SP：2列で1枚 170px 前後しかなく「…」で切れていた（5周目・独立レビュー A/B）→ 折り返して全部見せる。言い換えの括弧は小さく薄く
+                        ...(sp
+                            ? { whiteSpace: "normal", overflow: "visible", lineBreak: "strict" }
+                            : { overflowX: "clip", overflowY: "visible", textOverflow: "ellipsis", whiteSpace: "nowrap" }),
                     } as CSSProperties}
                 >
                     {/* 見出し語だけが演じる（言い換えの括弧は素のまま） */}
                     <span ref={nameRef} className="mdx-pf">
                         <span className="mdt-t">{charPhrases(main)}</span>
                     </span>
-                    {alt ? `（${alt}）` : null}
+                    {alt ? (sp ? <span style={{ fontSize: "0.86em", fontWeight: 400, color: muted }}>（{alt}）</span> : `（${alt}）`) : null}
                 </span>
                 <span style={{ fontFamily: MONO, fontSize: sp ? 11 : 12, letterSpacing: "0.01em", color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {sentence(e.nameEn)}
@@ -2172,6 +2249,18 @@ function defaultsOf(slug: string): V {
     }
     return pfDefaults[slug] || {}
 }
+let lqipMap: Record<string, string> | null = null
+function lqipOf(slug: string): string {
+    if (!lqipMap) {
+        lqipMap = {}
+        for (const t of PF_LQIP.split(" ")) {
+            const i = t.indexOf(":")
+            if (i > 0) lqipMap[t.slice(0, i)] = t.slice(i + 1)
+        }
+    }
+    const b = lqipMap[slug]
+    return b ? `url(data:image/webp;base64,${b})` : ""
+}
 let dimMap: Record<string, number> | null = null
 function dimOf(slug: string): number {
     if (!dimMap) {
@@ -2189,7 +2278,8 @@ interface PfOpts { slug: string; cat: string; en: string; cap: number; hold: boo
 interface PfHandle { root: HTMLElement; card: boolean; held: boolean; stop: () => void; release: () => void }
 
 const PF_LIVE: PfHandle[] = []
-const PF_MAX = 2
+// 同時に演じるカードの名前は3枚まで（5周目：PC でも画面に入ったら演じるようにしたので、2→3。多いと目が散る）
+const PF_MAX = 3
 
 function pfReduced() {
     return typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -2303,6 +2393,9 @@ function pfPlay(root: HTMLElement, o: PfOpts): PfHandle | null {
     const clipHosts: [HTMLElement, string][] = []
     if (txt.scrollWidth <= root.clientWidth + 1) {
         for (let el: HTMLElement | null = root, k = 0; el && k < 2; el = el.parentElement, k++) {
+            // 外す箱そのものに収まっていない中身（言い換えの括弧など）があるときは外さない。
+            // 5周目：見出し語は収まっていても「（入力中→吹き出し）」が隣のカードの名前に重なっていた（独立レビュー B・SP）
+            if (el.scrollWidth > el.clientWidth + 1) break
             if (getComputedStyle(el).overflowX === "clip" || getComputedStyle(el).overflowX === "hidden") {
                 clipHosts.push([el, el.style.overflowX])
                 el.style.overflowX = "visible"
@@ -2508,19 +2601,26 @@ const PF_READ: Record<string, number> = {
     "spiral-reveal": 1300, "gradient-morph": 1304, "motion-path": 1308, "curtain-wipe": 1400, "skeleton-shimmer": 1900,
 }
 
-// SP の「画面に入ったら1回」の順番待ち
+// 「画面に入ったら1回」の順番待ち（5周目：SP だけ → PC も）。画面に入った順に、前の1枚から 180ms 空けて1枚ずつ出す＝時間差。
+// 同時は PF_MAX（3）まで。空きが出たら（演技が終わったら pfPlay の stop が pfPump を呼ぶ）次へ
 const PF_QUEUE: { el: HTMLElement; go: () => void }[] = []
+const PF_GAP = 180
+let pfLast = 0
+let pfT = 0
 function pfPump() {
     if (typeof window === "undefined") return
+    window.clearTimeout(pfT)
     while (PF_QUEUE.length && PF_LIVE.filter((h) => h.card).length < PF_MAX) {
+        const wait = pfLast + PF_GAP - performance.now()
+        if (wait > 0) { pfT = window.setTimeout(pfPump, wait); return }
         const it = PF_QUEUE.shift()!
         const r = it.el.getBoundingClientRect()
         // まだ画面の中にあるものだけ（流し読みで通り過ぎたものは演じない）
-        if (r.bottom > 0 && r.top < window.innerHeight && r.height > 0) it.go()
+        if (r.bottom > 0 && r.top < window.innerHeight && r.height > 0) { pfLast = performance.now(); it.go() }
     }
 }
 
-/** カードの名前の演技。PC＝ホバー（enter/leave をカードに付ける）／タッチ＝名前が画面に入ったら1回 */
+/** カードの名前の演技。名前が画面に入ったら1回（PC・SP とも。5周目に PC も）＋ PC はホバーでも（enter/leave をカードに付ける） */
 function useCardPerform(ref: { current: HTMLElement | null }, e: Entry, o: { hoverable: boolean; reduced: boolean; isStatic: boolean; colors: PfColors; cap: number }) {
     const live = useRef<PfHandle | null>(null)
     const flags = (SPEC[e.slug] ? (SPEC[e.slug][2] as string) : "") || ""
@@ -2531,7 +2631,7 @@ function useCardPerform(ref: { current: HTMLElement | null }, e: Entry, o: { hov
     })
 
     useEffect(() => {
-        if (o.isStatic || o.reduced || o.hoverable || typeof window === "undefined" || !("IntersectionObserver" in window)) return
+        if (o.isStatic || o.reduced || typeof window === "undefined" || !("IntersectionObserver" in window)) return
         const el = ref.current
         if (!el) return
         let done = false
@@ -2541,7 +2641,8 @@ function useCardPerform(ref: { current: HTMLElement | null }, e: Entry, o: { hov
                     if (!en.isIntersecting || done) continue
                     done = true
                     io.disconnect()
-                    PF_QUEUE.push({ el, go: () => { live.current = pfPlay(el, opts(false)) } })
+                    // ホバーで既に演じていれば、重ねて撃たない
+                    PF_QUEUE.push({ el, go: () => { if (!live.current) live.current = pfPlay(el, opts(false)) } })
                     pfPump()
                 }
             },
@@ -2720,22 +2821,68 @@ function tokensOf(q: string): string[] {
         .map(normalize)
         .filter((t) => t.length >= 2)
 }
+// ─── 言い方の束（5周目）────────────────────────────────────────────
+// 「揺れる」で1件（振り子・炎・線の震えが出ない）だった（独立レビュー）。別名は擬音（ゆらゆら・ぶるぶる）で持っているが、
+// 動詞・形容詞（揺れる・震える・跳ねる）からは届かなかった。束の「入口」に当たったら、束の語をすべて別名として引き、
+// 元の語で当たった項目の後ろに並べる（元の語の当たりが先）。入口は活用のゆれ（揺れ・揺らす・揺れて）を含めて前方一致で見る
+const SYN_RAW: [string, string][] = [
+    ["揺れる,揺れ,揺ら,ゆれ,ゆら,ぐらぐら,グラグラ,ゆさゆさ,スウィング,スイング,sway,swing", "ゆらゆら,ぶらぶら,ぶらーん,振り子,ゆらっ,メラメラ,炎,波打つ,うねうね,ぷるぷる,ぶるぶる,震え,ふわふわ,ぷかぷか"],
+    ["震える,震え,ふるえ,振動,ぶるぶる,ブルブル,ぷるぷる,わなわな,shake,jitter,vibrat", "ガタガタ,プルプル,ぶるぶる,ブルッ,首を振る,ぷるぷる,震え,手描き,チカチカ,ゆらゆら,ガガッ,ノイズ"],
+    ["跳ねる,跳ね,弾む,弾ん,はずむ,はね,ジャンプ,バウンス,bounce,jump", "ポンッ,ぽよん,バウンド,ぴょん,跳ねる,ばね,びよん,ぷるん,跳ね返る,ぴょこぴょこ"],
+    ["回る,回転,まわる,まわす,回す,スピン,spin,rotate", "くるくる,ぐるぐる,回転,回る,クルッ,ぐるっと,くるっと,周回"],
+    ["光る,光,輝く,かがやく,ひかる,きらめ,煌め,glow,shine", "キラキラ,ピカッ,光る,光沢,キラッ,光が流れる,ネオン,ふわっと光る,ぼんやり光る,ギラッ"],
+    ["消える,消え,消す,きえる,けす,なくなる,disappear,fade out", "消える,すっと消える,プツン,フェードアウト,溶ける,線になって消える,払う"],
+    ["現れる,現れ,あらわれ,出る,出て,出現,登場,appear,reveal", "ふわっと,フェードイン,下から出てくる,浮かび上がる,スッと出る,じわっと出る,ぬっ,ピョコッ"],
+    ["浮く,浮か,浮い,うく,うか,浮遊,float", "浮く,ふわふわ,ぷかぷか,浮遊,持ち上がる,ふわっと浮く"],
+    ["伸びる,伸び,のびる,広がる,ひろがる,伸縮,stretch,expand", "伸びる,にゅっ,ぐいーん,ビヨーン,広がる,丸く広がる,にょきにょき,びよーん"],
+    ["ぼやける,ぼやけ,ぼける,ぼけ,ぼかす,ぼかし,にじむ,滲む,blur", "ぼかし,ピント,ぼけ,ぼんやり,じんわり,だんだんぼける,ピンボケ,ぼわっ"],
+    ["落ちる,落ち,おちる,落下,降る,drop,fall", "ストン,ポンッ,落とす,降る,しんしん,ポイッ"],
+    ["縮む,縮ん,ちぢむ,小さくなる,shrink", "縮む,小さくなる,キュッ,ぎゅっ,クシャッ"],
+    ["大きくなる,大きく,拡大,膨らむ,ふくらむ,zoom", "ズーム,拡大,大きくなる,ぷくっ,グーッと,寄る"],
+    ["流れる,流れ,ながれる,流す,scroll text,ticker", "流れる,テロップ,電光掲示板,ずっと流れる,横に流れる"],
+    ["めくる,めくれ,捲る,flip", "めくる,ペラッ,パタン,めくれる,パタパタ,ひっくり返す"],
+]
+let synList: { keys: string[]; terms: string[] }[] | null = null
+function synOf(nq: string): string[] {
+    if (!synList) synList = SYN_RAW.map(([k, t]) => ({ keys: k.split(",").map(normalize).filter(Boolean), terms: t.split(",").map(normalize).filter(Boolean) }))
+    const out: string[] = []
+    for (const g of synList) if (g.keys.some((k) => nq.startsWith(k) || (k.length >= 3 && nq.includes(k)))) for (const t of g.terms) if (!out.includes(t)) out.push(t)
+    return out
+}
+// 表示用（正規化前の語）。「近い言い方」の候補に出す
+function synLabels(nq: string): string[] {
+    const out: string[] = []
+    for (const [k, t] of SYN_RAW) if (k.split(",").map(normalize).some((x) => x && (nq.startsWith(x) || (x.length >= 3 && nq.includes(x))))) for (const w of t.split(",")) if (!out.includes(w)) out.push(w)
+    return out
+}
+
 type SearchMode = "all" | "words-all" | "words-any" | "none"
-function searchEntries(list: Entry[], q: string): { items: Entry[]; mode: SearchMode; tokens: string[] } {
+function searchEntries(list: Entry[], q: string): { items: Entry[]; mode: SearchMode; tokens: string[]; syn: number } {
     const nq = normalize(q)
-    if (!nq) return { items: list, mode: "all", tokens: [] }
+    if (!nq) return { items: list, mode: "all", tokens: [], syn: 0 }
     const rank = (sc: (e: Entry) => number) =>
         list.map((e, i) => [sc(e), i, e] as [number, number, Entry]).filter((x) => x[0] > 0).sort((a, b) => b[0] - a[0] || a[1] - b[1]).map((x) => x[2])
     const whole = rank((e) => scoreOf(e, nq))
-    if (whole.length) return { items: whole, mode: "all", tokens: [] }
+    // 言い方の束：元の語の当たりの後ろに、束の語（擬音の別名）で当たった項目を足す
+    const terms = synOf(nq)
+    if (terms.length) {
+        const near = rank((e) => {
+            const h = hayOf(e)
+            let sc = 0
+            for (const t of terms) if (h.al.some((a) => a === t || a.includes(t)) || h.name.includes(t)) sc++
+            return sc
+        }).filter((e) => !whole.includes(e))
+        if (near.length) return { items: [...whole, ...near], mode: "all", tokens: [], syn: near.length }
+    }
+    if (whole.length) return { items: whole, mode: "all", tokens: [], syn: 0 }
     const tk = tokensOf(q)
     if (tk.length >= 2) {
         const both = rank((e) => (tk.every((t) => scoreOf(e, t) > 0) ? tk.reduce((s, t) => s + scoreOf(e, t), 0) : 0))
-        if (both.length) return { items: both, mode: "words-all", tokens: tk }
+        if (both.length) return { items: both, mode: "words-all", tokens: tk, syn: 0 }
         const any = rank((e) => tk.reduce((s, t) => s + scoreOf(e, t), 0))
-        if (any.length) return { items: any, mode: "words-any", tokens: tk }
+        if (any.length) return { items: any, mode: "words-any", tokens: tk, syn: 0 }
     }
-    return { items: [], mode: "none", tokens: tk }
+    return { items: [], mode: "none", tokens: tk, syn: 0 }
 }
 
 // 演技の既定値（entry/<slug>.json の params[].default・2026-10-25 生成）。slug:key=値,key=値
@@ -2814,6 +2961,208 @@ const PF_DIM =
     " scanlines:1.90 scroll-cue:1.90 scroll-scrub:1.90 scroll-snap:1.90 scroll-spy:1.90 section-color-swap:1.90 skeleton-shimmer:1.90 snowfall:1.90 spinner" +
     "-ring:1.90 spotlight-hover:1.90 spring-easing:1.90 sprite-sheet:1.90 stamp-in:1.70 sticky-pin:1.74 story-progress:1.90 swipe-dismiss:1.90 tab-indicato" +
     "r:1.90 text-slide-swap:1.79 tilt:1.90 toast-slide:1.90 tooltip-pop:1.76 twinkle:1.90"
+// ポスターの下塗り（5周目）：遅延読み込みが追いつかない間、黒い枠が並んでいた（高速スクロールで 192件中47件だけ読み込み済み・独立レビュー2人）。
+// 各ポスターを 32×18 に縮めた WebP（暗いものは PF_DIM と同じ明るさ補正を焼き込み済み）を .ph の背景に敷く＝本画像が来るまで「ぼけた同じ絵」が見える。
+// 計測：v2/posters/*.jpg 196枚 → 29,661 文字（平均151字/枚）。生成＝/motion-dict-v2-blind/aww/r5/posters/ の PIL（LANCZOS・quality 35）
+const PF_LQIP =
+    "accordion:UklGRlAAAABXRUJQVlA4IEQAAADwAwCdASogABIAPwFurU6rJqQiMAgBYCAJaQAAW+sdJHSU62LBf3YAAP7udzYXr1MfvhOiOT86dQqW8gMWEzhA0wAAAA== ai-orb:UklGRlIAAABX" +
+    "RUJQVlA4IEYAAADwAwCdASogABIAPwFurU6rJqQiMAgBYCAJaQAAW4RZZCEW5d7TD1wAAP7wxvuqWfsvCi06IpEzMCrC7XVFxHWE+ahXv8AA ambient-float:UklGRkgAAABXRUJQVlA4IDwAAAB" +
+    "QAwCdASogABIAPwFwr1CrJqQisBgIAWAgCWkAADpwJAcQAAD+75775zD5G05rh4UdWzG8lLaa9mSzAAA= animated-beam:UklGRk4AAABXRUJQVlA4IEIAAABQAwCdASogABIAPwFqrE8rJiQiMA" +
+    "gBYCAJaQAAccCiKrVAAAD+8CPqBDgf+Hvh4+tOQTcU6hnnrRAMNT3LfgRcAAA= arrow-slide-through:UklGRkgAAABXRUJQVlA4IDwAAACQAwCdASogABIAPwFssFErJaSisBgIAWAgCWkAADp" +
+    "wT669GaTAAP7vpxPTe4Uy4bLg/oTgN9D4CKxgAAA= ascii-effect:UklGRngAAABXRUJQVlA4IGwAAAAQBACdASogABIAPwFqrU8rJiQiMAgBYCAJZQC+SCLv0eWYLopot8N/0AD+8N9nexP+VXE" +
+    "LjPUnPjLfeZTDkD8ajlxBFU/WHtIbVucUC6w7TXuR2VS+9RNeohBZ5gBjzmmHGnGOQaNX5/DpQAA= bar-chart-grow:UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASogABIAPwFqrU8rJiQiMAgBY" +
+    "CAJYwDO7CHfjEBann0A+pAiSAD+8L1KiSsZH23MWucuLPBycsMI3MtITKW/saHrsbNn/vejy6H8T2xv3puCSDRUEXMYLcS64/nXLGL9nuaysQAA barber-pole:UklGRogAAABXRUJQVlA4IHwAAA" +
+    "AQBACdASogABIAPwFqrU6rJiQiMAgBYCAJYwDLaYtK32tif8W+LbNKQAD+8L3/cW2KqtpYSCuLKqhWLDii9/HxlMlZxg8mTudsgIaoSMyWgorI5FmBMZxVnBzTtz5CYiTkf9vZ4vFuubmLwdNO49BE" +
+    "T1iZbFvjMU+OV6AA before-after:UklGRnAAAABXRUJQVlA4IGQAAAAwBACdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+vxL2p/pFniwJXMHQAA/vDUrNAZfCfNM30Qcpotr/Zxv0qwwrJfskcv" +
+    "vAtf6jhpyFY/wIDnyKTVUB6yxDaHow2QAL5hwAAA blob-morph:UklGRnAAAABXRUJQVlA4IGQAAAAwBACdASogABIAPwFyr1CrJyQisBgIAWAgCUAAEe6/XGi3o4WGLxUW+gAA/vQhOS1jC8G7xY" +
+    "SWnnkY0IN4zTks5Q3zh4fUlSnW1qhGKQHW7/3tAHTVZqZ3nBvKV469eBgigAAA block-reveal:UklGRnIAAABXRUJQVlA4IGYAAACwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJQBlABDv5pREVvN" +
+    "kDgAD+8L35NXvvfg4tYdpf30S6abU8c3xjK7Qwd1MODQteKlOX4i71vEwVimqCBJK8oGGAYzr/6KWBofqKLZGYAAA= blur-load:UklGRogAAABXRUJQVlA4IHwAAABwBACdASogABIAPwFsrU6rJ" +
+    "iQiMAgBYCAJaQAD5koaWydVqK5F0CFoXzcIAAD+8M6KL7OJXhNsFrpW/dgN5ULyt/ksb3WKHn2trAMeelxPWUPpenmM4Q3MA6nLtnXqmOc99VeZMVKDJcjU6hIOkvt9NsG/giouQfmTAAAA blur-r" +
+    "eveal:UklGRlgAAABXRUJQVlA4IEwAAADwAwCdASogABIAPwFqrE6rJiQiMAgBYCAJaQAAW+wK4ayV8mGVMlYAAP7wvLlILnnJvSRryq5K7a/68YCmHq3zhWGGtaUCnILvgAAA boot-sequence:U" +
+    "klGRkQAAABXRUJQVlA4IDgAAABwAwCdASogABIAPwF2s1OrJySiqAgBYCAJaQAALnVTBXRkGAAA/u51FhBW5soYJo0SDLESGhAAAA== border-draw:UklGRkYAAABXRUJQVlA4IDoAAACQAwCdAS" +
+    "ogABIAPwFyr1CrJyQisBgIAWAgCWkAADpwZWirlpyAAP7vxw7gTAcwAGV1HbE21FpAAAAA bounce-in:UklGRloAAABXRUJQVlA4IE4AAACwAwCdASogABIAPwFyr1CrJyQisBgIAWAgCWMAAI91l" +
+    "+Kb3wvoAAD+9CIyZeZedGGoTxFzh1llvRvS0YYt1JxudKv+UqQbMCWfVjSNgAA= breathing-glow:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFqrU6rJiQiMAgBYCAJZwAAWp9cd/k" +
+    "W13083vogAP7w1IcUAp/LpmvaYASUt3LP8e6+6KNOs+UuDxGYF0vAJtfbPwUtVQAA card-shuffle:UklGRoIAAABXRUJQVlA4IHYAAABwBACdASogABIAPwFqr1ErJaQisBgIAWAgCWUAAC6tq8Z" +
+    "Jd7M93pxap8vR4AD+8NStGMrUdJPet4Gg2TqN1CMdOATCvoR/p69L/9ROr5yKQ6yqz9TUcD5+ER5xQttx+s3P0u+psH79ToqFez6GftBDp4lREAAA carousel:UklGRoYAAABXRUJQVlA4IHoAAAA" +
+    "wBACdASogABIAPwFsrE8rJiQiMAgBYCAJZgDI1CHfZHi0xkP3p+HLWAAA/vDUrNvsaaVZkMuntpuXtKs0IAa1mZdTaDigLckKTOm2pFiT3JNySz/zbgKD1RZAmexe4GFtNL7jqsnfyEVjIoVrDFk+f" +
+    "Y82sgOZ0QAAAA== chat-sequence:UklGRlwAAABXRUJQVlA4IFAAAADQAwCdASogABIAPwFqrU6rJiQiMAgBYCAJZQAAW+sc/CjY5FmJMwAA/vC9R9ASBGi0NCuzKfL1R/1NLY+d7/bq5J1NQAK2" +
+    "Lj+AoLanIAAAAA== checkbox-check:UklGRmAAAABXRUJQVlA4IFQAAACwAwCdASogABIAPwF4s1OrJySiqAgBYCAJaQAALnXZ2koFf/goAAD+8L3cysmQN3aBw1QDpQ+7s+vM309XkuZz9ZQOur" +
+    "d/M6zJfBILKbByECgAAAA= circle-reveal:UklGRqgAAABXRUJQVlA4IJwAAADQBACdASogABIAPwFur1CrJiQisBgIAWAgCWgAvzgyyKB0SQ9nQMpb53kqoR/EQAD+9DKD3ixuiZcsDwNMM6Qa6" +
+    "7dWRK5FYHmM2jmXH8VRPzxvcpccW36Hq1xh5AhYP6JWp4ZhReRQn45gXC2jD+kNqt0zhQhENn79tOe4pyOS0UrKJ+4F+oOFJ3yMvMjCBTbJWtyYoAG0mQ7GwAA= circular-progress:UklGRkoA" +
+    "AABXRUJQVlA4ID4AAACwAwCdASogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+s5+2KcHU9JgAD+8LsS40AuyiOfhTwDT+enU4ZiQwAAAA== clip-reveal:UklGRm4AAABXRUJQVlA4IGIAAAAQBACdA" +
+    "SogABIAPwFuqU8rJqOiMBgMAWAgCWkAAI91oHOw+cWhB1GGgAD+9CBEqkt896bIRHHvCW1uJGHT72lFeLRr7Wz75hq3OFOhgzJP59R4x7d7TTKuP8nlNlkrZAAAAA== color-wave:UklGRlYAAAB" +
+    "XRUJQVlA4IEoAAACQAwCdASogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+sqeCNDYkoAAP7wukrXk1fUYBuvYVaCfN2i5U9MUoa7pj/FARYauyd+xfwAAA== confetti-burst:UklGRlAAAABXRUJQV" +
+    "lA4IEQAAACQAwCdASogABIAPwFurk8rJqQiMAgBYCAJZQAAW+s2kPYx/FeAAP7wuz0AB7PhrQupnndTfORKTK4D95vlkHmuVXMgAA== conic-sweep:UklGRk4AAABXRUJQVlA4IEIAAACQAwCdAS" +
+    "ogABIAPwFoqU+rJaOiMBgMAWAgCWcAAC51mB+d0RCAAP7wuY+9vqyGAqGjJxJOgiFUfPGxLyPcOswAAAA= copy-to-clipboard:UklGRlIAAABXRUJQVlA4IEYAAADQAwCdASogABIAPwFssFErJ" +
+    "aSisBgIAWAgCWkAAC51H89OkI8vjtAA/u52SE6u1n5+CtNc2QzXX0e6nzJqVkw1FD9uswAA corner-brackets:UklGRkQAAABXRUJQVlA4IDgAAACQAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQ" +
+    "AAW+swHtZM/bcAAP7uc6AGCx1+l0j3UCf0eAAAAA== counter-scale:UklGRkwAAABXRUJQVlA4IEAAAADQAwCdASogABIAPwFyrlArJyQisBgIAWAgCWUAAI91x7NRndEP9hgA/vQaZYUqA/a7Q" +
+    "DW3x1NZE/1sCe7S1AAA counter:UklGRlgAAABXRUJQVlA4IEwAAACwAwCdASogABIAPwFqrU6rJiQiMAgBYCAJaQAAW+uIkD8CiSgNAAD+8LwbQcaeTEk+jF6RRx4IIWThLqkKK3S3lcOwvPXqS2" +
+    "VoAAAA cover-flow:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAW/EGdBZLf/GrZP3YAP7w03ysGeB9x+l89H6KMaPZ9OWlfMc/h48zN/6qg9I+IFMemBdU" +
+    "LMAA cover-transition:UklGRm4AAABXRUJQVlA4IGIAAAAQBACdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAUqj1ZIpMcmb6wDWWAAD+8N+vrW+XqxJYlaM0kftv0avarMHgiKPqevfVo72t26+s" +
+    "SMxnX5l2+JIHYIHdgkp40Z6KTwAAAA== crossfade:UklGRmAAAABXRUJQVlA4IFQAAADwAwCdASogABIAPvVkqU6qpaQiMAwBUB6JaQAAW+ssXmQK45NvNkQAAP7yl92u6dO0x3daaxFuE4Fj1NG" +
+    "4rZ2U6QM7EAMmxVciRWlWwl7nF3wAAAA= crt-power-off:UklGRmIAAABXRUJQVlA4IFYAAADwAwCdASogABIAPvFmqk6ppaQiMAwBMB4JaQAAWp+EpYcs9QfoirYgAP7yo7en14ZsXFoYBdkQB/" +
+    "tQ8ogfEhiHayHjM0cIq0oDUm6/zVKobGIQnf/AAA== cube-roll:UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASogABIAPwForE6rJaQiMAgBYCAJZwAAW+s2Kur9XRfYAAD+8Ly2qFNNKpr//QEVw" +
+    "qhHN4YH9rP9i0AC9uHkCY6BCBsW0gBFNXuCwAAA curtain-wipe:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFqrU6rJiQiMAgBYCAJaQAAUqm8uZely1hrLHAAAP7w2v85MbYqKQVic" +
+    "acfhfkTiHWiSjH+RKWiFnXH8KEtJVAOI5EfsAAA custom-cursor:UklGRk4AAABXRUJQVlA4IEIAAACQAwCdASogABIAPwFys1GrJqSiqAqpYCAJaQAALnVTAcdRRmgAAP7udTBxVeQIWE638tEY" +
+    "0F8vOHH+wvzTWYAAAAA= directional-hover:UklGRmoAAABXRUJQVlA4IF4AAAAQBACdASogABIAPwFsrU8rJiQiMAgBYCAJZwAAUquOl2oQM38GxeRsAAD+8M60/O+jRrZ64jAWkXq+dpS7iCq" +
+    "Dof8hsXEsv9TkmnpI3y+aMqwtmlVV/7H6gI7kwAAA dither-dissolve:UklGRmgAAABXRUJQVlA4IFwAAABQBACdASogABIAPwFsrU8rJiQiMAgBYCAJZwAAYA8H6AP9QY5zY0ERAiwAAP7w3Cz5" +
+    "MfMD7aB0GnCfr3u6S5RzA0jAKwK2Nmo5yLcT4aovHPqQ2U5R9TlK+AAAAA== dock-magnify:UklGRlYAAABXRUJQVlA4IEoAAADwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+tBTPDpmp74" +
+    "UDtAAP7uc6jOsieVQ6DMuVB0weIkakNVkCIL3cxwJYer3mgAAA== dot-pagination:UklGRlIAAABXRUJQVlA4IEYAAAAQBACdASogABIAPwFuqE8rJqOiMBgMAWAgCWcAAI91ycP4dc8rV5m8AA" +
+    "D+8pcAGLiOTeG7J5hKxRZTZFxD7zfgrF0AAAAA dots-pulse:UklGRkYAAABXRUJQVlA4IDoAAACQAwCdASogABIAPwFsrU6rJiQiMAgBYCAJZwAAW+s59hzzAicAAP7wuWxjXOxJG3k7rwVd43Oo" +
+    "0IAA drag-scroll:UklGRoIAAABXRUJQVlA4IHYAAADwAwCdASogABIAPwFqrE8rJiQiMAgBYCAJZwDPoCHWH3Ez1lJLiZYAAP7ww2AgqXMuP8E9GzXiI/istKed7Sw9E5Toshn4pushLCdvcv7IK" +
+    "GiX7fXUSGHtzgLU3ScDvHndFYVVIjYPISNpelCP35tlZS0yIAAA drawer-slide:UklGRmIAAABXRUJQVlA4IFYAAADQAwCdASogABIAPv1urE6rJqQiMBgMAWAfiWkAACnT8dsxxJKWD4AA/vDfs" +
+    "tHEb+TzoE0gNPjclhjHDrEcH3O4RGYezdSATZfcB71gxBHdjBP0I4AAAA== drop-zone:UklGRk4AAABXRUJQVlA4IEIAAADQAwCdASogABIAPwFusFCrJiSisBgIAWAgCWkAAJkwT70NHi5/dgAA" +
+    "/vDCc36szZ66lcfY6tkCLAovrqo3wmwAAAA= dropdown-reveal:UklGRlYAAABXRUJQVlA4IEoAAAAwBACdASogABIAPuVgpU6pJiOiN+gBIByJaQAAiOZSDm7s1vQjxRbHgAAA/vKVRgtybCYOH" +
+    "9UUT9isUsuhv40a7139JZuDkAAAAA== duotone-hover:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFurk8rJqQiMAgBYCAJaQAAW+qszsDyF0Y5U90AAP7wvLahVBn8tZdPt+Jfueq4" +
+    "ZT7mJdSjF005Rd1BPygEbBgeMMBIVSAA dvd-bounce:UklGRjoAAABXRUJQVlA4IC4AAABQAwCdASogABIAPwF0sFIrJqSiqAqpYCAJaQAAOo+vv340AAD+7916nFBWwAAA equalizer-bars:Uk" +
+    "lGRkoAAABXRUJQVlA4ID4AAABwAwCdASogABIAPwF0r1CrJyQisBgIAWAgCWkAAC51ncASFxAA/u5x8RikkT65OxH8UK16R6hPNCo0L9gAAA== error-shake:UklGRk4AAABXRUJQVlA4IEIAAAD" +
+    "wAwCdASogABIAPwFwr1CrJqQisBgIAWAgCWkAAC518F+fo23zCKtAAP7udpbcBDfjZXY3ADWeuqMmaxH2soaAAAA= expanding-search:UklGRlIAAABXRUJQVlA4IEYAAACwAwCdASogABIAPwF" +
+    "qrU8rJiQiMAgBYCAJaQAAW9GFhMbIPHhKAAD+8MPmQ/O3NtuUL6HdHtW994AmDp/QWGb5FfOODAAA eye-blink:UklGRnoAAABXRUJQVlA4IG4AAAAQBACdASogABIAPwFyr1CrJyQisBgIAWAgCU" +
+    "AAEe6mNPz1IRZAVF5MAAD+9Bt6iGzI4OYU4errQHU8glyIICa8Ivc+L4O3jbfJcG3QK8axMBBAwOmacjkfKBLN+Kq51Qmns/pJIGjGhIty/+AAAA== fill-hover:UklGRmAAAABXRUJQVlA4IFQA" +
+    "AADQAwCdASogABIAPwFsrU6rJiQiMAgBYCAJQBmLBDv4E8PydFBqcQAA/vC8s2Pzu+tgeBn5D67y3CabEi4lR8wBcjvZvgK1S0izN1YYSWacnK4ogAA= flame-flicker:UklGRlwAAABXRUJQVlA" +
+    "4IFAAAABwAwCdASogABIAPwFusFCrJiSisBgIAWAgCWkAAC51k+Z0qMAA/u52jqfu5bSNdCM7gFwTMjLutkGZaFgQMpIrMR27L3LLtoIQr8J3rhQAAA== flicker-on:UklGRkoAAABXRUJQVlA4I" +
+    "D4AAACQAwCdASogABIAPwFoq06rJaOiMAgBYCAJaQAAW+s2kPYsOQoAAP7wuzq6DvmD0j73YaCuzz8EbMAekwgAAA== flip-card:UklGRlQAAABXRUJQVlA4IEgAAACwAwCdASogABIAPvVmrE6q" +
+    "paSiMAwBUB6JaQAAWp+iODIEkstwgAD+8qQqtua+PSw43tGGPthU1XSBDVhlJuM841xqlHAAAAA= floating-label:UklGRkIAAABXRUJQVlA4IDYAAABwAwCdASogABIAPwFwr1CrJqQisBgIAW" +
+    "AgCWkAAC51nPPW+AAA/u5yLqHEpFHSfTWPuMgAAAA= floating-reactions:UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASogABIAPwFurlErJiQisBgIAWAgCWMAAI91ukoZzMHCf/5AAP70GlY4" +
+    "2DAphoLtXxLfw2Kmt4wtvJDvYMhynQ6YUuxUI7GDlQJZLIAA fly-to-cart:UklGRmIAAABXRUJQVlA4IFYAAACQAwCdASogABIAPwF2s1OrJySiqAgBYCAJZwAALdA8h47ROnCAAP7p/pJyCPdWE" +
+    "Ye1ZwZBThuiGse6rwrg0iaSwIh/sWw1/NI3Haxd/Xj5dxgaCgAAAA== focus-dim:UklGRmAAAABXRUJQVlA4IFQAAACwAwCdASogABIAPvVmqU6qpaQiN/VYAVAeiWkcRAAETql7EFUxYAD+8Abc" +
+    "OMAp6KpeQWrMm0jm+O5siUrrOyIXMB6Nzs8TTuSrGMzURPyBMyS0AAA= fog-drift:UklGRmIAAABXRUJQVlA4IFYAAADwAwCdASogABIAPwFqrE6rJiQiMAgBYCAJZwAAXE7GQNoYSj8PPCjgAP7" +
+    "w1KmtrMEoJ31KXlnzt6DCdCsmtcKH4IZaoYk1BUkPRPJat2zHgGKT1TMAAA== footer-reveal:UklGRmIAAABXRUJQVlA4IFYAAAAQBACdASogABIAPwFqrE8rJiQiMAgBYCAJYgDE2CHe3dbTTr" +
+    "0ZHcNawAD+6/Cuf8sTEl3Aykj8FTB/sG7ETX38V0N4Qp3kMVp5fpsPOv2eXfPjAAAAAA== frosted-glass:UklGRoAAAABXRUJQVlA4IHQAAACwBACdASogABIAPwF0rlArJyQisBgIAWAgCUAY/" +
+    "IaQKO3Ht5D3MKmnr+QJjH24AP7yplNGJEgbl0sZULzShtfcS0ZL/9Xg83iXV9khC3N4ZTFch/F3HbcZ1/rmd9gacUUiKY2L1I8FZbdLh+LVER0nSQAAAA== gauge-meter:UklGRlgAAABXRUJQVl" +
+    "A4IEwAAABwAwCdASogABIAPwFurk8rJqQiMAgBYCAJZwAAW+svyB9d10AA/u5/RnmshOS8epCz2sLuZvHEcO5ytzrayojeHRgzjwcZ6KZ8AAAA gesture-hint:UklGRk4AAABXRUJQVlA4IEIAAA" +
+    "BwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAccGGawpamAAA/u8vv/prfMELCfrW5V9pcXU/9zGtXbEBEw/khAA= gift-box-reveal:UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASogABIAPwF" +
+    "0rVMrJqOiqAqpYCAJaAABHuv9l7bsmiszfNhagAD++l3hn8eqO3r90zl9BCYcbA/K0S1jT2c4GiXSIP1B1JX0E33rOxL7U+2ob1NdEYtElWGsfN94uQ2j88QM7hAA glitch-hover:UklGRlIAAAB" +
+    "XRUJQVlA4IEYAAACQAwCdASogABIAPwFqrU6rJiQiMAgBYCAJZwAAW+s2Kun1Fq6AAP7wuc84Lszc5wlLL3o8WhhbaIOsHV5HMf7CXjeQWAAA god-rays:UklGRkoAAABXRUJQVlA4ID4AAABQAwC" +
+    "dASogABIAPwFsrE6rJiQiMAgBYCAJaQAAUvo6B7hWAAD+7qE4gV//RNAAMyx0dzLlaPjoOPYhykAAAA== gooey-effect:UklGRkQAAABXRUJQVlA4IDgAAABQAwCdASogABIAPwF6tVQrJ6UjKAg" +
+    "BYCAJZwAALnWXmpioAAD+8LoKUbRw32I5EX71/VtpGhwAAA== gradient-border:UklGRk4AAABXRUJQVlA4IEIAAAAQAwCdASogABIAPvlmqk6qpaQiN/VYAVAfCWcAADuXBgAA/vBbQUo7HRcb" +
+    "Danmun1OeLE5FECPbyPYQTszabMwAAA= gradient-morph:UklGRmQAAABXRUJQVlA4IFgAAABQBACdASogABIAPwFmqk6rJSOiMAgBYCAJYgDIXCHgH+3+d3/tgM/prNAAAP7wyy4R4qCIUQuJwl" +
+    "VgyH/Hs2ZwoF3e6K6Ky38EaI1KGZ+EEJLqWaTwAAAA gradient-shine:UklGRk4AAABXRUJQVlA4IEIAAACwAwCdASogABIAPwFssFErJaSisBgIAWAgCWcAAC51l8oK67VwoAD+8Lr2U5HT81Py" +
+    "WaCViNfGDih1HrLGa/AAAAA= gradient-wipe:UklGRnQAAABXRUJQVlA4IGgAAADwAwCdASogABIAPwFqrE6rJiQiMAgBYCAJZwAAW+pn2VAAuxurHVoAAP7wx6YAgyp1VyqL6TzIcNcNjaOPDVH" +
+    "lRw4YttGtybdBcaszS6m8Fw1W8GVl9xdfvVd3OayaSKFCndUFTkAAAA== grain-overlay:UklGRoIAAABXRUJQVlA4IHYAAABwBACdASogABIAPvFkrE6ppaSiMAwBMB4JZQAAVJigYzuV4tVgTT" +
+    "WrJMlwQAD+8rT27y/Mo5bQQpggDJV8t5JsXqXv5KEbof/iT8XkLHQLVacjQSZ/aRBviiUUiORo+Rvqme1cODzbXAdZzLX2Tcgk++XEgAAA halftone:UklGRmIAAABXRUJQVlA4IFYAAADQAwCdAS" +
+    "ogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+tHgfEwJl3f12AA/vC92rl1sjd0G2JLw8EBCIdm33JXvnKnnj88xNKWQJcTHUhYxcDNewzyaAAAAA== header-hide-on-scroll:UklGRngAAABXRUJQV" +
+    "lA4IGwAAABQBACdASogABIAPvViq06qpaQiMAwBUB6JZQAAUrYeR4cmxGl1vML8fYuAAP7c6HDrY75L2lF99/6xN24NBoSgojxPHnlfsIRAtdxUBxm2MCYn56jWhZIKzwwLWju6fF5q1M/0/rW+wBU" +
+    "tAAA= header-invert:UklGRk4AAABXRUJQVlA4IEIAAACQAwCdASogABIAPwFurk6rJqQiMAgBYCAJaQAAYf+Dqgf10pHAAP7nnpfMayGbuc3tbynFY2Uf5eeLp2WPIEY4AAA= header-shrink" +
+    ":UklGRmQAAABXRUJQVlA4IFgAAACwAwCdASogABIAPwF4tFOrJySiqAgBYCAJaWbvABYyReGKQknFbAD+4+rP3bG/0ju+eVzahwv1OCkid2WU6pOWMg3r9XHbfFLau0r8dn6oN8YxF3yEAAAA hint" +
+    "-nudge:UklGRkAAAABXRUJQVlA4IDQAAABwAwCdASogABIAPwFys1GrJqSiqAqpYCAJaQAAOoc6O+cksQAA/u9Xf/prfMEK/cqWAAAA holo-sheen:UklGRlIAAABXRUJQVlA4IEYAAAAQBACdASo" +
+    "gABIAPwFusFCrJiSisBgIAWAgCWUAAI91xjZqiJnVbDvqIAD+9CIj46fd/reZRGiPoHMrv3blCobE0HbIwAAA horizontal-scroll:UklGRtAAAABXRUJQVlA4IMQAAACQBQCdASogABIAPwFqsF" +
+    "ErJaSisBgIAWAgCWIAy0xd8AH6qgKUhowAkd+BJiiZBJKzi6V8QAD+6SkXl2DAw0awYNnJzo9CHY0vz2tXb2Of+5Ge8/kiEdbo6Hait8XKDdWvjqvbbn1IppAe7o7PL5jEuPCI3UHMJ4cvZ6v8bFNe" +
+    "5O4sf+pUHlkyVHoZF6IKoA9rQm6eYfpnvt/wDPa8pBVBk8qRSX3pbNdH3dJS5d988cizfpL2VdN+aLYG5IEIllF/MEAA hover-preview:UklGRmgAAABXRUJQVlA4IFwAAADwAwCdASogABIAPvV" +
+    "oqU6qpiQiN/VYAVAeiWkAAM9YpEpXONtGr4AAAP7xrljUQ3Ert7PEnnoqY0WmBpP1oCsQXVpqOnuwbIFOPK5ADjk3qz2SrodzIXoi6AAAAA== hover-wave:UklGRkQAAABXRUJQVlA4IDgAAACwA" +
+    "wCdASogABIAPwFyr1CrJyQisBgIAWAgCWkAAC51mxd2i7OSsAD+8LnC7rp0qVwO29VG0wAAAA== image-parallax-hover:UklGRoYAAABXRUJQVlA4IHoAAABQBACdASogABIAPwFsrU8rJiQiM" +
+    "AgBYCAJZgDMHB6R7ZN3bgvakQvuH8wAAP7w37LRmUs3m7yAdhmuNcfGm+agtOWFtPEk5V0pxVIY2d0lBGM+SWQcIwhaw7OY0V5ZLP4zJQYXehcfzGQusqIxEVzBOXCgNEcri6AAAA== image-swap" +
+    "-hover:UklGRm4AAABXRUJQVlA4IGIAAADwAwCdASogABIAPwFurE8rJqQiMAgBYCAJaQAAW+qhBk5uVXN17uAAAP7wxXgI9xm7fJCtjgCJ2Yyglpc+uxf3D8a+Xx47MxODiY80h9aM5D8+SfIjMHQ" +
+    "JVR/XJZBziAAAAA== image-trail:UklGRngAAABXRUJQVlA4IGwAAABwBACdASogABIAPvlor06qpiSiMBgMAVAfCWcAAC51y8k5XLuAKXbxek6IEAD+8Ly5NOahx3V3zgESmAmmNr+vDFv82Npg" +
+    "KHCMsyZxWGnUpouMnz9RLACaIV5dRTsBpZ7jbxykaoW1IdgAAAA= image-zoom-hover:UklGRoQAAABXRUJQVlA4IHgAAACwBACdASogABIAPvFmqk6ppaQiMAwBMB4JQAXf+A8kA2kPUTVtTriy" +
+    "FNJh4scwAP7yo8oUBawzVclmgTXdqqS4aKCvJeFi7Y8ruvth/qbwQJwQdo0lvxSEdEyAx7R5Qb78V+XYS2//YyFuRL42TbfUjpsowAAAAAA= ken-burns:UklGRmQAAABXRUJQVlA4IFgAAADwAwC" +
+    "dASogABIAPwFurk6rJqSiMAgBYCAJYwBTAAeiAa9q2Xr0OxYYAP7wvLYl/sDK7ZeLH3G1bkLwbEfXMK52rcJnvWh2UTVl/E48tmIBAjJHwLzhgAAA letter-spacing-hover:UklGRkIAAABXRUJ" +
+    "QVlA4IDYAAAAwAwCdASogABIAPwF2rlKrJyOiqAqpYCAJaQAAOockyL8AAP7vnz5lf27gUvVB8MH5DJ0swAA= lift-hover:UklGRmoAAABXRUJQVlA4IF4AAAAQBACdASogABIAPvVkq06qpaQiM" +
+    "AwBUB6JaScAAAk0SN42s9dC9EcMAAD+8pff4Ra48q+kvXWGNFl+2JizVXpdAntzXf25wJPUiNUchRHNwuxAG+oSaTnnUNh9/vAA lightbox:UklGRmoAAABXRUJQVlA4IF4AAADwAwCdASogABIAP" +
+    "wFsrU8rJiQiMAgBYCAJaQAAW+soH8wR6awR5qIAAP7wvLaW7c9GzPdhbTQxMNxeu+MdiL5qZTtFY3e/DewMSfgVV3lIeng6aQOcyvj8qtxl8AAA like-burst:UklGRkoAAABXRUJQVlA4ID4AAAB" +
+    "wAwCdASogABIAPwFsrU8rJiQiMAgBYCAJZQAAW+s2kPmFKkAA/u5xw535qi5Ll/E56m/SJu1wG37vY4AAAA== line-boil:UklGRk4AAABXRUJQVlA4IEIAAACwAwCdASogABIAPwFsrU6rJiQiMA" +
+    "gBYCAJaQAAW+s3Zn5TAtJMAAD+8LtKLPkhIT5ysMin/xNDjiNQ3JEjr7rAwAA= line-draw:UklGRlgAAABXRUJQVlA4IEwAAACwAwCdASogABIAPvVmqk6qpaQiMAwBUB6JaQAAW+qgojxYWJ0kw" +
+    "AD+8LwZ0MFVPHLmXQnQ2LpN/i2dAErF+7Up6oiCrxIdt6GvwAAA liquid-distortion:UklGRlwAAABXRUJQVlA4IFAAAACQBACdASogABIAPwFoq06rJaOiMAgBYCAJZwAAW+xI4bdl98+nD68n" +
+    "Mb5BASgA/u6FMLwuM4XR4s8FYqr25JheSKnaCb0GfROBro39PYAAAA== liquid-fill:UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASogABIAPwFyr1CrJyQisBgIAWAgCWMAAI91nZeh0lCXYskAA" +
+    "P70GntsvB7VbdzQk1Iitm3yXBG36SQodrcAKbmPhN1vbg/NJtCAAA== list-add-remove:UklGRmIAAABXRUJQVlA4IFYAAACQAwCdASogABIAPwF2s1OrJySiqAgBYCAJaQAALnX1W3aBXYJwAP" +
+    "7ud2i6EZEgMERXO8o6pu0qsNtXN609duXa0JDEkpbR+xUpvYrLBtw+yUf+5UAAAA== loading-bar:UklGRkoAAABXRUJQVlA4ID4AAABwAwCdASogABIAPulmp06pJiOiN/qoASAdCWkAAHCc6+p" +
+    "4agAA/vBa+oM9/w9bEvXDuLlNH9wKQHAAQRaAAA== logo-marquee:UklGRkgAAABXRUJQVlA4IDwAAABwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+snAwydioAA/u5yyKQY0A4nq+3oczS" +
+    "goEQM10QAAAA= magnetic-hover:UklGRj4AAABXRUJQVlA4IDIAAABwAwCdASogABIAPwFwr1CrJiQisBgIAWAgCWkAADpwJVzYlAAA/u/as8VbWWw8JgAAAA== marching-ants:UklGRkgAAA" +
+    "BXRUJQVlA4IDwAAAAQAwCdASogABIAPwFqsFGrJaSisBgIAWAgCWkAADqwqgAA/u/Ga7jjWpTKT5p5SOZJ0j6Sxl4y0Le1AAA= marker-line:UklGRlQAAABXRUJQVlA4IEgAAADQAwCdASogABI" +
+    "APvVoqU6qpiOiMAwBUB6JaQAAW+sN/kMVuRO1kQAA/vKbNyQGpjGutn6XLfFK12valWwTyfJZZNFIXJIAAAA= marquee:UklGRkwAAABXRUJQVlA4IEAAAABQAwCdASogABIAPwFysVIrJqSiqAqp" +
+    "YCAJaQAALnWc8/O1IAD+8LrdKlFvRhwHwp/3FmLhMGHc6pesMS12QAAA menu-reveal:UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASogABIAPwFwrk+rJqQiMAgBYCAJaQAAUqjLE6Bei1OPufMAA" +
+    "P7w3xQR5O6RLREgJYRtHQhJkliWxnbpLiLFSyjjS/wCZX/aUlgIAA== menu-toggle:UklGRkIAAABXRUJQVlA4IDYAAACwAwCdASogABIAPwFyr1CrJyQisBgIAWAgCWkAAC51nPs7PjXx4AD+7n" +
+    "HDRnAHn84FxudAAAA= modal-pop:UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+s3cscYKVyqAAD+8Ly3xyae7++k69EIavxyd9lUABpak15P3HzXwSw8f" +
+    "RQUygf3/NYmAAAA moire-drift:UklGRkYAAABXRUJQVlA4IDoAAAAQBACdASogABIAPwFoq06rJaOiMAgBYCAJZwAAW+n/tXMZKkOQ1dZDoAD+7o7oTx8KYIHTGr7SMAAA morphing-dropdown" +
+    ":UklGRkgAAABXRUJQVlA4IDwAAABwAwCdASogABIAPwFyr1CrJyQisBgIAWAgCWcAAJkXjbB7BoAA/vDotX+Evv6nEPm20h0gt96NgyKo4AA= mosaic-reveal:UklGRmoAAABXRUJQVlA4IF4AAA" +
+    "BQBACdASogABIAPwFsq06rJiOiMAgBYCAJZQBTAAeiAU6TXccvUS2Sy1iAAP7wvCujlITyA97UVSD7T3zP0xVEV4juIhPTucw4zqujm4LVOt2eLhTmGtyBLxgEAAAA motion-path:UklGRl4AAAB" +
+    "XRUJQVlA4IFIAAADwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJZQDNwCHf4ml34sIcmxQAAP7wu3+GwLcCrxDLO+rdxjiJ8KgEDo8eg0Umw7BL8zgo0fZohEbhuEAA mouse-parallax:UklGRlYAA" +
+    "ABXRUJQVlA4IEoAAAAQBACdASogABIAPwFyr1CrJyQisBgIAWAgCUAZ9AaN9NVb5Rb2SxfQAAD+9COFLKX9vovu9JZAnvcNZfpbkYD+H9bhWo5gLXgAAA== notched-corner:UklGRmAAAABXRUJ" +
+    "QVlA4IFQAAAAQBACdASogABIAPwFssFErJaSisBgIAWAgCWUAAC51p6YsvQK77TbUwAD+8LrfJBGGdTTYuds6iuIyaJ+VgfosglHYZI6Vdw3qcVaa70ygt1jgAAA= notification-badge:UklGR" +
+    "kgAAABXRUJQVlA4IDwAAADwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAW+tzKJTiZiqi9JgAAP7ucWdF712rTYZfT39NqmgAAAA= number-roll:UklGRlQAAABXRUJQVlA4IEgAAACwAwCdAS" +
+    "ogABIAPwFqrE6rJiQiMAgBYCAJaQAAW+s2KuxBbmvIAAD+8LsBQo6bRZyrbuhMASslBkSRK0+xWXDZd+0FuN+3gAA= opening-crawl:UklGRlwAAABXRUJQVlA4IFAAAABQBACdASogABIAPu1gq" +
+    "E6ppaQiN/qoATAdiWcAAFu1mxzFdVED1/nbAbOAAP7ylwjliz9RZgMW2gsjs2b6AENMSBu2Pd58CyTLWFSfM8AAAA== orbit:UklGRlAAAABXRUJQVlA4IEQAAABwAwCdASogABIAPwF0slKrJqSi" +
+    "qAqpYCAJaQAAmbBSHCC3LgAA/vEQFCUB+b6yfDTW6Kon8Mn/+Y52OSkDYcyPl50gAA== outline-fill:UklGRnAAAABXRUJQVlA4IGQAAADwAwCdASogABIAPwFsrk8rJiQiMAgBYCAJZQAD4tIO" +
+    "AMOuBpwdL48wAP7wvU79BkpAuKpL7QsU+3FfKpMX1efxKg2iFe5KpUuKChAmzWt/KosOsNOlNrVJIVuKIoHeitlMACAA page-turn:UklGRloAAABXRUJQVlA4IE4AAADwAwCdASogABIAPwFqsFE" +
+    "rJaSisBgIAWAgCWkAAC52K1cVlZ9TWHbAAP7uhTF08ZqCbIEG68yNtbzK/+qj6gLYCx5GEK4AR28QOtAAAAA= paper-crumple:UklGRlAAAABXRUJQVlA4IEQAAACwAwCdASogABIAPwFqrU8rJi" +
+    "QiMAgBYCAJaQAAW+s3g3otSTXgAAD+8Ly33qqVGpyLVVMenpyydGaFJ9hB93AHkAAAAA== parallax:UklGRpgAAABXRUJQVlA4IIwAAADQBACdASogABIAPwFurk6rJqSiMAgBYCAJZwCyzCHXTh" +
+    "5iO6g2WGSE6A5drc/t0AD+0fouRlUEn6CG87ITGjM/ApDwiq5uUMDDH7lYJvBlSdMpIsyGy3aB5mJoXDE5MuDbH17Urup9zROntU7jCfIu2SbQuz+e+Acewfj6zFNigywo0oKumxm+8AAAAA== pas" +
+    "sword-strength:UklGRk4AAABXRUJQVlA4IEIAAADwAwCdASogABIAPwFwsFCrJiSisBgIAWAgCWkAAC51m+mJbKMKgyeAAP7wu+gqPRz0jfuV0NS5p6tED5C5V+QAAAA= pendulum-swing:Ukl" +
+    "GRmQAAABXRUJQVlA4IFgAAABQBACdASogABIAPwFur1CrJiQisBgIAWAgCUAZzoaN/vkdYroDWxEobC2gAP70GzfP2msaFXthYettRnUlALbocqqb7lrmT+g4jwKnJuVLfMwVGAZ6gAAA perspect" +
+    "ive-reveal:UklGRkwAAABXRUJQVlA4IEAAAACwAwCdASogABIAPwF2r1KrJyQiqAqpYCAJaR9AAAJj8zBTtkE9SAD+7qw9lPoxqfJP/RqaoRsARF8L5xjJwAAA pill-expand:UklGRkYAAABXRU" +
+    "JQVlA4IDoAAABwAwCdASogABIAPwFur1ErJiQisBgIAWAgCWkAAC51UMqJObAA/u50ozODFLMxLvNZ2gM3T+nI8AAA preloader-counter:UklGRkIAAABXRUJQVlA4IDYAAADwAgCdASogABIAP" +
+    "vlsqk6qpqOiMAwBUB8JaQAActB+AAD+8AXVDEWNVhSjlT9Waqps8gAAAAA= press-feedback:UklGRkIAAABXRUJQVlA4IDYAAACQAwCdASogABIAPwFqrU6rJiQiMAgBYCAJaQAAW+s59hz/rfd" +
+    "AAP7ucbZNMk3Fl8SbR+gAAAA= prize-wheel:UklGRpgAAABXRUJQVlA4IIwAAAAwBACdASogABIAPwFyr1CrJyQisBgIAWAgCUAABc7LFrV5RAxx7v1prNAA/vDLQ2RA+6X+1sC33BUyhdYua9dx" +
+    "4nI85WMNZsXCryb91YdT/SXNIzxOWUWvJCOq4FL1PIgfhSLdp4EdKlckpdQ1dKFHs07NGssnyfXBDQpE7X6+lZU0yoz4jE0ihAAAAA== progressive-blur:UklGRkIAAABXRUJQVlA4IDYAAACQ" +
+    "AwCdASogABIAPwF4s1OrJySiqAgBYCAJaQAALo3I0/5eKEYAAP7uoiwPhHJwvDOvf2mYAAA= pulse-ring:UklGRkoAAABXRUJQVlA4ID4AAACwAwCdASogABIAPwFwrk8rJqSiMAgBYCAJZQAAW+" +
+    "uTh/HTNqxNAAD+7nOop7CteZAJb/HmahU/kHUWkwAAAA== quadtree-reveal:UklGRpQAAABXRUJQVlA4IIgAAAAwBACdASogABIAPwFsrU6rJiQiMAgBYCAJaADImB6QZm99h2RoQ0TFS9gA/vD" +
+    "fgvWxHYRPEtUzdLeGP9RhlHLOrnvsgy+KXHHnKBHIBhDdc+pZ7s4GdVgkljxHFSefdMz1OL0NNdyM0i91JrFiBuFGUhsVKyA3zuDs38p/Y04x12XxVOEAAAAA rack-focus:UklGRoYAAABXRUJQV" +
+    "lA4IHoAAAAwBACdASogABIAPwFqrU8rJiQiMAgBYCAJZwAAW+pmC6lxj1/qMwKo0AAA/vDAsVllzEXRy3mbHtdwvLY2glq/gYaLOBtXmf8IXdDXmBbMxnbl/7pEMBK7fEx5/LE065WGBBBcBfupbax" +
+    "SkFewjUS+JbfQ5dU0LAAAAA== radial-carousel:UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASogABIAPwF0r1CrJyQisBgIAWAgCWUAAJkweUWPtkfmAAD+8Ld1ciU6NMSMICBKJo3yNBrpV80Q" +
+    "q9TfaCTIxdtArPGPm3qiFct6wAAA ripple-tap:UklGRlAAAABXRUJQVlA4IEQAAAAwBACdASogABIAPwFqrE6rJiQiMAgBYCAJZQAAW+qry+q1k4btDkS1V0AA/u52kgZXpDUU8rLkNPAl4fxrju" +
+    "Nx7HAAAA== rotating-badge:UklGRmAAAABXRUJQVlA4IFQAAACQAwCdASogABIAPwFysVIrJqSiqAqpYCAJaQAALnX8GRsUSjAAAP7ugLrkD4BZhONN299Tos34q4Dnv4iz/7D1ZWZyfGjf2Y4u" +
+    "fXqhH3IKQKAAAAA= row-expand:UklGRoAAAABXRUJQVlA4IHQAAAAwBACdASogABIAPwFssFErJaSisBgIAWAgCWkAACnVo969bqz/mZ/zZMAA/vDfgrRjGJ6Y/ASHE4aCIakfWPBLowtGLg4w9U" +
+    "R7woj8hIDg7nFxBNW04YJkjzy1DbE1hQV3/inHgCA4rKtrFWxWj+uVYAAAAA== rubber-band:UklGRkgAAABXRUJQVlA4IDwAAADQAwCdASogABIAPwFys1GrJqSiqAqpYCAJaQAALnWThL34nhY" +
+    "neAAA/u53OVhvQAt+zoLqZp9u6JcgAAA= ruler-scrubber:UklGRkwAAABXRUJQVlA4IEAAAACwAwCdASogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+s6usJalQaHaAD+7nSej+3R8AgeaEOFbnR5P" +
+    "re8vt53gAAA scanlines:UklGRlYAAABXRUJQVlA4IEoAAAAQAwCdASogABIAPwFsrU8rJiQiMAgBYCAJZ2i2ADPFx8AA/u8PzW2rdCJGw/5H0kROPZEBdJHvREnuRkvfOBwPjf+vhcdNCAAAAA==" +
+    " scratch-card:UklGRoAAAABXRUJQVlA4IHQAAAAQBACdASogABIAPwFqrE6rJiQiMAgBYCAJZgC/7B6QeL67tK3N+86iAAD+8M6/Ma8IufZ5XKZUvl9XwVgMUILfz2LX6OmeHNATxHLoS6Zrtjiy" +
+    "rWjM5MBXpHF6a8F4+7uNLe5sedSEP3xNVvtV89WUQUAAAA== scroll-cue:UklGRkQAAABXRUJQVlA4IDgAAADQAwCdASogABIAPwFusFCrJiSisBgIAWAgCWkAAC51nVvBkf+1ciAA/u50lHNQl9" +
+    "yWbGEXNAAAAA== scroll-fade-in:UklGRkwAAABXRUJQVlA4IEAAAACwAwCdASogABIAPwFwsFCrJiSisBgIAWAgCWkAAC50/YZ1ei3UAAD+5FXwsnLff7HuPF5gWrRIRsnoECFwAAAA scroll-" +
+    "marquee:UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASogABIAPwFwrlCrJiQisBgIAWAgCWkAAC5tO4K2G3qKgE+QAP7ww/x76WsQNApLLZfH/hy8FiXb0jAAEYwnzBiBtB8ujSWAVwoAAA== scrol" +
+    "l-progress:UklGRkIAAABXRUJQVlA4IDYAAADwAgCdASogABIAPwF2s1OrJySiqAgBYCAJaQAAP8h4AAD+8ACvO9+Gjbw35Fvz2D5dGkqgAAA= scroll-scrub:UklGRkoAAABXRUJQVlA4ID4AA" +
+    "ABQAwCdASogABIAPwFurlCrJiQisBgIAWAgCWkNsAABjNlUAAD+750sVTw7cMxrgtG3KxGWaG0YZk/opMEAAA== scroll-snap:UklGRkgAAABXRUJQVlA4IDwAAABQAwCdASogABIAPwF0sFIrJq" +
+    "SiqAqpYCAJaQAAQrSXGOunAAD+7nf8My031sgdGQegplGNwiYz1hdjgAA= scroll-spy:UklGRkwAAABXRUJQVlA4IEAAAADQAwCdASogABIAPwFwrlCrJiQiqA1RYCAJaQAAO7hQnANxOVMx3AAA" +
+    "/u6nvEu67VBXrgrHOQxTp/eFw2X3twAA scroll-zoom:UklGRowAAABXRUJQVlA4IIAAAACQBACdASogABIAPwFqq06rJiOiMAgBYCAJYzcAA9tghjM3UPE+nf0oiuHLUmQA/un3NmLyMSY5m1fjj" +
+    "Sal+tDRQbO2eeXRJDELcrE3k0wwzEUNxrqoPct8er6LwLMp66fi42jAim+96tZIC55Rk69YPUGNe9QMoSpzZNAcQ3gAAA== section-color-swap:UklGRlAAAABXRUJQVlA4IEQAAACwAwCdASo" +
+    "gABIAPv1orU6rJiQiMBgMAWAfiWkA0BgY8omZo/hjwAD+7dBGCyKDEupbWXLECx6EXj8xlbEoXYsQJFgAAA== shadow-pop:UklGRmQAAABXRUJQVlA4IFgAAADQAwCdASogABIAPwFqrU8rJiQiM" +
+    "AgBYCAJZQAAW+s2CBlcc99jigAA/vC987mq2/FOkppre4wSDmWiDjQgg0naFhRO8/Zn90RPPFYQW8yqJ9sOaDti1cAA shared-element:UklGRngAAABXRUJQVlA4IGwAAAAQBACdASogABIAPwF" +
+    "yrlCrJyQisBgIAWAgCWkAAI91li4y+N+84XD8AAD+9COGkK8Ayd1twyIMoYvYeUcef5PYH4Jcf297Aq25VnCQLVVQYRLO+xBpNHvTtzTTLEbBxN978WLiTzU/jb+AAAA= shutter-transition:U" +
+    "klGRnYAAABXRUJQVlA4IGoAAABwBACdASogABIAPwFwqE6rJqOiMBgMAWAgCWcAAI919iXa61yXGzlFqJV3IAD+9CUezGWSqP94StArPMFLPyhJwcWcLo/I/n0D397Sp0eAAaPYhDypxcz3CdgaVbv" +
+    "IkdH6DisHV9SnfQAA skeleton-shimmer:UklGRkoAAABXRUJQVlA4ID4AAADwAwCdASogABIAPwFqrE6rJiQiMAgBYCAJZwAAW+s9MP6oKyKGOXEAAP7udbC3RrlMwEYG9pkjqs37BwAAAA== sl" +
+    "iced-text:UklGRngAAABXRUJQVlA4IGwAAABwBACdASogABIAPwFqrE6rJiQiMAgBYCAJaQAD43oOABco0qh2Svrpg9ZYAAD+8L3a/wx+kKUiS30+0NoOs14KcknIWIyZodrODADzZJhAsH9pOMfr" +
+    "9pnToMostGM+AcvT/UAOdcY9IgAAAAA= smooth-scroll:UklGRkoAAABXRUJQVlA4ID4AAADwAwCdASogABIAPu1iqE6ppaQiN/qoATAdiWkAAHuIW+Q8krDkxNkAAP7wURGL7looJ9Dept79VTC" +
+    "19WAAAA== snowfall:UklGRkYAAABXRUJQVlA4IDoAAAAQAwCdASogABIAPwFytFGrJqUiqAqpYCAJZwDOOBgnd1AA/u5+VoS17cV3I//ChdkmW/ZOXMOYQAAA spinner-ring:UklGRkwAAABXR" +
+    "UJQVlA4IEAAAADwAwCdASogABIAPwFurU6rJqQiMAgBYCAJZwAD4AIN/AjRmu9Tg3RoAP7udH2VB3mLnBfvDEnKJsYDLhrDKAgA spiral-reveal:UklGRo4AAABXRUJQVlA4IIIAAAAwBACdASog" +
+    "ABIAPwFsrU8rJiQiMAgBYCAJZwDO7CFw1GxBfDd3fQaZAmAA/vDLjlrs5mbuuZn41BtTeYR3oi0h5Ydi6qvIao52qI0yKe01jFnYaBdhz2DpS6tZvDOWBv97Q86k50aBX90LOuUZD5vqxpc6ghNXFB" +
+    "0uCZlMdERgVAAA split-flap:UklGRlwAAABXRUJQVlA4IFAAAADQAwCdASogABIAPwFqrE6rJiQiMAgBYCAJaQAAW+uXRje5+6ayAAAA/vC9Nwxd5HaSp0kuIYpU8FIEuBZLMFFwGtuGSEYhQztz" +
+    "9/RHqAAAAA== split-screen:UklGRp4AAABXRUJQVlA4IJIAAACQBACdASogABIAPwFsrE6rJiQiMAgBYCAJQBge6/gJ/gfHnYJS3775Oolkw0AA/vDcLOi8WdrKfp8/jKY2maxy2SjDFJI83gJp" +
+    "/6JeTQADwMO3ULQjUa+avoQyrjRnA44dzjPjWlab4sJLj4rKjpzRrCeA/Pikldwp6IdnfURxJQnsyeOh5vJuwzEptCL54AAAAA== split-text-reveal:UklGRmoAAABXRUJQVlA4IF4AAADwAwC" +
+    "dASogABIAPvVmqU6qpaOiMAwBUB6JaQAAW+qyxV29Vx8pCNQAAP7ymD06IR9f7pB5BWSRpdf3JIqhQWSm4gXPxfk4FDpLM3TZLUL/9D+XvlGXZ2J0y9hKx4AA spotlight-hover:UklGRkwAAABX" +
+    "RUJQVlA4IEAAAADQAwCdASogABIAPwFoq06rJaOiMAgBYCAJaQAAW+vy+wsR5IZtTkAA/u6ArVXEw5/xwwFPnTpanadcDwUvkAAA spring-easing:UklGRlYAAABXRUJQVlA4IEoAAABwAwCdASo" +
+    "gABIAPwFwtFGrJiUiqAqpYCAJaQAALnXn/unELwAA/u53QMgTCJkJ1EsnP2N9ExAGGJmQToEgEvC8GYrvQtvLiAAAAA== sprite-sheet:UklGRmgAAABXRUJQVlA4IFwAAABQBACdASogABIAPvF" +
+    "oqE6ppqQiN/VYATAeCWcAALvrk1WUKIiRHXZQ64oAAP70IQeBqqsvagHWIgnEle+M1ynFMbB7kPZqVNE4dIicnm8rRZ1qSFi1TxfGmQAAAA== squash-stretch:UklGRlgAAABXRUJQVlA4IEwAA" +
+    "ADQAwCdASogABIAPwF0sFIrJqSiqAqpYCAJZwAALnVPN4hWxz75hAAA/vC9S0jheli3oDqKNtBV6KdbL3gVoZuDwSm9dDdBuci4UAAA stacking-cards:UklGRsIAAABXRUJQVlA4ILYAAAAQBQC" +
+    "dASogABIAPwFsrE8rJiQiMAgBYCAJZwDH8iAAKUdYV1dP7SFyPZVGjtGS7xAoAP7mkxlLFkTpaL6ZpWQy4a2L1f6cYH34Qgn1gxha4zgpoEKmPEXDqMvbO5pPVWMZhlBEbrhod1d2Ws7F66bfVOPS8" +
+    "Eq5wBsHYB9BbTEj2sITqPS/4MjGEm/aR2rCBz+mxzCG6CxvS6mfvn0LdahHf3j+xDOwUrQiJ8z3CaneoQ6W4QAAAA== stagger-grid:UklGRpYAAABXRUJQVlA4IIoAAAAwBACdASogABIAPwFsr" +
+    "E8rJiQiMAgBYCAJZwAAUqnxq+mVBlrta6D7uOgA/vDfsswd3Wg8hIt2c3Ez49cosuHFDLIuYKHoOZUn8O8mlYTa+cFWFwJG/igkfDr0WlhP2ThCiuZ2ks43YzLjGzSuJ0KCcq7Oz6iUVVsj6lhRoRf" +
+    "Y2f/d5fylfyHAAAA= stamp-in:UklGRlYAAABXRUJQVlA4IEoAAAAwBACdASogABIAPvFoq06ppiQiMAwBMB4JaQAAW+uDFatSJLjpwjuLP8AA/vC80LYMJpEJZu1Y3dbDFdBdxnU14QVISncWG98" +
+    "AAA== star-rating:UklGRlYAAABXRUJQVlA4IEoAAACQAwCdASogABIAPwFqrE8rJiQiMAgBYCAJZwAAW+s1ZvXORxwAAP7wuvGPRblBBKulcsqpKuLfmVmzxz5ToTWuq/wxQ//EIKAAAA== sta" +
+    "teful-button:UklGRlwAAABXRUJQVlA4IFAAAACwAwCdASogABIAPwFqrU8rJiQiMAgBYCAJZQAAW+sqvPcBaKhhAAD+8Ly3tevbvWC/naa8P1hx55ArvFyET2x60NaKAp0J0eO/iaG6hI90AA== " +
+    "stepper:UklGRlIAAABXRUJQVlA4IEYAAACQAwCdASogABIAPwFqrE6rJiQiMAgBYCAJZwAAW+o3KhdisRQAAP7wvfxgnxzCItsHcgmTTLRMEe5uXSDVJo32cej8YgAA sticker-peel:UklGRnQA" +
+    "AABXRUJQVlA4IGgAAADwAwCdASogABIAPwFqrE8rJiQiMAgBYCAJQAALfYFNiyCQBcF6IYAAAP7wz2/OCZwr8uWs/xxPbya8fTl6/8YIad7QKPEthK9Tvt3vivAzm2MhraITVnuEZk1NYFEFLQP/4k" +
+    "+uFAAAAA== sticky-pin:UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASogABIAPwFusFCrJiSisBgIAWAgCWcAAC94QwxBxf39vvt4AP7l8JLEKe4RPg1dJ5nq8D0HC+BKKGto9jzPbFxxbeUA9Xcr" +
+    "jlAAAA== story-progress:UklGRkoAAABXRUJQVlA4ID4AAADQAwCdASogABIAPwFurk6rJqQiMAgBYCAJZwAAXAYYIBkrNxAMZAAA/u6Av8t2YdB61+9xdMSOZ/vfxwAAAA== swipe-dismiss" +
+    ":UklGRkgAAABXRUJQVlA4IDwAAADwAwCdASogABIAPwFurk8rJqQiMAgBYCAJaQAAW+uChQdJIuQ05XDAAP7udbSp+RfzLOI/VU12k0M3wAA= tab-indicator:UklGRkYAAABXRUJQVlA4IDoAAA" +
+    "CQAwCdASogABIAPwFsrU6rJiQiMAgBYCAJaQAAW+tx8cTpkDkAAP7udRkDzG6Se5bOEqIVkLqngAAA text-flip:UklGRmAAAABXRUJQVlA4IFQAAADwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJa" +
+    "QAAW+tAlFGKGbQOIugAAP7wvK3QjMqJZsIt07ayVA3dTHwBHbPPXQafrS8VlM1K/Vko9lelabugAAA= text-highlight:UklGRkgAAABXRUJQVlA4IDwAAABQAwCdASogABIAPwFurU8rJqQiMAg" +
+    "BYCAJaQAAW+i4IYOGAAD+5GZSQPKURHxqtMwHGl8PMXO0GO3AAAA= text-on-path:UklGRlAAAABXRUJQVlA4IEQAAAAQAwCdASogABIAPwFqsFErJaSisBgIAWAgCWkAADtlSgAA/vAfrN5JplH" +
+    "drNksQtyz+JoUgvHcs6uS19MzYrozE9eAAA== text-scramble:UklGRlIAAABXRUJQVlA4IEYAAADQAwCdASogABIAPwFur1CrJiQisBgIAWAgCWkAAC51nVGM9qKs5AAA/vC6QUMwN2ZM+oaOSo" +
+    "xGEnd+zJOl4xBqPP5/AAAA text-slide-swap:UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASogABIAPv1qrU6rJiQiMBgMAWAfiWkAADpwZ9NF/gOqAAD+78fA/nemlNAnwmhs2kBhqsvVURp8DwS" +
+    "sEzcI8TTKYxBwYgNv1QEoAAAA theme-toggle-transition:UklGRnIAAABXRUJQVlA4IGYAAADQAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAUquewH9rfS7LbaAA/u6pf5PwuY6ZTSkp3sVn" +
+    "i9d+P2QZnN2khwtA/IZtEXpVyqq/XkK3Gh81y+ArLu637I9NHGlEkFlHmWGpCAA= tilt:UklGRj4AAABXRUJQVlA4IDIAAABQAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAW+s59lehAAD+7nGG" +
+    "0xMWFKgQiNGAAA== toast-slide:UklGRkwAAABXRUJQVlA4IEAAAACwAwCdASogABIAPwFwrlCrJqQiqA1RYCAJaQAA0WBwI7Z8Mcu0AAD+8uwe4XaL5E7huQbDFiXw+77qf1yIAAAA toggle-s" +
+    "witch:UklGRlIAAABXRUJQVlA4IEYAAADQAwCdASogABIAPwFwsFCrJiSisBgIAWAgCWcAAC51novETXIScOgA/vC7nSfrRZ8MdTp1FuFze79MY7s5boDfmf3YoCAA tooltip-pop:UklGRkoAAAB" +
+    "XRUJQVlA4ID4AAACwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+snb3j3PO8AAAD+7nUwZvs1m88Aj1EBZX0PTQALn5AAAA== tracking-in:UklGRlQAAABXRUJQVlA4IEgAAACwAwCdASog" +
+    "ABIAPwFqrE6rJiQiMAgBYCAJaQAAW+s/ig+FssqoAAD+8Lyt1cn/AnsmRV2kqXetRhbh1AcKdWws1GmO70UawAA= twinkle:UklGRlIAAABXRUJQVlA4IEYAAABQAwCdASogABIAPwFysVI2pqSiq" +
+    "Aqq0CAJZwDOOBXeFZSWAAD+7w1Fg12OnCSlx2u9OxcI13N/im44yMTmRp91x1gAAAAA typewriter:UklGRkQAAABXRUJQVlA4IDgAAAAQAwCdASogABIAPwFusFCrJiSisBgIAWAgCWkAADtlEQA" +
+    "A/vA8iTZvSvqK/7rF27Rof8mtfaoAAA== underline-reveal:UklGRkoAAABXRUJQVlA4ID4AAACwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+s1ZvpvlVfgAAD+8LoJoVu1eAQ7UUq2BHM" +
+    "FxCO/QAAAAA== velocity-skew:UklGRmYAAABXRUJQVlA4IFoAAAAQBACdASogABIAPwFyrlCrJyQisBgIAWAgCWkAAC6CfkJaWmrPJPBPgAD+6foy16QZuf2J7FMls8XtuwVU31x6FyQr7D50Fp" +
+    "TEJRSLpPdS5cJ02uSeKGAgAAA= wave-text:UklGRlYAAABXRUJQVlA4IEoAAADwAwCdASogABIAPwFqrU6rJiQiMAgBYCAJaQAD4ToN/CGc5EC1OxgAAP7wuk76/5TyDKVwYGxh/psEQo+wmtxOl" +
+    "Qm/OwZM6AAAAA== weight-morph:UklGRl4AAABXRUJQVlA4IFIAAADQAwCdASogABIAPwFqrU8rJiQiMAgBYCAJaQAAW+tJBx3XUuaZioAA/vC9Ts1TndwFmP7uYWOUdk297v8++cp6hN/Xa5xh0" +
+    "yyiumNe6AvwAAAA word-rotate:UklGRlIAAABXRUJQVlA4IEYAAACwAwCdASogABIAPwFsrU8rJiQiMAgBYCAJaQAAW+s5yqjNIu4aAAD+8LpK5gacIrbRuKu/g9f2dMIjmBMzvJ2kFkwCs4AA x" +
+    "ray-lens:UklGRngAAABXRUJQVlA4IGwAAAAQBACdASogABIAPwFyr1CrJyQisBgIAWAgCWkAAC94QocSFCCqv8dcAAD+8M6KRYf/JgJUBT35fbnRr06ApsDq47/pfRknB0Da2hw2S2gFhe6oRNDW5" +
+    "7CZQhQG6u5wTrwDrtrYg06hkEYAAAA= zoom-through:UklGRpgAAABXRUJQVlA4IIwAAADQBACdASogABIAPwFyrlCrJyQisBgIAWAgCWkACBA4gC9EKJk0WoNaugkXu58oAAD+9CVTjG/kEvUKA" +
+    "1VdHNFPitKkOlIEDD4IbATFmmoxvK/EEZTAFi9bcuow4bRFgmPS3SVv95bzEg9uRTFAoooL3pAiazTTqdBO+winOrieFJxE1rIcpFH5mgKAAA=="
 
 /* ================================================================== */
 /* 演技の部品（EntryTitle.tsx の写し・2026-10-25。Framer のコードファイル間 import が型チェックで解決できないため同じファイルに置く。

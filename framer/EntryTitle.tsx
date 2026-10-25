@@ -147,6 +147,43 @@ function keyOf(label: string): string {
     const m = label.match(/^([^(（]+)/)
     return m ? m[1].trim() : label
 }
+// "duration(1枚めくる時間 s)" → "1枚めくる時間"
+function descOf(label: string): string {
+    const m = label.match(/[(（]([^)）]*)[)）]\s*$/)
+    return m ? m[1].replace(/\s(px|ms|s|%|deg|°|em|fps)$/, "").trim() : ""
+}
+
+// 5周目・指摘8：右の「いまの値」の数字。値が変わった桁だけが下から繰り上がる（右端で桁を揃えて比べる）。
+// SSR とクライアント初回は同じ文字列＝同じ HTML。動かすのは変わった後のコミット（paint 前）だけ
+function Roll({ text, className, whole = false }: { text: string; className: string; whole?: boolean }) {
+    const ref = useRef<HTMLSpanElement>(null)
+    const prev = useRef(text)
+    useIsoLayout(() => {
+        const was = prev.current
+        prev.current = text
+        const el = ref.current
+        if (!el || was === text || typeof el.animate !== "function") return
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+        // 選択肢（ease-out 等の語）は桁ではないので語ごと
+        const cs = whole ? [el] : (Array.from(el.children) as HTMLElement[])
+        const a = Array.from(text), b = Array.from(was)
+        cs.forEach((c, i) => {
+            const j = b.length - (a.length - i)
+            if (!whole && j >= 0 && b[j] === a[i]) return
+            // 動かしている最中は 16ms ごとに値が変わる＝毎回やり直しても読めるよう、短く・半分見えた所から（消えている時間を作らない）
+            c.animate([{ transform: "translateY(38%)", opacity: 0.35 }, { transform: "translateY(0)", opacity: 1 }], { duration: 160, easing: "cubic-bezier(.2,.7,.2,1)" })
+        })
+    }, [text])
+    if (whole) return <span ref={ref} className={className} title={text}>{text}</span>
+    return (
+        <span ref={ref} className={className}>
+            {Array.from(text).map((ch, i) => (
+                <span key={i + ":" + text.length}>{ch}</span>
+            ))}
+        </span>
+    )
+}
+
 function slugFromLocation(): string {
     if (typeof window === "undefined") return ""
     const m = window.location.pathname.match(/\/entries\/([^/?#]+)/)
@@ -2830,8 +2867,57 @@ export default function EntryTitle(props: Props) {
     // 何の動きかが決まるまで（slug が無い SSR・対応表に無い項目で章が未取得）は、名前を出さずに場所だけ取っておく
     const pending = !slug || (!SPEC[slug] && !cat)
 
+    // 5周目・指摘8：右上の表記＝再生ボタン。押すと見出しが「いまのスライダーの値」で演じ直す（Enter / Space・SP はタップ）
+    const replay = () => playRef.current("replay")
+    const playIcon = (
+        <svg className="pi" width="8" height="9" viewBox="0 0 8 9" aria-hidden="true" focusable="false">
+            <path d="M0 0 L8 4.5 L0 9 Z" fill="currentColor" />
+        </svg>
+    )
+
+    // 5周目・指摘8：右の「いまの値」。.mdt の右へ絶対配置で出す（見出しの枠・高さは変えない）。右端＝本文の右端（画面端−40）。
+    // 左端は .mdt の右＋64。幅の式に要る .mdt の画面上の左端（--mdt-x）とスクロールバーの幅（--mdt-sb）は paint 前に測って入れる（SSR は 40 / 0）
+    const rootRef = useRef<HTMLDivElement>(null)
+    useIsoLayout(() => {
+        const el = rootRef.current
+        if (!el || isStatic) return
+        const set = () => {
+            el.style.setProperty("--mdt-x", Math.round(el.getBoundingClientRect().left) + "px")
+            el.style.setProperty("--mdt-sb", Math.max(0, window.innerWidth - document.documentElement.clientWidth) + "px")
+        }
+        set()
+        window.addEventListener("resize", set)
+        return () => window.removeEventListener("resize", set)
+    }, [isStatic])
+    const nowPanel = params.length ? (
+        <div className={"mdt-now n" + Math.min(params.length, 4)} aria-hidden="true">
+            <div className="mdt-now-h">
+                <span>Now</span>
+                <span className="j">いまの値</span>
+            </div>
+            <div className="mdt-now-g">
+                {params.map((p) => {
+                    const v = values[p.key] ?? p.default
+                    const u = p.options ? "" : unitOf(p.label)
+                    return (
+                        <div key={p.key} className={"mdt-now-i" + (v !== p.default ? " on" : "")}>
+                            <div className="mdt-now-k">
+                                <span className="k">{keyOf(p.label)}</span>
+                                <span className="d">{descOf(p.label)}</span>
+                            </div>
+                            <div className={"mdt-now-v" + (p.options ? " o" : "")}>
+                                <Roll className="r" text={fmt(p, v)} whole={!!p.options} />
+                                {u ? <span className="u">{u}</span> : null}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    ) : null
+
     return (
-        <div className="mdt" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14, color: ink, containerType: "inline-size", position: "relative", ...props.style } as CSSProperties}>
+        <div ref={rootRef} className="mdt" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14, color: ink, containerType: "inline-size", position: "relative", ...props.style } as CSSProperties}>
             {/* 見出し語の字だけの書体（数KB）を、JS を待たずに取りに行かせる */}
             {headCss ? <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /> : null}
             {headCss ? <link rel="preload" as="fetch" href={headCss} crossOrigin="anonymous" /> : null}
@@ -2843,16 +2929,41 @@ export default function EntryTitle(props: Props) {
 .mdt-stage .mdt-p,.mdt-stage .mdt-c{position:absolute;display:block;white-space:pre}
 .mdt-fx{position:absolute;pointer-events:none;display:block}
 .mdt-ghost{font:inherit;letter-spacing:inherit;line-height:inherit}
-.mdt-tag{position:absolute;right:0;bottom:calc(100% + 6px);display:flex;gap:8px;align-items:baseline;justify-content:flex-end;max-width:72%;font-family:${MONO};font-size:11px;line-height:16px;letter-spacing:.04em;color:${muted};white-space:nowrap;overflow:hidden;text-decoration:none}
+.mdt-tag{position:absolute;right:0;bottom:calc(100% + 6px);display:flex;gap:8px;align-items:baseline;justify-content:flex-end;max-width:72%;font-family:${MONO};font-size:11px;line-height:16px;letter-spacing:.04em;color:${muted};white-space:nowrap;overflow:visible;text-decoration:none}
 .mdt-tag b{font-family:${JP};font-weight:700;font-size:12px;letter-spacing:.02em;color:${ink}}
 .mdt-tag .v{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
 .mdt-tag .v2{flex:0 1000 auto}
 .mdt-tag .ks{display:none}
-a.mdt-tag:hover b{text-decoration:underline}
-a.mdt-tag:focus-visible{outline:2px solid ${ink};outline-offset:2px}
 .mdt-tag .br{display:none}
+.mdt-play{all:unset;box-sizing:border-box;display:flex;gap:inherit;align-items:baseline;justify-content:flex-end;min-width:0;max-width:100%;flex-wrap:inherit;cursor:pointer;color:inherit;font:inherit;letter-spacing:inherit;line-height:inherit;white-space:nowrap;overflow:hidden;padding:6px 0;margin:-6px 0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.mdt-play .pi{flex:none;align-self:center;color:${ink};transition:transform .2s cubic-bezier(.2,.7,.2,1)}
+.mdt-play:hover b{text-decoration:underline;text-underline-offset:3px}
+.mdt-play:hover .pi{transform:scale(1.25)}
+.mdt-play:active .pi{transform:scale(.85)}
+.mdt-play:focus-visible,a.mdt-chap:focus-visible{outline:2px solid ${ink};outline-offset:2px;border-radius:2px}
+a.mdt-chap{color:inherit;text-decoration:none;flex:none;padding:6px 2px;margin:-6px 0}
+a.mdt-chap:hover{color:${ink}}
+.mdt-now{position:absolute;display:none;top:-46px;left:calc(100% + 64px);width:calc(100vw - var(--mdt-x, 40px) - 100% - 104px - var(--mdt-sb, 0px));container-type:inline-size;font-family:${MONO};color:${ink};pointer-events:none}
+@media (min-width: 1200px){.mdt-now{display:block;animation:mdt-now-in .32s cubic-bezier(.2,.7,.2,1) both}}
+@keyframes mdt-now-in{from{opacity:0}to{opacity:1}}
+.mdt-now-h{display:flex;gap:8px;align-items:center;height:24px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(10,10,10,.16);padding-bottom:12px;box-sizing:content-box}
+.mdt-now-h .j{font-family:${JP};font-size:11px;letter-spacing:.04em;text-transform:none;color:${muted}}
+.mdt-now-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;row-gap:20px;padding-top:18px}
+.mdt-now-k{display:flex;gap:8px;align-items:baseline;min-width:0;white-space:nowrap;overflow:hidden;font-size:12px;line-height:16px;letter-spacing:.02em}
+.mdt-now-k .k{flex:none;padding:0 5px;margin-left:-5px;border-radius:3px;transition:background .25s}
+.mdt-now-k .d{font-family:${JP};font-size:11px;color:${muted};overflow:hidden;text-overflow:ellipsis;min-width:0}
+.mdt-now-i.on .k{background:${accent}}
+.mdt-now-v{--nfs:clamp(32px, calc((100cqi - 24px) / 7.2), 56px);font-size:var(--nfs);font-size:round(var(--nfs),1px);line-height:1.1;margin-top:6px;letter-spacing:-.03em;font-weight:500;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums;display:flex;align-items:baseline}
+.mdt-now-v .r{display:inline-flex;overflow:hidden;min-width:0}
+.mdt-now-v .r>span{display:inline-block;white-space:pre}
+.mdt-now-v::before{content:"\\200b";width:0;overflow:hidden}
+.mdt-now-v .u{font-size:.36em;letter-spacing:.02em;margin-left:.3em;color:${muted};font-weight:400}
+.mdt-now-v.o .r{display:block;font-size:.5em;letter-spacing:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mdt-now.n2 .mdt-now-g{grid-template-columns:minmax(0,1fr)}
+@media (prefers-reduced-motion: reduce){.mdt-play .pi,.mdt-now-k .k{transition:none}.mdt-now{animation:none!important}}
 @container (max-width: 640px){.mdt-tag{max-width:calc(100% - 140px);font-size:10px;gap:0 6px;flex-wrap:wrap;line-height:15px}.mdt-tag .k,.mdt-tag .v2{display:none}.mdt-tag .ks{display:inline}
-.mdt-tag .br{display:block;flex-basis:100%;height:0}.mdt-tag .v{overflow:visible;text-overflow:clip;white-space:nowrap}.mdt-tag b{overflow:hidden;text-overflow:ellipsis;min-width:0}}
+.mdt-tag .br{display:block;flex-basis:100%;height:0}.mdt-tag .v{overflow:visible;text-overflow:clip;white-space:nowrap}.mdt-tag b{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.mdt-play{padding:10px 0;margin:-10px 0}}
 ` }} />
             <div className={"mdt-clip " + cls}>
                 <h1
@@ -2901,24 +3012,24 @@ a.mdt-tag:focus-visible{outline:2px solid ${ink};outline-offset:2px}
                     <span className="k">この見出しの動き</span>
                     <span className="ks">動き</span>
                 </div>
-            ) : chap ? (
-                <a className="mdt-tag" href={"/entries/" + chap.slug} title="この見出しの動き（章扉と同じ）">
-                    <span className="k">この見出しの動き</span>
-                    <span className="ks">動き</span>
-                    <b>{tagName}</b>
-                    <span className="br" aria-hidden="true" />
-                    {vals}
-                    <span aria-hidden="true">↗</span>
-                </a>
             ) : (
                 <div className="mdt-tag">
-                    <span className="k">この見出しの動き</span>
-                    <span className="ks">動き</span>
-                    <b>{tagName}</b>
-                    <span className="br" aria-hidden="true" />
-                    {vals}
+                    <button type="button" className="mdt-play" onClick={replay} title={chap ? "見出しの動きを再生（章扉と同じ動き）" : "見出しの動きを、いまの値で再生"}>
+                        {playIcon}
+                        <span className="k">この見出しの動き</span>
+                        <span className="ks">動き</span>
+                        <b>{tagName}</b>
+                        <span className="br" aria-hidden="true" />
+                        {vals}
+                    </button>
+                    {chap ? (
+                        <a className="mdt-chap" href={"/entries/" + chap.slug} aria-label={chap.ja + "の項目へ"} title="章扉と同じ動きの項目へ">
+                            ↗
+                        </a>
+                    ) : null}
                 </div>
             )}
+            {nowPanel}
         </div>
     )
 }
