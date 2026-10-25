@@ -111,6 +111,7 @@ import { passwordStrength } from "./password-strength";
 import { notificationBadge } from "./notification-badge";
 import { dropdownReveal } from "./dropdown-reveal";
 import { menuToggle } from "./menu-toggle";
+import { speedDial } from "./speed-dial";
 import { errorShake } from "./error-shake";
 import { staggerGrid } from "./stagger-grid";
 import { liquidFill } from "./liquid-fill";
@@ -370,6 +371,7 @@ const all: MotionEntry[] = [
   dropdownReveal,
   morphingDropdown,
   menuToggle,
+  speedDial,
   errorShake,
   hintNudge,
   gestureHint,

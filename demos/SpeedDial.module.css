@@ -1,0 +1,176 @@
+/* 観察元(60px の丸・間隔12px・右下固定)を 52px に縮め、ステージ中央やや右に縦の列で置く。
+   閉じた項目も場所は取るので、列全体(開いた形)を上下中央に揃える */
+.dial {
+  position: absolute;
+  right: 50%;
+  top: 50%;
+  translate: 90px -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+.open .items {
+  pointer-events: auto;
+}
+
+/* 閉: FAB 側へ distance 下げて透明。開: 0 へ。遅延は項目ごとに JS が --sd-delay で渡す */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--sd-dist));
+  transition:
+    opacity var(--sd-dur) ease var(--sd-delay),
+    transform var(--sd-dur) ease var(--sd-delay),
+    visibility 0s linear calc(var(--sd-dur) + var(--sd-delay));
+}
+
+.open .item {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity var(--sd-dur) ease var(--sd-delay),
+    transform var(--sd-dur) ease var(--sd-delay),
+    visibility 0s linear var(--sd-delay);
+}
+
+.label {
+  padding: 5px 10px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(233, 233, 227, 0.82);
+  background: rgba(233, 233, 227, 0.1);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.action {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: var(--sumi);
+  background: var(--code-fg);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: scale 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.action:hover {
+  scale: 1.06;
+}
+
+.action svg {
+  width: 20px;
+  height: 20px;
+}
+
+.fab {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  color: var(--ai);
+  background: rgba(233, 233, 227, 0.08);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fab:hover {
+  transform: scale(1.05);
+}
+
+.action:focus-visible,
+.fab:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 3px;
+}
+
+/* 開くと中心から塗りが広がる(観察元: scale 0→1・0.4s cubic-bezier(.4, 0, .2, 1)) */
+.fab::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--ai);
+  transform: scale(0);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.open .fab {
+  color: var(--sumi);
+}
+
+.open .fab::before {
+  transform: scale(1);
+}
+
+/* ＋は縮んで消え、45°傾けた＋(＝×)が 0.6 倍から膨らむ */
+.plus,
+.close {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.close {
+  opacity: 0;
+  transform: rotate(45deg) scale(0.6);
+}
+
+.open .plus {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.open .close {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .open .item,
+  .fab,
+  .fab::before,
+  .plus,
+  .close,
+  .action {
+    transition: none;
+  }
+
+  .item {
+    transform: none;
+  }
+}
