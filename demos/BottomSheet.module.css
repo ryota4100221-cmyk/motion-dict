@@ -1,0 +1,218 @@
+/* 背後の画面＝舞台いっぱいに敷いた写真。シートはこの上にせり上がる */
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* ドラッグで本文や背後の文字が選択されて色が付かないようにする */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding-bottom: 28px;
+}
+
+.folio {
+  margin: 0;
+  padding: 4px 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--code-fg);
+  background: rgba(10, 10, 10, 0.62);
+  user-select: none;
+}
+
+.openBtn {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--sumi);
+  background: var(--paper);
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 背後の黒幕。シートと同じ時間・同じ曲線で opacity を連動させる */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--bs-scrim));
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--bs-dur) cubic-bezier(0.12, 0.67, 0.53, 1),
+    visibility 0s linear var(--bs-dur);
+}
+
+.open .scrim {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--bs-dur) cubic-bezier(0.12, 0.67, 0.53, 1),
+    visibility 0s linear 0s;
+}
+
+/* シート。閉: translateY(100%)・透明 / 開: 0。ドラッグ中だけ JS がインラインで transition を切って書く。
+   横の中央寄せは margin で取り、transform は上下の動きだけに使う(インライン指定が中央寄せを潰さない) */
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: min(460px, 100%);
+  height: var(--bs-h);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  color: var(--sumi);
+  background: var(--paper);
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+  transform: translateY(100%);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform var(--bs-dur) cubic-bezier(0.12, 0.67, 0.53, 1),
+    opacity var(--bs-dur) cubic-bezier(0.12, 0.67, 0.53, 1),
+    visibility 0s linear var(--bs-dur);
+  will-change: transform;
+}
+
+.open .sheet {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform var(--bs-dur) cubic-bezier(0.12, 0.67, 0.53, 1),
+    opacity var(--bs-dur) cubic-bezier(0.12, 0.67, 0.53, 1),
+    visibility 0s linear 0s;
+}
+
+/* ドラッグの受け口＝取っ手とヘッダーだけ。ページのスクロールに奪われないよう touch-action を切る */
+.grip {
+  flex: 0 0 auto;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.grabbing {
+  cursor: grabbing;
+}
+
+.grabber {
+  display: block;
+  width: 40px;
+  height: 4px;
+  margin: 10px auto 0;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.22);
+}
+
+.grabbing .grabber {
+  background: var(--sumi);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 12px;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.12);
+}
+
+.title {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.edge {
+  margin-right: auto;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--sumi-soft);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.list {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0 18px;
+  list-style: none;
+  overflow: auto;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.1);
+  font-size: 14px;
+}
+
+/* ライムは印だけ：先頭の行（いま開いている見出し語）の番号に置く */
+.num {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--sumi-soft);
+}
+
+.row:first-child .num {
+  color: var(--sumi);
+  background: var(--ai);
+  padding: 1px 4px;
+}
+
+.term {
+  flex: 1 1 auto;
+}
+
+.note {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--sumi-soft);
+}

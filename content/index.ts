@@ -55,6 +55,7 @@ import { tabIndicator } from "./tab-indicator";
 import { stepper } from "./stepper";
 import { modalPop } from "./modal-pop";
 import { drawerSlide } from "./drawer-slide";
+import { bottomSheet } from "./bottom-sheet";
 import { toastSlide } from "./toast-slide";
 import { tooltipPop } from "./tooltip-pop";
 import { toggleSwitch } from "./toggle-switch";
@@ -334,6 +335,7 @@ const all: MotionEntry[] = [
   squashStretch,
   springEasing,
   drawerSlide,
+  bottomSheet,
   toastSlide,
   tooltipPop,
   pillExpand,

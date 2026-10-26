@@ -85,6 +85,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   stepper: d(() => import("./Stepper")),
   "modal-pop": d(() => import("./ModalPop")),
   "drawer-slide": d(() => import("./DrawerSlide")),
+  "bottom-sheet": d(() => import("./BottomSheet")),
   "toast-slide": d(() => import("./ToastSlide")),
   "tooltip-pop": d(() => import("./TooltipPop")),
   "toggle-switch": d(() => import("./ToggleSwitch")),
