@@ -76,6 +76,7 @@ export default function SiteFooterCTA(props: Props) {
             <style dangerouslySetInnerHTML={{ __html: `
 .mdc-wrap{max-width:1440px;margin:0 auto;padding:clamp(56px,8cqi,112px) clamp(16px,3.4cqi,40px) clamp(32px,4cqi,48px);border-top:1px solid ${ink};display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:clamp(32px,6cqi,96px)}
 @container (max-width: 760px){.mdc-wrap{grid-template-columns:1fr}}
+@container (min-width: 761px){.mdc-about{word-break:keep-all;overflow-wrap:anywhere}}
 .mdc-lab{font-family:${MONO};font-size:12px;letter-spacing:.06em;color:${muted}}
 .mdc-title{margin:14px 0 0;font-weight:700;font-size:clamp(28px,3.4cqi,44px);line-height:1.15;letter-spacing:-0.04em;font-feature-settings:"palt"}
 .mdc-en{margin:8px 0 0;font-family:${MONO};font-size:13px;letter-spacing:.02em;color:${muted}}
@@ -96,8 +97,7 @@ export default function SiteFooterCTA(props: Props) {
 ` }} />
             <div className="mdc-wrap">
                 <div>
-                    <div className="mdc-lab">奥付　Colophon</div>
-                    <p className="mdc-title">動きの伝え方辞典</p>
+                    <p className="mdc-title" style={{ marginTop: 0 }}>動きの伝え方辞典</p>
                     <p className="mdc-en">Motion dictionary</p>
                 </div>
                 <div>
