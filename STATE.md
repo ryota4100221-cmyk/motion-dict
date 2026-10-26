@@ -1,5 +1,25 @@
 # motion-dict v2 ブラッシュアップ（2026-10-24〜）— 再開はここから
 
+<!-- checkpoint:begin -->
+- 状態: 公開済
+- 更新: 2026-10-26
+- いまここ: Awwwardsループ8周で独立レビュー2人とも D・U・C ≥7.0（7.34/7.40）→本番反映済。新項目もデータ（titleAct・aliases・下地自動生成）で同じルールに。コンタクトエリアは営業CTAをやめ「この辞典について／編者／版／写真」の静かな形に変えて本番反映済。
+- 次の一手: 翌朝7:30の自動追加後、本番の新項目ページを開き、見出しが自分の動きを演じる・擬音で引ける・一覧に下地が出るかを見る（validate で止まっていないかも GH Actions で確認）
+- 所要: 15分
+- 待ち: 翌朝の毎朝ルーティン（anime-demo）の実行
+<!-- checkpoint:end -->
+
+## 2026-10-26 本番反映とその後
+- 本番（PnTJSNS3Yi1gInF6kBFb）に r8 を反映・publish（詳細は下の「Awwwards ループ → 本番反映」節）。
+- 新項目のデータ化（9d7f296）：content に `titleAct`・`aliases` を必須化（validate-content が落とす）。`scripts/poster-derive.py` が下地LQIP・明るさ補正を生成→`public/v2/derived/`・`public/v2/lqip.json`。entries-v2.json に titleAct/aliases/defaults/dim。コンポーネントはデータ優先・無ければ定数。手順書＝anime-demo-daily SKILL.md STEP5・docs/DAILY_ENTRY_GUIDE.md 末尾「2026-10-26 追加」。
+  - 本番で speed-dial（今朝の新項目）を確認：見出しが自分の動き（scroll-fade-in）・「ぽこぽこ」で検索ヒット・下地あり。
+  - 手書きのまま残したもの：PF_READ・Y_TABLE（着地時に自己補正）・PICK（格子に出す項目＝新項目は索引行へ）。
+- 罠：sync-to-framer が `public/v2/meta/<slug>.json`・`public/rec/<slug>.json` を未追跡で残し、翌朝の `git pull` を止めていた → 2fe3fe2 で git add に追加。
+- コンタクトエリア（SiteFooterCTA.tsx）：特大見出し「この動き、サイトに入れたい。」＋ライムの相談ボタンをやめ、生成り地に「動きの伝え方辞典／この辞典について／編者・版・写真／monaka design.・X・お仕事の相談（文字リンク）」。版の日付と項目数は entries-v2.json の件数と Last-Modified から自動。Ryota指示で「奥付 Colophon」の表示は削除。PC は文節で折り返し・SP は通常。本番 publish 済（93cc099）。
+- 判断待ち（Ryota）：有料プランで Made in Framer を外す＋独自ドメイン／英語併記／duotone-hover の静止状態のライム。
+- 次に伸ばすなら（レビュアーの次の手）：FVを題字＋擬音だけに絞る／章の境目をその章の動きでめくる／索引サムネを明るい1コマに。
+- 一時ファイル：採点スクショ等は ~/projects/motion-dict-v2-blind（スクラッチパッドへのリンク・セッション終了で消える）。複製 4FmgcacdTtjanKiZQCuP は検証用に残置（noindex）。複製CMSには毎朝の新項目が入らない。
+
 ## 2026-10-25 r7 デモの絵を「紙と活字」に（prompt-trigger ブランチ・未push）
 - 写真：public/demo/photo-01〜18（Unsplash License・picsum経由・粒子のあるモノクロ）。再現＝scripts/photos-paper.py／出典＝public/demo/PHOTO_CREDITS.md
   ※ Unsplash 本体はボット検査（Anubis）で取得不可＝picsum の Unsplash 写真から選んだ（18枚）
