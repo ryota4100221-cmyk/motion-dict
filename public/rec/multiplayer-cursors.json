@@ -1,0 +1,7 @@
+{
+  "note": "操作不要で2本のカーソルが小さく漂い、Editor→Proofreader の順に半周期ずれて吹き出しと道具を入れ替える。自走だけで1周（Editor 2回・Proofreader 1回の発言）を見せる。クリックは入れない＝始まりと終わりがほぼ同じ漂いの位置",
+  "steps": [
+    { "do": "wait", "ms": 6300 }
+  ],
+  "cursor": false
+}
