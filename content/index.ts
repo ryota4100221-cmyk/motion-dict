@@ -191,6 +191,7 @@ import { holoSheen } from "./holo-sheen";
 import { pageTurn } from "./page-turn";
 import { arrowSlideThrough } from "./arrow-slide-through";
 import { chatSequence } from "./chat-sequence";
+import { multiplayerCursors } from "./multiplayer-cursors";
 import { aiOrb } from "./ai-orb";
 import { xrayLens } from "./xray-lens";
 import { flameFlicker } from "./flame-flicker";
@@ -363,6 +364,7 @@ const all: MotionEntry[] = [
   listAddRemove,
   paperCrumple,
   chatSequence,
+  multiplayerCursors,
   aiOrb,
   flipCard,
   pageTurn,

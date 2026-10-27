@@ -213,6 +213,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "paper-crumple": d(() => import("./PaperCrumple")),
   "expanding-search": d(() => import("./ExpandingSearch")),
   "chat-sequence": d(() => import("./ChatSequence")),
+  "multiplayer-cursors": d(() => import("./MultiplayerCursors")),
   "ai-orb": d(() => import("./AiOrb")),
   "xray-lens": d(() => import("./XrayLens")),
   "prize-wheel": d(() => import("./PrizeWheel")),

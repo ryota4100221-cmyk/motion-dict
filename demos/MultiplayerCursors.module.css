@@ -1,0 +1,207 @@
+/* 舞台いっぱいに写真を敷き、その上を共同編集者のカーソルが漂う */
+.canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.presence {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(10, 10, 10, 0.72);
+  color: rgba(233, 233, 227, 0.86);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.dotAi,
+.dotPaper {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.dotPaper {
+  margin-left: -9px;
+  background: rgba(233, 233, 227, 0.9);
+  box-shadow: 0 0 0 1.5px rgba(10, 10, 10, 0.72);
+}
+
+/* カーソル1本＝道具の絵・名札・吹き出しの束。束ごと小さく漂わせる(puture.co.kr の cursor-drift) */
+.cursor {
+  position: absolute;
+  display: grid;
+  justify-items: start;
+  animation: mc-drift var(--mc-drift-dur) ease-in-out infinite;
+}
+
+.tool {
+  display: block;
+  width: 20px;
+  height: 20px;
+  transform-origin: 3px 3px;
+  animation: mc-tool-pick var(--mc-pop) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tool svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.tool path {
+  fill: var(--ai);
+  stroke: var(--sumi);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.tool[data-tool="pen"] path,
+.tool[data-tool="text"] path {
+  fill: none;
+  stroke: var(--ai);
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 1px var(--sumi)) drop-shadow(0 0 1px var(--sumi));
+}
+
+.cursor[data-tone="paper"] .tool path {
+  fill: rgba(233, 233, 227, 0.95);
+}
+
+.cursor[data-tone="paper"] .tool[data-tool="pen"] path,
+.cursor[data-tone="paper"] .tool[data-tool="text"] path {
+  fill: none;
+  stroke: rgba(233, 233, 227, 0.95);
+}
+
+.name {
+  margin: 1px 0 0 14px;
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: var(--ai);
+  color: var(--sumi);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cursor[data-tone="paper"] .name {
+  background: rgba(233, 233, 227, 0.95);
+}
+
+/* 吹き出しは発言の周期と同じ長さで「出る→読ませる→上へ抜けて消える」を1回だけ再生する */
+.bubble {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 14px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(10, 10, 10, 0.86);
+  color: rgba(233, 233, 227, 0.94);
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  transform-origin: 0 100%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  animation: mc-say var(--mc-say) ease-in-out both;
+}
+
+@keyframes mc-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  30% {
+    transform: translate(calc(var(--mc-drift) * 7 / 9), calc(var(--mc-drift) * -5 / 9));
+  }
+  65% {
+    transform: translate(calc(var(--mc-drift) * 2 / 9), calc(var(--mc-drift) * -1));
+  }
+}
+
+@keyframes mc-tool-pick {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-20deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mc-say {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+  18%,
+  84% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* 録画・PCの広い舞台では写真に対して小さすぎるので、絵と文字だけ大きくする(漂う幅は変えない) */
+@media (min-width: 900px) {
+  .tool {
+    width: 28px;
+    height: 28px;
+    transform-origin: 4px 4px;
+  }
+  .name {
+    margin: 2px 0 0 20px;
+    padding: 5px 9px;
+    font-size: 13px;
+  }
+  .bubble {
+    left: 20px;
+    padding: 9px 13px;
+    font-size: 15px;
+  }
+  .presence {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor,
+  .tool {
+    animation: none;
+  }
+  .bubble {
+    opacity: 1;
+    animation: none;
+  }
+}
