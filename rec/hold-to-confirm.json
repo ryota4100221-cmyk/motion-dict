@@ -1,0 +1,11 @@
+{
+  "note": "封蝋を押し続けてリングを満たし、封が切れて光が広がるのを見せる(確定後1sで空に戻る)。続けて0.5sだけ押して離し、満ちた分が速く引いて戻るのを見せる。最後は空のリング＝始まりと同じ状態",
+  "zoom": 1.4,
+  "steps": [
+    { "do": "drag", "fromSel": "button[aria-label]", "toSel": "button[aria-label]", "pre": 300, "dur": 1500 },
+    { "do": "wait", "ms": 2000 },
+    { "do": "drag", "fromSel": "button[aria-label]", "toSel": "button[aria-label]", "pre": 200, "dur": 550 },
+    { "do": "wait", "ms": 700 },
+    { "do": "leave", "dur": 400 }
+  ]
+}

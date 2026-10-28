@@ -140,6 +140,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "press-feedback": d(() => import("./PressFeedback")),
   "stateful-button": d(() => import("./StatefulButton")),
   "copy-to-clipboard": d(() => import("./CopyToClipboard")),
+  "hold-to-confirm": d(() => import("./HoldToConfirm")),
   "confetti-burst": d(() => import("./ConfettiBurst")),
   "like-burst": d(() => import("./LikeBurst")),
   "flip-card": d(() => import("./FlipCard")),

@@ -1,0 +1,209 @@
+/* 封をした一枚の上に封蝋を置き、押し続けると周りのリングが満ちて封が切れる */
+.wrap {
+  --hc-p: 0;
+  --hc-p2: 0;
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 22px;
+  min-height: 300px;
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.letter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  width: min(320px, 80vw);
+  height: 200px;
+  padding: 20px 22px;
+  border: 1px solid rgba(233, 233, 227, 0.22);
+  transform: translate(-50%, -72%);
+  pointer-events: none;
+}
+
+.folio {
+  color: rgba(233, 233, 227, 0.6);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.rule,
+.ruleShort {
+  display: block;
+  height: 1px;
+  background: rgba(233, 233, 227, 0.18);
+}
+
+.ruleShort {
+  width: 55%;
+}
+
+.seal {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+.wrap[data-phase="holding"] .seal {
+  cursor: grabbing;
+}
+
+.seal:focus-visible {
+  outline: 2px solid var(--ai);
+  outline-offset: 14px;
+}
+
+.wax,
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.wax {
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .seal:hover .wax {
+    transform: rotate(-6deg) scale(1.03);
+  }
+}
+
+/* 押している間だけ 0.11s 周期で震える(levigav.com の seal-shake) */
+.wrap[data-phase="holding"] .wax {
+  animation: hc-shake 0.11s linear infinite;
+}
+
+@keyframes hc-shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: translate(calc(var(--hc-shake) * -0.58px), calc(var(--hc-shake) * 0.33px))
+      rotate(calc(var(--hc-shake) * -1deg));
+  }
+  75% {
+    transform: translate(calc(var(--hc-shake) * 0.58px), calc(var(--hc-shake) * -0.33px))
+      rotate(calc(var(--hc-shake) * 1deg));
+  }
+}
+
+.waxBody {
+  fill: rgb(233, 233, 227);
+}
+
+.waxInner {
+  fill: none;
+  stroke: rgba(10, 10, 10, 0.22);
+  stroke-width: 1.5;
+}
+
+.glyph {
+  fill: rgba(10, 10, 10, 0.28);
+  font-size: 34px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+/* ひびは進み具合どおりに描く。2本目以降は45%を過ぎてから */
+.crack {
+  fill: none;
+  stroke: var(--sumi);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--hc-p));
+  opacity: min(1, calc(var(--hc-p) * 1.6));
+}
+
+.crack[data-late] {
+  stroke-dashoffset: calc(1 - var(--hc-p2));
+}
+
+/* 周りのリング(114%・12時始まり)。進み具合をそのまま描く */
+.ring {
+  inset: -7%;
+  width: 114%;
+  height: 114%;
+  transform: rotate(-90deg);
+}
+
+.ringTrack,
+.ringFill {
+  fill: none;
+  stroke-width: 2;
+}
+
+.ringTrack {
+  stroke: rgba(233, 233, 227, 0.14);
+}
+
+.ringFill {
+  stroke: var(--ai);
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--hc-p));
+  opacity: min(1, calc(var(--hc-p) * 20));
+}
+
+/* 確定の光。scale(0.6) から --hc-burst 倍へ広がって消える */
+.glow {
+  position: absolute;
+  inset: -45%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(233, 233, 227, 0.75), rgba(233, 233, 227, 0.2) 45%, transparent 72%);
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+}
+
+.wrap[data-phase="broken"] .glow[data-on] {
+  animation: hc-burst 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes hc-burst {
+  25% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(var(--hc-burst));
+  }
+}
+
+.note {
+  margin: 0;
+  min-height: 1.4em;
+  color: rgba(233, 233, 227, 0.78);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+.wrap[data-reduce] .wax,
+.wrap[data-reduce] .glow {
+  animation: none !important;
+  transition: none;
+}

@@ -105,6 +105,7 @@ import { gradientBorder } from "./gradient-border";
 import { pressFeedback } from "./press-feedback";
 import { statefulButton } from "./stateful-button";
 import { copyToClipboard } from "./copy-to-clipboard";
+import { holdToConfirm } from "./hold-to-confirm";
 import { expandingSearch } from "./expanding-search";
 import { flipCard } from "./flip-card";
 import { floatingLabel } from "./floating-label";
@@ -351,6 +352,7 @@ const all: MotionEntry[] = [
   pressFeedback,
   statefulButton,
   copyToClipboard,
+  holdToConfirm,
   stampIn,
   confettiBurst,
   likeBurst,
