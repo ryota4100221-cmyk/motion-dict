@@ -114,6 +114,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "marker-line": d(() => import("./MarkerLine")),
   "rotating-badge": d(() => import("./RotatingBadge")),
   "split-screen": d(() => import("./SplitScreen")),
+  "torn-paper-reveal": d(() => import("./TornPaperReveal")),
   "shared-element": d(() => import("./SharedElement")),
   lightbox: d(() => import("./Lightbox")),
   carousel: d(() => import("./Carousel")),

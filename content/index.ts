@@ -86,6 +86,7 @@ import { colorWave } from "./color-wave";
 import { markerLine } from "./marker-line";
 import { rotatingBadge } from "./rotating-badge";
 import { splitScreen } from "./split-screen";
+import { tornPaperReveal } from "./torn-paper-reveal";
 import { sharedElement } from "./shared-element";
 import { lightbox } from "./lightbox";
 import { carousel } from "./carousel";
@@ -285,6 +286,7 @@ const all: MotionEntry[] = [
   crtPowerOff,
   zoomThrough,
   splitScreen,
+  tornPaperReveal,
   sharedElement,
   imageZoomHover,
   clipReveal,

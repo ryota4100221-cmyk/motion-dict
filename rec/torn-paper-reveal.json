@@ -1,0 +1,14 @@
+{
+  "note": "Tear openで紙がギザギザの破れ目で上下に裂けて退き、写真が現れる。もう一度押すと新しい破れ目の紙がフェードで覆い直す",
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 350 },
+    { "do": "wait", "ms": 1700 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 700 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 1700 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 600 },
+    { "do": "leave", "dur": 400 }
+  ]
+}

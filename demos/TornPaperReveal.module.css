@@ -1,0 +1,151 @@
+/* 下の層=破れ目から現れる図版(/demo/photo-09.jpg)。舞台いっぱいに敷く */
+.plate {
+  position: absolute;
+  inset: 0;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.caption {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  background: rgba(10, 10, 10, 0.5);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(240, 238, 230, 0.9);
+}
+
+/* 上の層=覆っている紙(上下2枚の紙片) */
+.sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 覆い直しの紙だけ0.3sで浮かび上がる */
+.fresh {
+  animation: tornPaperSheetIn 0.3s ease-out both;
+}
+
+@keyframes tornPaperSheetIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 紙片の外枠。動くのはここの transform だけ。
+   影は clip-path を持つ子ではなくここに付ける(同じ要素だと影ごと切り取られる) */
+.wrap {
+  position: absolute;
+  left: -2%;
+  width: 104%;
+  height: 58%;
+  will-change: transform;
+}
+
+.wrapTop {
+  top: 0;
+  filter: drop-shadow(0 6px 10px rgba(30, 20, 10, 0.22));
+}
+
+.wrapBottom {
+  bottom: 0;
+  filter: drop-shadow(0 -6px 10px rgba(30, 20, 10, 0.22));
+}
+
+/* 破れ目で切った紙片。この地の色が縁に残る淡い繊維 */
+.fiber {
+  position: absolute;
+  inset: 0;
+  background: #fbf7ea;
+}
+
+/* 紙の表面(地の色＋刷り)。繊維より rim ぶん内側で切る */
+.body {
+  position: absolute;
+  inset: 0;
+  background: #e9e2d3;
+  overflow: hidden;
+}
+
+/* 刷りは舞台1枚ぶんの高さで敷き、上下の紙片で継ぎ目を合わせる(破れると文字も裂ける) */
+.print {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: calc(100% / 0.58);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #2a241c;
+  user-select: none;
+}
+
+.printTop {
+  top: 0;
+}
+
+.printBottom {
+  bottom: 0;
+}
+
+.title {
+  font-family: var(--font-display), serif;
+  font-size: clamp(26px, 6vw, 44px);
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.folio {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: rgba(42, 36, 28, 0.6);
+}
+
+/* 紙面のどこを押しても破れる */
+.hit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  cursor: pointer;
+}
+
+.btn {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--code-fg);
+  background: rgba(10, 10, 10, 0.62);
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
