@@ -1,0 +1,183 @@
+/* 巻物の置き場。下にボタンの余白を残して中央に吊るす */
+.center {
+  position: absolute;
+  inset: 7% 0 21%;
+  display: flex;
+  justify-content: center;
+}
+
+.scroll {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 1.32;
+  max-width: 88%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 筒。紙より左右に少し長く、上から吊るす(巻いた芯は筒の手前に重なる) */
+.rod {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  height: 18px;
+  margin: 0 -3%;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #4a4a44 0%, #23231f 48%, #0f0f0d 100%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* 筒の帯=ライムの印 */
+.band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--ai);
+}
+
+.band:first-child {
+  left: 7%;
+}
+
+.band:nth-child(2) {
+  right: 9%;
+}
+
+/* 右端のキャップ。外れるのは animation、戻るのは短いフェード */
+.cap {
+  position: absolute;
+  top: -1px;
+  right: -9px;
+  width: 22px;
+  height: 20px;
+  border-radius: 5px 10px 10px 5px;
+  background: linear-gradient(180deg, #55554e 0%, #1a1a17 100%);
+}
+
+.capOff {
+  animation: scrollUnrollCapOff var(--su-cap-dur) cubic-bezier(0.5, 0, 0.7, 0.4)
+    var(--su-cap-delay) forwards;
+}
+
+.capBack {
+  animation: scrollUnrollCapBack 0.25s ease-out both;
+}
+
+.capGone {
+  opacity: 0;
+}
+
+@keyframes scrollUnrollCapOff {
+  40% {
+    transform: translate(12px, -8px) rotate(20deg);
+  }
+  100% {
+    transform: translate(36px, 30px) rotate(70deg);
+    opacity: 0;
+  }
+}
+
+@keyframes scrollUnrollCapBack {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 紙と芯の共通の箱。芯の外枠はこれと同寸なので translateY(100%) で紙の下端に届く */
+.sheet {
+  position: relative;
+  flex: 1 1 auto;
+  margin-top: -4px;
+  cursor: pointer;
+}
+
+/* 紙の置き場。ここで切り、中の窓が下りるぶんだけ紙が見える */
+.clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* 窓(translateY −100%→0)と紙(+100%→0)は逆向きに同量動くので、画面上の紙は止まって見える */
+.window,
+.paper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.paper {
+  background: #e9e2d3;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+}
+
+.folio {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  background: rgba(10, 10, 10, 0.5);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(240, 238, 230, 0.9);
+}
+
+.track {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* 芯=巻いた紙。中心を開いた縁に合わせ、上下のグラデで円柱に見せる */
+.roll {
+  position: absolute;
+  top: 0;
+  left: -1%;
+  width: 102%;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, #fbf7ea 0%, #e6dcc4 52%, #b9ad92 100%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+.btn {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: max-content;
+  z-index: 4;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--code-fg);
+  background: rgba(10, 10, 10, 0.62);
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
