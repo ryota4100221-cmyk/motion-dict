@@ -1,0 +1,10 @@
+{
+  "note": "Unrollでキャップが外れ、芯が下へ転がりながら紙がほどけて図版が現れる。Roll upで同じ速さで巻き上げて元に戻す（始まりと終わりは巻いた状態）",
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 2000 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 1500 },
+    { "do": "leave", "dur": 400 }
+  ]
+}
