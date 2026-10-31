@@ -121,6 +121,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   carousel: d(() => import("./Carousel")),
   "drag-scroll": d(() => import("./DragScroll")),
   "card-shuffle": d(() => import("./CardShuffle")),
+  "polaroid-drop": d(() => import("./PolaroidDrop")),
   "logo-marquee": d(() => import("./LogoMarquee")),
   "line-draw": d(() => import("./LineDraw")),
   "marching-ants": d(() => import("./MarchingAnts")),

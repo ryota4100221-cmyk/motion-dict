@@ -93,6 +93,7 @@ import { lightbox } from "./lightbox";
 import { carousel } from "./carousel";
 import { dragScroll } from "./drag-scroll";
 import { cardShuffle } from "./card-shuffle";
+import { polaroidDrop } from "./polaroid-drop";
 import { logoMarquee } from "./logo-marquee";
 import { lineDraw } from "./line-draw";
 import { marchingAnts } from "./marching-ants";
@@ -306,6 +307,7 @@ const all: MotionEntry[] = [
   coverFlow,
   dragScroll,
   cardShuffle,
+  polaroidDrop,
   logoMarquee,
   lineDraw,
   marchingAnts,
