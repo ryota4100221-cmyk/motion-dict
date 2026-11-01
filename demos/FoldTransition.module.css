@@ -1,0 +1,229 @@
+/* 紙面(舞台いっぱい)。perspective はここに付け、2枚の葉が同じ視点を共有する */
+.book {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* 左右半分ずつの葉。中身は紙面1枚ぶんの幅で入れ、はみ出しを切る */
+.leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.left {
+  left: 0;
+  transform-origin: 100% 50%;
+}
+
+.right {
+  right: 0;
+  transform-origin: 0% 50%;
+}
+
+.inner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 200%;
+}
+
+.left .inner {
+  left: 0;
+}
+
+.right .inner {
+  left: -100%;
+}
+
+/* 折り目へ向かって濃くなる陰り。opacity だけを動かす */
+.leaf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.left::after {
+  background: linear-gradient(90deg, rgba(55, 53, 45, 0) 60%, var(--ft-shade, rgba(55, 53, 45, 0.14)));
+}
+
+.right::after {
+  background: linear-gradient(90deg, var(--ft-shade, rgba(55, 53, 45, 0.14)), rgba(55, 53, 45, 0) 40%);
+}
+
+/* 閉じる: 外側の端が手前へ起き上がり、折り目を軸に ±90deg まで畳まれる */
+.folding.left {
+  animation: ftFoldLeft var(--ft-fold, 0.95s) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.folding.right {
+  animation: ftFoldRight var(--ft-fold, 0.95s) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.folding::after {
+  animation: ftShadeIn var(--ft-fold, 0.95s) ease both;
+}
+
+/* 開く: 差し替えた次のページを、少し置いてから折り目から広げる */
+.unfolding.left {
+  animation: ftUnfoldLeft var(--ft-unfold, 1.25s) cubic-bezier(0.22, 0.61, 0.36, 1) var(--ft-hold, 0.12s) both;
+}
+
+.unfolding.right {
+  animation: ftUnfoldRight var(--ft-unfold, 1.25s) cubic-bezier(0.22, 0.61, 0.36, 1) var(--ft-hold, 0.12s) both;
+}
+
+.unfolding::after {
+  animation: ftShadeOut var(--ft-unfold, 1.25s) ease var(--ft-hold, 0.12s) both;
+}
+
+@keyframes ftFoldLeft {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(90deg); }
+}
+
+@keyframes ftFoldRight {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(-90deg); }
+}
+
+@keyframes ftUnfoldLeft {
+  from { transform: rotateY(90deg); }
+  to { transform: rotateY(0deg); }
+}
+
+@keyframes ftUnfoldRight {
+  from { transform: rotateY(-90deg); }
+  to { transform: rotateY(0deg); }
+}
+
+@keyframes ftShadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ftShadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* 紙面の刷り。左に図版、右に見出し(折り目をまたいで両方の葉に中身がある) */
+.folio {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6%;
+  padding: 7% 7% 72px;
+  background: #f4f2eb;
+  color: #2a241c;
+  user-select: none;
+}
+
+.plate {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(42, 36, 28, 0.12);
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.no {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: rgba(42, 36, 28, 0.6);
+}
+
+.title {
+  font-family: var(--font-display), serif;
+  font-size: clamp(22px, 5vw, 46px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.word {
+  font-size: clamp(13px, 2vw, 18px);
+  color: rgba(42, 36, 28, 0.75);
+}
+
+.note {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(42, 36, 28, 0.6);
+}
+
+/* 減らす設定のときだけ: 差し替えた紙面を0.2sで浮かべる */
+.fadeIn {
+  animation: ftFade 0.2s ease both;
+}
+
+@keyframes ftFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.btn {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--code-fg);
+  background: rgba(10, 10, 10, 0.62);
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s;
+}
+
+.btn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+/* 狭い舞台では添え書きを畳む */
+@media (max-width: 600px) {
+  .note {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folding.left,
+  .folding.right,
+  .unfolding.left,
+  .unfolding.right,
+  .folding::after,
+  .unfolding::after {
+    animation: none;
+  }
+}

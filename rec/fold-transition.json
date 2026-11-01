@@ -1,0 +1,10 @@
+{
+  "note": "Turn to next folioで紙面が中央の折り目で左右に畳まれて閉じ、次のページが折り目から開く。2回押して最初の紙面に戻る（始まりと終わりは Folio 02 が開いた状態）",
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 2500 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 2500 },
+    { "do": "leave", "dur": 400 }
+  ]
+}
