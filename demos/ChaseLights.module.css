@@ -1,0 +1,173 @@
+/* 舞台の大きさ(詳細 320px / 全画面 /stage)に看板の大きさを合わせるための入れ物 */
+.room {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  pointer-events: none;
+}
+
+/* 劇場の看板。2:1 にすると上辺12間隔・縦辺6間隔で電球の間隔が縦横で揃う */
+.sign {
+  position: absolute;
+  top: calc(50% - 22px);
+  left: 50%;
+  width: min(100cqw - 48px, (100cqh - 110px) * 2);
+  aspect-ratio: 2 / 1;
+  transform: translate(-50%, -50%);
+  container-type: inline-size;
+  background: #141311;
+  border: 1px solid rgba(216, 212, 200, 0.22);
+  box-shadow: 0 0 0 6px #0f0e0c, 0 18px 40px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 看板の文字盤(紙) */
+.plate {
+  position: absolute;
+  inset: 17% 11%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.2cqw;
+  background: #f4f2eb;
+  color: #2a241c;
+  box-shadow: inset 0 0 0 0.8cqw #f4f2eb, inset 0 0 0 1cqw rgba(42, 36, 28, 0.55);
+  text-align: center;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.4cqw;
+  font-family: var(--font-mono), monospace;
+  font-size: max(8px, 2.1cqw);
+  letter-spacing: 0.14em;
+  color: rgba(42, 36, 28, 0.62);
+}
+
+/* ライムは印だけ */
+.mark {
+  width: 1.4cqw;
+  height: 1.4cqw;
+  min-width: 5px;
+  min-height: 5px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.title {
+  font-family: var(--font-display), serif;
+  font-size: 8.4cqw;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.word {
+  font-family: var(--font-mono), monospace;
+  font-size: max(8px, 2cqw);
+  letter-spacing: 0.12em;
+  color: rgba(42, 36, 28, 0.62);
+}
+
+/* 電球を並べる縁。看板の外枠から少し内側の帯に芯を乗せる */
+.rail {
+  position: absolute;
+  inset: 7.5%;
+  inset-inline: 4%;
+}
+
+/* 電球1個。外側は「順に点く」を1回だけ再生し、内側の .lamp が明滅を回し続ける */
+.bulb {
+  position: absolute;
+  width: 4.2cqw;
+  height: 4.2cqw;
+  margin: -2.1cqw 0 0 -2.1cqw;
+  border-radius: 50%;
+  /* 消えていても見える口金(ソケット) */
+  background: radial-gradient(circle, #3a362e 0 34%, #1d1b17 35% 46%, transparent 47%);
+  animation: cl-on 0.2s ease-out both;
+}
+
+@keyframes cl-on {
+  from {
+    opacity: 0.18;
+  }
+}
+
+/* 芯とにじみ。動かすのは opacity だけ */
+.lamp {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #fffdf3 0 22%, #fff1c9 30%, rgba(255, 236, 186, 0.5) 42%, rgba(255, 230, 170, 0) 70%);
+  animation: cl-chase var(--cl-cycle, 1.2s) linear infinite;
+  will-change: opacity;
+}
+
+@keyframes cl-chase {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  33% {
+    opacity: var(--cl-dim, 0.25);
+  }
+}
+
+/* 消灯中: 全部の電球を落として止める */
+.off .bulb {
+  animation: none;
+  opacity: 0.18;
+}
+
+.off .lamp {
+  animation: none;
+}
+
+/* reduced-motion: 明滅も順に点く演出も止め、点いたまま静止 */
+.still .bulb,
+.still .lamp {
+  animation: none;
+}
+
+.btn {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--code-fg);
+  background: rgba(10, 10, 10, 0.62);
+  border: 1px solid rgba(216, 212, 200, 0.35);
+  border-radius: 2px;
+  padding: 8px 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s;
+}
+
+.btn:hover {
+  border-color: rgba(216, 212, 200, 0.7);
+}
+
+/* 狭い舞台では操作の説明(左下)とボタンが重なるので、ボタンを一段上げる */
+@media (max-width: 600px) {
+  .btn {
+    bottom: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bulb,
+  .lamp {
+    animation: none;
+  }
+}

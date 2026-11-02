@@ -98,6 +98,7 @@ import { polaroidDrop } from "./polaroid-drop";
 import { logoMarquee } from "./logo-marquee";
 import { lineDraw } from "./line-draw";
 import { marchingAnts } from "./marching-ants";
+import { chaseLights } from "./chase-lights";
 import { animatedBeam } from "./animated-beam";
 import { barberPole } from "./barber-pole";
 import { cornerBrackets } from "./corner-brackets";
@@ -313,6 +314,7 @@ const all: MotionEntry[] = [
   logoMarquee,
   lineDraw,
   marchingAnts,
+  chaseLights,
   animatedBeam,
   barberPole,
   cornerBrackets,
