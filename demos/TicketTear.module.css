@@ -1,0 +1,331 @@
+.board {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding-bottom: 18px;
+}
+
+/* チケット本体。中身の寸法は全部チケット幅基準(--u = 幅/360) */
+.ticket {
+  position: relative;
+  width: min(360px, 76%);
+  aspect-ratio: 360 / 164;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sumi);
+  cursor: pointer;
+  container-type: inline-size;
+  perspective: 900px;
+  rotate: -3deg;
+  -webkit-tap-highlight-color: transparent;
+  animation: tt-print 0.95s cubic-bezier(0.2, 1.25, 0.4, 1) both;
+}
+
+.ticket:focus-visible {
+  outline: none;
+}
+
+.ticket:focus-visible .paper {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 8px;
+}
+
+.float {
+  --u: calc(100cqw / 360);
+  position: absolute;
+  inset: 0;
+  display: block;
+  filter: drop-shadow(0 calc(8 * var(--u)) calc(6 * var(--u)) rgba(0, 0, 0, 0.45));
+  transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@media (hover: hover) {
+  .ticket[data-state="idle"]:hover .float {
+    transform: translateY(-5%) scale(1.03);
+  }
+}
+
+.paper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.main,
+.stub {
+  --n: calc(11 * var(--u));
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* 境目の上下を丸く抜く(ノッチ) */
+.main {
+  flex: 1 1 0%;
+  gap: calc(3 * var(--u));
+  padding: calc(14 * var(--u)) calc(16 * var(--u));
+  border-radius: calc(6 * var(--u)) 0 0 calc(6 * var(--u));
+  background: var(--paper);
+  box-shadow:
+    inset 0 0 0 calc(7 * var(--u)) var(--paper),
+    inset 0 0 0 calc(8 * var(--u)) rgba(10, 10, 10, 0.7),
+    inset 0 0 0 calc(11 * var(--u)) var(--paper),
+    inset 0 0 0 calc(11.5 * var(--u)) rgba(10, 10, 10, 0.4);
+  mask:
+    radial-gradient(circle var(--n) at 100% 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle var(--n) at 100% 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+}
+
+/* 半券。左端にミシン目の点線 */
+.stub {
+  flex: 0 0 auto;
+  flex-direction: row;
+  gap: calc(6 * var(--u));
+  width: 23%;
+  border-radius: 0 calc(6 * var(--u)) calc(6 * var(--u)) 0;
+  background-color: #d6d3ca;
+  background-image: radial-gradient(circle, rgba(10, 10, 10, 0.45) 38%, transparent 42%);
+  background-size: calc(6 * var(--u)) calc(9 * var(--u));
+  background-position: 0 center;
+  background-repeat: repeat-y;
+  mask:
+    radial-gradient(circle var(--n) at 0 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle var(--n) at 0 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+}
+
+.house,
+.admit {
+  font-family: var(--font-sans), sans-serif;
+  font-size: calc(10 * var(--u));
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.presents {
+  font-family: var(--font-display), serif;
+  font-size: calc(11 * var(--u));
+  font-style: italic;
+  line-height: 1.1;
+  opacity: 0.75;
+}
+
+.title {
+  position: relative;
+  margin: calc(2 * var(--u)) 0 calc(4 * var(--u));
+  font-family: var(--font-display), serif;
+  font-size: calc(30 * var(--u));
+  font-weight: 600;
+  line-height: 0.95;
+}
+
+/* ライムは印だけ:見出しの下の細い線 */
+.title::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: calc(-4 * var(--u));
+  height: calc(3 * var(--u));
+  border-radius: 2px;
+  background: var(--ai);
+}
+
+.sub {
+  font-family: var(--font-sans), sans-serif;
+  font-size: calc(9 * var(--u));
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.row {
+  display: flex;
+  gap: calc(14 * var(--u));
+  margin-top: calc(6 * var(--u));
+  padding-top: calc(6 * var(--u));
+  border-top: calc(1 * var(--u)) solid currentColor;
+  font-family: var(--font-mono), monospace;
+  font-size: calc(10.5 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+}
+
+.row i {
+  display: block;
+  margin-bottom: calc(2 * var(--u));
+  font-family: var(--font-sans), sans-serif;
+  font-size: calc(6.5 * var(--u));
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.admit {
+  writing-mode: vertical-rl;
+  font-size: calc(11 * var(--u));
+  letter-spacing: 0.32em;
+  transform: rotate(180deg);
+}
+
+.serial {
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono), monospace;
+  font-size: calc(9.5 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* パンチの穴(最初は scale 0) */
+.hole {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  width: calc(14 * var(--u));
+  height: calc(14 * var(--u));
+  margin-left: calc(-7 * var(--u));
+  border-radius: 50%;
+  background: #151514;
+  box-shadow: inset 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(0, 0, 0, 0.6);
+  transform: scale(0);
+}
+
+/* 抜け落ちる紙片。穴と同じ位置・同じ大きさ */
+.chad {
+  position: absolute;
+  top: 14%;
+  right: calc(11.5% - 7 * var(--u));
+  width: calc(14 * var(--u));
+  height: calc(14 * var(--u));
+  border-radius: 50%;
+  background: #d6d3ca;
+  opacity: 0;
+}
+
+.ticket[data-state="torn"] {
+  z-index: 2;
+  cursor: default;
+}
+
+.ticket[data-state="torn"] .hole {
+  animation: tt-punch 0.12s ease-out forwards;
+}
+
+.ticket[data-state="torn"] .chad {
+  animation: tt-chad 0.9s cubic-bezier(0.4, 0, 1, 1) 50ms forwards;
+}
+
+.ticket[data-state="torn"] .stub {
+  animation: tt-tear var(--tt-dur) cubic-bezier(0.5, 0, 0.9, 0.5) var(--tt-delay) forwards;
+}
+
+.ticket[data-state="torn"] .float {
+  animation: tt-present 1.1s cubic-bezier(0.3, 0, 0.2, 1) var(--tt-present-delay) forwards;
+}
+
+@keyframes tt-print {
+  0% {
+    transform: translateY(-60%) scale(0.3, 0.05);
+    opacity: 0;
+  }
+  12% {
+    transform: translateY(-54%) scale(0.32, 0.3);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes tt-punch {
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes tt-chad {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(40%, 900%) rotate(200deg) scaleX(0.4);
+  }
+}
+
+@keyframes tt-tear {
+  0% {
+    transform: none;
+  }
+  12% {
+    transform: translate(4%, -3%) rotate(var(--tt-nudge));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(60%, 260%) rotate(var(--tt-angle));
+  }
+}
+
+@keyframes tt-present {
+  100% {
+    transform: translateY(-30%) scale(var(--tt-lift)) rotate(3deg);
+  }
+}
+
+/* reduced-motion: 動かさず、穴を出して半券を opacity だけで消す */
+.ticket[data-reduce] {
+  animation: none;
+}
+
+.ticket[data-reduce] .float {
+  transition: none;
+}
+
+.ticket[data-reduce] .stub {
+  transition: opacity 0.2s;
+}
+
+.ticket[data-reduce][data-state="torn"] .hole {
+  animation: none;
+  transform: scale(1);
+}
+
+.ticket[data-reduce][data-state="torn"] .chad,
+.ticket[data-reduce][data-state="torn"] .float {
+  animation: none;
+}
+
+.ticket[data-reduce][data-state="torn"] .stub {
+  animation: none;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticket,
+  .ticket .float,
+  .ticket .stub,
+  .ticket .hole,
+  .ticket .chad {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sub {
+    display: none;
+  }
+}

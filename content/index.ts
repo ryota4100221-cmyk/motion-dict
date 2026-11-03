@@ -202,6 +202,7 @@ import { aiOrb } from "./ai-orb";
 import { xrayLens } from "./xray-lens";
 import { flameFlicker } from "./flame-flicker";
 import { stickerPeel } from "./sticker-peel";
+import { ticketTear } from "./ticket-tear";
 import { prizeWheel } from "./prize-wheel";
 import { scratchCard } from "./scratch-card";
 import { giftBoxReveal } from "./gift-box-reveal";
@@ -381,6 +382,7 @@ const all: MotionEntry[] = [
   flipCard,
   pageTurn,
   stickerPeel,
+  ticketTear,
   floatingLabel,
   passwordStrength,
   expandingSearch,
