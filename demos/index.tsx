@@ -230,4 +230,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "ticket-tear": d(() => import("./TicketTear")),
   "dot-pagination": d(() => import("./DotPagination")),
   "gauge-meter": d(() => import("./GaugeMeter")),
+  "countdown-timer": d(() => import("./CountdownTimer")),
 };
