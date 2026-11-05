@@ -1,0 +1,249 @@
+/* 舞台そのものを size コンテナにして、飛ぶ距離を cqw / cqh で決める */
+.board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+}
+
+.scene {
+  /* 便箋の高さ(52cqh)を300等分した単位。中身の寸法は全部これ基準 */
+  --u: calc(52cqh / 300);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 便箋。紙飛行機と同じ4点の clip-path にしておき、畳むときに頂点を寄せる */
+.sheet {
+  position: absolute;
+  left: 50%;
+  top: 41%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(10 * var(--u));
+  box-sizing: border-box;
+  width: calc(230 * var(--u));
+  height: calc(300 * var(--u));
+  padding: calc(24 * var(--u)) calc(22 * var(--u));
+  background: linear-gradient(150deg, var(--paper), #d9d6cd);
+  color: var(--sumi);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  animation: pp-return 0.4s ease-out both;
+}
+
+.folio {
+  font-family: var(--font-mono), monospace;
+  font-size: calc(11 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.dear {
+  font-family: var(--font-display), serif;
+  font-size: calc(24 * var(--u));
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.body {
+  font-family: var(--font-sans), sans-serif;
+  font-size: calc(12.5 * var(--u));
+  line-height: 1.5;
+}
+
+/* 便箋の罫線(画像なし) */
+.rules {
+  flex: 1 1 auto;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(17 * var(--u)),
+    rgba(10, 10, 10, 0.22) calc(17 * var(--u)),
+    rgba(10, 10, 10, 0.22) calc(18 * var(--u))
+  );
+}
+
+.sign {
+  align-self: flex-end;
+  font-family: var(--font-display), serif;
+  font-size: calc(14 * var(--u));
+  font-style: italic;
+}
+
+/* ライムは印だけ:署名の下の細い線 */
+.sign::after {
+  content: "";
+  display: block;
+  height: calc(3 * var(--u));
+  margin-top: calc(3 * var(--u));
+  border-radius: 2px;
+  background: var(--ai);
+}
+
+/* 紙飛行機。95×60 の4点ポリゴン、140deg のグラデで折り目の影 */
+.plane {
+  position: absolute;
+  left: 50%;
+  top: calc(41cqh + 45 * var(--u));
+  width: calc(95 * var(--u));
+  height: calc(60 * var(--u));
+  background: linear-gradient(140deg, #f6f5f1 0 49%, #a9a69d 50% 60%, #dedbd3 61%);
+  clip-path: polygon(0 0, 100% 45%, 15% 100%, 30% 48%);
+  opacity: 0;
+  transform: translate(-50%, 50%) rotate(-20deg) scale(1.8);
+}
+
+.sent {
+  position: absolute;
+  left: 50%;
+  top: 41%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--code-fg);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+.sent:not(:empty)::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.scene[data-state="sending"] .sheet {
+  animation: pp-fold var(--pp-fold) ease-in forwards;
+}
+
+.scene[data-state="sending"] .plane {
+  animation: pp-flight var(--pp-flight) cubic-bezier(0.2, 0.5, 0.5, 1) var(--pp-launch) both;
+}
+
+.scene[data-state="sending"] .sent {
+  animation: pp-sent 0.4s ease-out var(--pp-sent-at) both;
+}
+
+@keyframes pp-fold {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -15%) rotate(-20deg) scale(0.45);
+    clip-path: polygon(0 0, 100% 45%, 15% 100%, 30% 48%);
+    opacity: 0;
+  }
+}
+
+@keyframes pp-flight {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 50%) rotate(-20deg) scale(1.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(40cqw, -65cqh) rotate(var(--pp-climb)) scale(0.02);
+  }
+}
+
+@keyframes pp-return {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -38%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes pp-sent {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -30%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.send {
+  position: absolute;
+  left: 50%;
+  bottom: max(9%, 50px);
+  z-index: 2;
+  padding: 9px 20px;
+  border: 1px solid rgba(233, 233, 227, 0.5);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--code-fg);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transform: translateX(-50%);
+  transition:
+    background 0.2s,
+    color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.send[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.send:focus-visible {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .send:not([aria-disabled="true"]):hover {
+    background: var(--code-fg);
+    color: var(--sumi);
+  }
+}
+
+/* reduced-motion: 畳まず飛ばさず、便箋を opacity だけで消して Sent を出す */
+.board[data-reduce] .sheet {
+  animation: none;
+  transition: opacity 0.2s;
+}
+
+.board[data-reduce] .scene[data-state="sending"] .sheet {
+  animation: none;
+  opacity: 0;
+}
+
+.board[data-reduce] .scene[data-state="sending"] .plane {
+  animation: none;
+  opacity: 0;
+}
+
+.board[data-reduce] .scene[data-state="sending"] .sent {
+  animation: none;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .plane,
+  .sent {
+    animation: none !important;
+  }
+}

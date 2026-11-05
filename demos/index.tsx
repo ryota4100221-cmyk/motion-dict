@@ -228,6 +228,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "flame-flicker": d(() => import("./FlameFlicker")),
   "sticker-peel": d(() => import("./StickerPeel")),
   "ticket-tear": d(() => import("./TicketTear")),
+  "paper-plane-send": d(() => import("./PaperPlaneSend")),
   "dot-pagination": d(() => import("./DotPagination")),
   "gauge-meter": d(() => import("./GaugeMeter")),
   "countdown-timer": d(() => import("./CountdownTimer")),

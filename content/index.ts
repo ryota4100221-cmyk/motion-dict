@@ -204,6 +204,7 @@ import { xrayLens } from "./xray-lens";
 import { flameFlicker } from "./flame-flicker";
 import { stickerPeel } from "./sticker-peel";
 import { ticketTear } from "./ticket-tear";
+import { paperPlaneSend } from "./paper-plane-send";
 import { prizeWheel } from "./prize-wheel";
 import { scratchCard } from "./scratch-card";
 import { giftBoxReveal } from "./gift-box-reveal";
@@ -364,6 +365,7 @@ const all: MotionEntry[] = [
   rippleTap,
   pressFeedback,
   statefulButton,
+  paperPlaneSend,
   copyToClipboard,
   holdToConfirm,
   stampIn,
