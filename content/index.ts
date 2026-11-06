@@ -208,6 +208,7 @@ import { paperPlaneSend } from "./paper-plane-send";
 import { prizeWheel } from "./prize-wheel";
 import { scratchCard } from "./scratch-card";
 import { giftBoxReveal } from "./gift-box-reveal";
+import { vinylSlideOut } from "./vinyl-slide-out";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -239,6 +240,7 @@ const all: MotionEntry[] = [
   arrowSlideThrough,
   xrayLens,
   flameFlicker,
+  vinylSlideOut,
   scrollFadeIn,
   perspectiveReveal,
   parallax,

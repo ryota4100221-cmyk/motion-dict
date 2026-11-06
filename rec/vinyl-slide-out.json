@@ -1,0 +1,18 @@
+{
+  "note": "3枚のジャケットに左から順に乗り、盤が右へ滑り出てラベルが回り、外れると戻る様子を連鎖で見せる",
+  "zoom": 1,
+  "before": [
+    { "do": "move", "at": [0.5, 0.97], "dur": 1 },
+    { "do": "wait", "ms": 600 }
+  ],
+  "steps": [
+    { "do": "move", "sel": "[role=button] >> nth=0", "dur": 300 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "move", "sel": "[role=button] >> nth=1", "dur": 300 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "move", "sel": "[role=button] >> nth=2", "dur": 300 },
+    { "do": "wait", "ms": 1300 },
+    { "do": "leave", "at": [0.5, 0.97], "dur": 250 },
+    { "do": "wait", "ms": 900 }
+  ]
+}

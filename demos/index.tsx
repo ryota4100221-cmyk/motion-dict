@@ -226,6 +226,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "scratch-card": d(() => import("./ScratchCard")),
   "gift-box-reveal": d(() => import("./GiftBoxReveal")),
   "flame-flicker": d(() => import("./FlameFlicker")),
+  "vinyl-slide-out": d(() => import("./VinylSlideOut")),
   "sticker-peel": d(() => import("./StickerPeel")),
   "ticket-tear": d(() => import("./TicketTear")),
   "paper-plane-send": d(() => import("./PaperPlaneSend")),

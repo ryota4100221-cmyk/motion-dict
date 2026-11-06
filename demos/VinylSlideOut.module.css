@@ -1,0 +1,161 @@
+/* 舞台いっぱいの箱を container にして、ジャケットの大きさを舞台の高さ・幅から取る
+   (詳細の320pxでも /stage の全面でも同じ構図になる) */
+.room {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ジャケット3枚を横に並べる。盤が右へ出る分(ジャケット幅の約4割)を隙間で空けておく */
+.crate {
+  --vso-w: min(46cqh, 19cqw);
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--vso-w) * 0.5);
+  margin: 0;
+  padding: 0 calc(var(--vso-w) * 0.5) 18px 0;
+  list-style: none;
+  transform: translateY(-10px);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ジャケット＋盤の箱。盤はジャケットの裏(z下)にいて右へ滑り出る */
+.cover {
+  position: relative;
+  display: block;
+  width: var(--vso-w);
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cover:focus-visible .sleeve {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 4px;
+}
+
+.sleeve {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: #181415;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.sleeve img,
+.label img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 盤：ジャケットの 88%・上と左に 6% の余白(出典の寸法)。溝は細い同心円の縞 */
+.disc {
+  position: absolute;
+  top: 6%;
+  left: 6%;
+  width: 88%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from 210deg,
+      transparent 0deg,
+      rgba(255, 255, 255, 0.1) 30deg,
+      transparent 60deg,
+      transparent 200deg,
+      rgba(255, 255, 255, 0.07) 225deg,
+      transparent 250deg
+    ),
+    repeating-radial-gradient(circle, #0d0b0c 0 1px, #2a2627 1px 2px);
+  box-shadow:
+    0 0 0 1px rgba(233, 233, 227, 0.16),
+    0 8px 24px rgba(0, 0, 0, 0.55);
+  will-change: transform;
+}
+
+/* 中央ラベル：盤の中心 36% を写真で丸く抜く。ここだけが回る */
+.label {
+  position: absolute;
+  inset: 32%;
+  border-radius: 50%;
+  overflow: hidden;
+  animation-name: vso-turn;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* 回っていることが分かるよう、ラベルに一本の印(ライム)を入れる */
+.label::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 2px;
+  height: 30%;
+  margin-left: -1px;
+  background: var(--ai);
+}
+
+/* センターホール */
+.hole {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5%;
+  height: 5%;
+  border-radius: 50%;
+  background: var(--sumi);
+  transform: translate(-50%, -50%);
+}
+
+@keyframes vso-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  will-change: transform;
+}
+
+.side {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(216, 212, 200, 0.5);
+  transition: color 0.3s;
+}
+
+.side[data-on="true"] {
+  color: var(--ai);
+}
+
+.title {
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--code-fg);
+}
+
+@container (max-width: 520px) {
+  .title {
+    font-size: 12px;
+  }
+}
