@@ -1,0 +1,155 @@
+/* 頼み方の言い直しを並べた紙。行が順に出て、ボツの行だけ線で消されて沈む */
+.sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 44px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.18em;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(20px, 4.4vw, 40px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  color: var(--code-fg);
+}
+
+/* 周回の終わりに一度消してから頭に戻る(始まりと終わりを同じ「何も無い」状態にする) */
+.sheet[data-leaving="true"] .list {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+/* 番号 | 本文 | 注記 の3列。本文を真ん中に置き、添え字は字の肩に乗せる */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  column-gap: 0.45rem;
+  animation: st-enter var(--st-enter) cubic-bezier(0.16, 1, 0.3, 1)
+    calc(var(--i) * var(--st-stagger)) both;
+}
+
+@keyframes st-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+}
+
+.n,
+.note {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: rgba(233, 233, 227, 0.62);
+  white-space: nowrap;
+}
+
+.n {
+  justify-self: end;
+}
+
+.note {
+  justify-self: start;
+}
+
+/* 残した行の注記だけライムの印にする */
+.row[data-struck="false"] .note {
+  color: var(--ai);
+}
+
+.txt {
+  white-space: nowrap;
+}
+
+/* 取り消し線＝文字の 57% の高さに敷いた単色 gradient を、横 0%→100% に伸ばす */
+.strike {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 57%;
+  background-size: 0% max(2px, var(--st-thick));
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  margin-inline: -0.03em;
+  padding-inline: 0.03em;
+  animation: st-strike var(--st-dur) cubic-bezier(0.7, 0, 0.2, 1)
+    calc(var(--i) * var(--st-stagger) + var(--st-at)) forwards;
+}
+
+@keyframes st-strike {
+  to {
+    background-size: 100% max(2px, var(--st-thick));
+  }
+}
+
+/* 線が8割ほど引けたところから、文字(と線)を沈める。添え字は少し濃いまま */
+.row[data-struck="true"] .txt {
+  animation: st-dim var(--st-dim-dur) ease
+    calc(var(--i) * var(--st-stagger) + var(--st-at) + var(--st-dur) * 0.8)
+    forwards;
+}
+
+.row[data-struck="true"] .n,
+.row[data-struck="true"] .note {
+  animation: st-dim-meta var(--st-dim-dur) ease
+    calc(var(--i) * var(--st-stagger) + var(--st-at) + var(--st-dur) * 0.8)
+    forwards;
+}
+
+@keyframes st-dim {
+  to {
+    opacity: var(--st-dim);
+  }
+}
+
+@keyframes st-dim-meta {
+  to {
+    opacity: min(1, calc(var(--st-dim) + 0.12));
+  }
+}
+
+/* reduced-motion：動かさず、線が引かれて沈んだ最終状態を最初から出す */
+.sheet[data-reduce="true"] .row,
+.sheet[data-reduce="true"] .strike,
+.sheet[data-reduce="true"] .txt,
+.sheet[data-reduce="true"] .n,
+.sheet[data-reduce="true"] .note {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+.replay {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 2px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.replay:hover {
+  border-color: rgba(233, 233, 227, 0.6);
+}
+
+.replay:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}

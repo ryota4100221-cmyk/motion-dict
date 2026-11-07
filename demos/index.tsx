@@ -113,6 +113,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "tracking-in": d(() => import("./TrackingIn")),
   "text-flip": d(() => import("./TextFlip")),
   "marker-line": d(() => import("./MarkerLine")),
+  strikethrough: d(() => import("./Strikethrough")),
   "rotating-badge": d(() => import("./RotatingBadge")),
   "split-screen": d(() => import("./SplitScreen")),
   "torn-paper-reveal": d(() => import("./TornPaperReveal")),

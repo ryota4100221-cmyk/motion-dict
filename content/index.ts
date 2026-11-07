@@ -85,6 +85,7 @@ import { trackingIn } from "./tracking-in";
 import { textFlip } from "./text-flip";
 import { colorWave } from "./color-wave";
 import { markerLine } from "./marker-line";
+import { strikethrough } from "./strikethrough";
 import { rotatingBadge } from "./rotating-badge";
 import { splitScreen } from "./split-screen";
 import { tornPaperReveal } from "./torn-paper-reveal";
@@ -280,6 +281,7 @@ const all: MotionEntry[] = [
   textFlip,
   colorWave,
   markerLine,
+  strikethrough,
   rotatingBadge,
   openingCrawl,
   slicedText,
