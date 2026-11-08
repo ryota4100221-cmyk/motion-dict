@@ -224,6 +224,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "ai-orb": d(() => import("./AiOrb")),
   "xray-lens": d(() => import("./XrayLens")),
   "prize-wheel": d(() => import("./PrizeWheel")),
+  "dice-roll": d(() => import("./DiceRoll")),
   "scratch-card": d(() => import("./ScratchCard")),
   "gift-box-reveal": d(() => import("./GiftBoxReveal")),
   "flame-flicker": d(() => import("./FlameFlicker")),

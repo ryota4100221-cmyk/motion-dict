@@ -1,0 +1,145 @@
+/* サイコロは跳ね上がるので、上に余白を取った場の中央に置く */
+.field {
+  --die: 88px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 260px;
+  padding-top: 18px;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(233, 233, 227, 0.5);
+}
+
+.roll {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 24px 10px 12px;
+  background: transparent;
+  color: rgba(233, 233, 227, 0.78);
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.roll:hover {
+  border-color: rgba(233, 233, 227, 0.42);
+  color: rgba(233, 233, 227, 0.95);
+}
+
+.roll:focus-visible {
+  outline: 2px solid var(--ai);
+  outline-offset: 3px;
+}
+
+/* 外側=跳ねと潰れ(接地点=下端を基準)、内側=回転(中心を軸)。transform は tick が毎フレーム書く */
+.die {
+  display: block;
+  width: var(--die);
+  height: var(--die);
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+.rotor {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--die) * 0.22);
+  background: #ecebe4;
+  box-shadow:
+    inset 0 calc(var(--die) * -0.07) 0 rgba(0, 0, 0, 0.18),
+    inset 0 calc(var(--die) * 0.04) 0 rgba(255, 255, 255, 0.5);
+  will-change: transform;
+}
+
+.pips {
+  box-sizing: border-box;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: calc(var(--die) * 0.14) calc(var(--die) * 0.14) calc(var(--die) * 0.18);
+}
+
+.pips i {
+  width: calc(var(--die) * 0.17);
+  height: calc(var(--die) * 0.17);
+  border-radius: 50%;
+  background: #1b1b19;
+  opacity: 0;
+}
+
+.pips i.on {
+  opacity: 1;
+}
+
+.label {
+  letter-spacing: -0.01em;
+}
+
+.result {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.num {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.5);
+}
+
+/* 引いた見出し語。ライムは下線の印だけ */
+.name {
+  font-size: 20px;
+  color: rgba(233, 233, 227, 0.95);
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--ai);
+  transition: opacity 0.15s ease;
+}
+
+.dim {
+  opacity: 0.35;
+}
+
+/* 詳細ページの小さな舞台(スマホ)ではヒントと重ならないよう詰める */
+@media (max-width: 480px) {
+  .field {
+    --die: 60px;
+    min-height: 0;
+    gap: 10px;
+    padding-top: 12px;
+  }
+  .kicker {
+    display: none;
+  }
+  .roll {
+    gap: 12px;
+    padding: 8px 18px 8px 10px;
+  }
+  .name {
+    font-size: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .name {
+    transition: none;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "note": "サイコロのボタンを押して離すと、縮んで溜め→跳ねて1回転→空中で目が替わり→着地でつぶれて見出し語が決まる。3回振って振り終わりで止める（自走は before の1振りで抑止）",
+  "zoom": 1.4,
+  "settle": 400,
+  "before": [
+    { "do": "click", "sel": "button", "dur": 60 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 250 },
+    { "do": "wait", "ms": 1100 }
+  ],
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 240 },
+    { "do": "wait", "ms": 1250 },
+    { "do": "click", "sel": "button", "dur": 60 },
+    { "do": "wait", "ms": 1250 },
+    { "do": "click", "sel": "button", "dur": 60 },
+    { "do": "wait", "ms": 1100 },
+    { "do": "leave", "at": [0.5, 1.15], "dur": 200 }
+  ]
+}
