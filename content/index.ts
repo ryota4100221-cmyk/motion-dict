@@ -174,6 +174,7 @@ import { godRays } from "./god-rays";
 import { fogDrift } from "./fog-drift";
 import { twinkle } from "./twinkle";
 import { snowfall } from "./snowfall";
+import { eyesFollowCursor } from "./eyes-follow-cursor";
 import { floatingReactions } from "./floating-reactions";
 import { quadtreeReveal } from "./quadtree-reveal";
 import { halftone } from "./halftone";
@@ -243,6 +244,7 @@ const all: MotionEntry[] = [
   xrayLens,
   flameFlicker,
   vinylSlideOut,
+  eyesFollowCursor,
   scrollFadeIn,
   perspectiveReveal,
   parallax,
