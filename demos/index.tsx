@@ -118,6 +118,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "split-screen": d(() => import("./SplitScreen")),
   "torn-paper-reveal": d(() => import("./TornPaperReveal")),
   "fold-transition": d(() => import("./FoldTransition")),
+  "zipper-transition": d(() => import("./ZipperTransition")),
   "shared-element": d(() => import("./SharedElement")),
   lightbox: d(() => import("./Lightbox")),
   carousel: d(() => import("./Carousel")),

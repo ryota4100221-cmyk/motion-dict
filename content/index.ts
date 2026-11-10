@@ -90,6 +90,7 @@ import { rotatingBadge } from "./rotating-badge";
 import { splitScreen } from "./split-screen";
 import { tornPaperReveal } from "./torn-paper-reveal";
 import { foldTransition } from "./fold-transition";
+import { zipperTransition } from "./zipper-transition";
 import { sharedElement } from "./shared-element";
 import { lightbox } from "./lightbox";
 import { carousel } from "./carousel";
@@ -302,6 +303,7 @@ const all: MotionEntry[] = [
   splitScreen,
   tornPaperReveal,
   foldTransition,
+  zipperTransition,
   sharedElement,
   imageZoomHover,
   clipReveal,
