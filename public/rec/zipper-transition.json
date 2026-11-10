@@ -1,0 +1,10 @@
+{
+  "note": "Unzip to next plateでスライダーが右上から左下へ走り、Plate 05 の紙面がV字に開いて Plate 07 が出る。2回押して最初の紙面に戻る（始まりと終わりは Plate 05）",
+  "steps": [
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 2400 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 2400 },
+    { "do": "leave", "dur": 400 }
+  ]
+}
