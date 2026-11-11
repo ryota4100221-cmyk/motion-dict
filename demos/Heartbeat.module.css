@@ -1,0 +1,106 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 34px;
+  user-select: none;
+}
+
+.heart {
+  display: block;
+  width: 26px;
+  height: 26px;
+  fill: var(--ai);
+  transform-origin: 50% 50%;
+  /* ease-in-out は keyframes の区間ごとに掛かる＝拍ごとに加減速をやり直す */
+  animation: heartbeat-beat var(--heartbeat-duration) ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+.big {
+  width: 96px;
+  height: 96px;
+}
+
+/* 1拍目(16%)・反動(32%)・2拍目(48%)・74%以降は休み */
+@keyframes heartbeat-beat {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(165, 224, 46, 0));
+  }
+  16% {
+    transform: scale(var(--heartbeat-peak));
+    filter: drop-shadow(0 0 7px rgba(165, 224, 46, 0.55));
+  }
+  32% {
+    transform: scale(var(--heartbeat-dip));
+  }
+  48% {
+    transform: scale(var(--heartbeat-echo));
+    filter: drop-shadow(0 0 5px rgba(165, 224, 46, 0.45));
+  }
+  74% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(165, 224, 46, 0));
+  }
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+  padding: 12px 18px;
+  border: 1px solid rgba(233, 233, 227, 0.18);
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.slot {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+}
+
+.star {
+  display: block;
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: rgba(233, 233, 227, 0.55);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+/* 星→ハートの切り替え: 小さく透明な状態から出す(拍とは別の要素) */
+.pop {
+  display: block;
+  animation: heartbeat-pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes heartbeat-pop {
+  from {
+    transform: scale(0.25);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.caption {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.6);
+}
+
+/* 拍のループを止め、等倍・光なしで静止。星→ハートの切り替えは残す */
+@media (prefers-reduced-motion: reduce) {
+  .heart,
+  .pop {
+    animation: none;
+  }
+}
