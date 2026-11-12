@@ -1,0 +1,346 @@
+/* 舞台そのものを size コンテナにして、飛ぶ距離を cqw / cqh で決める */
+.board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+}
+
+.scene {
+  /* 手紙の高さ(300u)を基準にした単位。狭い舞台では幅で頭打ちにする */
+  --u: min(calc(52cqh / 300), calc(80cqw / 300));
+  /* 手紙の中心線 */
+  --cy: 41cqh;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  perspective: 900px;
+}
+
+/* 手紙。裏(0)と表(20)の間の層(10)に置き、上辺を原点に縮めて沈める */
+.sheet {
+  position: absolute;
+  z-index: 10;
+  left: calc(50% - 115 * var(--u));
+  top: calc(var(--cy) - 150 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(10 * var(--u));
+  box-sizing: border-box;
+  width: calc(230 * var(--u));
+  height: calc(300 * var(--u));
+  padding: calc(24 * var(--u)) calc(22 * var(--u));
+  background: linear-gradient(150deg, var(--paper), #d9d6cd);
+  color: var(--sumi);
+  box-shadow: 0 calc(30 * var(--u)) calc(50 * var(--u)) calc(-20 * var(--u)) rgba(0, 0, 0, 0.7);
+  transform: rotate(-0.6deg);
+  transform-origin: 50% 0;
+  animation: es-return 0.4s ease-out both;
+}
+
+.folio {
+  font-family: var(--font-mono), monospace;
+  font-size: calc(11 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.dear {
+  font-family: var(--font-display), serif;
+  font-size: calc(24 * var(--u));
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.body {
+  font-family: var(--font-sans), sans-serif;
+  font-size: calc(12.5 * var(--u));
+  line-height: 1.5;
+}
+
+/* 便箋の罫線(画像なし) */
+.rules {
+  flex: 1 1 auto;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(17 * var(--u)),
+    rgba(10, 10, 10, 0.22) calc(17 * var(--u)),
+    rgba(10, 10, 10, 0.22) calc(18 * var(--u))
+  );
+}
+
+.sign {
+  align-self: flex-end;
+  font-family: var(--font-display), serif;
+  font-size: calc(14 * var(--u));
+  font-style: italic;
+}
+
+/* 封筒の3枚。300×200u、手紙の中心線より 63u 上を上辺にする */
+.piece {
+  position: absolute;
+  left: calc(50% - 150 * var(--u));
+  top: calc(var(--cy) - 63 * var(--u));
+  width: calc(300 * var(--u));
+  height: calc(200 * var(--u));
+  opacity: 0;
+}
+
+.back {
+  z-index: 0;
+  background: #a9a69d;
+  box-shadow: 0 calc(26 * var(--u)) calc(46 * var(--u)) calc(-16 * var(--u)) rgba(0, 0, 0, 0.8);
+}
+
+/* 前ポケット:上辺をV字に切る */
+.front {
+  z-index: 20;
+  background:
+    linear-gradient(to top right, transparent 49.6%, rgba(10, 10, 10, 0.08) 50%, transparent 50.4%) left / 50% 100% no-repeat,
+    linear-gradient(to top left, transparent 49.6%, rgba(10, 10, 10, 0.08) 50%, transparent 50.4%) right / 50% 100% no-repeat,
+    #e6e3da;
+  clip-path: polygon(0 32%, 50% 66%, 100% 32%, 100% 100%, 0 100%);
+}
+
+/* フタの箱。開いている間は手紙の後ろ(5)、閉じる直前に表より手前(30)へ */
+.flapBox {
+  z-index: 5;
+  perspective: 900px;
+}
+
+/* フタ:上辺を蝶番にした三角。180deg で上に起きている */
+.flap {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 66%;
+  background: linear-gradient(to bottom, #d6d3ca, #c7c4bb);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform: rotateX(180deg);
+  transform-origin: 50% 0;
+}
+
+/* 封蝋。フタの先端に置く。ライムは印にだけ使う */
+.seal {
+  position: absolute;
+  left: calc(50% - 21 * var(--u));
+  top: calc(66% - 21 * var(--u));
+  display: grid;
+  place-items: center;
+  width: calc(42 * var(--u));
+  height: calc(42 * var(--u));
+  border-radius: 50%;
+  background: var(--ai);
+  color: var(--sumi);
+  font-family: var(--font-display), serif;
+  font-size: calc(20 * var(--u));
+  font-style: italic;
+  font-weight: 700;
+  box-shadow:
+    inset 0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(255, 255, 255, 0.35),
+    0 calc(4 * var(--u)) calc(10 * var(--u)) rgba(0, 0, 0, 0.45);
+  transform: scale(0);
+}
+
+.sent {
+  position: absolute;
+  left: 50%;
+  top: var(--cy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--code-fg);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+.sent:not(:empty)::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+/* ---- 再生 ---- */
+.scene[data-state="sending"] .sheet {
+  animation: es-tuck var(--es-tuck) cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.scene[data-state="sending"] .piece {
+  animation:
+    es-appear 0.5s ease-out var(--es-in) forwards,
+    es-fly var(--es-fly) cubic-bezier(0.55, 0, 0.75, 0.2) var(--es-fly-at) forwards;
+}
+
+.scene[data-state="sending"] .flapBox {
+  animation:
+    es-appear 0.5s ease-out var(--es-in) forwards,
+    es-layer 0s var(--es-layer-at) forwards,
+    es-fly var(--es-fly) cubic-bezier(0.55, 0, 0.75, 0.2) var(--es-fly-at) forwards;
+}
+
+.scene[data-state="sending"] .flap {
+  animation: es-flap var(--es-flap) ease-in-out var(--es-flap-at) forwards;
+}
+
+.scene[data-state="sending"] .seal {
+  animation: es-seal 0.35s var(--es-seal-ease) var(--es-seal-at) forwards;
+}
+
+.scene[data-state="sending"] .sent {
+  animation: es-sent 0.4s ease-out var(--es-sent-at) both;
+}
+
+@keyframes es-tuck {
+  0% {
+    transform: rotate(-0.6deg);
+  }
+  70% {
+    transform: translateY(18%) scale(0.36);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(34%) scale(0.32);
+    opacity: 0;
+  }
+}
+
+@keyframes es-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(calc(40 * var(--u)));
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes es-layer {
+  100% {
+    z-index: 30;
+  }
+}
+
+@keyframes es-flap {
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+@keyframes es-seal {
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes es-fly {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(70cqw, -55cqh) rotate(-14deg) scale(0.7);
+  }
+}
+
+@keyframes es-return {
+  from {
+    opacity: 0;
+    transform: translateY(12%) rotate(-0.6deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-0.6deg);
+  }
+}
+
+@keyframes es-sent {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -30%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.send {
+  position: absolute;
+  left: 50%;
+  bottom: max(9%, 50px);
+  z-index: 40;
+  padding: 9px 20px;
+  border: 1px solid rgba(233, 233, 227, 0.5);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--code-fg);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transform: translateX(-50%);
+  transition:
+    background 0.2s,
+    color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.send[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.send:focus-visible {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .send:not([aria-disabled="true"]):hover {
+    background: var(--code-fg);
+    color: var(--sumi);
+  }
+}
+
+/* reduced-motion: しまわず閉じず飛ばさず、手紙を opacity だけで消して Sent を出す */
+.board[data-reduce] .sheet {
+  animation: none;
+  transition: opacity 0.2s;
+}
+
+.board[data-reduce] .scene[data-state="sending"] .sheet {
+  animation: none;
+  opacity: 0;
+}
+
+.board[data-reduce] .scene[data-state="sending"] .piece,
+.board[data-reduce] .scene[data-state="sending"] .flap,
+.board[data-reduce] .scene[data-state="sending"] .seal {
+  animation: none;
+}
+
+.board[data-reduce] .scene[data-state="sending"] .sent {
+  animation: none;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .piece,
+  .flap,
+  .seal,
+  .sent {
+    animation: none !important;
+  }
+}

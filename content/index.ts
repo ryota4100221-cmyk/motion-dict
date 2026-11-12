@@ -209,6 +209,7 @@ import { flameFlicker } from "./flame-flicker";
 import { stickerPeel } from "./sticker-peel";
 import { ticketTear } from "./ticket-tear";
 import { paperPlaneSend } from "./paper-plane-send";
+import { envelopeSeal } from "./envelope-seal";
 import { prizeWheel } from "./prize-wheel";
 import { scratchCard } from "./scratch-card";
 import { giftBoxReveal } from "./gift-box-reveal";
@@ -376,6 +377,7 @@ const all: MotionEntry[] = [
   pressFeedback,
   statefulButton,
   paperPlaneSend,
+  envelopeSeal,
   copyToClipboard,
   holdToConfirm,
   stampIn,
