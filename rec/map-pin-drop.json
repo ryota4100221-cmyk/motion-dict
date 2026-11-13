@@ -1,0 +1,20 @@
+{
+  "note": "Drop pins again を押すと4本のピンが260px上から90msずつずれて0.5sで落ち、行き過ぎて刺さり、真下の影が一緒に育つ。続けて左のピンから順に乗ると、選んだピンが7px持ち上がって上下に浮き、影が縮んで薄くなりラベルが出る。始まりと終わりは右端のピン(Colophon)が選ばれて浮いている状態",
+  "before": [
+    { "do": "click", "sel": "button:has-text('Drop pins again')", "dur": 1 },
+    { "do": "wait", "ms": 1200 },
+    { "do": "move", "sel": "[data-pin] >> nth=3", "dur": 1 },
+    { "do": "wait", "ms": 900 }
+  ],
+  "steps": [
+    { "do": "move", "sel": "button:has-text('Drop pins again')", "dur": 300 },
+    { "do": "click", "sel": "button:has-text('Drop pins again')", "dur": 200 },
+    { "do": "wait", "ms": 1000 },
+    { "do": "move", "sel": "[data-pin] >> nth=0", "dur": 300 },
+    { "do": "wait", "ms": 1200 },
+    { "do": "move", "sel": "[data-pin] >> nth=2", "dur": 300 },
+    { "do": "wait", "ms": 1200 },
+    { "do": "move", "sel": "[data-pin] >> nth=3", "dur": 300 },
+    { "do": "wait", "ms": 900 }
+  ]
+}

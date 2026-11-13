@@ -132,6 +132,7 @@ import { scrollCue } from "./scroll-cue";
 import { listAddRemove } from "./list-add-remove";
 import { paperCrumple } from "./paper-crumple";
 import { pulseRing } from "./pulse-ring";
+import { mapPinDrop } from "./map-pin-drop";
 import { breathingGlow } from "./breathing-glow";
 import { heartbeat } from "./heartbeat";
 import { confettiBurst } from "./confetti-burst";
@@ -413,6 +414,7 @@ const all: MotionEntry[] = [
   scrollCue,
   notificationBadge,
   pulseRing,
+  mapPinDrop,
   breathingGlow,
   heartbeat,
   ambientFloat,
