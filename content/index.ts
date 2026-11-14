@@ -133,6 +133,7 @@ import { listAddRemove } from "./list-add-remove";
 import { paperCrumple } from "./paper-crumple";
 import { pulseRing } from "./pulse-ring";
 import { mapPinDrop } from "./map-pin-drop";
+import { receiptPrint } from "./receipt-print";
 import { breathingGlow } from "./breathing-glow";
 import { heartbeat } from "./heartbeat";
 import { confettiBurst } from "./confetti-burst";
@@ -415,6 +416,7 @@ const all: MotionEntry[] = [
   notificationBadge,
   pulseRing,
   mapPinDrop,
+  receiptPrint,
   breathingGlow,
   heartbeat,
   ambientFloat,

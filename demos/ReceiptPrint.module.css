@@ -1,0 +1,220 @@
+/* 舞台全体。差し込み口の線と、その下に吊るす紙の組を上下中央に置く(下はボタンとヒントの分を空ける) */
+.desk {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 40px;
+  box-sizing: border-box;
+}
+
+/* 差し込み口：紙が出てくる細い溝。紙の上辺はこの線に揃う */
+.slot {
+  position: relative;
+  flex: none;
+  width: min(560px, 92%);
+  height: 8px;
+  border-radius: 4px;
+  background: #1c1c1a;
+  box-shadow:
+    inset 0 2px 3px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(233, 233, 227, 0.28);
+  z-index: 2;
+}
+
+.row {
+  position: relative;
+  margin-top: -3px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* 紙。clip-path で送り、mask で上下のギザギザの切り口を抜く(役割を分けて同じ要素に重ねる) */
+.paper {
+  --z: var(--rp-teeth);
+  width: 150px;
+  padding: calc(var(--z) + 9px) 12px calc(var(--z) + 9px);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.07), transparent 10%, transparent 90%, rgba(0, 0, 0, 0.08)), #f2eee6;
+  color: #0a0a0a;
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  -webkit-mask:
+    linear-gradient(#000 0 0) 0 calc(var(--z) - 1px) / 100% calc(100% - 2 * var(--z) + 2px) no-repeat,
+    conic-gradient(from 135deg at 50% 0, #000 90deg, #0000 0) 0 0 / calc(2 * var(--z)) var(--z) repeat-x,
+    conic-gradient(from -45deg at 50% 100%, #000 90deg, #0000 0) 0 100% / calc(2 * var(--z)) var(--z) repeat-x;
+  mask:
+    linear-gradient(#000 0 0) 0 calc(var(--z) - 1px) / 100% calc(100% - 2 * var(--z) + 2px) no-repeat,
+    conic-gradient(from 135deg at 50% 0, #000 90deg, #0000 0) 0 0 / calc(2 * var(--z)) var(--z) repeat-x,
+    conic-gradient(from -45deg at 50% 100%, #000 90deg, #0000 0) 0 100% / calc(2 * var(--z)) var(--z) repeat-x;
+  clip-path: inset(0 0 100% 0);
+  animation: rp-print var(--rp-duration) steps(var(--rp-lines), end) var(--rp-delay) both;
+}
+
+@keyframes rp-print {
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    clip-path: inset(0);
+  }
+}
+
+.head {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  text-align: center;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.title {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.meta {
+  font-size: 8px;
+  color: #67675f;
+  text-transform: none;
+}
+
+/* 点線の区切り */
+.rule {
+  display: block;
+  height: 1px;
+  margin: 7px 0 6px;
+  background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 7px);
+  opacity: 0.55;
+}
+
+.items {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item,
+.total {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.double {
+  display: block;
+  height: 4px;
+  margin: 6px 0 5px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.85;
+}
+
+.total {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* バーコード風の縦縞(飾り) */
+.bars {
+  display: block;
+  height: 14px;
+  margin-top: 7px;
+  background: repeating-linear-gradient(
+    90deg,
+    currentColor 0 1px,
+    transparent 1px 3px,
+    currentColor 3px 5px,
+    transparent 5px 6px,
+    currentColor 6px 7px,
+    transparent 7px 10px
+  );
+}
+
+.bye {
+  margin: 6px 0 0;
+  font-size: 8px;
+  text-align: center;
+  text-transform: none;
+}
+
+.again {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  z-index: 3;
+  padding: 8px 18px;
+  border: 1px solid rgba(233, 233, 227, 0.5);
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.86);
+  color: #ebebe6;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.again:focus-visible {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .again:hover {
+    background: var(--ai);
+    border-color: var(--ai);
+    color: var(--sumi);
+  }
+}
+
+/* 狭い画面では2枚にする(3枚だと紙の文字が収まらない) */
+@media (max-width: 520px) {
+  .paper:nth-child(3) {
+    display: none;
+  }
+
+  .desk {
+    padding-bottom: 56px;
+  }
+}
+
+/* reduced-motion：刷り出さず、最初から全部見せる */
+.desk[data-reduce] .paper {
+  animation: none;
+  clip-path: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper {
+    animation: none;
+    clip-path: none;
+  }
+}

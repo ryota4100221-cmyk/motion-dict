@@ -1,0 +1,12 @@
+{
+  "note": "Print again を押すと3枚のレシートが差し込み口から1.5s・steps(30)でジジジと上から刷り出され、90msずつ左から順にずれて、最後に下のギザギザの切り口が出る。刷り終わって約2.6s置くと自動でもう一度刷り直す（始まりと終わりは刷り終わった3枚が吊るされた状態）",
+  "zoom": 1.4,
+  "settle": 1000,
+  "posterAt": 1.2,
+  "steps": [
+    { "do": "move", "sel": "button:has-text('Print again')", "dur": 300 },
+    { "do": "click", "sel": "button:has-text('Print again')", "dur": 200 },
+    { "do": "leave", "dur": 300 },
+    { "do": "wait", "ms": 2600 }
+  ]
+}
