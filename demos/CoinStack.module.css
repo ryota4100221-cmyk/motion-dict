@@ -1,0 +1,248 @@
+/* 舞台全体。コインの山を上下中央に置く(下はボタンとヒントの分を空ける) */
+.desk {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding-bottom: 40px;
+  box-sizing: border-box;
+}
+
+/* 山の置き場。コインの落ちる距離のぶん上に余白をとる。消すときは山ごと薄くする */
+.pile {
+  position: relative;
+  flex: none;
+  width: 300px;
+  height: 190px;
+  opacity: 1;
+  transition: opacity 0.4s linear;
+}
+
+.pile[data-wiping] {
+  opacity: 0;
+}
+
+/* 1枚のコイン。床(下から34px)に置き、列の x と段の lift で積む位置を決める */
+.coin {
+  position: absolute;
+  left: 50%;
+  bottom: 34px;
+  width: 46px;
+  height: 46px;
+  margin-left: -23px;
+  opacity: 0;
+  transform: translate(var(--cs-x), var(--cs-lift)) rotate(var(--cs-tilt));
+  animation: cs-drop var(--cs-anim) linear var(--cs-delay) both;
+}
+
+/* 落下：重力のように加速して落ち(cubic-bezier(.4,0,.9,.42))、着地で bounce px だけ小さく跳ねて落ち着く */
+@keyframes cs-drop {
+  0% {
+    transform: translate(var(--cs-x), calc(var(--cs-lift) - var(--cs-height))) rotate(var(--cs-spin));
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.9, 0.42);
+  }
+  6% {
+    opacity: 1;
+  }
+  84% {
+    transform: translate(var(--cs-x), var(--cs-lift)) rotate(var(--cs-tilt));
+    animation-timing-function: ease-out;
+  }
+  92% {
+    transform: translate(var(--cs-x), calc(var(--cs-lift) - var(--cs-bounce))) rotate(var(--cs-tilt));
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: translate(var(--cs-x), var(--cs-lift)) rotate(var(--cs-tilt));
+    opacity: 1;
+  }
+}
+
+/* 落ちている間は正面(面)を見せ、着地の瞬間に横から見た厚みのある形へ持ち替える */
+.face,
+.edge {
+  position: absolute;
+  box-sizing: border-box;
+  animation: var(--cs-anim) linear var(--cs-delay) both;
+}
+
+.face {
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 2px solid #0a0a0a;
+  border-radius: 50%;
+  background: #f2eee6;
+  box-shadow: inset 0 0 0 4px #f2eee6, inset 0 0 0 5px #0a0a0a;
+  animation-name: cs-face;
+}
+
+.glyph {
+  color: #0a0a0a;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.edge {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22px;
+  border: 2px solid #0a0a0a;
+  border-radius: 23px / 9px;
+  background: #f2eee6;
+  opacity: 0;
+  animation-name: cs-edge;
+}
+
+/* 上面の楕円の縁。これがあると横から見た「厚みのある円盤」に読める */
+.edge::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: -2px;
+  height: 14px;
+  box-sizing: border-box;
+  border: 2px solid #0a0a0a;
+  border-radius: 50%;
+  background: #f2eee6;
+}
+
+@keyframes cs-face {
+  0%,
+  76% {
+    opacity: 1;
+  }
+  92%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes cs-edge {
+  0%,
+  76% {
+    opacity: 0;
+  }
+  92%,
+  100% {
+    opacity: 1;
+  }
+}
+
+.caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: rgba(233, 233, 227, 0.62);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* 待っている印だけライムにする */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.again {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  z-index: 3;
+  padding: 8px 18px;
+  border: 1px solid rgba(233, 233, 227, 0.5);
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.86);
+  color: #ebebe6;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.again:focus-visible {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .again:hover {
+    background: var(--ai);
+    border-color: var(--ai);
+    color: var(--sumi);
+  }
+}
+
+/* 狭い画面では山ごと縮める(5列で約240px幅) */
+@media (max-width: 520px) {
+  .pile {
+    transform: scale(0.85);
+  }
+
+  .desk {
+    padding-bottom: 96px;
+  }
+
+  /* ヒント文と重ならないよう、ボタンはヒントの上の中央に置く */
+  .again {
+    right: 50%;
+    bottom: 44px;
+    transform: translateX(50%);
+  }
+}
+
+/* reduced-motion：落とさず、積み上がった山を最初から見せる */
+.desk[data-reduce] .coin,
+.desk[data-reduce] .face,
+.desk[data-reduce] .edge {
+  animation: none;
+}
+
+.desk[data-reduce] .coin {
+  opacity: 1;
+}
+
+.desk[data-reduce] .face {
+  opacity: 0;
+}
+
+.desk[data-reduce] .edge {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin,
+  .face,
+  .edge {
+    animation: none;
+  }
+
+  .coin {
+    opacity: 1;
+  }
+
+  .face {
+    opacity: 0;
+  }
+
+  .edge {
+    opacity: 1;
+  }
+}

@@ -166,6 +166,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "pulse-ring": d(() => import("./PulseRing")),
   "map-pin-drop": d(() => import("./MapPinDrop")),
   "receipt-print": d(() => import("./ReceiptPrint")),
+  "coin-stack": d(() => import("./CoinStack")),
   "breathing-glow": d(() => import("./BreathingGlow")),
   "heartbeat": d(() => import("./Heartbeat")),
   "eye-blink": d(() => import("./EyeBlink")),

@@ -66,6 +66,7 @@ import { rippleTap } from "./ripple-tap";
 import { preloaderCounter } from "./preloader-counter";
 import { skeletonShimmer } from "./skeleton-shimmer";
 import { loadingBar } from "./loading-bar";
+import { coinStack } from "./coin-stack";
 import { spinnerRing } from "./spinner-ring";
 import { dotsPulse } from "./dots-pulse";
 import { circularProgress } from "./circular-progress";
@@ -437,6 +438,7 @@ const all: MotionEntry[] = [
   motionPath,
   liquidFill,
   bootSequence,
+  coinStack,
 ];
 
 export const entries: Record<string, MotionEntry> = Object.fromEntries(

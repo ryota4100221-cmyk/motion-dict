@@ -1,0 +1,12 @@
+{
+  "note": "Drop coins again を押すと20枚のコインが130ms間隔で1枚ずつ200px上から落ち、着地で8px跳ねて5列×4段に積み上がる。積み終わって1.2s置くと山が消えて最初から積み直す（クリック直後と終わりはどちらも空の床から積み直す瞬間）",
+  "zoom": 1.4,
+  "settle": 600,
+  "posterAt": 3.6,
+  "steps": [
+    { "do": "move", "sel": "button:has-text('Drop coins again')", "dur": 300 },
+    { "do": "click", "sel": "button:has-text('Drop coins again')", "dur": 200 },
+    { "do": "leave", "dur": 300 },
+    { "do": "wait", "ms": 5200 }
+  ]
+}
