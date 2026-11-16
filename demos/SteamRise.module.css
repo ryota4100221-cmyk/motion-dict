@@ -1,0 +1,152 @@
+.steamStage {
+  /* 常時ループなのでスクロールを妨げない */
+  touch-action: manipulation;
+}
+
+/* ステージ全体を停止トグルにする(PCのクリックとスマホのタップを兼ねる) */
+.field {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* カップ(200×120)。湯気が上に伸びる分だけ下げて、全体を舞台の中央に置く */
+.cupWrap {
+  position: relative;
+  width: 200px;
+  height: 120px;
+  margin-top: 110px;
+}
+
+.cup {
+  display: block;
+  width: 200px;
+  height: 120px;
+  fill: none;
+  stroke: rgba(233, 233, 227, 0.62);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 湯気の箱 240×135(viewBox 160×90 の1.5倍)。口の中心 x=96 に合わせ、下端を口に6px重ねる */
+.steam {
+  position: absolute;
+  left: -24px;
+  bottom: 96px;
+  width: 240px;
+  height: 135px;
+  pointer-events: none;
+}
+
+/* 1本ずつ別のSVGにして、持ち上げ(transform)を画面のpxで指定できるようにする */
+.wisp {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  animation: steam-rise-lift var(--steam-duration) ease-in-out infinite;
+}
+
+.wispPath {
+  fill: none;
+  stroke: var(--ai);
+  stroke-width: 5;
+  stroke-linecap: round;
+  /* 区間を線の長さ(約89)より長く取る。offset 120 で全部隠れ、-120 で上へ抜けて消える */
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: steam-rise-draw var(--steam-duration) ease-in-out infinite;
+}
+
+.field[data-paused] .wisp,
+.field[data-paused] .wispPath {
+  animation-play-state: paused;
+}
+
+/* 出典の keyframes を2つに分けたもの。区間ごとの ease-in-out も出典どおり */
+@keyframes steam-rise-lift {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--steam-from));
+  }
+  30% {
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(var(--steam-to));
+  }
+}
+
+@keyframes steam-rise-draw {
+  0% {
+    stroke-dashoffset: 120;
+  }
+  70% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -120;
+  }
+}
+
+.caption {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(233, 233, 227, 0.62);
+}
+
+.captionJa {
+  margin-left: 8px;
+  color: var(--ai);
+}
+
+.state {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+/* reduced-motion: 描き切った状態で静止 */
+.field[data-reduce] .wisp {
+  animation: none;
+  opacity: 0.7;
+}
+
+.field[data-reduce] .wispPath {
+  animation: none;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wisp {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .wispPath {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

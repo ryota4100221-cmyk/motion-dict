@@ -177,6 +177,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "bar-chart-grow": d(() => import("./BarChartGrow")),
   "scroll-scrub": d(() => import("./ScrollScrub")),
   "ambient-float": d(() => import("./AmbientFloat")),
+  "steam-rise": d(() => import("./SteamRise")),
   orbit: d(() => import("./Orbit")),
   "radial-carousel": d(() => import("./RadialCarousel")),
   "header-invert": d(() => import("./HeaderInvert")),

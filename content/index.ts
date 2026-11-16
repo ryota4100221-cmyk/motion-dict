@@ -150,6 +150,7 @@ import { gaugeMeter } from "./gauge-meter";
 import { countdownTimer } from "./countdown-timer";
 import { scrollScrub } from "./scroll-scrub";
 import { ambientFloat } from "./ambient-float";
+import { steamRise } from "./steam-rise";
 import { eyeBlink } from "./eye-blink";
 import { orbit } from "./orbit";
 import { radialCarousel } from "./radial-carousel";
@@ -421,6 +422,7 @@ const all: MotionEntry[] = [
   breathingGlow,
   heartbeat,
   ambientFloat,
+  steamRise,
   eyeBlink,
   orbit,
   pendulumSwing,
