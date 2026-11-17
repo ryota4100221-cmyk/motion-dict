@@ -1,0 +1,62 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+
+.word {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: clamp(52px, 11vw, 116px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--code-fg);
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* インラインの span には transform が効かないので inline-block。ホバー判定は外側、変形は内側 */
+.char {
+  display: inline-block;
+  cursor: default;
+}
+
+.glyph {
+  display: inline-block;
+  /* 足もと中央を軸にする。中心で傾けると文字が宙に浮いて震える */
+  transform-origin: 50% 100%;
+  will-change: transform;
+  transition: color 0.2s;
+}
+
+.char:hover .glyph,
+.char[data-active="true"] .glyph {
+  color: var(--ai);
+}
+
+/* 文字が立っている床。足もとが動かないことを見せる */
+.floor {
+  display: block;
+  width: min(560px, 86%);
+  height: 1px;
+  margin-top: -12px;
+  background: rgba(233, 233, 227, 0.24);
+}
+
+.caption {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glyph {
+    transition: none;
+  }
+}

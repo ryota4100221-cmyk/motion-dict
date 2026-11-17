@@ -1,0 +1,19 @@
+{
+  "note": "左端の G に乗ると右へぷるんと傾いて隣の l をつぶし、床の下を回って右端の y に乗ると左へ傾いて隣の r をつぶす",
+  "zoom": 1,
+  "before": [
+    { "do": "move", "at": [0.5, 0.995], "dur": 1 },
+    { "do": "wait", "ms": 900 }
+  ],
+  "steps": [
+    { "do": "move", "at": [0.2, 0.85], "dur": 120 },
+    { "do": "move", "sel": "[data-glyph] >> nth=0", "dur": 160 },
+    { "do": "wait", "ms": 850 },
+    { "do": "move", "at": [0.25, 0.85], "dur": 120 },
+    { "do": "move", "at": [0.78, 0.85], "dur": 260 },
+    { "do": "move", "sel": "[data-glyph] >> nth=7", "dur": 160 },
+    { "do": "wait", "ms": 850 },
+    { "do": "leave", "at": [0.8, 0.995], "dur": 200 },
+    { "do": "wait", "ms": 300 }
+  ]
+}

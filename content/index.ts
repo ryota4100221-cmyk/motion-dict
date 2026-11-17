@@ -181,6 +181,7 @@ import { fogDrift } from "./fog-drift";
 import { twinkle } from "./twinkle";
 import { snowfall } from "./snowfall";
 import { eyesFollowCursor } from "./eyes-follow-cursor";
+import { jelloWobble } from "./jello-wobble";
 import { floatingReactions } from "./floating-reactions";
 import { quadtreeReveal } from "./quadtree-reveal";
 import { halftone } from "./halftone";
@@ -252,6 +253,7 @@ const all: MotionEntry[] = [
   flameFlicker,
   vinylSlideOut,
   eyesFollowCursor,
+  jelloWobble,
   scrollFadeIn,
   perspectiveReveal,
   parallax,

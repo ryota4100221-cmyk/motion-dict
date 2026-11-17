@@ -243,4 +243,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "dot-pagination": d(() => import("./DotPagination")),
   "gauge-meter": d(() => import("./GaugeMeter")),
   "countdown-timer": d(() => import("./CountdownTimer")),
+  "jello-wobble": d(() => import("./JelloWobble")),
 };
