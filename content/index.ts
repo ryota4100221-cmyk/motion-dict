@@ -129,6 +129,7 @@ import { bootSequence } from "./boot-sequence";
 import { rubberBand } from "./rubber-band";
 import { hintNudge } from "./hint-nudge";
 import { gestureHint } from "./gesture-hint";
+import { rotateDevicePrompt } from "./rotate-device-prompt";
 import { scrollCue } from "./scroll-cue";
 import { listAddRemove } from "./list-add-remove";
 import { paperCrumple } from "./paper-crumple";
@@ -416,6 +417,7 @@ const all: MotionEntry[] = [
   errorShake,
   hintNudge,
   gestureHint,
+  rotateDevicePrompt,
   scrollCue,
   notificationBadge,
   pulseRing,

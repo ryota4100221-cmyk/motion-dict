@@ -1,0 +1,183 @@
+.rotateStage {
+  overflow: hidden;
+}
+
+/* 覆いの下の本文(photo-05 螺旋の書架)。写真は舞台いっぱいに敷き、色は付けない */
+.plate {
+  position: absolute;
+  inset: 0;
+  background-image: url("/motion-dict/demo/photo-05.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+/* 向きが違う間だけ全面を覆う。消えるのは出典(iamsunnywang)の opacity .36s */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  background: rgba(10, 10, 10, 0.86);
+  text-align: center;
+  transition:
+    opacity 0.36s,
+    visibility 0.36s;
+}
+
+.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.badge {
+  margin: 0;
+  padding: 3px 10px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 99px;
+  color: rgba(233, 233, 227, 0.62);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+
+.graphic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+}
+
+/* 端末は CSS の枠線で描く(角丸の縦長の箱＋下端の点)。回転の軸は中心 */
+.phone {
+  position: relative;
+  display: block;
+  width: 52px;
+  height: 92px;
+  border: 3px solid rgba(233, 233, 227, 0.92);
+  border-radius: 11px;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.phone::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: rgba(233, 233, 227, 0.72);
+}
+
+/* 画面の中身＝本文の写真の縮図。縦長の画面に入れて「どちらが上か」を見せる */
+.screen {
+  position: absolute;
+  inset: 5px 4px 14px;
+  border-radius: 3px;
+  background-image: url("/motion-dict/demo/photo-05.jpg");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.8;
+}
+
+.arrowWrap {
+  position: absolute;
+  right: -2px;
+  top: 2px;
+  width: 44px;
+  height: 44px;
+}
+
+.mirror {
+  right: auto;
+  left: -2px;
+  transform: scaleX(-1);
+}
+
+.arrow {
+  display: block;
+  width: 100%;
+  height: 100%;
+  will-change: transform, opacity;
+}
+
+/* 矢印はアクセント(印)なのでライム */
+.arrow svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--ai);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.title {
+  margin: 4px 0 0;
+  color: rgba(233, 233, 227, 0.95);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.text {
+  margin: 0;
+  color: rgba(233, 233, 227, 0.6);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.doneBtn {
+  margin-top: 6px;
+  padding: 8px 18px;
+  border: 1px solid rgba(233, 233, 227, 0.35);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--code-fg);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color 0.2s;
+}
+
+.doneBtn:hover {
+  border-color: rgba(233, 233, 227, 0.7);
+}
+
+.doneBtn:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+/* 舞台が低い時(詳細ページの埋め込み 320px 等)は説明文を畳み、ボタンがヒントに重ならないよう詰める */
+.overlay {
+  container-type: size;
+}
+
+@container (max-height: 380px) {
+  .text {
+    display: none;
+  }
+  .graphic {
+    width: 104px;
+    height: 104px;
+  }
+  .title {
+    margin: 0;
+    font-size: 17px;
+  }
+  .doneBtn {
+    margin-top: 0;
+    padding: 6px 14px;
+  }
+}
