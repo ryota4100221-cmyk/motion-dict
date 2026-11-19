@@ -1,0 +1,70 @@
+.plate {
+  position: relative;
+  width: min(300px, 78%);
+  margin-bottom: 26px;
+  touch-action: manipulation;
+}
+
+.caption {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  user-select: none;
+}
+
+/* 線の初期は「描き上がり」。JS が毎フレーム dasharray / dashoffset を書く */
+.stroke {
+  fill: none;
+  stroke: var(--code-fg);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 中を舞台の黒で塗る＝鉛筆の下の線が隠れ、鉛筆が紙の上に乗って見える */
+.pencil rect,
+.pencil path {
+  fill: var(--sumi);
+  stroke: var(--ai);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+
+.pencil .lead {
+  fill: var(--ai);
+  stroke: none;
+}
+
+.btn {
+  position: absolute;
+  bottom: 38px;
+  right: 18px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--code-fg);
+  background: transparent;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn:hover {
+  border-color: rgba(233, 233, 227, 0.6);
+}
+
+.btn:focus-visible {
+  outline: 1px solid var(--code-fg);
+  outline-offset: 2px;
+}

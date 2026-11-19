@@ -127,6 +127,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "polaroid-drop": d(() => import("./PolaroidDrop")),
   "logo-marquee": d(() => import("./LogoMarquee")),
   "line-draw": d(() => import("./LineDraw")),
+  "pencil-draw": d(() => import("./PencilDraw")),
   "marching-ants": d(() => import("./MarchingAnts")),
   "chase-lights": d(() => import("./ChaseLights")),
   "animated-beam": d(() => import("./AnimatedBeam")),

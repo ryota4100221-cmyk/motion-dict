@@ -100,6 +100,7 @@ import { cardShuffle } from "./card-shuffle";
 import { polaroidDrop } from "./polaroid-drop";
 import { logoMarquee } from "./logo-marquee";
 import { lineDraw } from "./line-draw";
+import { pencilDraw } from "./pencil-draw";
 import { marchingAnts } from "./marching-ants";
 import { chaseLights } from "./chase-lights";
 import { animatedBeam } from "./animated-beam";
@@ -334,6 +335,7 @@ const all: MotionEntry[] = [
   polaroidDrop,
   logoMarquee,
   lineDraw,
+  pencilDraw,
   marchingAnts,
   chaseLights,
   animatedBeam,
