@@ -212,6 +212,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "dither-dissolve": d(() => import("./DitherDissolve")),
   "stamp-in": d(() => import("./StampIn")),
   "pendulum-swing": d(() => import("./PendulumSwing")),
+  "pull-cord-switch": d(() => import("./PullCordSwitch")),
   "gesture-hint": d(() => import("./GestureHint")),
   "rotate-device-prompt": d(() => import("./RotateDevicePrompt")),
   "scroll-cue": d(() => import("./ScrollCue")),

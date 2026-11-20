@@ -1,0 +1,240 @@
+.pullStage {
+  overflow: hidden;
+}
+
+/* 照らされる卓上(photo-10 タイプライターとノート)。舞台いっぱいに敷き、色は付けない */
+.photo {
+  position: absolute;
+  inset: 0;
+  background-image: url("/motion-dict/demo/photo-10.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+/* 消灯中の暗幕。点けると 0.7s ease で抜ける(出典の .top-light と同じ長さ) */
+.shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.82);
+  transition: opacity 0.7s ease;
+}
+
+.off {
+  /* 点けても少しだけ残す(白地の上で文字と紐が埋もれないように) */
+  opacity: 0.22;
+}
+
+/* 上から落ちる灯りのたまり。白の濃淡だけ(写真に色を乗せない) */
+.glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 90% at 62% -10%, rgba(255, 255, 255, 0.22) 0, rgba(255, 255, 255, 0) 70%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+
+.on {
+  opacity: 1;
+}
+
+.caption {
+  position: absolute;
+  left: 22px;
+  top: 22px;
+  margin: 0;
+  padding: 12px 16px 14px;
+  border-radius: 4px;
+  background: rgba(10, 10, 10, 0.62);
+  pointer-events: none;
+}
+
+.caption p {
+  margin: 0;
+}
+
+.folio {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 1px solid rgba(233, 233, 227, 0.3);
+  border-radius: 99px;
+  background: rgba(10, 10, 10, 0.5);
+  color: rgba(233, 233, 227, 0.72);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+
+.state {
+  margin-top: 12px !important;
+  color: rgba(233, 233, 227, 0.96);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+
+.sub {
+  margin-top: 4px !important;
+  color: rgba(233, 233, 227, 0.72);
+  font-size: 12px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* 紐の当たり判定＝紐の全長。天井(舞台の上端)から垂れる */
+.cord {
+  position: absolute;
+  top: 0;
+  left: 66%;
+  width: 48px;
+  height: 56%;
+  margin-left: -24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cord.drag {
+  cursor: grabbing;
+}
+
+.cord:focus-visible {
+  outline: 2px solid var(--ai);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* 揺れの層。軸は根元(舞台の上端) */
+.swing {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+
+/* 引き下ろしの層。絵は舞台の上へはみ出して続いているので、引くと上から紐が降りてくるだけに見える */
+.art {
+  position: absolute;
+  left: 50%;
+  top: -80px;
+  bottom: 0;
+  width: 16px;
+  margin-left: -8px;
+  transform-origin: 50% 80px;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* まだ一度も引かれていない間は、すきま風の揺れ(出典 cord-idle 7s) */
+.cord:not(.used) .art {
+  animation: pull-cord-idle 7s ease-in-out infinite;
+}
+
+@media (hover: hover) {
+  .cord:hover:not(.drag) .art {
+    animation: pull-cord-hover 1.2s cubic-bezier(0.3, 0.6, 0.4, 1);
+  }
+}
+
+.still .art,
+.cord.still:hover .art {
+  animation: none !important;
+}
+
+@keyframes pull-cord-idle {
+  0%,
+  55%,
+  100% {
+    rotate: 0deg;
+  }
+  68% {
+    rotate: 1.6deg;
+  }
+  82% {
+    rotate: -1.1deg;
+  }
+  92% {
+    rotate: 0.4deg;
+  }
+}
+
+@keyframes pull-cord-hover {
+  18% {
+    rotate: 4deg;
+  }
+  40% {
+    rotate: -3deg;
+  }
+  62% {
+    rotate: 1.6deg;
+  }
+  82% {
+    rotate: -0.8deg;
+  }
+}
+
+.string {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 24px;
+  width: 2px;
+  margin-left: -1px;
+  background: rgba(233, 233, 227, 0.85);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35),
+    0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+/* 引き手の玉。ライムは印(つかむ場所)だけ */
+.bead {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 14px;
+  height: 26px;
+  margin-left: -7px;
+  border-radius: 7px;
+  background: var(--ai);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.label {
+  position: absolute;
+  /* 玉の右脇。引き下ろした玉と重ならないよう横に置く */
+  top: calc(100% - 20px);
+  left: calc(50% + 16px);
+  white-space: nowrap;
+  color: rgba(233, 233, 227, 0.7);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  border-radius: 99px;
+  background: rgba(10, 10, 10, 0.62);
+  pointer-events: none;
+}
+
+/* 狭い舞台(スマホ)では紐を右端へ寄せ、札は玉の左に出してキャプションと重ねない */
+.pullStage {
+  container-type: inline-size;
+}
+
+@container (max-width: 520px) {
+  .cord {
+    left: auto;
+    right: 26px;
+    margin-left: 0;
+  }
+  .label {
+    left: auto;
+    right: calc(50% + 16px);
+  }
+  .sub {
+    display: none;
+  }
+}

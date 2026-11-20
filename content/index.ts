@@ -201,6 +201,7 @@ import { stampIn } from "./stamp-in";
 import { notchedCorner } from "./notched-corner";
 import { slicedText } from "./sliced-text";
 import { pendulumSwing } from "./pendulum-swing";
+import { pullCordSwitch } from "./pull-cord-switch";
 import { themeToggleTransition } from "./theme-toggle-transition";
 import { weightMorph } from "./weight-morph";
 import { rulerScrubber } from "./ruler-scrubber";
@@ -432,6 +433,7 @@ const all: MotionEntry[] = [
   eyeBlink,
   orbit,
   pendulumSwing,
+  pullCordSwitch,
   flickerOn,
   dvdBounce,
   conicSweep,
