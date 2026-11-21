@@ -1,0 +1,199 @@
+/* 暗室の机(舞台いっぱい)にコンタクトシートを1枚置く。
+   シートは「3段のフィルム帯×5コマ」の比率を保ったまま舞台に収め、
+   中の寸法はシート幅に対する割合(cqw)で決める＝小さい舞台でも全画面でも同じ構図 */
+.table {
+  position: absolute;
+  inset: 0;
+  background: #0d0a08;
+  container-type: size;
+}
+
+.sheet {
+  position: absolute;
+  top: calc((100cqh - 48px) / 2);
+  left: 50%;
+  width: min(100cqw - 24px, (100cqh - 72px) * 1.84);
+  aspect-ratio: 1.84;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform: translate(-50%, -50%);
+  container-type: inline-size;
+}
+
+/* 1段のフィルム帯。上下の縁に送り穴を並べる */
+.strip {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.1cqw;
+  padding: 3.2cqw 1.1cqw;
+  background: linear-gradient(to bottom, #17110d 0%, #1d1611 50%, #17110d 100%);
+  box-shadow: 0 1.6cqw 3.6cqw rgba(0, 0, 0, 0.35);
+}
+
+.strip::before,
+.strip::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.3cqw;
+  background-image: radial-gradient(
+    closest-side,
+    rgba(233, 233, 227, 0.16) 70%,
+    transparent 100%
+  );
+  background-size: 2.4cqw 1.3cqw;
+  background-repeat: repeat-x;
+}
+
+.strip::before {
+  top: 0.55cqw;
+}
+
+.strip::after {
+  bottom: 0.55cqw;
+}
+
+.cell {
+  position: relative;
+}
+
+/* コマ番号(上の縁)と帯の刻印(下の縁) */
+.label,
+.edge {
+  position: absolute;
+  font-family: var(--font-mono), monospace;
+  font-size: max(6px, 1.05cqw);
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.label {
+  left: 3%;
+  bottom: calc(100% + 0.7cqw);
+  letter-spacing: 0.12em;
+  color: rgba(233, 233, 227, 0.55);
+}
+
+.edge {
+  left: 55%;
+  top: calc(100% + 0.7cqw);
+  letter-spacing: 0.3em;
+  color: rgba(233, 233, 227, 0.4);
+}
+
+/* 狭い舞台では番号だけ残す */
+@container (max-width: 420px) {
+  .arrow,
+  .edge {
+    display: none;
+  }
+}
+
+/* コマの窓。現像前は暗い印画紙の色 */
+.frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #0f0b09;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.frame:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+.print {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 現像: 白く飛んで眠い像(明るさ↑・コントラスト↓)から、元の写真へ。
+   開始状態だけでなく 45% で不透明度を1にし切る(像が出てから締まる、の2段)。
+   タイミング関数は各区間に掛かる＝opacity は 0→45% と 45→100%、filter は 0→100% の1区間 */
+.develop {
+  animation: pdv-develop var(--pdv-dur, 1.6s) cubic-bezier(0.3, 0.6, 0.3, 1) backwards;
+}
+
+@keyframes pdv-develop {
+  0% {
+    opacity: 0;
+    filter: brightness(var(--pdv-exp, 2.6)) contrast(var(--pdv-con, 0.5));
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* 焼き上がりは少し眠らせて並べ、触れたコマだけ本来の明るさに起こす(出典どおり) */
+.photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+  filter: brightness(0.82);
+  transition: filter 0.5s ease-out, opacity 0.5s ease-out, transform 0.5s ease-out;
+  pointer-events: none;
+}
+
+.lit .photo {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.03);
+}
+
+/* 選択中の印(ライムは印だけ) */
+.lit::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  bottom: 8%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.btn {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  padding: 6px 14px;
+  border: 1px solid rgba(216, 212, 200, 0.4);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--code-fg);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: rgba(216, 212, 200, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .develop {
+    animation: none;
+  }
+  .photo {
+    transition: none;
+  }
+}

@@ -49,6 +49,7 @@ import { kenBurns } from "./ken-burns";
 import { duotoneHover } from "./duotone-hover";
 import { imageParallaxHover } from "./image-parallax-hover";
 import { blurLoad } from "./blur-load";
+import { photoDevelop } from "./photo-develop";
 import { beforeAfter } from "./before-after";
 import { mosaicReveal } from "./mosaic-reveal";
 import { accordion } from "./accordion";
@@ -324,6 +325,7 @@ const all: MotionEntry[] = [
   duotoneHover,
   imageParallaxHover,
   blurLoad,
+  photoDevelop,
   rackFocus,
   beforeAfter,
   mosaicReveal,

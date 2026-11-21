@@ -213,6 +213,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "stamp-in": d(() => import("./StampIn")),
   "pendulum-swing": d(() => import("./PendulumSwing")),
   "pull-cord-switch": d(() => import("./PullCordSwitch")),
+  "photo-develop": d(() => import("./PhotoDevelop")),
   "gesture-hint": d(() => import("./GestureHint")),
   "rotate-device-prompt": d(() => import("./RotateDevicePrompt")),
   "scroll-cue": d(() => import("./ScrollCue")),
