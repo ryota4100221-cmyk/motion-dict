@@ -224,6 +224,7 @@ import { scratchCard } from "./scratch-card";
 import { giftBoxReveal } from "./gift-box-reveal";
 import { vinylSlideOut } from "./vinyl-slide-out";
 import { diceRoll } from "./dice-roll";
+import { misregistration } from "./misregistration";
 
 // 掲載順(カテゴリ順=hover→scroll→text→transition→media→ui→loading)
 const all: MotionEntry[] = [
@@ -302,6 +303,7 @@ const all: MotionEntry[] = [
   openingCrawl,
   slicedText,
   weightMorph,
+  misregistration,
   curtainWipe,
   crossfade,
   coverTransition,

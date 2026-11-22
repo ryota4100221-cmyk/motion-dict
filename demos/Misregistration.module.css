@@ -1,0 +1,149 @@
+/* 舞台いっぱいに白い紙を1枚敷き、その上に同じ見出しを2版で刷る。
+   寸法は紙の大きさ(cq単位)で決める＝小さい舞台でも全画面でも同じ構図。
+   下端の操作ヒント(舞台共通・暗い地用の淡い字)は紙の外の暗い帯に残す */
+.sheet {
+  position: absolute;
+  inset: 0 0 48px;
+  background: var(--paper);
+  color: var(--sumi);
+  container-type: size;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  overflow: hidden;
+}
+
+.head,
+.foot {
+  position: absolute;
+  left: 6cqw;
+  right: 6cqw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--sumi-soft);
+}
+
+.head {
+  top: 5cqh;
+}
+
+.foot {
+  bottom: 5cqh;
+}
+
+/* 版を置く台。2枚の版は同じ位置に重ねる */
+.forme {
+  position: absolute;
+  inset: 17cqh 6cqw 23cqh;
+}
+
+/* ずれの単位(em)をこの版の文字サイズに合わせるため、版そのものに見出しのサイズを持たせる */
+.plate {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: min(15cqw, 26cqh);
+  transform-origin: 50% 50%;
+}
+
+/* 2枚目の版：同じ墨を刷り重ねる。白い紙の上では重なった所だけが濃くなる */
+.second {
+  mix-blend-mode: multiply;
+  will-change: transform;
+}
+
+.word {
+  margin: 0;
+  font-family: "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* トンボ(見当合わせの十字＋円)。版と一緒に動くので、ずれると二重に割れる */
+.mark {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+.mark::before,
+.mark::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.mark::before {
+  left: -8px;
+  right: -8px;
+  top: 50%;
+  height: 1px;
+}
+
+.mark::after {
+  top: -8px;
+  bottom: -8px;
+  left: 50%;
+  width: 1px;
+}
+
+.markTl {
+  top: 0;
+  left: 0;
+}
+
+.markBr {
+  right: 0;
+  bottom: 0;
+}
+
+.readout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 版が動いている間だけ点く印(ライムは印にだけ使う) */
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ai);
+  box-shadow: 0 0 0 1px rgba(10, 10, 10, 0.35);
+}
+
+.dot[data-on] {
+  background: transparent;
+}
+
+.button {
+  font: inherit;
+  letter-spacing: 0.04em;
+  color: var(--paper);
+  background: var(--sumi);
+  border: 0;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ai);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .second {
+    will-change: auto;
+  }
+}

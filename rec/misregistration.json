@@ -1,0 +1,12 @@
+{
+  "note": "白い紙に同じ見出しが2版で刷られ、2枚目の版とトンボがゆっくりずれて往復する。Align platesで見当が合ってずれが0へ縮み、Release platesでまたずれ始める（始まりと終わりはずれて往復している状態）",
+  "zoom": 1,
+  "steps": [
+    { "do": "wait", "ms": 2200 },
+    { "do": "click", "sel": "button", "dur": 450 },
+    { "do": "wait", "ms": 1600 },
+    { "do": "click", "sel": "button", "dur": 250 },
+    { "do": "wait", "ms": 2600 },
+    { "do": "leave", "dur": 400 }
+  ]
+}

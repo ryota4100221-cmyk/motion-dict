@@ -214,6 +214,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "pendulum-swing": d(() => import("./PendulumSwing")),
   "pull-cord-switch": d(() => import("./PullCordSwitch")),
   "photo-develop": d(() => import("./PhotoDevelop")),
+  "misregistration": d(() => import("./Misregistration")),
   "gesture-hint": d(() => import("./GestureHint")),
   "rotate-device-prompt": d(() => import("./RotateDevicePrompt")),
   "scroll-cue": d(() => import("./ScrollCue")),
