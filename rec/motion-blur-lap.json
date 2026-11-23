@@ -1,0 +1,18 @@
+{
+  "note": "3本のボタンに上から順に乗り、ラベルの字が右端から1字ずつ残像を引いて右へ抜け左から戻る様子を3回見せる（自走は before のホバーで抑止）",
+  "zoom": 1.5,
+  "before": [
+    { "do": "move", "sel": "button >> nth=2", "dur": 60 },
+    { "do": "wait", "ms": 900 },
+    { "do": "leave", "at": [1.1, 0.6], "dur": 200 }
+  ],
+  "steps": [
+    { "do": "move", "sel": "button >> nth=0", "dur": 200 },
+    { "do": "wait", "ms": 1000 },
+    { "do": "move", "sel": "button >> nth=1", "dur": 200 },
+    { "do": "wait", "ms": 1000 },
+    { "do": "move", "sel": "button >> nth=2", "dur": 200 },
+    { "do": "wait", "ms": 1000 },
+    { "do": "leave", "at": [1.1, 0.6], "dur": 200 }
+  ]
+}

@@ -240,6 +240,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "gift-box-reveal": d(() => import("./GiftBoxReveal")),
   "flame-flicker": d(() => import("./FlameFlicker")),
   "vinyl-slide-out": d(() => import("./VinylSlideOut")),
+  "motion-blur-lap": d(() => import("./MotionBlurLap")),
   "eyes-follow-cursor": d(() => import("./EyesFollowCursor")),
   "sticker-peel": d(() => import("./StickerPeel")),
   "ticket-tear": d(() => import("./TicketTear")),

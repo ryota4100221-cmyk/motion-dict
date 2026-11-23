@@ -223,6 +223,7 @@ import { prizeWheel } from "./prize-wheel";
 import { scratchCard } from "./scratch-card";
 import { giftBoxReveal } from "./gift-box-reveal";
 import { vinylSlideOut } from "./vinyl-slide-out";
+import { motionBlurLap } from "./motion-blur-lap";
 import { diceRoll } from "./dice-roll";
 import { misregistration } from "./misregistration";
 
@@ -259,6 +260,7 @@ const all: MotionEntry[] = [
   vinylSlideOut,
   eyesFollowCursor,
   jelloWobble,
+  motionBlurLap,
   scrollFadeIn,
   perspectiveReveal,
   parallax,

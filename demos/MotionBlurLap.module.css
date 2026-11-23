@@ -1,0 +1,71 @@
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(360px, 100%);
+}
+
+/* ボタン自体が切り抜きの枠。走り抜けた字はここで消え、左から戻る。hidden ではなく clip */
+.btn {
+  min-width: 260px;
+  padding: 16px 30px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  background: transparent;
+  overflow: clip;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(233, 233, 227, 0.62);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn:hover,
+.btn[data-active="true"] {
+  color: var(--code-fg);
+  border-color: var(--ai);
+}
+
+.btn:focus-visible {
+  outline: 1px dashed var(--code-fg);
+  outline-offset: 4px;
+}
+
+.label {
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.glyph {
+  position: relative;
+  display: inline-block;
+  will-change: transform;
+}
+
+/* 字の真後ろに置く複製。横だけぼかして後ろへ伸ばし、走っている間だけ見せる */
+.ghost {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateX(-0.18em) scaleX(1.18);
+  transform-origin: 100% 50%;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
