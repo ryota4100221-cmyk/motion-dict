@@ -1,0 +1,13 @@
+{
+  "note": "Bloom again を押すと全部の花が消え、付け根ごとにつぼみがぷくっと膨らんで消えるのと入れ替わりに花が開き、枝の左上から右下へ斜めの波で咲き進む(約1.6sで咲き揃う)。2回押して2周。始まりと終わりは全部咲いた状態",
+  "before": [
+    { "do": "wait", "ms": 2000 }
+  ],
+  "steps": [
+    { "do": "move", "sel": "button:has-text('Bloom again')", "dur": 300 },
+    { "do": "click", "sel": "button:has-text('Bloom again')", "dur": 200 },
+    { "do": "wait", "ms": 2400 },
+    { "do": "click", "sel": "button:has-text('Bloom again')", "dur": 200 },
+    { "do": "wait", "ms": 2400 }
+  ]
+}

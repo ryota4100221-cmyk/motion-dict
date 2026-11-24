@@ -1,0 +1,163 @@
+.stage {
+  touch-action: manipulation;
+}
+
+.field {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.art {
+  display: block;
+  width: min(100%, 980px);
+  height: auto;
+  max-height: 100%;
+  overflow: visible;
+}
+
+/* 枝(静止した線画) */
+.wood path {
+  fill: none;
+  stroke: rgba(233, 233, 227, 0.42);
+  stroke-linecap: round;
+}
+
+/* スマホの縦長の舞台では枝を少しはみ出させて花を大きく見せる(枝の両端は元から舞台の外へ伸びる絵) */
+@media (max-width: 600px) {
+  .art {
+    flex: none;
+    width: 125%;
+    max-width: none;
+  }
+}
+
+/* つぼみと花。どちらも付け根(translate した <g> の原点)を中心に拡大する */
+.bud,
+.bloom {
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+.bud {
+  animation: blossom-bloom-bud var(--blossom-bud-duration) ease var(--blossom-bud-delay) both;
+}
+
+.bud path {
+  fill: rgba(233, 233, 227, 0.78);
+}
+
+.bloom {
+  animation: blossom-bloom-open var(--blossom-duration) cubic-bezier(0.2, 0.65, 0.3, 1) var(--blossom-delay) both;
+}
+
+.petal {
+  fill: rgba(240, 240, 234, 0.92);
+  stroke: rgba(20, 20, 20, 0.35);
+  stroke-width: 0.8;
+}
+
+/* ライムは花芯の点だけ */
+.heart {
+  fill: var(--ai);
+}
+
+.budOnly {
+  fill: rgba(233, 233, 227, 0.7);
+}
+
+/* 出典(kigo.studio の bud-open / blossom-open)どおり */
+@keyframes blossom-bloom-bud {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes blossom-bloom-open {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.caption {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(233, 233, 227, 0.62);
+}
+
+.captionJa {
+  margin-left: 8px;
+  color: var(--ai);
+}
+
+.replay {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  padding: 8px 14px;
+  border: 1px solid rgba(233, 233, 227, 0.24);
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.4);
+  color: rgba(233, 233, 227, 0.86);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.replay:hover {
+  border-color: var(--ai);
+}
+
+.replay:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+/* reduced-motion: 咲き終わった状態で静止(つぼみは出さない) */
+.field[data-reduce] .bloom {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+.field[data-reduce] .bud {
+  animation: none;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bloom {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .bud {
+    animation: none;
+    opacity: 0;
+  }
+}

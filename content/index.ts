@@ -183,6 +183,7 @@ import { godRays } from "./god-rays";
 import { fogDrift } from "./fog-drift";
 import { twinkle } from "./twinkle";
 import { snowfall } from "./snowfall";
+import { blossomBloom } from "./blossom-bloom";
 import { eyesFollowCursor } from "./eyes-follow-cursor";
 import { jelloWobble } from "./jello-wobble";
 import { floatingReactions } from "./floating-reactions";
@@ -356,6 +357,7 @@ const all: MotionEntry[] = [
   fogDrift,
   twinkle,
   snowfall,
+  blossomBloom,
   liquidDistortion,
   asciiEffect,
   halftone,

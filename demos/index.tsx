@@ -250,4 +250,5 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "gauge-meter": d(() => import("./GaugeMeter")),
   "countdown-timer": d(() => import("./CountdownTimer")),
   "jello-wobble": d(() => import("./JelloWobble")),
+  "blossom-bloom": d(() => import("./BlossomBloom")),
 };
