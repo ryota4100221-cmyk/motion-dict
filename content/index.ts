@@ -130,6 +130,7 @@ import { liquidFill } from "./liquid-fill";
 import { bootSequence } from "./boot-sequence";
 import { rubberBand } from "./rubber-band";
 import { hintNudge } from "./hint-nudge";
+import { knockOnNudge } from "./knock-on-nudge";
 import { gestureHint } from "./gesture-hint";
 import { rotateDevicePrompt } from "./rotate-device-prompt";
 import { scrollCue } from "./scroll-cue";
@@ -427,6 +428,7 @@ const all: MotionEntry[] = [
   speedDial,
   errorShake,
   hintNudge,
+  knockOnNudge,
   gestureHint,
   rotateDevicePrompt,
   scrollCue,

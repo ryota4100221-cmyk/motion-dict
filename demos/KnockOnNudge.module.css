@@ -1,0 +1,109 @@
+.knockStage {
+  touch-action: manipulation;
+}
+
+.caption {
+  position: absolute;
+  left: 24px;
+  top: 20px;
+  pointer-events: none;
+}
+
+.folio {
+  margin: 0;
+  color: rgba(233, 233, 227, 0.62);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.sub {
+  margin: 6px 0 0;
+  color: rgba(233, 233, 227, 0.55);
+  font-size: 12px;
+}
+
+/* 隣との間隔は distance 程度。広げすぎると「ぶつかった」に見えない */
+.row {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  gap: 10px;
+  transform: translate(-50%, -50%);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(233, 233, 227, 0.28);
+  background: rgba(233, 233, 227, 0.06);
+  color: rgba(233, 233, 227, 0.82);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.striker {
+  border-color: rgba(233, 233, 227, 0.55);
+  color: rgba(233, 233, 227, 0.98);
+}
+
+/* 突き手の印だけライム */
+.mark {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ai);
+}
+
+.again {
+  position: absolute;
+  left: 50%;
+  bottom: 52px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border: 1px solid rgba(233, 233, 227, 0.32);
+  background: rgba(10, 10, 10, 0.5);
+  color: rgba(233, 233, 227, 0.85);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.again:hover {
+  border-color: var(--ai);
+}
+
+.again:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+.again:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+@media (max-width: 560px) {
+  .row {
+    gap: 6px;
+  }
+  .tab {
+    padding: 8px 9px;
+    font-size: 11px;
+    gap: 6px;
+  }
+  /* 幅が足りないときは4つで。伝わる様子は4つで十分読める */
+  .tab:nth-child(5) {
+    display: none;
+  }
+  .again {
+    bottom: 76px;
+  }
+}

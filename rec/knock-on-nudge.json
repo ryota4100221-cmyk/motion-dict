@@ -1,0 +1,14 @@
+{
+  "note": "自動で先頭の Index が身を引いて突き、0.15sずつ遅れて隣のタブが順にコツンと押し出されて戻る（1回約1.2s）。Knock again を押してもう2回鳴らす。始まりと終わりは全部静止",
+  "before": [
+    { "do": "wait", "ms": 1600 }
+  ],
+  "steps": [
+    { "do": "move", "sel": "button:has-text('Knock again')", "dur": 250 },
+    { "do": "click", "sel": "button:has-text('Knock again')", "dur": 150 },
+    { "do": "wait", "ms": 1700 },
+    { "do": "click", "sel": "button:has-text('Knock again')", "dur": 150 },
+    { "do": "wait", "ms": 1700 }
+  ],
+  "zoom": 1.4
+}
