@@ -1,0 +1,16 @@
+{
+  "note": "開いた直後に Overshoot が光って引く。目次で Stagger → Easing → Overshoot を順に押し、そのたびにリストが一瞬で飛んで着地した項目がぱっと光り、約1s留まってからすうっと消える。最後は始まりと同じ Overshoot の位置で光が消えきって静止",
+  "before": [
+    { "do": "wait", "ms": 2900 }
+  ],
+  "steps": [
+    { "do": "click", "sel": "button:has-text('Go to Stagger')", "dur": 300 },
+    { "do": "wait", "ms": 1500 },
+    { "do": "click", "sel": "button:has-text('Go to Easing')", "dur": 300 },
+    { "do": "wait", "ms": 1500 },
+    { "do": "click", "sel": "button:has-text('Go to Overshoot')", "dur": 300 },
+    { "do": "wait", "ms": 2500 },
+    { "do": "leave", "at": [0.5, 0.97], "dur": 250 }
+  ],
+  "zoom": 1.3
+}

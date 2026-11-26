@@ -1,0 +1,138 @@
+.targetStage {
+  touch-action: manipulation;
+}
+
+.label {
+  margin: 0 0 10px;
+  color: rgba(233, 233, 227, 0.55);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* 左の目次 */
+.index {
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  bottom: 40px;
+  width: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  color: rgba(233, 233, 227, 0.72);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.link:hover {
+  color: rgba(233, 233, 227, 0.98);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+/* 最後に押した目次の印だけライム */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(233, 233, 227, 0.4);
+}
+
+.linkOn {
+  color: rgba(233, 233, 227, 0.98);
+}
+
+.linkOn .dot {
+  border-color: var(--ai);
+  background: var(--ai);
+}
+
+/* 右の用語集。offsetTop の基準にするので relative */
+.list {
+  position: absolute;
+  left: 236px;
+  right: 24px;
+  top: 22px;
+  bottom: 40px;
+  overflow-y: auto;
+  padding: 0 4px 0 0;
+  scrollbar-width: thin;
+  border-top: 1px solid rgba(233, 233, 227, 0.24);
+  padding-top: 10px;
+  touch-action: pan-y;
+}
+
+/* 最後の項目も上端まで飛べるように、下に空きを足す
+   (padding だと border-box の最小高さになり、狭い画面で舞台からはみ出す) */
+.list::after {
+  content: "";
+  display: block;
+  height: 220px;
+}
+
+/* 光る範囲＝項目のまとまり。角丸と余白で塊に見せる */
+.entry {
+  margin: 0 0 4px;
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.term {
+  margin: 0 0 4px;
+  color: rgba(233, 233, 227, 0.95);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.def {
+  margin: 0;
+  color: rgba(233, 233, 227, 0.62);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .index {
+    left: 12px;
+    right: 12px;
+    top: 14px;
+    bottom: auto;
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 6px;
+  }
+  .index .label {
+    display: none;
+  }
+  .link {
+    padding: 4px 2px;
+    font-size: 11px;
+  }
+  .list {
+    left: 12px;
+    right: 12px;
+    top: 96px;
+    bottom: 58px;
+  }
+}

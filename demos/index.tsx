@@ -165,6 +165,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
   "rubber-band": d(() => import("./RubberBand")),
   "hint-nudge": d(() => import("./HintNudge")),
   "knock-on-nudge": d(() => import("./KnockOnNudge")),
+  "target-highlight": d(() => import("./TargetHighlight")),
   "pulse-ring": d(() => import("./PulseRing")),
   "map-pin-drop": d(() => import("./MapPinDrop")),
   "receipt-print": d(() => import("./ReceiptPrint")),
