@@ -1,0 +1,13 @@
+{
+  "note": "開いた直後に5行が上から順に左から入り、最下段の Rank climb が1段ずつ上の行と入れ替わって #5→#1 へ上がり、首位でバッジがライムに弾む。止めて見せた後に全行が消えて最初から。Replay climb を押してもう1回上がらせ、最後は全行が消えた空の表(始まりと同じ)で終える",
+  "before": [
+    { "do": "wait", "ms": 200 }
+  ],
+  "steps": [
+    { "do": "wait", "ms": 3300 },
+    { "do": "move", "sel": "button:has-text('Replay climb')", "dur": 250 },
+    { "do": "click", "sel": "button:has-text('Replay climb')", "dur": 150 },
+    { "do": "wait", "ms": 4950 }
+  ],
+  "zoom": 1.3
+}

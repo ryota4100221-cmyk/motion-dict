@@ -1,0 +1,158 @@
+.rankStage {
+  touch-action: manipulation;
+}
+
+/* 見出し＋5行の表。行は全部 top:0 に重ね、段は transform の translateY で決める */
+.board {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 6px);
+  width: min(460px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(233, 233, 227, 0.24);
+}
+
+.label {
+  margin: 0;
+  color: rgba(233, 233, 227, 0.62);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.replay {
+  flex: 0 0 auto;
+  padding: 5px 12px;
+  border: 1px solid rgba(233, 233, 227, 0.32);
+  background: rgba(10, 10, 10, 0.5);
+  color: rgba(233, 233, 227, 0.85);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.replay:hover {
+  border-color: var(--ai);
+  color: rgba(233, 233, 227, 1);
+}
+
+.replay:focus-visible {
+  outline: 2px solid var(--code-fg);
+  outline-offset: 2px;
+}
+
+.replay:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 5段 × 42px − 最後の行間 6px */
+.list {
+  position: relative;
+  height: 204px;
+}
+
+.row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  border: 1px solid rgba(233, 233, 227, 0.1);
+  border-radius: 6px;
+  background: rgba(233, 233, 227, 0.04);
+  will-change: transform, opacity;
+}
+
+.fav {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(233, 233, 227, 0.22);
+}
+
+.name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: rgba(233, 233, 227, 0.82);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 引かれた回数の目安。中身を読ませない灰色の棒 */
+.bar {
+  flex: 0 0 auto;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(233, 233, 227, 0.16);
+}
+
+/* 自分の行：追い抜くときに他の行の上を通るので前面に。印(枠と点)だけライム */
+.mine {
+  z-index: 2;
+  border-color: var(--ai);
+  background: #1d1f1c;
+  box-shadow: 0 0 0 3px rgba(165, 224, 46, 0.14);
+}
+
+.mine .name {
+  color: rgba(233, 233, 227, 0.98);
+  font-weight: 600;
+}
+
+.favMine {
+  background: var(--ai);
+}
+
+.badge {
+  flex: 0 0 auto;
+  min-width: 34px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: rgba(233, 233, 227, 0.92);
+  color: #111;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 首位に着いた瞬間だけライムに光る */
+.badge[data-lit] {
+  background: var(--ai);
+}
+
+@media (max-width: 560px) {
+  /* ヒントが2行に折れるので、表を上へ寄せて最下段と重ねない */
+  .board {
+    top: calc(50% - 20px);
+  }
+  .label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+  .bar {
+    display: none;
+  }
+}

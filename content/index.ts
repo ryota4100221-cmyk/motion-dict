@@ -132,6 +132,7 @@ import { rubberBand } from "./rubber-band";
 import { hintNudge } from "./hint-nudge";
 import { knockOnNudge } from "./knock-on-nudge";
 import { targetHighlight } from "./target-highlight";
+import { rankClimb } from "./rank-climb";
 import { gestureHint } from "./gesture-hint";
 import { rotateDevicePrompt } from "./rotate-device-prompt";
 import { scrollCue } from "./scroll-cue";
@@ -412,6 +413,7 @@ const all: MotionEntry[] = [
   dropZone,
   swipeDismiss,
   listAddRemove,
+  rankClimb,
   paperCrumple,
   chatSequence,
   multiplayerCursors,
